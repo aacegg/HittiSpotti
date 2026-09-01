@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <title>SongSpot Suomi – tunnista suomibiisi sekunnin kymmenyksestä</title>
+  <meta name="description" content="Musiikkivisa suomenkielisillä biiseillä: kuuntele 0,1 sekunnin pätkä ja arvaa kappale. Mitä nopeammin tunnistat, sitä enemmän pisteitä.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" data-nav="menu" aria-label="SongSpot Suomi – etusivu">
+      <span class="brand-mark" aria-hidden="true">♪</span>
+      <span class="brand-name">SongSpot <em>Suomi</em></span>
+    </a>
+    <nav class="topnav" aria-label="Päävalikko">
+      <button type="button" class="iconbtn" data-nav="stats" title="Tilastot" aria-label="Tilastot">📊</button>
+      <button type="button" class="iconbtn" data-nav="help" title="Ohjeet" aria-label="Ohjeet">?</button>
+    </nav>
+  </header>
+
+  <main id="app" class="app">
+
+    <!-- ETUSIVU -->
+    <section id="view-menu" class="view" hidden>
+      <div class="hero">
+        <h1>Tunnista suomibiisi<br><span class="accent">0,1 sekunnista</span></h1>
+        <p class="lead">Kuuntele pätkä, arvaa kappale. Jokainen lisäsekunti tekee arvaamisesta helpompaa, mutta vie pisteitä.</p>
+      </div>
+
+      <div class="cards">
+        <button type="button" class="card card-primary" data-action="start-daily">
+          <span class="card-kicker">Päivän 5</span>
+          <span class="card-title">Sama viisikko kaikille tänään</span>
+          <span class="card-sub" id="daily-status">Ladataan…</span>
+        </button>
+
+        <div class="card">
+          <span class="card-kicker">Vapaa peli</span>
+          <span class="card-title">Loputtomasti kierroksia</span>
+          <div class="tier-picker" role="group" aria-label="Vaikeustaso">
+            <button type="button" class="chip is-active" data-tier="0">Kaikki</button>
+            <button type="button" class="chip" data-tier="1">Helppo</button>
+            <button type="button" class="chip" data-tier="2">Tuttu</button>
+            <button type="button" class="chip" data-tier="3">Keskitaso</button>
+            <button type="button" class="chip" data-tier="4">Vaikea</button>
+            <button type="button" class="chip" data-tier="5">Mestari</button>
+          </div>
+          <button type="button" class="btn btn-secondary" data-action="start-free">Aloita vapaa peli</button>
+        </div>
+      </div>
+
+      <p class="catalog-note" id="catalog-note"></p>
+    </section>
+
+    <!-- PELI -->
+    <section id="view-game" class="view" hidden>
+      <div class="game-head">
+        <div class="game-meta">
+          <span id="round-label">Biisi 1/5</span>
+          <span class="dot" aria-hidden="true">·</span>
+          <span id="mode-label">Päivän 5</span>
+        </div>
+        <div class="game-score" aria-live="polite">
+          <span class="score-label">Pisteet</span>
+          <strong id="score-total">0</strong>
+        </div>
+      </div>
+
+      <div class="player">
+        <button type="button" id="play-btn" class="play-btn" aria-label="Soita pätkä">
+          <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="ring-bg" cx="60" cy="60" r="54"></circle>
+            <circle class="ring-fg" id="ring-fg" cx="60" cy="60" r="54"></circle>
+          </svg>
+          <span class="play-icon" id="play-icon" aria-hidden="true">▶</span>
+        </button>
+        <div class="player-info">
+          <div class="steps" id="steps" aria-label="Pätkän pituus"></div>
+          <div class="player-status" id="player-status">Paina play ja kuuntele.</div>
+        </div>
+      </div>
+
+      <form id="guess-form" class="guess" autocomplete="off">
+        <div class="guess-field">
+          <input id="guess-input" type="text" inputmode="search" placeholder="Kirjoita artisti tai biisin nimi…" aria-label="Arvaus" aria-autocomplete="list" aria-controls="suggestions" aria-expanded="false" spellcheck="false">
+          <ul id="suggestions" class="suggestions" role="listbox" hidden></ul>
+        </div>
+        <div class="guess-actions">
+          <button type="button" class="btn btn-ghost" id="skip-btn">Ohita</button>
+          <button type="submit" class="btn btn-primary" id="guess-btn" disabled>Arvaa</button>
+        </div>
+      </form>
+
+      <ul id="guess-log" class="guess-log" aria-live="polite"></ul>
+
+      <div id="reveal" class="reveal" hidden>
+        <img id="reveal-art" class="reveal-art" alt="" width="120" height="120">
+        <div class="reveal-body">
+          <div id="reveal-verdict" class="reveal-verdict">Oikein!</div>
+          <div id="reveal-title" class="reveal-title"></div>
+          <div id="reveal-artist" class="reveal-artist"></div>
+          <div id="reveal-points" class="reveal-points"></div>
+        </div>
+        <div class="reveal-actions">
+          <button type="button" class="btn btn-ghost" id="replay-btn">Kuuntele</button>
+          <button type="button" class="btn btn-primary" id="next-btn">Seuraava</button>
+        </div>
+      </div>
+
+      <div class="game-foot">
+        <button type="button" class="linkbtn" data-action="quit">Lopeta peli</button>
+      </div>
+    </section>
+
+    <!-- TULOKSET -->
+    <section id="view-results" class="view" hidden>
+      <div class="results-head">
+        <span class="card-kicker" id="results-kicker">Päivän 5</span>
+        <h2 id="results-title">Tulokset</h2>
+        <div class="results-total"><strong id="results-score">0</strong> <span>pistettä</span></div>
+        <p class="results-sub" id="results-sub"></p>
+      </div>
+      <ol id="results-list" class="results-list"></ol>
+      <div class="results-actions">
+        <button type="button" class="btn btn-primary" id="share-btn">Kopioi tulos</button>
+        <button type="button" class="btn btn-secondary" id="results-again-btn">Pelaa vapaata peliä</button>
+        <button type="button" class="btn btn-ghost" data-nav="menu">Etusivulle</button>
+      </div>
+      <pre id="share-preview" class="share-preview" hidden></pre>
+    </section>
+
+    <!-- TILASTOT -->
+    <section id="view-stats" class="view" hidden>
+      <h2>Tilastot</h2>
+      <div class="stat-grid" id="stat-grid"></div>
+      <div class="results-actions">
+        <button type="button" class="btn btn-ghost" data-nav="menu">Takaisin</button>
+        <button type="button" class="linkbtn danger" id="reset-stats-btn">Nollaa tilastot</button>
+      </div>
+    </section>
+
+    <!-- OHJEET -->
+    <section id="view-help" class="view" hidden>
+      <h2>Näin pelataan</h2>
+      <ol class="help-list">
+        <li><strong>Paina play.</strong> Kuulet biisistä vain 0,1 sekuntia. Kuulokkeet auttavat.</li>
+        <li><strong>Kirjoita arvaus</strong> ja valitse kappale ehdotuslistasta. Voit hakea artistilla tai biisin nimellä.</li>
+        <li><strong>Väärin tai ohita?</strong> Pätkä pitenee: 0,1 s → 0,5 s → 2 s → 8 s → 15 s.</li>
+        <li><strong>Pisteet</strong> riippuvat siitä, kuinka lyhyestä pätkästä tunnistit: 1 200 · 975 · 750 · 525 · 300. Jos 15 sekunnin jälkeenkään ei nappaa, saat nolla.</li>
+      </ol>
+      <h3>Pelimuodot</h3>
+      <ul class="help-list">
+        <li><strong>Päivän 5</strong> – sama viisi biisiä kaikille pelaajille saman päivän aikana. Maksimi 6 000 pistettä. Kopioi tulos ja haasta kaverit.</li>
+        <li><strong>Vapaa peli</strong> – loputtomasti kierroksia. Valitse vaikeustaso: Helppo tarkoittaa biisejä, jotka kaikki tuntevat, Mestari harvinaisempia helmiä.</li>
+      </ul>
+      <h3>Mistä musiikki tulee?</h3>
+      <p>Pätkät ovat iTunesin julkisia 30 sekunnin esikuunteluja. Peli ei tallenna musiikkia, ja tulokset tallentuvat vain omaan selaimeesi.</p>
+      <div class="results-actions">
+        <button type="button" class="btn btn-ghost" data-nav="menu">Takaisin</button>
+      </div>
+    </section>
+
+    <!-- LATAUS / VIRHE -->
+    <section id="view-loading" class="view">
+      <div class="loading">
+        <div class="spinner" aria-hidden="true"></div>
+        <p id="loading-text">Ladataan biisikatalogia…</p>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

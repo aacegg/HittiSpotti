@@ -1,4 +1,4 @@
-/* SongSpot Suomi – musiikkivisa suomenkielisillä biiseillä.
+/* HittiSpotti – musiikkivisa suomenkielisillä biiseillä.
  * Pelkkää selain-JavaScriptiä: ei build-vaihetta, ei riippuvuuksia.
  */
 (() => {
@@ -8,31 +8,31 @@
   const STEPS = [0.1, 0.5, 2, 8, 15];          // pätkän pituus sekunteina
   const POINTS = [1200, 975, 750, 525, 300];   // pisteet, jos tunnistat tällä askeleella
   const DAILY_COUNT = 5;
-  const DAILY_TIERS = [1, 2, 3, 4, 3];         // päivän viisikon vaikeusjakauma
+  const DAILY_TIERS = [1, 2, 3, 4, 3];         // päivän sarjan vaikeusjakauma
   const TIER_NAMES = { 0: "Kaikki", 1: "Helppo", 2: "Tuttu", 3: "Keskitaso", 4: "Vaikea", 5: "Mestari" };
-  const STORAGE_PREFIX = "songspot-suomi:";
+  const STORE = "hittispotti:";
+  const STORE_OLD = "songspot-suomi:";         // aiempi nimi, tiedot siirretään kerran
 
   // ---------- Tila ----------
   const state = {
-    songs: [],            // koko katalogi (vain esikuuntelulliset)
+    songs: [],
     byId: new Map(),
-    mode: null,           // "daily" | "free"
+    mode: "daily",        // "daily" | "free"
     tier: 0,
-    queue: [],            // päivän pelin biisit
-    used: new Set(),      // vapaan pelin jo soitetut
+    queue: [],
+    used: new Set(),
     roundIndex: 0,
-    current: null,        // nykyinen biisi
-    step: 0,              // 0..4
-    guesses: [],          // {type:"wrong"|"skip", label}
-    finished: false,      // kierros ratkaistu (oikein tai kaikki askeleet käytetty)
-    results: [],          // {song, step, points, solved}
+    current: null,
+    step: 0,
+    finished: false,      // kierros ratkaistu tai askeleet käytetty
+    results: [],
     score: 0,
-    selected: null,       // ehdotuslistasta valittu biisi
-    activeSuggestion: -1,
+    selected: null,
     suggestions: [],
+    activeSuggestion: -1,
+    view: "loading",
   };
 
-  // ---------- Ääni ----------
   const audio = {
     ctx: null,
     buffers: new Map(),   // id -> AudioBuffer
@@ -43,34 +43,39 @@
   };
 
   // ---------- DOM ----------
-  const $ = (sel) => document.querySelector(sel);
+  const $ = (s) => document.querySelector(s);
   const el = {
+    body: document.body,
     views: {
-      loading: $("#view-loading"),
-      menu: $("#view-menu"),
       game: $("#view-game"),
       results: $("#view-results"),
       stats: $("#view-stats"),
       help: $("#view-help"),
+      loading: $("#view-loading"),
     },
+    scrim: $("#scrim"),
+    drawer: $("#drawer"),
+    menuBtn: $("#menu-btn"),
+    drawerClose: $("#drawer-close"),
+    drawerFoot: $("#drawer-foot"),
+    navDailyNote: $("#nav-daily-note"),
+    tiers: $(".tiers"),
+    barTag: $("#bar-tag"),
     loadingText: $("#loading-text"),
-    dailyStatus: $("#daily-status"),
-    catalogNote: $("#catalog-note"),
-    tierPicker: $(".tier-picker"),
-    roundLabel: $("#round-label"),
     modeLabel: $("#mode-label"),
-    scoreTotal: $("#score-total"),
-    playBtn: $("#play-btn"),
-    playIcon: $("#play-icon"),
-    ringFg: $("#ring-fg"),
-    steps: $("#steps"),
-    playerStatus: $("#player-status"),
+    scoreLabel: $("#score-label"),
+    tile: $("#play-tile"),
+    tileIcon: $("#tile-icon"),
+    tileLen: $("#tile-len"),
+    tileFill: $("#tile-fill"),
+    ladder: $("#ladder"),
+    hint: $("#hint"),
     form: $("#guess-form"),
     input: $("#guess-input"),
     suggestions: $("#suggestions"),
     skipBtn: $("#skip-btn"),
     guessBtn: $("#guess-btn"),
-    guessLog: $("#guess-log"),
+    log: $("#guess-log"),
     reveal: $("#reveal"),
     revealArt: $("#reveal-art"),
     revealVerdict: $("#reveal-verdict"),
@@ -86,22 +91,18 @@
     resultsList: $("#results-list"),
     shareBtn: $("#share-btn"),
     sharePreview: $("#share-preview"),
-    resultsAgainBtn: $("#results-again-btn"),
+    againBtn: $("#results-again-btn"),
     statGrid: $("#stat-grid"),
-    resetStatsBtn: $("#reset-stats-btn"),
+    resetBtn: $("#reset-stats-btn"),
     toast: $("#toast"),
   };
-
-  const RING_LEN = 2 * Math.PI * 54;
 
   // ---------- Apurit ----------
   const fmt = (n) => Math.round(n).toLocaleString("fi-FI");
   const fmtSec = (s) => (s < 1 ? s.toFixed(1).replace(".", ",") : String(s)) + " s";
-  const todayKey = () => {
-    const d = new Date();
-    const p = (n) => String(n).padStart(2, "0");
-    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
-  };
+  const pad = (n) => String(n).padStart(2, "0");
+  const dayKey = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const todayKey = () => dayKey(new Date());
   const todayPretty = () => new Date().toLocaleDateString("fi-FI");
 
   function normalize(s) {
@@ -135,7 +136,7 @@
     };
   }
 
-  function shuffle(arr, rnd = Math.random) {
+  function shuffle(arr, rnd) {
     const a = arr.slice();
     for (let i = a.length - 1; i > 0; i--) {
       const j = Math.floor(rnd() * (i + 1));
@@ -144,25 +145,43 @@
     return a;
   }
 
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
   const store = {
-    get(key, fallback) {
+    get(key, fallbackValue) {
       try {
-        const raw = localStorage.getItem(STORAGE_PREFIX + key);
-        return raw ? JSON.parse(raw) : fallback;
-      } catch { return fallback; }
+        const raw = localStorage.getItem(STORE + key);
+        return raw ? JSON.parse(raw) : fallbackValue;
+      } catch { return fallbackValue; }
     },
     set(key, value) {
-      try { localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(value)); } catch { /* yksityinen tila tms. */ }
-    },
-    remove(key) {
-      try { localStorage.removeItem(STORAGE_PREFIX + key); } catch { /* ignore */ }
+      try { localStorage.setItem(STORE + key, JSON.stringify(value)); } catch { /* yksityinen tila tms. */ }
     },
     keys() {
       try {
-        return Object.keys(localStorage).filter((k) => k.startsWith(STORAGE_PREFIX)).map((k) => k.slice(STORAGE_PREFIX.length));
+        return Object.keys(localStorage).filter((k) => k.startsWith(STORE)).map((k) => k.slice(STORE.length));
       } catch { return []; }
     },
+    clear() {
+      try {
+        Object.keys(localStorage)
+          .filter((k) => k.startsWith(STORE) || k.startsWith(STORE_OLD))
+          .forEach((k) => localStorage.removeItem(k));
+      } catch { /* ignore */ }
+    },
   };
+
+  // Siirtää aiemman nimen alla olevat tulokset kerran, ettei putki ja tilastot katoa.
+  function migrateStore() {
+    try {
+      if (store.keys().length) return;
+      Object.keys(localStorage)
+        .filter((k) => k.startsWith(STORE_OLD))
+        .forEach((k) => localStorage.setItem(STORE + k.slice(STORE_OLD.length), localStorage.getItem(k)));
+    } catch { /* ignore */ }
+  }
 
   let toastTimer = 0;
   function toast(msg, ms = 2200) {
@@ -172,11 +191,49 @@
     toastTimer = setTimeout(() => { el.toast.hidden = true; }, ms);
   }
 
+  // ---------- Näkymät ----------
   function show(name) {
+    state.view = name;
     for (const [k, v] of Object.entries(el.views)) v.hidden = k !== name;
     window.scrollTo({ top: 0 });
-    if (name === "menu") refreshMenu();
     if (name === "stats") renderStats();
+    updateBar();
+  }
+
+  function updateBar() {
+    if (state.view === "game" && state.current) {
+      el.barTag.textContent = state.mode === "daily"
+        ? `${state.roundIndex}/${DAILY_COUNT}`
+        : `Kierros ${state.roundIndex}`;
+    } else {
+      el.barTag.textContent = "";
+    }
+  }
+
+  // ---------- Sivupalkki ----------
+  function openDrawer() {
+    refreshDrawer();
+    el.body.classList.add("drawer-open");
+    el.menuBtn.setAttribute("aria-expanded", "true");
+    el.drawerClose.focus({ preventScroll: true });
+  }
+
+  function closeDrawer() {
+    el.body.classList.remove("drawer-open");
+    el.menuBtn.setAttribute("aria-expanded", "false");
+  }
+
+  function refreshDrawer() {
+    const done = store.get("daily:" + todayKey(), null);
+    el.navDailyNote.textContent = done
+      ? `pelattu tänään · ${fmt(done.score)} p`
+      : `viisi biisiä · ${todayPretty()}`;
+    el.drawerFoot.textContent = `${state.songs.length} suomibiisiä · tulokset tallentuvat vain tähän selaimeen`;
+    document.querySelectorAll("[data-go]").forEach((b) => {
+      const isMode = b.dataset.go === "daily" || b.dataset.go === "free";
+      if (isMode) b.classList.toggle("is-active", state.view === "game" && state.mode === b.dataset.go);
+    });
+    el.tiers.querySelectorAll(".tier").forEach((t) => t.classList.toggle("is-active", Number(t.dataset.tier) === state.tier));
   }
 
   // ---------- Katalogi ----------
@@ -195,20 +252,18 @@
     if (state.songs.length < DAILY_COUNT) throw new Error("Katalogissa on liian vähän biisejä.");
   }
 
-  function songsForTier(tier) {
-    return tier ? state.songs.filter((s) => s.tier === tier) : state.songs;
-  }
+  const songsForTier = (tier) => (tier ? state.songs.filter((s) => s.tier === tier) : state.songs);
 
-  function dailySongs(dateKey) {
-    const rnd = mulberry32(hashString("songspot-suomi:" + dateKey));
+  function dailySongs(key) {
+    const rnd = mulberry32(hashString("songspot-suomi:" + key)); // siemen pidetään ennallaan, ettei päivän sarja vaihdu
     const picked = [];
-    const pickedIds = new Set();
+    const ids = new Set();
     for (const tier of DAILY_TIERS) {
-      let pool = state.songs.filter((s) => s.tier === tier && !pickedIds.has(s.id));
-      if (!pool.length) pool = state.songs.filter((s) => !pickedIds.has(s.id));
+      let pool = state.songs.filter((s) => s.tier === tier && !ids.has(s.id));
+      if (!pool.length) pool = state.songs.filter((s) => !ids.has(s.id));
       const song = pool[Math.floor(rnd() * pool.length)];
       picked.push(song);
-      pickedIds.add(song.id);
+      ids.add(song.id);
     }
     return shuffle(picked, rnd);
   }
@@ -224,7 +279,7 @@
   }
 
   async function refreshPreviewUrl(song) {
-    // iTunesin esikuuntelu-URL voi vanhentua: haetaan tuore trackId:llä.
+    // Applen esikuuntelu-URL voi vanhentua: haetaan tuore trackId:llä.
     const res = await fetch(`https://itunes.apple.com/lookup?id=${song.id}&country=fi`);
     if (!res.ok) throw new Error("lookup " + res.status);
     const data = await res.json();
@@ -247,8 +302,8 @@
       try {
         return await ctx.decodeAudioData(bytes);
       } catch (err) {
-        // Selain osaa ladata tiedoston mutta ei purkaa AAC:tä Web Audiolla -> käytetään <audio>-elementtiä.
-        throw new DecodeError(String(err && err.message || err));
+        // Selain lataa tiedoston mutta ei pura AAC:tä Web Audiolla -> <audio>-elementti.
+        throw new DecodeError(String((err && err.message) || err));
       }
     };
     let buffer;
@@ -262,7 +317,7 @@
     return buffer;
   }
 
-  // Varajärjestelmä: tavallinen <audio>-elementti, jos Web Audio ei pysty purkamaan esikuuntelua.
+  // Varasoitin, jos Web Audio ei pysty purkamaan esikuuntelua.
   const fallback = { el: null, timer: 0, songId: null };
 
   function fallbackElement() {
@@ -289,10 +344,7 @@
           resolve();
         }).catch(reject);
       };
-      if (fallback.songId === song.id && a.readyState >= 2) {
-        begin();
-        return;
-      }
+      if (fallback.songId === song.id && a.readyState >= 2) { begin(); return; }
       fallback.songId = song.id;
       a.src = song.preview;
       a.addEventListener("loadedmetadata", begin, { once: true });
@@ -313,15 +365,12 @@
       if (v > peak) peak = v;
     }
     if (peak < 0.005) return 0; // käytännössä äänetön pätkä
-    // Kynnys suhteutetaan huippuun, jotta hiljaisemmatkin masteroinnit toimivat.
-    const threshold = Math.max(peak * 0.02, 0.004);
+    const threshold = Math.max(peak * 0.02, 0.004); // kynnys suhteessa huippuun
     const win = Math.max(1, Math.round(sr * 0.01)); // 10 ms ikkuna
     for (let i = 0; i + win <= data.length; i += win) {
       let sum = 0;
       for (let j = i; j < i + win; j++) sum += data[j] * data[j];
-      if (Math.sqrt(sum / win) >= threshold) {
-        return Math.max(0, i / sr - 0.03); // hitusen ennen, ettei isku katkea
-      }
+      if (Math.sqrt(sum / win) >= threshold) return Math.max(0, i / sr - 0.03);
     }
     return 0;
   }
@@ -341,17 +390,17 @@
     stopFallback();
     cancelAnimationFrame(audio.raf);
     audio.playing = false;
-    el.playBtn.classList.remove("is-playing");
-    el.playIcon.textContent = "▶";
-    el.ringFg.style.strokeDashoffset = RING_LEN;
+    el.tile.classList.remove("is-playing");
+    el.tileIcon.textContent = "▶";
+    el.tileFill.style.width = "0%";
   }
 
-  function animateRing(seconds) {
-    const visualLen = Math.max(seconds, 0.45); // 0,1 s näkyy silti renkaassa
+  function animateBar(seconds) {
+    const visual = Math.max(seconds, 0.45); // 0,1 s näkyy silti palkissa
     const start = performance.now();
     const tick = () => {
-      const t = Math.min(1, (performance.now() - start) / (visualLen * 1000));
-      el.ringFg.style.strokeDashoffset = RING_LEN * (1 - t);
+      const t = Math.min(1, (performance.now() - start) / (visual * 1000));
+      el.tileFill.style.width = (t * 100).toFixed(1) + "%";
       if (t < 1) audio.raf = requestAnimationFrame(tick);
       else stopPlayback();
     };
@@ -362,23 +411,20 @@
     const song = state.current;
     if (!song) return;
     stopPlayback();
-    el.playBtn.disabled = true;
-    el.playIcon.classList.add("is-loading");
-    el.playIcon.textContent = "…";
+    el.tile.disabled = true;
+    el.tileIcon.textContent = "…";
 
     const ready = () => {
-      el.playIcon.classList.remove("is-loading");
-      el.playBtn.disabled = false;
+      el.tile.disabled = false;
       audio.playing = true;
-      el.playBtn.classList.add("is-playing");
-      el.playIcon.textContent = "■";
+      el.tile.classList.add("is-playing");
+      el.tileIcon.textContent = "■";
     };
     const failed = (err) => {
       console.error(err);
-      el.playIcon.classList.remove("is-loading");
-      el.playBtn.disabled = false;
-      el.playIcon.textContent = "▶";
-      el.playerStatus.textContent = "Pätkän lataus epäonnistui. Tarkista verkkoyhteys tai ohita biisi.";
+      el.tile.disabled = false;
+      el.tileIcon.textContent = "▶";
+      el.hint.textContent = "Pätkän lataus epäonnistui. Tarkista verkkoyhteys tai ohita biisi.";
       toast("Esikuuntelua ei saatu ladattua.");
     };
 
@@ -387,14 +433,13 @@
       buffer = await fetchBuffer(song);
     } catch (err) {
       if (!(err instanceof DecodeError)) { failed(err); return; }
-      // Web Audio ei purkanut AAC:tä: soitetaan tavallisella <audio>-elementillä.
       if (state.current !== song) return;
       try {
         await playClipFallback(song, seconds);
       } catch (err2) { failed(err2); return; }
       if (state.current !== song) { stopFallback(); return; }
       ready();
-      animateRing(seconds);
+      animateBar(seconds);
       return;
     }
     if (state.current !== song) return; // kierros ehti vaihtua
@@ -414,7 +459,7 @@
     src.start(now, clipOffset(song, buffer), seconds);
     audio.source = src;
     ready();
-    animateRing(seconds);
+    animateBar(seconds);
   }
 
   function prefetch(song) {
@@ -426,15 +471,14 @@
   function startDaily() {
     const key = todayKey();
     const done = store.get("daily:" + key, null);
+    state.mode = "daily";
     if (done) {
-      state.mode = "daily";
-      state.results = done.results.map((r) => ({ ...r, song: state.byId.get(String(r.id)) || r.song }));
+      state.results = done.results.map((r) => ({ ...r, song: state.byId.get(String(r.id)) }));
       state.score = done.score;
       renderResults();
       show("results");
       return;
     }
-    state.mode = "daily";
     state.queue = dailySongs(key);
     state.roundIndex = 0;
     state.results = [];
@@ -467,71 +511,52 @@
     stopPlayback();
     state.current = song;
     state.step = 0;
-    state.guesses = [];
     state.finished = false;
     state.selected = null;
     state.roundIndex += 1;
     el.input.value = "";
-    el.input.disabled = false;
-    el.guessLog.innerHTML = "";
+    el.log.innerHTML = "";
     el.reveal.hidden = true;
     el.form.hidden = false;
     el.guessBtn.disabled = true;
-    el.skipBtn.disabled = false;
-    el.playerStatus.textContent = "Paina play ja kuuntele.";
+    el.hint.textContent = "Paina kuunnellaksesi.";
     closeSuggestions();
-    renderHead();
-    renderSteps();
-    if (state.mode === "daily") {
-      prefetch(state.queue[state.roundIndex]);
-    }
-    el.input.focus({ preventScroll: true });
+    renderRound();
+    if (state.mode === "daily") prefetch(state.queue[state.roundIndex]);
   }
 
-  function renderHead() {
-    if (state.mode === "daily") {
-      el.roundLabel.textContent = `Biisi ${state.roundIndex}/${DAILY_COUNT}`;
-      el.modeLabel.textContent = `Päivän 5 · ${todayPretty()}`;
-    } else {
-      el.roundLabel.textContent = `Kierros ${state.roundIndex}`;
-      el.modeLabel.textContent = `Vapaa peli · ${TIER_NAMES[state.tier]}`;
-    }
-    el.scoreTotal.textContent = fmt(state.score);
-  }
-
-  function renderSteps() {
-    el.steps.innerHTML = "";
+  function renderRound() {
+    el.modeLabel.textContent = state.mode === "daily"
+      ? `Päivän biisit · ${todayPretty()}`
+      : `Vapaa peli · ${TIER_NAMES[state.tier]}`;
+    el.scoreLabel.textContent = `${fmt(state.score)} p`;
+    el.tileLen.textContent = fmtSec(STEPS[state.finished ? STEPS.length - 1 : state.step]);
+    el.ladder.innerHTML = "";
     STEPS.forEach((sec, i) => {
-      const span = document.createElement("span");
-      span.className = "step" + (i < state.step ? " is-done" : i === state.step ? " is-current" : "");
-      span.innerHTML = `${fmtSec(sec)} <small>${fmt(POINTS[i])} p</small>`;
-      el.steps.appendChild(span);
+      const li = document.createElement("li");
+      li.className = i < state.step ? "is-done" : i === state.step ? "is-current" : "";
+      li.textContent = fmtSec(sec).replace(" s", "");
+      li.title = `${fmtSec(sec)} · ${fmt(POINTS[i])} pistettä`;
+      el.ladder.appendChild(li);
     });
-    const remaining = STEPS.length - state.step - 1;
-    el.skipBtn.textContent = remaining > 0 ? `Ohita → ${fmtSec(STEPS[state.step + 1])}` : "Luovuta";
+    const last = state.step >= STEPS.length - 1;
+    el.skipBtn.textContent = last ? "Luovuta" : `Ohita → ${fmtSec(STEPS[state.step + 1])}`;
+    updateBar();
   }
 
   function logGuess(type, label) {
-    state.guesses.push({ type, label });
     const li = document.createElement("li");
     li.className = type;
     li.innerHTML = `<span class="mark">${type === "wrong" ? "✕" : "→"}</span><span>${escapeHtml(label)}</span>`;
-    el.guessLog.appendChild(li);
-  }
-
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    el.log.appendChild(li);
   }
 
   function advanceStep(reason) {
     if (state.finished) return;
-    if (state.step >= STEPS.length - 1) {
-      finishRound(false);
-      return;
-    }
+    if (state.step >= STEPS.length - 1) { finishRound(false); return; }
     state.step += 1;
-    renderSteps();
-    el.playerStatus.textContent = reason === "skip"
+    renderRound();
+    el.hint.textContent = reason === "skip"
       ? `Ohitettu. Pätkä on nyt ${fmtSec(STEPS[state.step])}.`
       : `Ei osunut. Pätkä on nyt ${fmtSec(STEPS[state.step])}.`;
     playClip(STEPS[state.step]);
@@ -539,22 +564,14 @@
     state.selected = null;
     el.guessBtn.disabled = true;
     closeSuggestions();
-    el.input.focus({ preventScroll: true });
   }
 
   function submitGuess() {
     if (state.finished) return;
     const guess = state.selected || exactMatch(el.input.value);
-    if (!guess) {
-      toast("Valitse biisi ehdotuslistasta.");
-      return;
-    }
-    if (guess.id === state.current.id) {
-      finishRound(true);
-    } else {
-      logGuess("wrong", guess.label);
-      advanceStep("wrong");
-    }
+    if (!guess) { toast("Valitse biisi listasta."); return; }
+    if (guess.id === state.current.id) finishRound(true);
+    else { logGuess("wrong", guess.label); advanceStep("wrong"); }
   }
 
   function skipStep() {
@@ -570,7 +587,7 @@
     state.score += points;
     const song = state.current;
     state.results.push({ id: song.id, song, step: state.step, points, solved });
-    renderHead();
+    renderRound();
 
     el.form.hidden = true;
     closeSuggestions();
@@ -581,15 +598,15 @@
     el.revealArt.src = song.art || "";
     el.revealArt.alt = song.art ? `${song.title} – kansikuva` : "";
     el.revealVerdict.textContent = solved
-      ? (state.step === 0 ? "Uskomatonta! Oikein 0,1 sekunnista" : `Oikein ${fmtSec(STEPS[state.step])} pätkästä`)
+      ? (state.step === 0 ? "Uskomatonta – 0,1 sekunnista" : `Oikein ${fmtSec(STEPS[state.step])} pätkästä`)
       : "Ei tällä kertaa";
     el.revealTitle.textContent = song.title;
     el.revealArtist.textContent = `${song.artist} · ${song.year}`;
     el.revealPoints.textContent = solved ? `+${fmt(points)} pistettä` : "0 pistettä";
-    el.playerStatus.textContent = solved ? "Hienoa!" : "Kuuntele vielä pätkä ja jatka.";
+    el.hint.textContent = solved ? "Hienoa!" : "Kuuntele koko pätkä, jos haluat.";
 
     const isLast = state.mode === "daily" && state.roundIndex >= DAILY_COUNT;
-    el.nextBtn.textContent = isLast ? "Näytä tulokset" : "Seuraava";
+    el.nextBtn.textContent = isLast ? "Tulokset" : "Seuraava";
     el.nextBtn.focus({ preventScroll: true });
 
     if (isLast) saveDaily();
@@ -598,28 +615,11 @@
 
   function nextRound() {
     if (state.mode === "daily") {
-      if (state.roundIndex >= DAILY_COUNT) {
-        renderResults();
-        show("results");
-        return;
-      }
+      if (state.roundIndex >= DAILY_COUNT) { renderResults(); show("results"); return; }
       beginRound(state.queue[state.roundIndex]);
     } else {
       beginRound(nextFreeSong());
     }
-  }
-
-  function quitGame() {
-    stopPlayback();
-    if (state.mode === "free" && state.results.length) {
-      renderResults();
-      show("results");
-      return;
-    }
-    if (state.mode === "daily" && !state.finished && state.results.length < DAILY_COUNT) {
-      // Päivän peli keskeytetty: ei tallenneta, voi jatkaa alusta myöhemmin.
-    }
-    show("menu");
   }
 
   // ---------- Ehdotukset ----------
@@ -650,17 +650,15 @@
   }
 
   function renderSuggestions() {
-    const list = state.suggestions;
     el.suggestions.innerHTML = "";
     if (!el.input.value.trim()) { closeSuggestions(); return; }
-    if (!list.length) {
+    if (!state.suggestions.length) {
       el.suggestions.innerHTML = `<li class="empty">Ei osumia – kokeile artistin tai biisin nimeä.</li>`;
     }
-    list.forEach((s, i) => {
+    state.suggestions.forEach((s, i) => {
       const li = document.createElement("li");
       li.className = "suggestion" + (i === state.activeSuggestion ? " is-active" : "");
       li.setAttribute("role", "option");
-      li.id = "sugg-" + i;
       li.innerHTML = `<span class="s-title">${escapeHtml(s.title)}</span><span class="s-artist">${escapeHtml(s.artist)}</span>`;
       li.addEventListener("mousedown", (e) => { e.preventDefault(); chooseSuggestion(s); });
       el.suggestions.appendChild(li);
@@ -717,17 +715,15 @@
   }
 
   // ---------- Tulokset ----------
-  function squares(r) {
-    return STEPS.map((_, i) => (i < r.step ? "🟥" : i === r.step ? (r.solved ? "🟩" : "🟥") : "⬜")).join("");
-  }
+  const squares = (r) => STEPS.map((_, i) => (i < r.step ? "🟥" : i === r.step ? (r.solved ? "🟩" : "🟥") : "⬜")).join("");
 
   function shareText() {
     const lines = [];
     if (state.mode === "daily") {
-      lines.push(`🎵 SongSpot Suomi – Päivän 5 · ${todayPretty()}`);
+      lines.push(`🎵 HittiSpotti · ${todayPretty()}`);
       lines.push(`${fmt(state.score)} / ${fmt(POINTS[0] * DAILY_COUNT)} pistettä`);
     } else {
-      lines.push(`🎵 SongSpot Suomi – Vapaa peli (${TIER_NAMES[state.tier]})`);
+      lines.push(`🎵 HittiSpotti · vapaa peli (${TIER_NAMES[state.tier]})`);
       lines.push(`${fmt(state.score)} pistettä · ${state.results.length} ${state.results.length === 1 ? "biisi" : "biisiä"}`);
     }
     lines.push("");
@@ -741,19 +737,21 @@
 
   function renderResults() {
     const daily = state.mode === "daily";
-    el.resultsKicker.textContent = daily ? `Päivän 5 · ${todayPretty()}` : `Vapaa peli · ${TIER_NAMES[state.tier]}`;
+    const solved = state.results.filter((r) => r.solved).length;
+    el.resultsKicker.textContent = daily ? `Päivän biisit · ${todayPretty()}` : `Vapaa peli · ${TIER_NAMES[state.tier]}`;
     el.resultsScore.textContent = fmt(state.score);
-    const solvedCount = state.results.filter((r) => r.solved).length;
     if (daily) {
-      el.resultsTitle.textContent = state.score >= 5000 ? "Mestarillista!" : state.score >= 3000 ? "Hyvä korva!" : state.score > 0 ? "Ihan kelpo" : "Huomenna uudestaan";
-      el.resultsSub.textContent = `Tunnistit ${solvedCount}/${DAILY_COUNT} biisistä. Uusi viisikko huomenna.`;
+      el.resultsTitle.textContent = state.score >= 5000 ? "Mestarillista!"
+        : state.score >= 3000 ? "Hyvä korva!"
+        : state.score > 0 ? "Ihan kelpo" : "Huomenna uudestaan";
+      el.resultsSub.textContent = `Tunnistit ${solved}/${DAILY_COUNT} biisistä. Uusi sarja huomenna.`;
     } else {
       el.resultsTitle.textContent = "Peli päättyi";
-      el.resultsSub.textContent = `Tunnistit ${solvedCount}/${state.results.length} biisistä.`;
+      el.resultsSub.textContent = `Tunnistit ${solved}/${state.results.length} biisistä.`;
     }
     el.resultsList.innerHTML = "";
     state.results.forEach((r) => {
-      const s = r.song || state.byId.get(String(r.id)) || { title: "?", artist: "?", art: "" };
+      const s = r.song || state.byId.get(String(r.id)) || { title: "?", artist: "?", art: "", year: "" };
       const li = document.createElement("li");
       li.innerHTML = `
         <img src="${escapeHtml(s.art || "")}" alt="" loading="lazy">
@@ -766,7 +764,7 @@
       el.resultsList.appendChild(li);
     });
     el.sharePreview.hidden = true;
-    el.resultsAgainBtn.textContent = daily ? "Pelaa vapaata peliä" : "Pelaa uudestaan";
+    el.againBtn.textContent = daily ? "Vapaa peli" : "Pelaa uudestaan";
   }
 
   async function copyShare() {
@@ -786,38 +784,6 @@
   }
 
   // ---------- Tallennus & tilastot ----------
-  function saveDaily() {
-    const key = todayKey();
-    store.set("daily:" + key, {
-      score: state.score,
-      results: state.results.map((r) => ({ id: r.id, step: r.step, points: r.points, solved: r.solved })),
-    });
-    const stats = store.get("stats", defaultStats());
-    stats.dailyPlayed += 1;
-    stats.dailyTotal += state.score;
-    stats.dailyBest = Math.max(stats.dailyBest, state.score);
-    stats.dailySolved += state.results.filter((r) => r.solved).length;
-    const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-    const p = (n) => String(n).padStart(2, "0");
-    const yKey = `${yesterday.getFullYear()}-${p(yesterday.getMonth() + 1)}-${p(yesterday.getDate())}`;
-    stats.streak = stats.lastDaily === yKey ? stats.streak + 1 : 1;
-    stats.bestStreak = Math.max(stats.bestStreak, stats.streak);
-    stats.lastDaily = key;
-    store.set("stats", stats);
-  }
-
-  function bumpFreeStats(solved, points) {
-    const stats = store.get("stats", defaultStats());
-    stats.freeRounds += 1;
-    if (solved) stats.freeSolved += 1;
-    stats.freeTotal += points;
-    store.set("stats", stats);
-    if (state.score > (stats.freeBestRun || 0)) {
-      stats.freeBestRun = state.score;
-      store.set("stats", stats);
-    }
-  }
-
   function defaultStats() {
     return {
       dailyPlayed: 0, dailyTotal: 0, dailyBest: 0, dailySolved: 0, streak: 0, bestStreak: 0, lastDaily: null,
@@ -825,77 +791,100 @@
     };
   }
 
+  function saveDaily() {
+    const key = todayKey();
+    store.set("daily:" + key, {
+      score: state.score,
+      results: state.results.map((r) => ({ id: r.id, step: r.step, points: r.points, solved: r.solved })),
+    });
+    const stats = { ...defaultStats(), ...store.get("stats", {}) };
+    stats.dailyPlayed += 1;
+    stats.dailyTotal += state.score;
+    stats.dailyBest = Math.max(stats.dailyBest, state.score);
+    stats.dailySolved += state.results.filter((r) => r.solved).length;
+    const y = new Date(); y.setDate(y.getDate() - 1);
+    stats.streak = stats.lastDaily === dayKey(y) ? stats.streak + 1 : 1;
+    stats.bestStreak = Math.max(stats.bestStreak, stats.streak);
+    stats.lastDaily = key;
+    store.set("stats", stats);
+  }
+
+  function bumpFreeStats(solved, points) {
+    const stats = { ...defaultStats(), ...store.get("stats", {}) };
+    stats.freeRounds += 1;
+    if (solved) stats.freeSolved += 1;
+    stats.freeTotal += points;
+    stats.freeBestRun = Math.max(stats.freeBestRun, state.score);
+    store.set("stats", stats);
+  }
+
   function renderStats() {
     const s = { ...defaultStats(), ...store.get("stats", {}) };
     const todayDone = !!store.get("daily:" + todayKey(), null);
-    const streakLive = s.lastDaily === todayKey() || (() => {
-      const y = new Date(); y.setDate(y.getDate() - 1);
-      const p = (n) => String(n).padStart(2, "0");
-      return s.lastDaily === `${y.getFullYear()}-${p(y.getMonth() + 1)}-${p(y.getDate())}`;
-    })();
-    const streak = streakLive ? s.streak : 0;
+    const y = new Date(); y.setDate(y.getDate() - 1);
+    const streak = (s.lastDaily === todayKey() || s.lastDaily === dayKey(y)) ? s.streak : 0;
     const tiles = [
-      ["section", "Päivän 5"],
+      ["head", "Päivän biisit"],
       [s.dailyPlayed, "pelattua päivää"],
       [s.dailyPlayed ? fmt(s.dailyTotal / s.dailyPlayed) : "–", "keskipisteet"],
       [fmt(s.dailyBest), "paras tulos"],
       [s.dailyPlayed ? Math.round((s.dailySolved / (s.dailyPlayed * DAILY_COUNT)) * 100) + " %" : "–", "tunnistettu"],
       [streak + (todayDone ? "" : " ⏳"), "putki (päivää)"],
       [s.bestStreak, "pisin putki"],
-      ["section", "Vapaa peli"],
+      ["head", "Vapaa peli"],
       [s.freeRounds, "kierrosta"],
       [s.freeRounds ? Math.round((s.freeSolved / s.freeRounds) * 100) + " %" : "–", "tunnistettu"],
       [fmt(s.freeBestRun), "paras peli"],
       [s.freeRounds ? fmt(s.freeTotal / s.freeRounds) : "–", "pisteitä / kierros"],
     ];
-    el.statGrid.innerHTML = tiles.map(([v, l]) => v === "section"
-      ? `<div class="stat-section">${l}</div>`
-      : `<div class="stat"><div class="stat-value">${v}</div><div class="stat-label">${l}</div></div>`).join("");
+    el.statGrid.innerHTML = tiles.map(([v, l]) => (v === "head"
+      ? `<p class="stat-head">${l}</p>`
+      : `<div class="stat"><div class="stat-value">${v}</div><div class="stat-label">${l}</div></div>`)).join("");
   }
 
   function resetStats() {
-    if (!confirm("Nollataanko kaikki tilastot ja päivän tulokset tästä selaimesta?")) return;
-    store.keys().forEach((k) => store.remove(k));
+    if (!confirm("Nollataanko tilastot ja tämän päivän tulos tästä selaimesta?")) return;
+    store.clear();
     renderStats();
+    refreshDrawer();
     toast("Tilastot nollattu.");
   }
 
-  // ---------- Etusivu ----------
-  function refreshMenu() {
-    const done = store.get("daily:" + todayKey(), null);
-    el.dailyStatus.textContent = done
-      ? `Pelattu tänään: ${fmt(done.score)} pistettä · katso tulos`
-      : `${todayPretty()} · viisi biisiä, max ${fmt(POINTS[0] * DAILY_COUNT)} pistettä`;
-    const tiers = [1, 2, 3, 4, 5].map((t) => songsForTier(t).length);
-    el.catalogNote.textContent = `Katalogissa ${state.songs.length} suomibiisiä · Helppo ${tiers[0]} · Tuttu ${tiers[1]} · Keskitaso ${tiers[2]} · Vaikea ${tiers[3]} · Mestari ${tiers[4]}`;
+  // ---------- Navigointi ----------
+  function go(target) {
+    const midRound = state.view === "game" && state.current && !state.finished;
+    if ((target === "daily" || target === "free") && midRound
+      && !confirm("Kesken oleva kierros menetetään. Vaihdetaanko?")) return;
+    closeDrawer();
+    stopPlayback();
+    if (target === "daily") startDaily();
+    else if (target === "free") startFree();
+    else if (target === "stats") show("stats");
+    else if (target === "help") show("help");
+    else if (target === "back") show(state.current ? "game" : "results");
   }
 
   // ---------- Tapahtumat ----------
   function bind() {
-    document.querySelectorAll("[data-nav]").forEach((b) => b.addEventListener("click", (e) => {
-      e.preventDefault();
-      if (!el.views.game.hidden && state.mode && !state.finished && state.results.length < (state.mode === "daily" ? DAILY_COUNT : Infinity)) {
-        if (!confirm("Keskeytetäänkö peli?")) return;
-      }
-      stopPlayback();
-      show(b.dataset.nav);
-    }));
-    document.querySelector('[data-action="start-daily"]').addEventListener("click", startDaily);
-    document.querySelector('[data-action="start-free"]').addEventListener("click", startFree);
-    document.querySelector('[data-action="quit"]').addEventListener("click", () => {
-      if (state.mode === "daily" && state.results.length < DAILY_COUNT && !confirm("Keskeytetäänkö päivän peli? Voit aloittaa sen myöhemmin alusta.")) return;
-      quitGame();
+    el.menuBtn.addEventListener("click", () => (el.body.classList.contains("drawer-open") ? closeDrawer() : openDrawer()));
+    el.drawerClose.addEventListener("click", closeDrawer);
+    el.scrim.addEventListener("click", closeDrawer);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && el.body.classList.contains("drawer-open")) closeDrawer();
     });
 
-    el.tierPicker.addEventListener("click", (e) => {
-      const chip = e.target.closest(".chip");
+    document.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => go(b.dataset.go)));
+
+    el.tiers.addEventListener("click", (e) => {
+      const chip = e.target.closest(".tier");
       if (!chip) return;
       state.tier = Number(chip.dataset.tier);
-      el.tierPicker.querySelectorAll(".chip").forEach((c) => c.classList.toggle("is-active", c === chip));
       store.set("tier", state.tier);
+      refreshDrawer();
+      go("free");
     });
 
-    el.playBtn.addEventListener("click", () => {
+    el.tile.addEventListener("click", () => {
       if (audio.playing) { stopPlayback(); return; }
       playClip(state.finished ? STEPS[STEPS.length - 1] : STEPS[state.step]);
     });
@@ -908,40 +897,30 @@
     el.input.addEventListener("focus", () => { if (el.input.value.trim() && !state.selected) onInput(); });
     el.input.addEventListener("blur", () => setTimeout(closeSuggestions, 120));
     el.shareBtn.addEventListener("click", copyShare);
-    el.resultsAgainBtn.addEventListener("click", startFree);
-    el.resetStatsBtn.addEventListener("click", resetStats);
-    // Piilota kansikuva, jos sitä ei saada ladattua (ei näytetä rikkinäistä kuvaa).
-    el.revealArt.addEventListener("error", () => { el.revealArt.hidden = true; });
-    el.resultsList.addEventListener("error", (e) => {
-      if (e.target.tagName === "IMG") e.target.style.visibility = "hidden";
-    }, true);
+    el.againBtn.addEventListener("click", () => go("free"));
+    el.resetBtn.addEventListener("click", resetStats);
 
     document.addEventListener("keydown", (e) => {
-      if (el.views.game.hidden) return;
-      const typing = e.target === el.input;
-      if (e.key === " " && !typing && e.target.tagName !== "BUTTON") {
-        e.preventDefault();
-        el.playBtn.click();
-      } else if (e.key === "Enter" && state.finished && e.target !== el.nextBtn && e.target.tagName !== "BUTTON") {
-        nextRound();
-      }
+      if (state.view !== "game" || e.target === el.input || e.target.tagName === "BUTTON") return;
+      if (e.key === " ") { e.preventDefault(); el.tile.click(); }
+      else if (e.key === "Enter" && state.finished) nextRound();
     });
   }
 
   // ---------- Käynnistys ----------
   async function init() {
+    migrateStore();
     bind();
     state.tier = Number(store.get("tier", 0)) || 0;
-    el.tierPicker.querySelectorAll(".chip").forEach((c) => c.classList.toggle("is-active", Number(c.dataset.tier) === state.tier));
     try {
       await loadCatalog();
-      show("menu");
+      refreshDrawer();
+      startDaily();          // sivu avautuu suoraan päivän peliin
     } catch (err) {
       console.error(err);
       el.loadingText.textContent = location.protocol === "file:"
-        ? "Selain ei salli songs.json-tiedoston lukemista suoraan levyltä. Käynnistä paikallinen palvelin, esim. `python3 -m http.server`, ja avaa http://localhost:8000."
-        : "Biisikatalogin lataus epäonnistui: " + err.message;
-      el.loadingText.style.color = "#f87171";
+        ? "Selain ei salli songs.json-tiedoston lukemista suoraan levyltä. Käynnistä paikallinen palvelin, esimerkiksi python3 -m http.server, ja avaa http://localhost:8000."
+        : "Biisien lataus epäonnistui: " + err.message;
     }
   }
 

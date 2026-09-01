@@ -36,6 +36,7 @@
   const audio = {
     ctx: null,
     buffers: new Map(),   // id -> AudioBuffer
+    starts: new Map(),    // id -> pätkän aloituskohta sekunteina
     source: null,
     raf: 0,
     playing: false,
@@ -282,7 +283,7 @@
     return new Promise((resolve, reject) => {
       const a = fallbackElement();
       const begin = () => {
-        a.currentTime = clipOffset(song, a.duration);
+        a.currentTime = 0;
         a.play().then(() => {
           fallback.timer = setTimeout(() => { a.pause(); }, seconds * 1000);
           resolve();
@@ -300,11 +301,35 @@
     });
   }
 
-  function clipOffset(song, duration) {
-    // Sama aloituskohta samalle biisille joka kerta, mutta ei aivan esikuuntelun alusta.
-    const maxStart = Math.max(0, (duration || 30) - STEPS[STEPS.length - 1] - 0.5);
-    const span = Math.min(maxStart, 8);
-    return 0.8 + (hashString("offset:" + song.id) % 1000) / 1000 * Math.max(0, span - 0.8);
+  /* Pätkä alkaa esikuuntelun alusta, mutta hiljaisuus ohitetaan: etsitään
+   * ensimmäinen kohta, jossa ääntä oikeasti kuuluu. Ilman tätä 0,1 sekunnin
+   * pätkä voisi osua kokonaan hiljaiseen alkuun. */
+  function findAudioStart(buffer) {
+    const data = buffer.getChannelData(0);
+    const sr = buffer.sampleRate;
+    let peak = 0;
+    for (let i = 0; i < data.length; i++) {
+      const v = Math.abs(data[i]);
+      if (v > peak) peak = v;
+    }
+    if (peak < 0.005) return 0; // käytännössä äänetön pätkä
+    // Kynnys suhteutetaan huippuun, jotta hiljaisemmatkin masteroinnit toimivat.
+    const threshold = Math.max(peak * 0.02, 0.004);
+    const win = Math.max(1, Math.round(sr * 0.01)); // 10 ms ikkuna
+    for (let i = 0; i + win <= data.length; i += win) {
+      let sum = 0;
+      for (let j = i; j < i + win; j++) sum += data[j] * data[j];
+      if (Math.sqrt(sum / win) >= threshold) {
+        return Math.max(0, i / sr - 0.03); // hitusen ennen, ettei isku katkea
+      }
+    }
+    return 0;
+  }
+
+  function clipOffset(song, buffer) {
+    if (!buffer) return 0; // varasoitin ei pysty analysoimaan näytteitä
+    if (!audio.starts.has(song.id)) audio.starts.set(song.id, findAudioStart(buffer));
+    return audio.starts.get(song.id);
   }
 
   function stopPlayback() {
@@ -386,7 +411,7 @@
     gain.gain.setValueAtTime(1, now + seconds - fade);
     gain.gain.linearRampToValueAtTime(0, now + seconds);
     src.connect(gain).connect(ctx.destination);
-    src.start(now, clipOffset(song, buffer.duration), seconds);
+    src.start(now, clipOffset(song, buffer), seconds);
     audio.source = src;
     ready();
     animateRing(seconds);

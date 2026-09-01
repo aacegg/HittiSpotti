@@ -1,4 +1,4 @@
-/* HittiSpotti – musiikkivisa suomenkielisillä biiseillä.
+/* HittiSpotti – musiikkivisa suomalaisilla biiseillä.
  * Pelkkää selain-JavaScriptiä: ei build-vaihetta, ei riippuvuuksia.
  */
 (() => {

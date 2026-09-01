@@ -1,6 +1,6 @@
 # HittiSpotti
 
-Musiikkivisa suomenkielisillä biiseillä. Kuulet kappaleesta ensin vain **0,1 sekuntia** ja yrität tunnistaa sen. Jokainen väärä arvaus tai ohitus pidentää pätkää (0,1 s → 0,5 s → 2 s → 8 s → 15 s), mutta vie pisteitä.
+Musiikkivisa suomalaisilla biiseillä, sekä suomen- että englanninkielisillä. Kuulet kappaleesta ensin vain **0,1 sekuntia** ja yrität tunnistaa sen. Jokainen väärä arvaus tai ohitus pidentää pätkää (0,1 s → 0,5 s → 2 s → 8 s → 15 s), mutta vie pisteitä.
 
 Peli on puhdas selainsovellus: ei build-vaihetta, ei palvelinta, ei riippuvuuksia. Musiikkipätkät ovat Applen julkisia 30 sekunnin esikuunteluja.
 

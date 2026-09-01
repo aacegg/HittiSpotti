@@ -1413,7 +1413,7 @@
     "artist": "PMMP",
     "title": "Joutsenet",
     "year": 2005,
-    "tier": 1,
+    "tier": 2,
     "id": 264272400,
     "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/34/3b/73/343b738c-c314-e1bc-fb58-6ba123e13a36/mzaf_17079228988542137987.plus.aac.p.m4a",
     "art": "https://is1-ssl.mzstatic.com/image/thumb/Features114/v4/45/d9/ae/45d9aec9-114c-e3ab-da04-b9cf127d69e1/dj.ysfpsjco.jpg/300x300bb.jpg",
@@ -6088,5 +6088,275 @@
     "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/6e/19/ca/6e19ca40-f53a-7694-05eb-368fcfb5d608/mzaf_1378142969480837695.plus.aac.p.m4a",
     "art": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/81/26/bc/8126bcbd-32e7-d12b-d830-6870990558e5/886445533200.jpg/300x300bb.jpg",
     "itunes": "Kube – Duuni (feat. Adi L Hasla & Mäkki) (2014)"
+  },
+  {
+    "artist": "Ahti",
+    "title": "Sisko ja sen veli",
+    "year": 2026,
+    "tier": 2,
+    "id": 1874039602,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/a2/ca/90/a2ca9040-31ea-a325-7fa7-989bfc778f9e/mzaf_13549452354764115183.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/c4/40/fe/c440fe2b-f002-f327-1c72-9c1c6a59ff10/5026854633824.jpg/300x300bb.jpg",
+    "itunes": "Ahti – Sisko ja sen veli (2026)"
+  },
+  {
+    "artist": "Ahti & Behm",
+    "title": "Tähdet",
+    "year": 2025,
+    "tier": 2,
+    "id": 1832703466,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c9/31/57/c93157e1-be51-5e81-4cf2-4138a3c7e23b/mzaf_9691200350149404168.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/10/70/94/107094a5-d3df-e886-e26e-50a39607a7c8/5021732955357.jpg/300x300bb.jpg",
+    "itunes": "Ahti & Behm – Tähdet (2025)"
+  },
+  {
+    "artist": "Ahti",
+    "title": "Sun luokse (feat. Isac Elliot)",
+    "year": 2024,
+    "tier": 3,
+    "id": 1768847786,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/7d/09/3a/7d093aba-19cb-a68e-998e-555ed9832cc9/mzaf_13643942975097711295.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/de/2b/69/de2b6981-64fa-022b-c2de-54c0a625e244/5021732495013.jpg/300x300bb.jpg",
+    "itunes": "Ahti – Sun luokse (feat. Isac Elliot) (2024)"
+  },
+  {
+    "artist": "Ahti",
+    "title": "Kissa (feat. Averagekidluke)",
+    "year": 2024,
+    "tier": 3,
+    "id": 1732712302,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/5e/26/95/5e26957f-bcac-f041-2ca8-42688f7a2b77/mzaf_5987142856354094971.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/2b/67/a4/2b67a45d-91f0-7efa-25b2-492b3aaa371f/5021732241351.jpg/300x300bb.jpg",
+    "itunes": "Ahti – Kissa (feat. Averagekidluke) (2024)"
+  },
+  {
+    "artist": "Ahti",
+    "title": "Matkustaja (feat. Aksel Kankaanranta)",
+    "year": 2021,
+    "tier": 4,
+    "id": 1584828770,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/57/58/b7/5758b789-579e-e6c8-573f-83a3e9976a9b/mzaf_18053649248942057835.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/89/a9/2c/89a92cad-229e-ea68-3744-6d55cf9e486a/190296463372.jpg/300x300bb.jpg",
+    "itunes": "Ahti – Matkustaja (feat. Aksel Kankaanranta) (2021)"
+  },
+  {
+    "artist": "Mirella",
+    "title": "Kaikki viel edessä",
+    "year": 2026,
+    "tier": 3,
+    "id": 1884609004,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/2b/df/00/2bdf0053-f165-96f7-f5b5-eec46228a5c1/mzaf_11570636737582173233.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/3a/fe/0d/3afe0d89-1b61-6396-61ea-239a55fd619e/26UMGIM31276.rgb.jpg/300x300bb.jpg",
+    "itunes": "Mirella – Kaikki viel edessä (2026)"
+  },
+  {
+    "artist": "Mirella & Lauri Haav",
+    "title": "Luotathan",
+    "year": 2024,
+    "tier": 3,
+    "id": 1746731643,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/47/10/40/4710403b-43e9-695c-b176-1c9ce9284be7/mzaf_6992781787156218410.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/62/52/9e/62529e4d-cd6b-4ce1-f847-77f6ff6efc37/24UMGIM55894.rgb.jpg/300x300bb.jpg",
+    "itunes": "Mirella & Lauri Haav – Luotathan (2024)"
+  },
+  {
+    "artist": "Mirella",
+    "title": "Vähän enemmän",
+    "year": 2025,
+    "tier": 4,
+    "id": 1842351044,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/74/a5/75/74a57552-dcff-dda0-45cf-0f6fbee8269b/mzaf_14263533307131783960.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/6f/3b/1c/6f3b1c60-0684-6562-4deb-79e40d764194/25UM1IM50961.rgb.jpg/300x300bb.jpg",
+    "itunes": "Mirella – Vähän enemmän (2025)"
+  },
+  {
+    "artist": "Mirella",
+    "title": "Tytöt",
+    "year": 2024,
+    "tier": 4,
+    "id": 1775187008,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/45/1e/a1/451ea187-bbbc-7198-fb48-57479dd77cb1/mzaf_15644145402487401661.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/17/e9/ef/17e9efec-c20b-daff-14b5-f419d29057bf/24UM1IM14966.rgb.jpg/300x300bb.jpg",
+    "itunes": "Mirella – Tytöt (2024)"
+  },
+  {
+    "artist": "Vesta",
+    "title": "Sun katu",
+    "year": 2017,
+    "tier": 3,
+    "id": 1355054382,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/b4/48/7d/b4487db8-1a13-4147-7884-a099ef8d760f/mzaf_17992174155623392983.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/a7/5e/eb/a75eeb03-166f-806d-759a-15b54fcabeeb/190295675707.jpg/300x300bb.jpg",
+    "itunes": "Vesta – Sun katu (2017)"
+  },
+  {
+    "artist": "Vesta",
+    "title": "Turvallista sotaa",
+    "year": 2018,
+    "tier": 3,
+    "id": 1355054395,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/47/27/7c/47277c00-3641-0d05-7d50-20d9e7ec8581/mzaf_3048076013424833627.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/a7/5e/eb/a75eeb03-166f-806d-759a-15b54fcabeeb/190295675707.jpg/300x300bb.jpg",
+    "itunes": "Vesta – Turvallista sotaa (2018)"
+  },
+  {
+    "artist": "Vesta",
+    "title": "Lohtulauseita",
+    "year": 2018,
+    "tier": 4,
+    "id": 1355054397,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/e5/07/f0/e507f074-dfa7-646c-d9ec-e195cc6235f4/mzaf_11773595774407466043.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/a7/5e/eb/a75eeb03-166f-806d-759a-15b54fcabeeb/190295675707.jpg/300x300bb.jpg",
+    "itunes": "Vesta – Lohtulauseita (2018)"
+  },
+  {
+    "artist": "Vesta",
+    "title": "Pelkään",
+    "year": 2018,
+    "tier": 4,
+    "id": 1355054385,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/1f/79/67/1f79676f-3433-291a-c00d-08bdb611727b/mzaf_18231916649106856397.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/a7/5e/eb/a75eeb03-166f-806d-759a-15b54fcabeeb/190295675707.jpg/300x300bb.jpg",
+    "itunes": "Vesta – Pelkään (2018)"
+  },
+  {
+    "artist": "PMMP",
+    "title": "Joku Raja",
+    "year": 2006,
+    "tier": 3,
+    "id": 270984136,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/39/3d/0f/393d0f7f-e55b-bbde-8600-6479522d2a44/mzaf_10712469636395968747.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/d1/8c/d3/mzi.gbmcxuwo.jpg/300x300bb.jpg",
+    "itunes": "PMMP – Joku Raja (2006)"
+  },
+  {
+    "artist": "PMMP",
+    "title": "Pariterapiaa",
+    "year": 2009,
+    "tier": 3,
+    "id": 307744932,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/fa/e9/45/fae945d1-1d61-8c55-59a3-f282a41b04fa/mzaf_2780827399582981738.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/5b/84/4c/mzi.utwkwbbb.jpg/300x300bb.jpg",
+    "itunes": "PMMP – Pariterapiaa (2009)"
+  },
+  {
+    "artist": "PMMP",
+    "title": "Rakkaalleni",
+    "year": 2012,
+    "tier": 4,
+    "id": 527832300,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/94/98/e0/9498e07e-dcbc-be2a-64a4-f8ac3fc8f48e/mzaf_7712478214731015122.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/e4/55/c2/e455c2fa-7fde-0336-f4ed-eae168725d0a/886443482494.jpg/300x300bb.jpg",
+    "itunes": "PMMP – Rakkaalleni (2012)"
+  },
+  {
+    "artist": "PMMP",
+    "title": "Henkilökohtaisesti",
+    "year": 2006,
+    "tier": 4,
+    "id": 270984140,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/07/13/e2/0713e233-d7f0-1752-e098-eb065df549c1/mzaf_10689860410986643979.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/d1/8c/d3/mzi.gbmcxuwo.jpg/300x300bb.jpg",
+    "itunes": "PMMP – Henkilökohtaisesti (2006)"
+  },
+  {
+    "artist": "PMMP",
+    "title": "Heliumpallo",
+    "year": 2012,
+    "tier": 4,
+    "id": 527832297,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/bf/e1/85/bfe18504-9dcc-8d92-bf3b-d80e59149c2b/mzaf_14858181253977027751.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/e4/55/c2/e455c2fa-7fde-0336-f4ed-eae168725d0a/886443482494.jpg/300x300bb.jpg",
+    "itunes": "PMMP – Heliumpallo (2012)"
+  },
+  {
+    "artist": "PMMP & Kuumaa",
+    "title": "Haloo",
+    "year": 2024,
+    "tier": 5,
+    "id": 1782316522,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b6/c2/96/b6c296ee-f776-24c9-3937-0e00e6771a25/mzaf_3674322188349138001.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/43/9a/73/439a732d-5715-506d-0672-9785d1b5d687/24UM1IM32917.rgb.jpg/300x300bb.jpg",
+    "itunes": "PMMP & Kuumaa – Haloo (2024)"
+  },
+  {
+    "artist": "PMMP",
+    "title": "Oo Siellä Jossain Mun",
+    "year": 2005,
+    "tier": 3,
+    "id": 202119691,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/5b/83/38/5b833820-f17d-506e-1e9b-a94c383f1361/mzaf_8921276385404939345.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Features/3b/4d/7b/dj.dgevbunz.jpg/300x300bb.jpg",
+    "itunes": "PMMP – Oo Siellä Jossain Mun (2005)"
+  },
+  {
+    "artist": "PMMP",
+    "title": "Pikkuveli",
+    "year": 2005,
+    "tier": 2,
+    "id": 202122147,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/38/e6/0a/38e60a87-698b-c47a-6661-79b31f986058/mzaf_11822216652258977140.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Features/3b/4d/7b/dj.dgevbunz.jpg/300x300bb.jpg",
+    "itunes": "PMMP – Pikkuveli (2005)"
+  },
+  {
+    "artist": "PMMP",
+    "title": "Matkalaulu",
+    "year": 2005,
+    "tier": 2,
+    "id": 202119549,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/cc/3d/f9/cc3df9d2-4eb0-d1b6-5f51-141290fac838/mzaf_3083040095494824487.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Features/3b/4d/7b/dj.dgevbunz.jpg/300x300bb.jpg",
+    "itunes": "PMMP – Matkalaulu (2005)"
+  },
+  {
+    "artist": "PMMP",
+    "title": "Päiväkoti",
+    "year": 2005,
+    "tier": 3,
+    "id": 202119942,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/dd/ca/c8/ddcac85e-765d-05cc-3a07-544d70c29a3f/mzaf_1801981160558134149.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Features/3b/4d/7b/dj.dgevbunz.jpg/300x300bb.jpg",
+    "itunes": "PMMP – Päiväkoti (2005)"
+  },
+  {
+    "artist": "PMMP",
+    "title": "Matoja",
+    "year": 2005,
+    "tier": 4,
+    "id": 202120489,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/05/8d/9b/058d9bb6-f20c-ddda-6b63-faa37afc9a3a/mzaf_1203324756715211291.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Features/3b/4d/7b/dj.dgevbunz.jpg/300x300bb.jpg",
+    "itunes": "PMMP – Matoja (2005)"
+  },
+  {
+    "artist": "PMMP",
+    "title": "Kovemmat Kädet",
+    "year": 2005,
+    "tier": 4,
+    "id": 202119165,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/4a/38/0d/4a380d99-e5f8-184b-ccec-b801edf811b3/mzaf_1402473323789618908.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Features/3b/4d/7b/dj.dgevbunz.jpg/300x300bb.jpg",
+    "itunes": "PMMP – Kovemmat Kädet (2005)"
+  },
+  {
+    "artist": "PMMP",
+    "title": "Kesä -95",
+    "year": 2003,
+    "tier": 4,
+    "id": 264272362,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/af/ca/37/afca3779-de6a-0c15-1576-1f6ec7b0730e/mzaf_1536248410579925084.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Features114/v4/45/d9/ae/45d9aec9-114c-e3ab-da04-b9cf127d69e1/dj.ysfpsjco.jpg/300x300bb.jpg",
+    "itunes": "PMMP – Kesä -95 (2003)"
+  },
+  {
+    "artist": "PMMP",
+    "title": "Tässä Elämä On",
+    "year": 2006,
+    "tier": 3,
+    "id": 270984158,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/99/08/f8/9908f82f-884d-9e37-9137-6bb34bb481df/mzaf_5775854569145136887.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/d1/8c/d3/mzi.gbmcxuwo.jpg/300x300bb.jpg",
+    "itunes": "PMMP – Tässä Elämä On (2006)"
   }
 ]

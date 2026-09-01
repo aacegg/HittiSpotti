@@ -28,11 +28,21 @@ SONGS = ROOT / "songs.json"
 API = "https://itunes.apple.com/search"
 
 # Versiot, joita ei haluta peliin: pätkä ei vastaisi sitä mitä pelaaja odottaa.
-SKIP = (
+# Kappaleen nimestä hylätään laajalla listalla.
+SKIP_TITLE = (
     "live", "karaoke", "remix", "instrumental", "akustinen", "acoustic",
     "demo", "version", "versio", "mix", "cover", "remaster", "vain elamaa",
     "radio edit", "sped up", "slowed", "commentary",
 )
+# Albumin nimestä vain ne, jotka kertovat itse äänitteen olevan eri: albumin
+# nimi voi muuten sisältää sanan aivan viattomasti, kuten PMMP:n
+# "Kovemmat Kädet - Kumiversio".
+SKIP_ALBUM = ("live", "karaoke", "instrumental", "unplugged", "akustinen", "vain elamaa")
+
+
+def has_word(text: str, words) -> bool:
+    """Osuma vain kokonaisena sanana, ettei 'versio' osu 'kumiversioon'."""
+    return any(re.search(rf"(?<![a-z0-9]){re.escape(w)}(?![a-z0-9])", text) for w in words)
 
 
 def norm(s: str) -> str:
@@ -98,8 +108,9 @@ def main() -> int:
             got = norm(r.get("artistName", ""))
             if want != got and not got.startswith(want + " "):
                 continue  # feat.-esiintymiset toisen artistin biisillä ohitetaan
-            blob = norm(r.get("trackName", "") + " " + r.get("collectionName", ""))
-            if any(w in blob for w in SKIP):
+            if has_word(norm(r.get("trackName", "")), SKIP_TITLE):
+                continue
+            if has_word(norm(r.get("collectionName", "")), SKIP_ALBUM):
                 continue
             key = base_title(r["trackName"])
             if key in seen or want + "|" + key in have_titles or r["trackId"] in have_ids:

@@ -79,6 +79,10 @@ Kaikki biisit ovat tiedostossa [`songs.json`](songs.json). Yksi biisi näyttää
 
 Jos jokin esikuuntelun URL vanhenee, peli hakee sen pelin aikana automaattisesti uudestaan `id`-kentän avulla.
 
+## Muutosten julkaisu
+
+GitHub Pages käskee selainta pitämään tiedostot välimuistissa kymmenen minuuttia. Siksi `index.html` viittaa tyyleihin ja koodiin versionumerolla (`style.css?v=2`, `app.js?v=2`). **Kasvata numeroa aina kun muutat `style.css`- tai `app.js`-tiedostoa**, niin selaimet hakevat uuden version heti.
+
 ## Rakenne
 
 ```

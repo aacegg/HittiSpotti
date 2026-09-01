@@ -15,6 +15,14 @@ Pisteet askeleittain: **1 200 · 975 · 750 · 525 · 300**. Jos 15 sekunnin jä
 
 Tulokset ja tilastot tallentuvat vain omaan selaimeen (localStorage).
 
+## Mistä pätkä alkaa
+
+Pätkä alkaa esikuuntelun alusta. Peli etsii puretusta äänestä ensimmäisen kohdan, jossa ääntä oikeasti kuuluu, joten mahdollinen hiljaisuus ohitetaan. Aloituskohta lasketaan kerran biisiä kohti, joten kaikki viisi askelta alkavat samasta kohdasta ja pidempi pätkä on aina sama kuin lyhyempi, vain jatkettuna.
+
+Esikuuntelu ei kuitenkaan ole kappaleen alusta. Mittasin kahdentoista biisin iTunes-esikuuntelut: jokaisessa ääni on jo ensimmäisen 50 millisekunnin aikana muutaman desibelin päässä kappaleen mediaanitasosta, eikä yhdessäkään ole introa tai häivytystä. Apple leikkaa esikuuntelun keskeltä kappaletta, tyypillisesti kertosäkeen kohdalta, eikä rajapinnassa ole parametria aloituskohdan siirtämiseen. Sama koskee Deezeriä, ja Spotify on poistanut esikuuntelut uusilta sovelluksilta.
+
+Oikea kappaleen alku vaatisi siis toisen äänilähteen, esimerkiksi YouTube-soittimen tai itse isännöidyt näytteet. Molemmissa on hintansa: YouTuben kautta lyhin luotettava pätkä on noin sekunti, mikä murtaisi pelin 0,1 sekunnin idean, ja omien näytteiden julkaisu vaatii oikeudet musiikkiin.
+
 ## Pelaaminen paikallisesti
 
 Selain ei anna sivun lukea `songs.json`-tiedostoa suoraan levyltä, joten käynnistä kevyt paikallinen palvelin projektin juuressa:

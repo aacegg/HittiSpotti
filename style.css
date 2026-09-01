@@ -187,29 +187,35 @@ body.drawer-open .drawer { transform: none; visibility: visible; }
 .meta-score { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
 
 /* Soittopainike */
-.tile {
+.player { display: grid; justify-items: center; gap: 12px; padding: 8px 0 2px; }
+
+.play-btn {
   position: relative;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  width: 100%;
-  padding: 26px 22px 30px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  display: grid;
+  place-items: center;
+  width: 156px;
+  height: 156px;
+  border: 0;
+  border-radius: 50%;
   background: var(--surface);
   cursor: pointer;
-  overflow: hidden;
-  transition: border-color .15s ease;
 }
-.tile:hover { border-color: #3b3b46; }
-.tile:disabled { cursor: progress; opacity: .7; }
-.tile.is-playing { border-color: var(--accent); }
+.play-btn:disabled { cursor: progress; opacity: .6; }
 
-.tile-icon { font-size: 26px; line-height: 1; color: var(--accent); }
-.tile-len { font-size: 34px; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring circle { fill: none; stroke-width: 4; }
+.ring-bg { stroke: var(--line); }
+.ring-fg {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  stroke-dasharray: 339.292;
+  stroke-dashoffset: 339.292;
+}
 
-.tile-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--line-soft); }
-.tile-fill { display: block; height: 100%; width: 0; background: var(--accent); }
+.play-icon { font-size: 44px; line-height: 1; color: var(--accent); margin-left: 6px; }
+.play-btn.is-playing .play-icon { margin-left: 0; font-size: 38px; }
+
+.clip-len { font-size: 30px; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
 
 /* Askelmat */
 .ladder {

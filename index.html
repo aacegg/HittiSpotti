@@ -35,10 +35,10 @@
         <div class="tiers" role="group" aria-label="Vaikeustaso">
           <button type="button" class="tier" data-tier="0">Kaikki</button>
           <button type="button" class="tier" data-tier="1">Helppo</button>
-          <button type="button" class="tier" data-tier="2">Tuttu</button>
-          <button type="button" class="tier" data-tier="3">Keskitaso</button>
-          <button type="button" class="tier" data-tier="4">Vaikea</button>
-          <button type="button" class="tier" data-tier="5">Mestari</button>
+          <button type="button" class="tier" data-tier="2">Keskitaso</button>
+          <button type="button" class="tier" data-tier="3">Vaikea</button>
+          <button type="button" class="tier" data-tier="4">Mestari</button>
+          <button type="button" class="tier" data-tier="5">Mahdoton</button>
         </div>
       </div>
 
@@ -68,11 +68,16 @@
         <span id="score-label" class="meta-score">0 p</span>
       </div>
 
-      <button type="button" id="play-tile" class="tile" aria-label="Soita pätkä">
-        <span class="tile-icon" id="tile-icon" aria-hidden="true">▶</span>
-        <span class="tile-len" id="tile-len">0,1 s</span>
-        <span class="tile-bar"><span class="tile-fill" id="tile-fill"></span></span>
-      </button>
+      <div class="player">
+        <button type="button" id="play-btn" class="play-btn" aria-label="Soita pätkä">
+          <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="ring-bg" cx="60" cy="60" r="54"></circle>
+            <circle class="ring-fg" id="ring-fg" cx="60" cy="60" r="54"></circle>
+          </svg>
+          <span class="play-icon" id="play-icon" aria-hidden="true">▶</span>
+        </button>
+        <p class="clip-len" id="clip-len">0,1 s</p>
+      </div>
 
       <ol class="ladder" id="ladder"></ol>
       <p class="hint" id="hint">Paina kuunnellaksesi.</p>
@@ -140,7 +145,7 @@
       </ol>
       <h2>Pelimuodot</h2>
       <p><strong>Päivän biisit</strong> on viiden biisin sarja, joka on sama kaikille pelaajille saman päivän aikana. Maksimi on 6 000 pistettä, ja tuloksen voi kopioida kavereille.</p>
-      <p><strong>Vapaassa pelissä</strong> kierroksia riittää loputtomiin. Vaikeustason valitset valikosta: Helppo tarkoittaa biisejä, jotka kaikki tuntevat, Mestari harvinaisempia helmiä.</p>
+      <p><strong>Vapaassa pelissä</strong> kierroksia riittää loputtomiin. Vaikeustason valitset valikosta: Helppo tarkoittaa biisejä, jotka kaikki tuntevat, Mahdoton harvinaisempia helmiä.</p>
       <h2>Musiikki</h2>
       <p>Pätkät ovat Applen julkisia 30 sekunnin esikuunteluja, jotka selain hakee suoraan Applelta. Peli ei tallenna musiikkia. Pätkä alkaa esikuuntelun alusta, ja mahdollinen hiljaisuus ohitetaan.</p>
       <p>Tulokset ja tilastot tallentuvat vain omaan selaimeesi.</p>

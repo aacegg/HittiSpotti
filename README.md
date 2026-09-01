@@ -9,7 +9,7 @@ Peli on puhdas selainsovellus: ei build-vaihetta, ei palvelinta, ei riippuvuuksi
 | Muoto | Kuvaus |
 | --- | --- |
 | **Päivän biisit** | Sama viisi biisiä kaikille pelaajille saman päivän aikana. Maksimi 6 000 pistettä. Tuloksen voi kopioida ja jakaa kavereille. |
-| **Vapaa peli** | Loputtomasti kierroksia. Vaikeustaso valitaan sivupalkista (Helppo–Mestari tai Kaikki). |
+| **Vapaa peli** | Loputtomasti kierroksia. Vaikeustaso valitaan sivupalkista (Helppo–Mahdoton tai Kaikki). |
 
 Pisteet askeleittain: **1 200 · 975 · 750 · 525 · 300**. Jos 15 sekunnin jälkeenkään ei nappaa, kierroksesta saa nolla.
 
@@ -62,7 +62,7 @@ Kaikki biisit ovat tiedostossa [`songs.json`](songs.json). Yksi biisi näyttää
 }
 ```
 
-- `tier` on vaikeustaso 1–5: **1** = kaikki tuntevat, **5** = harvinaisempi helmi. Päivän biisit -pelissä viisikko arvotaan tasoilta 1, 2, 3, 4 ja 3.
+- `tier` on vaikeustaso 1–5, joka näkyy pelissä nimillä **1** Helppo, **2** Keskitaso, **3** Vaikea, **4** Mestari ja **5** Mahdoton. Ykkönen on biisi, jonka kaikki tuntevat, vitonen harvinaisempi helmi. Päivän biisit -pelissä viisikko arvotaan tasoilta 1, 2, 3, 4 ja 3.
 - `id`, `preview`, `art` ja `itunes` tulevat iTunesista. Niitä ei tarvitse kirjoittaa käsin.
 
 ### Uusien biisien lisääminen

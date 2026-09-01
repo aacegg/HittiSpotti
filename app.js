@@ -9,9 +9,10 @@
   const POINTS = [1200, 975, 750, 525, 300];   // pisteet, jos tunnistat tällä askeleella
   const DAILY_COUNT = 5;
   const DAILY_TIERS = [1, 2, 3, 4, 3];         // päivän sarjan vaikeusjakauma
-  const TIER_NAMES = { 0: "Kaikki", 1: "Helppo", 2: "Tuttu", 3: "Keskitaso", 4: "Vaikea", 5: "Mestari" };
+  const TIER_NAMES = { 0: "Kaikki", 1: "Helppo", 2: "Keskitaso", 3: "Vaikea", 4: "Mestari", 5: "Mahdoton" };
   const STORE = "hittispotti:";
   const STORE_OLD = "songspot-suomi:";         // aiempi nimi, tiedot siirretään kerran
+  const RING = 2 * Math.PI * 54;               // soittopainikkeen kehän pituus (r = 54)
 
   // ---------- Tila ----------
   const state = {
@@ -64,10 +65,10 @@
     loadingText: $("#loading-text"),
     modeLabel: $("#mode-label"),
     scoreLabel: $("#score-label"),
-    tile: $("#play-tile"),
-    tileIcon: $("#tile-icon"),
-    tileLen: $("#tile-len"),
-    tileFill: $("#tile-fill"),
+    playBtn: $("#play-btn"),
+    playIcon: $("#play-icon"),
+    clipLen: $("#clip-len"),
+    ring: $("#ring-fg"),
     ladder: $("#ladder"),
     hint: $("#hint"),
     form: $("#guess-form"),
@@ -390,9 +391,9 @@
     stopFallback();
     cancelAnimationFrame(audio.raf);
     audio.playing = false;
-    el.tile.classList.remove("is-playing");
-    el.tileIcon.textContent = "▶";
-    el.tileFill.style.width = "0%";
+    el.playBtn.classList.remove("is-playing");
+    el.playIcon.textContent = "▶";
+    el.ring.style.strokeDashoffset = RING;
   }
 
   function animateBar(seconds) {
@@ -400,7 +401,7 @@
     const start = performance.now();
     const tick = () => {
       const t = Math.min(1, (performance.now() - start) / (visual * 1000));
-      el.tileFill.style.width = (t * 100).toFixed(1) + "%";
+      el.ring.style.strokeDashoffset = RING * (1 - t);
       if (t < 1) audio.raf = requestAnimationFrame(tick);
       else stopPlayback();
     };
@@ -411,19 +412,19 @@
     const song = state.current;
     if (!song) return;
     stopPlayback();
-    el.tile.disabled = true;
-    el.tileIcon.textContent = "…";
+    el.playBtn.disabled = true;
+    el.playIcon.textContent = "…";
 
     const ready = () => {
-      el.tile.disabled = false;
+      el.playBtn.disabled = false;
       audio.playing = true;
-      el.tile.classList.add("is-playing");
-      el.tileIcon.textContent = "■";
+      el.playBtn.classList.add("is-playing");
+      el.playIcon.textContent = "■";
     };
     const failed = (err) => {
       console.error(err);
-      el.tile.disabled = false;
-      el.tileIcon.textContent = "▶";
+      el.playBtn.disabled = false;
+      el.playIcon.textContent = "▶";
       el.hint.textContent = "Pätkän lataus epäonnistui. Tarkista verkkoyhteys tai ohita biisi.";
       toast("Esikuuntelua ei saatu ladattua.");
     };
@@ -530,7 +531,7 @@
       ? `Päivän biisit · ${todayPretty()}`
       : `Vapaa peli · ${TIER_NAMES[state.tier]}`;
     el.scoreLabel.textContent = `${fmt(state.score)} p`;
-    el.tileLen.textContent = fmtSec(STEPS[state.finished ? STEPS.length - 1 : state.step]);
+    el.clipLen.textContent = fmtSec(STEPS[state.finished ? STEPS.length - 1 : state.step]);
     el.ladder.innerHTML = "";
     STEPS.forEach((sec, i) => {
       const li = document.createElement("li");
@@ -884,7 +885,7 @@
       go("free");
     });
 
-    el.tile.addEventListener("click", () => {
+    el.playBtn.addEventListener("click", () => {
       if (audio.playing) { stopPlayback(); return; }
       playClip(state.finished ? STEPS[STEPS.length - 1] : STEPS[state.step]);
     });
@@ -902,7 +903,7 @@
 
     document.addEventListener("keydown", (e) => {
       if (state.view !== "game" || e.target === el.input || e.target.tagName === "BUTTON") return;
-      if (e.key === " ") { e.preventDefault(); el.tile.click(); }
+      if (e.key === " ") { e.preventDefault(); el.playBtn.click(); }
       else if (e.key === "Enter" && state.finished) nextRound();
     });
   }

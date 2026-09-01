@@ -552,6 +552,7 @@
     el.reveal.hidden = false;
     el.reveal.classList.toggle("is-correct", solved);
     el.reveal.classList.toggle("is-wrong", !solved);
+    el.revealArt.hidden = !song.art;
     el.revealArt.src = song.art || "";
     el.revealArt.alt = song.art ? `${song.title} – kansikuva` : "";
     el.revealVerdict.textContent = solved
@@ -884,6 +885,11 @@
     el.shareBtn.addEventListener("click", copyShare);
     el.resultsAgainBtn.addEventListener("click", startFree);
     el.resetStatsBtn.addEventListener("click", resetStats);
+    // Piilota kansikuva, jos sitä ei saada ladattua (ei näytetä rikkinäistä kuvaa).
+    el.revealArt.addEventListener("error", () => { el.revealArt.hidden = true; });
+    el.resultsList.addEventListener("error", (e) => {
+      if (e.target.tagName === "IMG") e.target.style.visibility = "hidden";
+    }, true);
 
     document.addEventListener("keydown", (e) => {
       if (el.views.game.hidden) return;

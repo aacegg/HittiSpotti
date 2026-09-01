@@ -8,7 +8,7 @@
   const STEPS = [0.1, 0.5, 2, 8, 15];          // pätkän pituus sekunteina
   const POINTS = [1200, 975, 750, 525, 300];   // pisteet, jos tunnistat tällä askeleella
   const DAILY_COUNT = 5;
-  const DAILY_TIERS = [1, 2, 3, 4, 3];         // päivän sarjan vaikeusjakauma
+  const DAILY_TIERS = [1, 2, 3, 4, 5];         // yksi biisi jokaiselta tasolta, helpoimmasta vaikeimpaan
   const TIER_NAMES = { 0: "Kaikki", 1: "Helppo", 2: "Keskitaso", 3: "Vaikea", 4: "Mestari", 5: "Mahdoton" };
   const STORE = "hittispotti:";
   const STORE_OLD = "songspot-suomi:";         // aiempi nimi, tiedot siirretään kerran
@@ -69,6 +69,7 @@
     playIcon: $("#play-icon"),
     clipLen: $("#clip-len"),
     ring: $("#ring-fg"),
+    tierBadge: $("#tier-badge"),
     ladder: $("#ladder"),
     hint: $("#hint"),
     form: $("#guess-form"),
@@ -135,15 +136,6 @@
       t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
       return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
-  }
-
-  function shuffle(arr, rnd) {
-    const a = arr.slice();
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(rnd() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
   }
 
   function escapeHtml(s) {
@@ -266,7 +258,7 @@
       picked.push(song);
       ids.add(song.id);
     }
-    return shuffle(picked, rnd);
+    return picked;
   }
 
   // ---------- Ääni ----------
@@ -531,6 +523,9 @@
       ? `Päivän biisit · ${todayPretty()}`
       : `Vapaa peli · ${TIER_NAMES[state.tier]}`;
     el.scoreLabel.textContent = `${fmt(state.score)} p`;
+    const tier = state.current ? state.current.tier : 0;
+    el.tierBadge.textContent = TIER_NAMES[tier] || "";
+    el.tierBadge.dataset.tier = tier;
     el.clipLen.textContent = fmtSec(STEPS[state.finished ? STEPS.length - 1 : state.step]);
     el.ladder.innerHTML = "";
     STEPS.forEach((sec, i) => {
@@ -754,11 +749,13 @@
     state.results.forEach((r) => {
       const s = r.song || state.byId.get(String(r.id)) || { title: "?", artist: "?", art: "", year: "" };
       const li = document.createElement("li");
+      li.dataset.tier = s.tier ?? "";
       li.innerHTML = `
         <img src="${escapeHtml(s.art || "")}" alt="" loading="lazy">
         <div>
           <div class="r-title">${escapeHtml(s.title)}</div>
           <div class="r-artist">${escapeHtml(s.artist)} · ${escapeHtml(s.year ?? "")}</div>
+          <div class="r-tier">${escapeHtml(TIER_NAMES[s.tier] || "")}</div>
           <div class="r-squares">${squares(r)}</div>
         </div>
         <div class="r-points${r.solved ? "" : " zero"}">${r.solved ? "+" + fmt(r.points) : "0"}</div>`;

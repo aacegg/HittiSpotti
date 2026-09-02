@@ -525,7 +525,7 @@
     } else {
       el.reveal.hidden = true;
       el.form.hidden = false;
-      el.hint.textContent = "Paina kuunnellaksesi.";
+      el.hint.textContent = "";
     }
     renderRound();
   }
@@ -556,10 +556,11 @@
   function renderTierBar() {
     if (state.mode === "daily") {
       el.tierBar.innerHTML = state.rounds.map((r, i) => {
-        const mark = r.finished ? (r.solved ? " ✓" : " ✕") : "";
-        const cls = i === state.at ? " is-on" : r.finished ? " is-done" : "";
+        const done = r.finished ? (r.solved ? "ratkaistu" : "ei ratkaistu") : "kesken";
+        const cls = i === state.at ? " is-on" : r.finished ? (r.solved ? " is-ok" : " is-miss") : "";
         return `<button type="button" class="tchip${cls}" data-slot="${i}" data-tier="${r.song.tier}"
-          aria-pressed="${i === state.at}">${TIER_NAMES[r.song.tier]}${mark}</button>`;
+          aria-pressed="${i === state.at}" aria-label="${TIER_NAMES[r.song.tier]}, ${done}"
+          >${TIER_NAMES[r.song.tier]}</button>`;
       }).join("");
       return;
     }
@@ -596,15 +597,13 @@
     logGuess(type, label);
   }
 
-  function advanceStep(reason) {
+  function advanceStep() {
     const r = cur();
     if (r.finished) return;
     if (r.step >= STEPS.length - 1) { finishRound(false); return; }
     r.step += 1;
     renderRound();
-    el.hint.textContent = reason === "skip"
-      ? `Ohitettu. Pätkä on nyt ${fmtSec(STEPS[r.step])}.`
-      : `Ei osunut. Pätkä on nyt ${fmtSec(STEPS[r.step])}.`;
+    el.hint.textContent = "";
     playClip(STEPS[r.step]);
     el.input.value = "";
     state.selected = null;
@@ -618,14 +617,14 @@
     const guess = state.selected || exactMatch(el.input.value);
     if (!guess) { toast("Valitse biisi listasta."); return; }
     if (guess.id === r.song.id) finishRound(true);
-    else { addGuess("wrong", guess.label); advanceStep("wrong"); }
+    else { addGuess("wrong", guess.label); advanceStep(); }
   }
 
   function skipStep() {
     const r = cur();
     if (r.finished) return;
     addGuess("skip", r.step >= STEPS.length - 1 ? "Luovutettu" : `Ohitettu ${fmtSec(STEPS[r.step])}`);
-    advanceStep("skip");
+    advanceStep();
   }
 
   function showReveal(r) {
@@ -644,7 +643,6 @@
     el.revealTitle.textContent = song.title;
     el.revealArtist.textContent = `${song.artist} · ${song.year}`;
     el.revealPoints.textContent = r.solved ? `+${fmt(r.points)} pistettä` : "0 pistettä";
-    el.hint.textContent = r.solved ? "Hienoa!" : "Kuuntele koko pätkä, jos haluat.";
     const left = state.mode === "daily" && state.rounds.some((x) => !x.finished);
     el.nextBtn.textContent = state.mode === "daily" && !left ? "Tulokset" : "Seuraava";
   }

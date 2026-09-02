@@ -16,7 +16,8 @@
 
   // ---------- Tila ----------
   const state = {
-    songs: [],
+    songs: [],           // kaikki – näistä haetaan ja arvataan
+    pool: [],            // näistä peli jakaa biisit
     byId: new Map(),
     mode: "daily",        // "daily" | "free"
     rounds: [],           // biisikohtaiset tilat, päivän pelissä viisi
@@ -229,7 +230,7 @@
     el.navDailyNote.textContent = done
       ? `pelattu tänään · ${fmt(done.score)} p`
       : `viisi biisiä · ${todayPretty()}`;
-    el.drawerFoot.textContent = `${state.songs.length} suomibiisiä · tulokset tallentuvat vain tähän selaimeen`;
+    el.drawerFoot.textContent = `${state.pool.length} arvattavaa biisiä · tulokset tallentuvat vain tähän selaimeen`;
     // "Uusi sarja" koskee vain vapaata peliä, joten se näkyy vasta siellä.
     el.freeReset.hidden = !(state.mode === "free" && state.view === "game");
     el.navFreeNote.textContent = !freeStarted() ? "aloita sarja alusta"
@@ -247,6 +248,10 @@
     if (!res.ok) throw new Error("songs.json ei latautunut (" + res.status + ")");
     const all = await res.json();
     state.songs = all.filter((s) => s.preview && s.id);
+    /* Osa biiseistä on mukana vain hakulistan täytteenä: ne eivät koskaan
+     * tule arvattavaksi, mutta tekevät ehdotuslistasta niin tiheän, ettei
+     * oikeaa vastausta voi päätellä pelkästään siitä mitä listalla on. */
+    state.pool = state.songs.filter((s) => s.peli !== false);
     state.songs.forEach((s) => {
       s.label = `${s.artist} – ${s.title}`;
       s.key = normalize(s.artist + " " + s.title);
@@ -254,7 +259,7 @@
       s.keyArtist = normalize(s.artist);
       state.byId.set(String(s.id), s);
     });
-    if (state.songs.length < DAILY_COUNT) throw new Error("Katalogissa on liian vähän biisejä.");
+    if (state.pool.length < DAILY_COUNT) throw new Error("Katalogissa on liian vähän biisejä.");
   }
 
   /* Päivän biisejä ei arvota päivä kerrallaan vaan pakka sekoitetaan kerran:
@@ -312,7 +317,7 @@
     const picked = [];
     for (const tier of TIER_CYCLE) {
       // Vakaa lähtöjärjestys, ettei songs.json:in rivijärjestys vaikuta.
-      const list = state.songs.filter((s) => s.tier === tier).sort((a, b) => a.id - b.id);
+      const list = state.pool.filter((s) => s.tier === tier).sort((a, b) => a.id - b.id);
       if (!list.length) continue;
       const n = list.length;
       const at = ((day % n) + n) % n;
@@ -322,7 +327,7 @@
     const ids = new Set(picked.map((s) => s.id));
     const rnd = mulberry32(hashString("hittispotti:fill:" + key));
     while (picked.length < DAILY_COUNT) {
-      const pool = state.songs.filter((s) => !ids.has(s.id));
+      const pool = state.pool.filter((s) => !ids.has(s.id));
       if (!pool.length) break;
       const song = pool[Math.floor(rnd() * pool.length)];
       picked.push(song);
@@ -576,11 +581,11 @@
   }
 
   function pickFreeSong(tier) {
-    let pool = state.songs.filter((s) => s.tier === tier && !state.used.has(s.id));
+    let pool = state.pool.filter((s) => s.tier === tier && !state.used.has(s.id));
     if (!pool.length) {
       // Taso käyty läpi: aloitetaan se alusta muita tasoja nollaamatta.
-      state.songs.forEach((s) => { if (s.tier === tier) state.used.delete(s.id); });
-      pool = state.songs.filter((s) => s.tier === tier);
+      state.pool.forEach((s) => { if (s.tier === tier) state.used.delete(s.id); });
+      pool = state.pool.filter((s) => s.tier === tier);
     }
     const song = pool[Math.floor(Math.random() * pool.length)];
     state.used.add(song.id);

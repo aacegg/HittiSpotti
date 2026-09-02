@@ -167,7 +167,9 @@ const KEY = "hittispotti:arviot";
 let saved = { arviot: {}, poista: [] };
 try { saved = Object.assign(saved, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch {}
 const rate = new Map(Object.entries(saved.arviot).map(([k, v]) => [Number(k), v]));
-const gone = new Set(saved.poista);
+// Katalogissa jo pelistä poistetut ovat valmiiksi merkittyinä, ettei samaa
+// biisiä tarvitse arvioida uudestaan toisella koneella tai muistin tyhjennyttyä.
+const gone = new Set([...saved.poista, ...SONGS.filter((s) => s.peli === false).map((s) => s.id)]);
 
 const $ = (s) => document.querySelector(s);
 const list = $("#list");
@@ -348,6 +350,7 @@ def main() -> int:
         "id": s["id"], "artist": s["artist"], "title": s["title"],
         "year": s.get("year"), "tier": s["tier"],
         "preview": s["preview"], "art": s.get("art", ""),
+        "peli": s.get("peli", True),
     } for s in songs]
     data = json.dumps(slim, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     OUT.write_text(TEMPLATE.replace("__DATA__", data), encoding="utf-8")

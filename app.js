@@ -252,13 +252,73 @@
     if (state.songs.length < DAILY_COUNT) throw new Error("Katalogissa on liian vähän biisejä.");
   }
 
+  /* Päivän biisejä ei arvota päivä kerrallaan vaan pakka sekoitetaan kerran:
+   * jokainen taso saa oman satunnaisen järjestyksen, jota käydään läpi päivä
+   * kerrallaan. Riippumattomassa arvonnassa mikään ei estänyt samaa biisiä
+   * osumasta peräkkäisinä päivinä – 35 biisin Mahdoton toistui kahden viikon
+   * sisällä 95 %:n todennäköisyydellä. Nyt biisi palaa vasta kun koko taso on
+   * käyty läpi, eli aikaisintaan tason biisimäärän verran päiviä myöhemmin.
+   * Järjestys on yhä pelkkä päivämäärän funktio, joten sarja on sama kaikilla
+   * ilman palvelinta. */
+  const DAY_MS = 86400000;
+  const EPOCH = Date.UTC(2025, 0, 1);
+
+  function dayIndex(key) {
+    const [y, m, d] = key.split("-").map(Number);
+    return Math.floor((Date.UTC(y, m - 1, d) - EPOCH) / DAY_MS);
+  }
+
+  // Fisher–Yates siemenellä: sama kierros tuottaa aina saman järjestyksen.
+  function shuffled(list, seed) {
+    const rnd = mulberry32(seed);
+    const out = list.slice();
+    for (let i = out.length - 1; i > 0; i--) {
+      const j = Math.floor(rnd() * (i + 1));
+      [out[i], out[j]] = [out[j], out[i]];
+    }
+    return out;
+  }
+
+  /* Kierrosten sauma on ainoa kohta, jossa lyhyt toisto vielä mahtuisi
+   * syntymään: edellisen pakan loppu ja uuden alku ovat päiviä peräkkäin.
+   * Siksi uuden alkupäästä siirretään pois kaikki, jotka olivat edellisen
+   * loppupäässä. Vaihtopari haetaan pakan keskeltä, ei lopusta, jotta tämän
+   * kierroksen häntä pysyy samana kuin sekoitus antoi – muuten seuraava sauma
+   * vertaisi väärään järjestykseen. */
+  const GAP = 7;
+
+  function tierOrder(list, tier, cycle) {
+    const order = shuffled(list, hashString(`hittispotti:${tier}:${cycle}`));
+    const n = order.length;
+    if (cycle <= 0 || n < 2 * GAP + 2) return order;
+    const prev = shuffled(list, hashString(`hittispotti:${tier}:${cycle - 1}`));
+    const tail = new Set(prev.slice(n - GAP).map((x) => x.id));
+    for (let i = 0; i < GAP; i++) {
+      if (!tail.has(order[i].id)) continue;
+      for (let j = GAP; j < n - GAP; j++) {
+        if (!tail.has(order[j].id)) { [order[i], order[j]] = [order[j], order[i]]; break; }
+      }
+    }
+    return order;
+  }
+
   function dailySongs(key) {
-    const rnd = mulberry32(hashString("songspot-suomi:" + key)); // siemen pidetään ennallaan, ettei päivän sarja vaihdu
+    const day = dayIndex(key);
     const picked = [];
-    const ids = new Set();
     for (const tier of TIER_CYCLE) {
-      let pool = state.songs.filter((s) => s.tier === tier && !ids.has(s.id));
-      if (!pool.length) pool = state.songs.filter((s) => !ids.has(s.id));
+      // Vakaa lähtöjärjestys, ettei songs.json:in rivijärjestys vaikuta.
+      const list = state.songs.filter((s) => s.tier === tier).sort((a, b) => a.id - b.id);
+      if (!list.length) continue;
+      const n = list.length;
+      const at = ((day % n) + n) % n;
+      picked.push(tierOrder(list, tier, Math.floor(day / n))[at]);
+    }
+    // Jos jokin taso olisi tyhjä, täytetään viisikko muilta tasoilta.
+    const ids = new Set(picked.map((s) => s.id));
+    const rnd = mulberry32(hashString("hittispotti:fill:" + key));
+    while (picked.length < DAILY_COUNT) {
+      const pool = state.songs.filter((s) => !ids.has(s.id));
+      if (!pool.length) break;
       const song = pool[Math.floor(rnd() * pool.length)];
       picked.push(song);
       ids.add(song.id);

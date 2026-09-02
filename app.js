@@ -81,6 +81,7 @@
     revealVerdict: $("#reveal-verdict"),
     revealTitle: $("#reveal-title"),
     revealArtist: $("#reveal-artist"),
+    revealApple: $("#reveal-apple"),
     revealPoints: $("#reveal-points"),
     rate: $("#rate"),
     rateQ: $("#rate-q"),
@@ -755,6 +756,9 @@
       : "Ei tällä kertaa";
     el.revealTitle.textContent = song.title;
     el.revealArtist.textContent = `${song.artist} · ${song.year}`;
+    // Sama trackId kuin esikuuntelussa; Apple ohjaa sen kappaleen sivulle.
+    el.revealApple.href = `https://music.apple.com/fi/song/${song.id}`;
+    el.revealApple.setAttribute("aria-label", `Kuuntele ${song.artist} – ${song.title} Apple Musicissa`);
     el.revealPoints.textContent = r.solved ? `+${fmt(r.points)} pistettä` : "0 pistettä";
     renderRate(song);
     // Viimeisen biisin jälkeen nappi vie tuloksiin kummassakin pelimuodossa.

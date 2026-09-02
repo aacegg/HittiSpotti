@@ -38,8 +38,12 @@
   --line: #2a2521;
   --line-soft: #1b1815;
   --text: #f2ebdf;
+  /* Molemmat harmaat yltävät WCAG AA:n rajaan 4,5:1 sekä --bg:tä että
+     --bg-lift:iä vasten: --muted 5,13/4,82 ja --dim 4,84/4,55. Älä tummenna
+     kumpaakaan – ne kantavat 11–12 px:n tekstit (portaat, tasopillerit,
+     valikon selitteet), jotka katoavat ensimmäisenä kirkkaassa valossa. */
   --muted: #8a8073;
-  --dim: #5f584e;
+  --dim: #857c6f;
 
   /* Vaikeustasojen sävyaste helposta mahdottomaan. */
   --t1: #5ecf9a;
@@ -727,6 +731,23 @@ button.tchip:hover { color: var(--text); }
   line-height: 1.1;
 }
 .reveal-artist { margin-top: 2px; color: var(--muted); font-size: 13px; }
+/* Hillitty: pelaaja tulee tähän tietääkseen mikä biisi oli, ei klikatakseen
+   pois. Nuoli kertoo että linkki avaa uuden välilehden. */
+.reveal-apple {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 1px;
+}
+.reveal-apple:hover,
+.reveal-apple:focus-visible { color: var(--text); border-bottom-color: var(--muted); }
+.reveal-apple svg { flex: none; opacity: .8; }
 .reveal-points {
   grid-column: 1 / -1;
   margin-top: 2px;

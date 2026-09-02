@@ -8,7 +8,7 @@ Peli on puhdas selainsovellus: ei build-vaihetta, ei palvelinta, ei riippuvuuksi
 
 | Muoto | Kuvaus |
 | --- | --- |
-| **Päivän biisit** | Sama viisi biisiä kaikille pelaajille saman päivän aikana, yksi jokaiselta vaikeustasolta helpoimmasta vaikeimpaan. Maksimi 6 000 pistettä. Tuloksen voi kopioida ja jakaa kavereille. |
+| **Päivän biisit** | Sama viisi biisiä kaikille pelaajille saman päivän aikana, yksi jokaiselta vaikeustasolta. Biisien välillä voi liikkua vapaasti ja palata kesken jääneeseen. Maksimi 6 000 pistettä. Tuloksen voi kopioida ja jakaa kavereille. |
 | **Vapaa peli** | Loputtomasti kierroksia. Kiertää oletuksena kaikki tasot, mutta yhden tason voi lukita pelinäkymän tasoriviltä. |
 
 Pisteet askeleittain: **1 200 · 975 · 750 · 525 · 300**. Jos 15 sekunnin jälkeenkään ei nappaa, kierroksesta saa nolla.
@@ -17,7 +17,7 @@ Tulokset ja tilastot tallentuvat vain omaan selaimeen (localStorage).
 
 ## Käyttöliittymä
 
-Sivu avautuu suoraan päivän peliin. Vasemman yläkulman valikosta vaihdetaan vapaaseen peliin ja avataan tilastot ja ohjeet. Soittimen yläpuolella on tasorivi: vapaassa pelissä sillä vaihdetaan tasoa, päivän pelissä se näyttää missä kohtaa viisikkoa ollaan. Ulkoasu on tarkoituksella riisuttu: tumma tausta, yksi korostusväri ja ei liukuvärejä eikä varjoja.
+Sivu avautuu suoraan päivän peliin. Vasemman yläkulman valikosta vaihdetaan vapaaseen peliin ja avataan tilastot ja ohjeet. Soittimen yläpuolella on tasorivi: päivän pelissä sillä siirrytään viisikon biisien välillä, vapaassa pelissä sillä vaihdetaan vaikeustasoa. Ulkoasu on tarkoituksella riisuttu: tumma tausta, yksi korostusväri ja ei liukuvärejä eikä varjoja.
 
 ## Mistä pätkä alkaa
 

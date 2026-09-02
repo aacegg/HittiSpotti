@@ -525,9 +525,7 @@
     } else {
       el.reveal.hidden = true;
       el.form.hidden = false;
-      el.hint.textContent = state.pinned
-        ? `${TIER_NAMES[state.pinned]} lukittu — napauta sitä uudelleen palataksesi kiertoon.`
-        : "Paina kuunnellaksesi.";
+      el.hint.textContent = "Paina kuunnellaksesi.";
     }
     renderRound();
   }

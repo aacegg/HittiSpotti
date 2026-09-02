@@ -22,7 +22,6 @@
     rounds: [],           // biisikohtaiset tilat, päivän pelissä viisi
     at: 0,                // mikä niistä on auki
     used: new Set(),
-    freeCount: 0,
     results: [],
     score: 0,
     selected: null,
@@ -196,9 +195,7 @@
 
   function updateBar() {
     if (state.view === "game" && state.rounds.length) {
-      el.barTag.textContent = state.mode === "daily"
-        ? `${state.rounds.filter((r) => r.finished).length}/${DAILY_COUNT} valmis`
-        : `Kierros ${state.freeCount + 1}`;
+      el.barTag.textContent = `${state.rounds.filter((r) => r.finished).length}/${state.rounds.length} valmis`;
     } else {
       el.barTag.textContent = "";
     }
@@ -217,17 +214,22 @@
     el.menuBtn.setAttribute("aria-expanded", "false");
   }
 
+  /* Onko kesken olevassa sarjassa mitään menetettävää: yksikin biisi, jota on
+   * ehditty ohittaa tai arvata. Koskematon sarja saa vaihtua ilman kyselyä. */
+  const atRisk = () => state.view === "game" && state.rounds.some((r) => r.finished || r.step > 0);
+  const freeStarted = () => state.mode === "free" && atRisk();
+
   function refreshDrawer() {
     const done = store.get("daily:" + todayKey(), null);
     el.navDailyNote.textContent = done
       ? `pelattu tänään · ${fmt(done.score)} p`
       : `viisi biisiä · ${todayPretty()}`;
     el.drawerFoot.textContent = `${state.songs.length} suomibiisiä · tulokset tallentuvat vain tähän selaimeen`;
-    // "Uudet biisit" koskee vain vapaata peliä, joten se näkyy vasta siellä.
+    // "Uusi sarja" koskee vain vapaata peliä, joten se näkyy vasta siellä.
     el.freeReset.hidden = !(state.mode === "free" && state.view === "game");
-    el.navFreeNote.textContent = !state.freeCount ? "aloita vapaa peli alusta"
-      : state.score ? `nollaa kierros ${state.freeCount + 1} ja ${fmt(state.score)} p`
-      : `nollaa kierros ${state.freeCount + 1}`;
+    el.navFreeNote.textContent = !freeStarted() ? "aloita sarja alusta"
+      : state.score ? `nollaa sarja ja ${fmt(state.score)} p`
+      : "nollaa aloitettu sarja";
     document.querySelectorAll("[data-go]").forEach((b) => {
       const isMode = b.dataset.go === "daily" || b.dataset.go === "free";
       if (isMode) b.classList.toggle("is-active", state.view === "game" && state.mode === b.dataset.go);
@@ -491,15 +493,14 @@
     state.rounds.forEach((r) => prefetch(r.song));
   }
 
-  /* Vapaassa pelissä on auki viisi kierrosta, yksi jokaiselta tasolta, aivan
-   * kuten päivän pelissä. Tasorivi on siis navigointia: kesken jäänyt biisi
-   * odottaa omalla tasollaan, kunnes palaat siihen. Ero päivän peliin on,
-   * että valmis kierros korvautuu heti saman tason uudella biisillä, joten
-   * kierroksia riittää loputtomiin. */
+  /* Vapaa peli on satunnainen viiden biisin sarja, yksi jokaiselta tasolta:
+   * sama rakenne kuin päivän pelissä, mutta sarjoja voi pelata niin monta
+   * kuin haluaa. Sarja päättyy tuloksiin ja seuraava alkaa puhtaalta
+   * pöydältä, joten pisteet eivät kasaannu loputtomiin. */
   function startFree() {
+    // state.used säilyy sivun latauksen yli, joten peräkkäisissä sarjoissa ei
+    // tule samoja biisejä uudestaan.
     state.mode = "free";
-    state.used = new Set();
-    state.freeCount = 0;
     state.results = [];
     state.score = 0;
     state.rounds = TIER_CYCLE.map((t) => newRound(pickFreeSong(t)));
@@ -575,16 +576,13 @@
   /* Tasorivi on biisien välinen navigointi kummassakin pelimuodossa: viisikko
    * pysyy paikallaan ja kesken jääneeseen biisiin voi palata myöhemmin. */
   function renderTierBar() {
-    const daily = state.mode === "daily";
     el.tierBar.innerHTML = state.rounds.map((r, i) => {
       const name = TIER_NAMES[r.song.tier];
       let cls = "";
       let state_ = "kesken";
       if (i === state.at) {
         cls = " is-on";
-      } else if (daily && r.finished) {
-        // Päivän pelissä pelattu biisi jää paikalleen merkittynä. Vapaassa
-        // pelissä valmis kierros vaihtuu heti uuteen, joten sitä tilaa ei ole.
+      } else if (r.finished) {
         cls = r.solved ? " is-ok" : " is-miss";
         state_ = r.solved ? "ratkaistu" : "ei ratkaistu";
       } else if (r.step > 0) {
@@ -669,8 +667,8 @@
     el.revealTitle.textContent = song.title;
     el.revealArtist.textContent = `${song.artist} · ${song.year}`;
     el.revealPoints.textContent = r.solved ? `+${fmt(r.points)} pistettä` : "0 pistettä";
-    const left = state.mode === "daily" && state.rounds.some((x) => !x.finished);
-    el.nextBtn.textContent = state.mode === "daily" && !left ? "Tulokset" : "Seuraava";
+    // Viimeisen biisin jälkeen nappi vie tuloksiin kummassakin pelimuodossa.
+    el.nextBtn.textContent = state.rounds.some((x) => !x.finished) ? "Seuraava" : "Tulokset";
   }
 
   function finishRound(solved) {
@@ -680,39 +678,26 @@
     r.solved = solved;
     r.points = solved ? POINTS[r.step] : 0;
     state.score += r.points;
-    if (state.mode === "free") {
-      state.results.push({ id: r.song.id, song: r.song, step: r.step, points: r.points, solved });
-      bumpFreeStats(solved, r.points);
-    }
     renderRound();
     showReveal(r);
     el.nextBtn.focus({ preventScroll: true });
-    if (state.mode === "daily" && state.rounds.every((x) => x.finished)) {
+    if (state.rounds.every((x) => x.finished)) {
       state.results = state.rounds.map((x) => ({
         id: x.song.id, song: x.song, step: x.step, points: x.points, solved: x.solved,
       }));
-      saveDaily();
+      if (state.mode === "daily") saveDaily();
+      else saveFree();
     }
   }
 
   function nextRound() {
-    if (state.mode === "daily") {
-      // Siirry seuraavaan kesken olevaan biisiin, tarvittaessa alusta kiertäen.
-      for (let k = 1; k <= state.rounds.length; k++) {
-        const i = (state.at + k) % state.rounds.length;
-        if (!state.rounds[i].finished) { state.at = i; openRound(); return; }
-      }
-      renderResults();
-      show("results");
-      return;
+    // Siirry seuraavaan kesken olevaan biisiin, tarvittaessa alusta kiertäen.
+    for (let k = 1; k <= state.rounds.length; k++) {
+      const i = (state.at + k) % state.rounds.length;
+      if (!state.rounds[i].finished) { state.at = i; openRound(); return; }
     }
-    // Pelattu biisi korvataan samalta tasolta uudella, ja kierto siirtyy
-    // seuraavalle tasolle. Kesken jääneet kierrokset säilyvät paikoillaan.
-    state.freeCount += 1;
-    state.rounds[state.at] = newRound(pickFreeSong(cur().song.tier));
-    prefetch(state.rounds[state.at].song);
-    state.at = (state.at + 1) % state.rounds.length;
-    openRound();
+    renderResults();
+    show("results");
   }
 
 
@@ -824,8 +809,8 @@
       lines.push(`🎵 HittiSpotti · ${todayPretty()}`);
       lines.push(`${fmt(state.score)} / ${fmt(POINTS[0] * DAILY_COUNT)} pistettä`);
     } else {
-      lines.push("🎵 HittiSpotti · vapaa peli");
-      lines.push(`${fmt(state.score)} pistettä · ${state.results.length} ${state.results.length === 1 ? "biisi" : "biisiä"}`);
+      lines.push("🎵 HittiSpotti · vapaa sarja");
+      lines.push(`${fmt(state.score)} / ${fmt(POINTS[0] * state.results.length)} pistettä`);
     }
     lines.push("");
     state.results.forEach((r) => lines.push(`${squares(r)} ${r.solved ? fmt(r.points) : "0"}`));
@@ -841,15 +826,13 @@
     const solved = state.results.filter((r) => r.solved).length;
     el.resultsKicker.textContent = daily ? `Päivän biisit · ${todayPretty()}` : "Vapaa peli";
     el.resultsScore.textContent = fmt(state.score);
-    if (daily) {
-      el.resultsTitle.textContent = state.score >= 5000 ? "Mestarillista!"
-        : state.score >= 3000 ? "Hyvä korva!"
-        : state.score > 0 ? "Ihan kelpo" : "Huomenna uudestaan";
-      el.resultsSub.textContent = `Tunnistit ${solved}/${DAILY_COUNT} biisistä. Uusi sarja huomenna.`;
-    } else {
-      el.resultsTitle.textContent = "Peli päättyi";
-      el.resultsSub.textContent = `Tunnistit ${solved}/${state.results.length} biisistä.`;
-    }
+    el.resultsTitle.textContent = state.score >= 5000 ? "Mestarillista!"
+      : state.score >= 3000 ? "Hyvä korva!"
+      : state.score > 0 ? "Ihan kelpo"
+      : daily ? "Huomenna uudestaan" : "Uusiksi vaan";
+    el.resultsSub.textContent = daily
+      ? `Tunnistit ${solved}/${DAILY_COUNT} biisistä. Uusi sarja huomenna.`
+      : `Tunnistit ${solved}/${state.results.length} biisistä.`;
     el.resultsList.innerHTML = "";
     state.results.forEach((r) => {
       const s = r.song || state.byId.get(String(r.id)) || { title: "?", artist: "?", art: "", year: "" };
@@ -867,7 +850,7 @@
       el.resultsList.appendChild(li);
     });
     el.sharePreview.hidden = true;
-    el.againBtn.textContent = daily ? "Vapaa peli" : "Pelaa uudestaan";
+    el.againBtn.textContent = daily ? "Vapaa peli" : "Uusi sarja";
   }
 
   async function copyShare() {
@@ -890,7 +873,7 @@
   function defaultStats() {
     return {
       dailyPlayed: 0, dailyTotal: 0, dailyBest: 0, dailySolved: 0, streak: 0, bestStreak: 0, lastDaily: null,
-      freeRounds: 0, freeSolved: 0, freeTotal: 0, freeBestRun: 0,
+      freeGames: 0, freeRounds: 0, freeSolved: 0, freeTotal: 0, freeBestRun: 0,
     };
   }
 
@@ -912,11 +895,12 @@
     store.set("stats", stats);
   }
 
-  function bumpFreeStats(solved, points) {
+  function saveFree() {
     const stats = { ...defaultStats(), ...store.get("stats", {}) };
-    stats.freeRounds += 1;
-    if (solved) stats.freeSolved += 1;
-    stats.freeTotal += points;
+    stats.freeGames += 1;
+    stats.freeRounds += state.results.length;
+    stats.freeSolved += state.results.filter((r) => r.solved).length;
+    stats.freeTotal += state.score;
     stats.freeBestRun = Math.max(stats.freeBestRun, state.score);
     store.set("stats", stats);
   }
@@ -935,10 +919,10 @@
       [streak, todayDone ? "putki (päivää)" : "putki · tänään pelaamatta"],
       [s.bestStreak, "pisin putki"],
       ["head", "Vapaa peli"],
-      [s.freeRounds, "kierrosta"],
+      [s.freeGames, "pelattua sarjaa"],
+      [s.freeGames ? fmt(s.freeTotal / s.freeGames) : "–", "keskipisteet"],
+      [fmt(s.freeBestRun), "paras sarja"],
       [s.freeRounds ? Math.round((s.freeSolved / s.freeRounds) * 100) + " %" : "–", "tunnistettu"],
-      [fmt(s.freeBestRun), "paras peli"],
-      [s.freeRounds ? fmt(s.freeTotal / s.freeRounds) : "–", "pisteitä / kierros"],
     ];
     el.statGrid.innerHTML = tiles.map(([v, l]) => (v === "head"
       ? `<p class="stat-head">${l}</p>`
@@ -955,20 +939,18 @@
 
   // ---------- Navigointi ----------
   function go(target) {
-    const midRound = state.view === "game" && state.rounds.some((r) => !r.finished);
-    // Vapaan pelin nollaus: uusi biisipino kesken pelin. Varmistetaan vain,
-    // jos jotain oikeasti menetetään.
+    // Vapaan pelin nollaus: uusi sarja kesken pelin. Varmistetaan vain, jos
+    // jotain oikeasti menetetään.
     if (target === "refree") {
-      const lose = state.score > 0 || state.freeCount > 0 || midRound;
-      if (lose && !confirm("Vapaa peli alkaa alusta ja pisteet nollautuvat. Jatketaanko?")) return;
+      if (freeStarted() && !confirm("Sarja alkaa alusta ja pisteet nollautuvat. Jatketaanko?")) return;
       closeDrawer();
       stopPlayback();
       startFree();
-      toast("Uudet biisit.");
+      toast("Uusi sarja.");
       return;
     }
-    if ((target === "daily" || target === "free") && midRound
-      && !confirm("Kesken oleva kierros menetetään. Vaihdetaanko?")) return;
+    if ((target === "daily" || target === "free") && atRisk()
+      && !confirm("Kesken oleva sarja menetetään. Vaihdetaanko?")) return;
     closeDrawer();
     stopPlayback();
     if (target === "daily") startDaily();

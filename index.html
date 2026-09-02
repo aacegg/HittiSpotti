@@ -10,7 +10,7 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="favicon.svg">
   <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=14">
+  <link rel="stylesheet" href="style.css?v=16">
 </head>
 <body>
 
@@ -30,12 +30,12 @@
 
       <button type="button" class="navitem" data-go="free">
         <span class="navitem-name">Vapaa peli</span>
-        <span class="navitem-note">loputtomasti kierroksia</span>
+        <span class="navitem-note">viisi satunnaista biisiä</span>
       </button>
 
       <button type="button" class="navitem navitem-sub" id="free-reset" data-go="refree" hidden>
-        <span class="navitem-name">Uudet biisit</span>
-        <span class="navitem-note" id="nav-free-note">aloita vapaa peli alusta</span>
+        <span class="navitem-name">Uusi sarja</span>
+        <span class="navitem-note" id="nav-free-note">aloita sarja alusta</span>
       </button>
 
       <hr class="drawer-rule">
@@ -148,10 +148,10 @@
       </ol>
       <h2>Pelimuodot</h2>
       <p><strong>Päivän biisit</strong> on viiden biisin sarja, joka on sama kaikille pelaajille saman päivän aikana. Mukana on yksi biisi jokaiselta vaikeustasolta, ja ne tulevat helpoimmasta vaikeimpaan. Maksimi on 6 000 pistettä, ja tuloksen voi kopioida kavereille.</p>
-      <p><strong>Vapaassa pelissä</strong> kierroksia riittää loputtomiin. Auki on koko ajan viisi biisiä, yksi jokaiselta tasolta. Kun ratkaiset tai luovutat yhden, sen tilalle tulee heti saman tason uusi biisi ja vuoro siirtyy seuraavalle tasolle. Valikon <strong>Uudet biisit</strong> aloittaa vapaan pelin alusta, jos haluat kesken kaiken tuoreen biisipinon.</p>
+      <p><strong>Vapaa peli</strong> on samanlainen viiden biisin sarja, mutta biisit arvotaan ja sarjoja voi pelata niin monta kuin haluaa. Kun kaikki viisi on pelattu, näet sarjan pisteet ja seuraava sarja alkaa nollasta. Valikon <strong>Uusi sarja</strong> aloittaa kesken olevan sarjan alusta.</p>
       <h2>Tasorivi</h2>
       <p>Soittimen yläpuolella oleva rivi siirtää biisien välillä molemmissa pelimuodoissa. Biisit pysyvät paikoillaan, joten voit jättää vaikean kesken, kokeilla toista ja palata siihen myöhemmin — edistyminen odottaa siellä missä sen jätit. Aloitetun biisin taso näkyy värillisellä reunuksella.</p>
-      <p>Päivän pelissä ratkaistu biisi näkyy vihreänä ja ratkaisematta jäänyt yliviivattuna. Vapaassa pelissä noita merkkejä ei ole, koska valmis biisi vaihtuu heti uuteen.</p>
+      <p>Pelattu biisi näkyy rivillä vihreänä, jos tunnistit sen, ja yliviivattuna jos et.</p>
       <h2>Musiikki</h2>
       <p>Mukana on sekä suomen- että englanninkielisiä suomalaisia kappaleita. Pätkät ovat Applen julkisia 30 sekunnin esikuunteluja, jotka selain hakee suoraan Applelta. Peli ei tallenna musiikkia. Pätkä alkaa esikuuntelun alusta, ja mahdollinen hiljaisuus ohitetaan.</p>
       <p>Tulokset ja tilastot tallentuvat vain omaan selaimeesi.</p>
@@ -168,6 +168,6 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=14"></script>
+  <script src="app.js?v=16"></script>
 </body>
 </html>

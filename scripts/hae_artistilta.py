@@ -116,8 +116,10 @@ def main() -> int:
             if key in seen or want + "|" + key in have_titles or r["trackId"] in have_ids:
                 continue
             seen.add(key)
-            # Listalla alaspäin mentäessä biisit ovat vähemmän tunnettuja.
-            tier = min(5, base_tier + len(picked) // 2)
+            # Listalla alaspäin mentäessä biisit ovat vähemmän tunnettuja, mutta
+            # tunnetun artistin syvä raita ei ole "Mahdoton": nousu on enintään
+            # kaksi askelta perustasosta.
+            tier = min(5, base_tier + 2, base_tier + len(picked) // 2)
             picked.append({
                 "artist": r["artistName"],
                 "title": r["trackName"],

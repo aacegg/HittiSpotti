@@ -7258,5 +7258,135 @@
     "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/84/34/89/8434898b-32fc-1697-b9f8-e661c9bed5cc/mzaf_10805042193394863893.plus.aac.p.m4a",
     "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/9d/e0/ca/9de0ca7d-985e-28cb-7d38-9337793bdca0/190295158453.jpg/300x300bb.jpg",
     "itunes": "Raappana – Kaunis on maa (2020)"
+  },
+  {
+    "artist": "Gasellit",
+    "title": "Perävalot (feat. Ellinoora)",
+    "year": 2024,
+    "tier": 2,
+    "id": 1761164372,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/03/a7/c0/03a7c006-b5fc-efda-d617-768fba5ce690/mzaf_6786762928069602746.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/96/36/6b/96366b57-0e25-8f90-f1cc-9301a50bc3b9/196872336511.jpg/300x300bb.jpg",
+    "itunes": "Gasellit – Perävalot (feat. Ellinoora) (2024)"
+  },
+  {
+    "artist": "Gasellit",
+    "title": "Imus",
+    "year": 2017,
+    "tier": 2,
+    "id": 1442669441,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/5f/f5/a2/5ff5a238-ce8b-64a4-42c9-1b3e9cd5fef8/mzaf_10888232134605320872.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/da/06/11/da061192-5978-f55b-5629-01800ffab42a/00602557495713.rgb.jpg/300x300bb.jpg",
+    "itunes": "Gasellit – Imus (2017)"
+  },
+  {
+    "artist": "Gasellit & JVG",
+    "title": "Mitä Mä Malagas?",
+    "year": 2018,
+    "tier": 3,
+    "id": 1423077866,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/42/9f/66/429f6639-218d-bc5e-770b-3953f54cf12a/mzaf_2543379314953586430.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/ca/40/0a/ca400a9d-4a1a-f673-2728-0d9e84b5a393/00602567971016.rgb.jpg/300x300bb.jpg",
+    "itunes": "Gasellit & JVG – Mitä Mä Malagas? (2018)"
+  },
+  {
+    "artist": "Gasellit",
+    "title": "Kuvittele meidät siellä",
+    "year": 2020,
+    "tier": 3,
+    "id": 1516000102,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/78/1b/86/781b86cd-3840-3cc7-248c-061ce2c12d26/mzaf_2434993899084229902.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/3f/c4/69/3fc469e2-ee19-b5a5-8959-ba13c27135ba/886448544333.jpg/300x300bb.jpg",
+    "itunes": "Gasellit – Kuvittele meidät siellä (2020)"
+  },
+  {
+    "artist": "Gasellit",
+    "title": "Tilanne pääl",
+    "year": 2021,
+    "tier": 4,
+    "id": 1551380242,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/30/e6/2f/30e62f43-d6cf-91c8-7489-de768ce49089/mzaf_16354900116254047531.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/93/9d/60/939d6094-85a2-3c8a-e902-06f43984faf4/886449026258.jpg/300x300bb.jpg",
+    "itunes": "Gasellit – Tilanne pääl (2021)"
+  },
+  {
+    "artist": "Gasellit",
+    "title": "Muistanks Mä Väärin? (feat. Karri Koira)",
+    "year": 2017,
+    "tier": 4,
+    "id": 1442669456,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/43/df/fc/43dffc2f-fea8-25a5-03d1-c16e6c49c884/mzaf_11896091940753207073.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/da/06/11/da061192-5978-f55b-5629-01800ffab42a/00602557495713.rgb.jpg/300x300bb.jpg",
+    "itunes": "Gasellit – Muistanks Mä Väärin? (feat. Karri Koira) (2017)"
+  },
+  {
+    "artist": "Gasellit",
+    "title": "Suojaus petti",
+    "year": 2019,
+    "tier": 4,
+    "id": 1462612365,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/ef/f3/b0/eff3b0d2-6b5a-e5bc-5e2f-902af63c5e2d/mzaf_14254456898798726370.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/4c/93/ec/4c93ec70-aa6e-d5e9-46b1-7e0ee46beb05/19UMGIM39916.rgb.jpg/300x300bb.jpg",
+    "itunes": "Gasellit – Suojaus petti (2019)"
+  },
+  {
+    "artist": "Juha Tapio",
+    "title": "Tykkään susta niin että halkeen",
+    "year": 2013,
+    "tier": 2,
+    "id": 1565583956,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/48/3c/e1/483ce124-0063-ed6c-ac70-9dd3c8805dd1/mzaf_9009542785615389266.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/f7/f9/af/f7f9af86-c451-a4d3-a427-da233c01b5d5/6430041340256.jpg/300x300bb.jpg",
+    "itunes": "Juha Tapio – Tykkään susta niin että halkeen (2013)"
+  },
+  {
+    "artist": "Juha Tapio",
+    "title": "Sinun vuorosi loistaa",
+    "year": 2015,
+    "tier": 3,
+    "id": 1565598463,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/c2/20/29/c2202901-b83e-ab08-12af-305f1ccd5222/mzaf_11787168115057603359.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/5b/dc/6f/5bdc6f2e-b8a2-14bc-910c-8afdd69bf910/6430041340799.jpg/300x300bb.jpg",
+    "itunes": "Juha Tapio – Sinun vuorosi loistaa (2015)"
+  },
+  {
+    "artist": "Juha Tapio",
+    "title": "Jotain niin oikeaa",
+    "year": 2015,
+    "tier": 3,
+    "id": 1565598460,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/21/8c/fe/218cfedc-3b00-9c1f-4b21-a464b5d9ea3b/mzaf_6748817805379937600.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/5b/dc/6f/5bdc6f2e-b8a2-14bc-910c-8afdd69bf910/6430041340799.jpg/300x300bb.jpg",
+    "itunes": "Juha Tapio – Jotain niin oikeaa (2015)"
+  },
+  {
+    "artist": "Juha Tapio",
+    "title": "Ohikiitävää",
+    "year": 2005,
+    "tier": 4,
+    "id": 73642808,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/46/4d/ba/464dbabd-bb05-e793-b934-20a180f43924/mzaf_7263720251512395602.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/y2005/m06/d27/h16/s06.gbpedkwc.jpg/300x300bb.jpg",
+    "itunes": "Juha Tapio – Ohikiitävää (2005)"
+  },
+  {
+    "artist": "Juha Tapio",
+    "title": "Rakastettu",
+    "year": 2015,
+    "tier": 4,
+    "id": 1565598471,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/7d/4f/7d/7d4f7d41-5281-00b2-b8de-a945bee3e12e/mzaf_313056179584849097.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/5b/dc/6f/5bdc6f2e-b8a2-14bc-910c-8afdd69bf910/6430041340799.jpg/300x300bb.jpg",
+    "itunes": "Juha Tapio – Rakastettu (2015)"
+  },
+  {
+    "artist": "Juha Tapio",
+    "title": "Mitä Silmät Ei Nää",
+    "year": 2003,
+    "tier": 4,
+    "id": 73628356,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c5/dc/56/c5dc5660-9c39-6d79-1077-7bc21c26c2f1/mzaf_17205693158294911315.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/y2005/m06/d27/h14/s06.hwaktksn.jpg/300x300bb.jpg",
+    "itunes": "Juha Tapio – Mitä Silmät Ei Nää (2003)"
   }
 ]

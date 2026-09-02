@@ -295,6 +295,12 @@ body.drawer-open .drawer { transform: none; visibility: visible; }
 }
 #guess-input:focus { border-color: var(--accent); }
 #guess-input::placeholder { color: #6a6a76; }
+#guess-input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none;
+  width: 18px; height: 18px; margin-left: 6px; cursor: pointer;
+  background: var(--muted);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10 1a9 9 0 100 18 9 9 0 000-18zm3.5 12.1-1.4 1.4L10 12.4l-2.1 2.1-1.4-1.4L8.6 11 6.5 8.9l1.4-1.4L10 9.6l2.1-2.1 1.4 1.4L11.4 11z'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10 1a9 9 0 100 18 9 9 0 000-18zm3.5 12.1-1.4 1.4L10 12.4l-2.1 2.1-1.4-1.4L8.6 11 6.5 8.9l1.4-1.4L10 9.6l2.1-2.1 1.4 1.4L11.4 11z'/%3E%3C/svg%3E") center/contain no-repeat;
+}
 
 .suggestions {
   position: absolute;
@@ -321,6 +327,8 @@ body.drawer-open .drawer { transform: none; visibility: visible; }
 .row { display: flex; gap: 8px; }
 .row-wrap { flex-wrap: wrap; }
 .row .btn { flex: 1; }
+/* Yhdistetty ohita/arvaa-nappi vie koko rivin. */
+.btn-wide { width: 100%; }
 
 .btn {
   padding: 12px 18px;

@@ -75,8 +75,7 @@
     form: $("#guess-form"),
     input: $("#guess-input"),
     suggestions: $("#suggestions"),
-    skipBtn: $("#skip-btn"),
-    guessBtn: $("#guess-btn"),
+    actionBtn: $("#action-btn"),
     log: $("#guess-log"),
     reveal: $("#reveal"),
     revealArt: $("#reveal-art"),
@@ -511,7 +510,6 @@
     el.log.innerHTML = "";
     el.reveal.hidden = true;
     el.form.hidden = false;
-    el.guessBtn.disabled = true;
     el.hint.textContent = "Paina kuunnellaksesi.";
     closeSuggestions();
     renderRound();
@@ -535,9 +533,19 @@
       li.title = `${fmtSec(sec)} · ${fmt(POINTS[i])} pistettä`;
       el.ladder.appendChild(li);
     });
-    const last = state.step >= STEPS.length - 1;
-    el.skipBtn.textContent = last ? "Luovuta" : `Ohita → ${fmtSec(STEPS[state.step + 1])}`;
+    renderAction();
     updateBar();
+  }
+
+  /* Yksi nappi riittää: ohitus ja väärä arvaus vievät kierrosta yhtä paljon
+   * eteenpäin, joten nappi tekee aina sen mitä kentän sisältö tarkoittaa. */
+  function renderAction() {
+    const ready = !!(state.selected || exactMatch(el.input.value));
+    const last = state.step >= STEPS.length - 1;
+    el.actionBtn.textContent = ready
+      ? "Arvaa"
+      : last ? "Luovuta" : `Ohita → ${fmtSec(STEPS[state.step + 1])}`;
+    el.actionBtn.classList.toggle("btn-accent", ready);
   }
 
   function logGuess(type, label) {
@@ -558,8 +566,8 @@
     playClip(STEPS[state.step]);
     el.input.value = "";
     state.selected = null;
-    el.guessBtn.disabled = true;
     closeSuggestions();
+    renderAction();
   }
 
   function submitGuess() {
@@ -673,16 +681,16 @@
   function chooseSuggestion(song) {
     state.selected = song;
     el.input.value = song.label;
-    el.guessBtn.disabled = false;
     closeSuggestions();
-    el.guessBtn.focus({ preventScroll: true });
+    renderAction();
+    el.actionBtn.focus({ preventScroll: true });
   }
 
   function onInput() {
     state.selected = null;
     state.suggestions = findSuggestions(el.input.value);
     state.activeSuggestion = state.suggestions.length ? 0 : -1;
-    el.guessBtn.disabled = !exactMatch(el.input.value);
+    renderAction();
     renderSuggestions();
   }
 
@@ -888,7 +896,11 @@
     });
     el.replayBtn.addEventListener("click", () => playClip(STEPS[STEPS.length - 1]));
     el.nextBtn.addEventListener("click", nextRound);
-    el.skipBtn.addEventListener("click", skipStep);
+    el.actionBtn.addEventListener("click", () => {
+      if (state.selected || exactMatch(el.input.value)) submitGuess();
+      else skipStep();
+    });
+    // Enter arvaa aina, ei koskaan ohita vahingossa.
     el.form.addEventListener("submit", (e) => { e.preventDefault(); submitGuess(); });
     el.input.addEventListener("input", onInput);
     el.input.addEventListener("keydown", onInputKey);

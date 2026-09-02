@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#0c0c0e">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="favicon.svg">
-  <link rel="stylesheet" href="style.css?v=2">
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
 
@@ -85,12 +85,11 @@
 
       <form id="guess-form" class="guess" autocomplete="off">
         <div class="field">
-          <input id="guess-input" type="text" inputmode="search" placeholder="Artisti tai biisin nimi" aria-label="Arvaus" aria-autocomplete="list" aria-controls="suggestions" aria-expanded="false" spellcheck="false">
+          <input id="guess-input" type="search" placeholder="Artisti tai biisin nimi" aria-label="Arvaus" aria-autocomplete="list" aria-controls="suggestions" aria-expanded="false" spellcheck="false">
           <ul id="suggestions" class="suggestions" role="listbox" hidden></ul>
         </div>
         <div class="row">
-          <button type="button" class="btn" id="skip-btn">Ohita</button>
-          <button type="submit" class="btn btn-accent" id="guess-btn" disabled>Arvaa</button>
+          <button type="button" class="btn btn-wide" id="action-btn">Ohita</button>
         </div>
       </form>
 
@@ -140,7 +139,7 @@
       <h1 class="big">Näin pelataan</h1>
       <ol class="help">
         <li>Paina soittopainiketta. Kuulet biisistä <strong>0,1 sekuntia</strong>. Kuulokkeet auttavat.</li>
-        <li>Kirjoita arvaus ja valitse kappale listasta. Voit hakea artistilla tai biisin nimellä.</li>
+        <li>Kirjoita arvaus ja valitse kappale listasta. Voit hakea artistilla tai biisin nimellä. Sama nappi vaihtuu ohituksesta arvaukseksi, kun olet valinnut biisin.</li>
         <li>Väärä arvaus tai ohitus pidentää pätkää: 0,1 → 0,5 → 2 → 8 → 15 sekuntia.</li>
         <li>Pisteet putoavat joka askeleella: <strong>1 200 · 975 · 750 · 525 · 300</strong>. Jos 15 sekunnin jälkeenkään ei nappaa, kierros menee nollille.</li>
       </ol>
@@ -163,6 +162,6 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>

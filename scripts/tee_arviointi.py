@@ -16,6 +16,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SONGS = ROOT / "songs.json"
 OUT = ROOT / "arviointi.html"
+# Muistaa mitkä biisit olivat mukana viime generoinnilla, jotta uudet
+# erottuvat työkalussa eikä niitä tarvitse etsiä käsin.
+TILA = ROOT / ".arviointi-tunnetut.json"
 
 TIER_NAMES = {1: "Helppo", 2: "Keskitaso", 3: "Vaikea", 4: "Mestari", 5: "Mahdoton"}
 
@@ -79,6 +82,12 @@ li.is-gone .name { text-decoration: line-through; }
 .play.is-on { background: var(--t1); border-color: var(--t1); color: #101010; }
 img { width: 44px; height: 44px; border-radius: 3px; object-fit: cover; background: var(--soft); }
 .name { font-weight: 600; letter-spacing: -.01em; }
+.uusi {
+  margin-left: 8px; padding: 1px 6px; border-radius: 999px;
+  background: var(--t1); color: #101010;
+  font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  vertical-align: 1px;
+}
 .sub { color: var(--muted); font-size: 12.5px; }
 .sub b { color: var(--dim); font-weight: 600; }
 
@@ -130,6 +139,7 @@ textarea {
       <option value="no">vain arvioimattomat</option>
       <option value="yes">vain arvioidut</option>
       <option value="changed">vain muutetut</option>
+      <option value="new">vain uudet biisit</option>
     </select>
     <input type="search" id="f-text" placeholder="artisti tai biisi" spellcheck="false">
     <span class="spacer"></span>
@@ -223,6 +233,7 @@ function filtered() {
     if (done === "no" && (arvio || gone.has(s.id))) return false;
     if (done === "yes" && !arvio) return false;
     if (done === "changed" && (!arvio || arvio === s.tier)) return false;
+    if (done === "new" && !s.uusi) return false;
     if (q && !(s.artist + " " + s.title).toLowerCase().includes(q)) return false;
     return true;
   });
@@ -242,7 +253,7 @@ function render() {
       <button class="play" data-play="${s.id}" aria-label="Soita">&#9654;</button>
       <img src="${s.art || ""}" alt="" loading="lazy">
       <div>
-        <div class="name">${esc(s.title)}</div>
+        <div class="name">${esc(s.title)}${s.uusi ? '<span class="uusi">uusi</span>' : ""}</div>
         <div class="sub">${esc(s.artist)} · ${s.year || "?"} · nyt <b>${NAMES[s.tier]}</b>${
           arvio && arvio !== s.tier ? ` → <b style="color:var(--t${arvio})">${NAMES[arvio]}</b>` : ""}</div>
       </div>
@@ -346,16 +357,20 @@ focusRow(0, false);
 
 def main() -> int:
     songs = json.loads(SONGS.read_text(encoding="utf-8"))
+    tunnetut = set(json.loads(TILA.read_text(encoding="utf-8"))) if TILA.exists() else {s["id"] for s in songs}
+    uusia = sum(1 for s in songs if s["id"] not in tunnetut)
     slim = [{
         "id": s["id"], "artist": s["artist"], "title": s["title"],
         "year": s.get("year"), "tier": s["tier"],
         "preview": s["preview"], "art": s.get("art", ""),
         "peli": s.get("peli", True),
+        "uusi": s["id"] not in tunnetut,
     } for s in songs]
     data = json.dumps(slim, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     OUT.write_text(TEMPLATE.replace("__DATA__", data), encoding="utf-8")
+    TILA.write_text(json.dumps(sorted(s["id"] for s in songs)), encoding="utf-8")
     kb = OUT.stat().st_size / 1024
-    print(f"{OUT.name}: {len(songs)} biisiä, {kb:.0f} kt")
+    print(f"{OUT.name}: {len(songs)} biisiä, {kb:.0f} kt, joista uusia {uusia}")
     return 0
 
 

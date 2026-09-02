@@ -2,3 +2,4 @@
 # Luodaan tarvittaessa: python3 scripts/tee_arviointi.py
 arviointi.html
 katalogi.html
+.arviointi-tunnetut.json

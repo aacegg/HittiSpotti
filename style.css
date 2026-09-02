@@ -1,37 +1,126 @@
-:root {
-  --bg: #0c0c0e;
-  --surface: #16161a;
-  --line: #2b2b33;
-  --line-soft: #202027;
-  --text: #f4f4f2;
-  --muted: #9b9ba5;
-  --accent: #ffc03a;
-  --accent-ink: #17170f;
-  --ok: #6ee7a8;
-  --bad: #ff6b6b;
-  --radius: 14px;
-  --bar-h: 56px;
-  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+/* HittiSpotti – yöradion näköinen musiikkivisa.
+ *
+ * Kolme sääntöä, joista koko ulkoasu seuraa:
+ *   1. Yksi elävä väri kerrallaan. Se on aina soivan biisin vaikeustaso,
+ *      joten sivu vaalenee vihreäksi helpossa ja palaa punaiseksi
+ *      Mahdottomassa. Muu paletti on lämmintä mustaa ja luunvalkeaa.
+ *   2. Ei laatikoita. Rajat ovat hiusviivoja ja tyhjää tilaa; täytetty
+ *      pinta on varattu sille yhdelle asialle, jota pitää painaa.
+ *   3. Numerot ovat sisältöä. Sekunnit ja pisteet ladotaan display-fontilla
+ *      isoksi, muu teksti pysyy pienenä ja hiljaisena.
+ */
+
+/* Bricolage Grotesque (SIL Open Font License 1.1) isännöidään itse: yksi
+   variable-tiedosto kattaa kaikki paksuudet, eikä sivu odota kolmatta
+   osapuolta ennen kuin teksti piirtyy. Lisenssi: fonts/OFL.txt */
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("fonts/bricolage-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("fonts/bricolage-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+:root {
+  /* Lämmin muste, ei neutraali harmaa: mustassa on ripaus ruskeaa ja
+     tekstissä luun sävy, jolloin ruutu näyttää painetulta eikä sammuneelta. */
+  --bg: #0a0908;
+  --bg-lift: #14120f;
+  --line: #2a2521;
+  --line-soft: #1b1815;
+  --text: #f2ebdf;
+  --muted: #8a8073;
+  --dim: #5f584e;
+
+  /* Vaikeustasojen sävyaste helposta mahdottomaan. */
+  --t1: #5ecf9a;
+  --t2: #bcd14a;
+  --t3: #f5b32e;
+  --t4: #ff8a4c;
+  --t5: #ff5f6d;
+
+  /* Elävä väri: body saa data-tier-attribuutin ja koko sivu seuraa. */
+  --live: var(--t3);
+  --live-ink: #17120a;
+  --ok: var(--t1);
+  --bad: var(--t5);
+
+  --r: 3px;
+  --bar-h: 54px;
+
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --display: "Bricolage Grotesque", "Helvetica Neue", system-ui, sans-serif;
+}
+
+body[data-tier="1"] { --live: var(--t1); }
+body[data-tier="2"] { --live: var(--t2); }
+body[data-tier="3"] { --live: var(--t3); }
+body[data-tier="4"] { --live: var(--t4); }
+body[data-tier="5"] { --live: var(--t5); }
 
 * { box-sizing: border-box; }
 
 html { -webkit-text-size-adjust: 100%; }
 
 body {
+  position: relative;
   margin: 0;
   min-height: 100dvh;
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font);
+  font-family: var(--sans);
   font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
+/* Hehku soivan biisin värissä. Antaa mustalle syvyyttä ja vaihtuu
+   kierroksen mukana, joten sivu tuntuu reagoivan peliin. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -20% -30% auto;
+  height: 70vh;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(50% 50% at 50% 40%, var(--live), transparent 70%);
+  opacity: .09;
+  transition: opacity .5s ease;
+}
+
+/* Hienovarainen rae. Pelkkä tasainen musta näyttää tyhjältä ruudulta;
+   rae tekee siitä pinnan. Ruutu on pieni ja toistuu, joten se on halpa. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: .04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
 button, input { font: inherit; color: inherit; }
 
 h1, h2, p, ol, ul { margin: 0; }
+
+/* Toistuva pikkuotsikko: harva välistys, versaali, hiljainen väri. */
+.eyebrow, .kicker {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
 
 /* ---------- Yläpalkki ---------- */
 .bar {
@@ -42,53 +131,69 @@ h1, h2, p, ol, ul { margin: 0; }
   align-items: center;
   gap: 12px;
   height: var(--bar-h);
-  padding: 0 14px;
+  padding: 0 16px;
   padding-top: env(safe-area-inset-top);
-  background: var(--bg);
-  border-bottom: 1px solid var(--line-soft);
+  background: linear-gradient(var(--bg) 70%, transparent);
 }
 
-.wordmark { font-size: 17px; font-weight: 700; letter-spacing: -.01em; }
-.wordmark em { font-style: normal; color: var(--accent); }
+/* Sanamerkki on ladottu, ei väritetty: paino vaihtuu kesken sanan, mikä
+   erottuu paremmin kuin toinen väri – ja toimii myös yhdellä värillä. */
+.wordmark {
+  display: inline-flex;
+  align-items: baseline;
+  font-family: var(--display);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -.035em;
+}
+.wordmark::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: var(--live);
+  transition: background .4s ease;
+}
+.wordmark em { font-style: normal; font-weight: 400; }
 
 .bar-tag {
   margin-left: auto;
-  font-size: 13px;
-  color: var(--muted);
+  font-size: 12px;
+  color: var(--dim);
   font-variant-numeric: tabular-nums;
 }
 
 .iconbtn {
   display: grid;
   place-items: center;
-  width: 38px;
-  height: 38px;
-  margin-left: -8px;
+  width: 36px;
+  height: 36px;
+  margin-left: -10px;
   border: 0;
-  border-radius: 10px;
   background: transparent;
+  color: var(--muted);
   cursor: pointer;
 }
-.iconbtn:hover { background: var(--surface); }
+.iconbtn:hover { color: var(--text); }
 
 .burger, .burger::before, .burger::after {
   display: block;
-  width: 18px;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--text);
+  width: 17px;
+  height: 1.5px;
+  background: currentColor;
 }
 .burger { position: relative; }
 .burger::before, .burger::after { content: ""; position: absolute; left: 0; }
-.burger::before { top: -6px; }
-.burger::after { top: 6px; }
+.burger::before { top: -5px; }
+.burger::after { top: 5px; width: 11px; }
 
 /* ---------- Sivupalkki ---------- */
 .scrim {
   position: fixed;
   inset: 0;
   z-index: 30;
-  background: rgba(0, 0, 0, .6);
+  background: rgba(6, 5, 4, .72);
   opacity: 0;
   visibility: hidden;
   transition: opacity .2s ease, visibility .2s ease;
@@ -101,16 +206,15 @@ body.drawer-open .scrim { opacity: 1; visibility: visible; }
   top: 0;
   left: 0;
   bottom: 0;
-  width: min(310px, 84vw);
+  width: min(300px, 82vw);
   display: flex;
   flex-direction: column;
-  padding: 10px 14px calc(14px + env(safe-area-inset-bottom));
-  padding-top: calc(10px + env(safe-area-inset-top));
-  background: var(--surface);
-  border-right: 1px solid var(--line);
+  padding: 6px 20px calc(16px + env(safe-area-inset-bottom));
+  padding-top: calc(6px + env(safe-area-inset-top));
+  background: var(--bg-lift);
   transform: translateX(-100%);
   visibility: hidden;
-  transition: transform .22s ease, visibility .22s ease;
+  transition: transform .24s cubic-bezier(.32, .72, 0, 1), visibility .24s;
   overflow-y: auto;
 }
 body.drawer-open .drawer { transform: none; visibility: visible; }
@@ -120,75 +224,105 @@ body.drawer-open .drawer { transform: none; visibility: visible; }
   align-items: center;
   justify-content: space-between;
   height: var(--bar-h);
-  margin-bottom: 6px;
+  margin-bottom: 14px;
 }
-.drawer-head .iconbtn { margin: 0 -8px 0 0; font-size: 15px; }
+.drawer-head .iconbtn { margin: 0 -8px 0 0; font-size: 14px; }
 
-.drawer-nav { display: flex; flex-direction: column; gap: 2px; }
+.drawer-nav { display: flex; flex-direction: column; }
 
+/* Valikon rivit erottaa hiusviiva, ei taustalaatikko. */
 .navitem {
   display: block;
   width: 100%;
-  padding: 11px 12px;
+  padding: 13px 0;
   border: 0;
-  border-radius: 10px;
+  border-top: 1px solid var(--line-soft);
   background: transparent;
   text-align: left;
   cursor: pointer;
 }
-.navitem:hover { background: var(--line-soft); }
-.navitem.is-active { background: var(--line-soft); }
-.navitem.is-active .navitem-name { color: var(--accent); }
-.navitem-name { display: block; font-weight: 600; }
-.navitem-note { display: block; font-size: 13px; color: var(--muted); }
+.navitem:first-child { border-top: 0; }
+.navitem-name {
+  display: block;
+  font-family: var(--display);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+.navitem-note { display: block; margin-top: 1px; font-size: 12px; color: var(--dim); }
+.navitem:hover .navitem-name { color: var(--live); }
+.navitem.is-active .navitem-name { color: var(--live); }
+.navitem.is-active .navitem-name::after {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-left: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  vertical-align: middle;
+}
 
 /* Vapaan pelin nollaus roikkuu pelimuodon alla, jottei se näytä omalta
    pelimuodolta. Sisennys ja viiva kertovat, mihin se kuuluu. */
 .navitem-sub {
-  margin-left: 12px;
-  padding: 8px 12px;
-  border-left: 2px solid var(--line);
-  border-radius: 0 10px 10px 0;
+  padding: 11px 0 11px 14px;
+  border-top: 0;
+  box-shadow: inset 1px 0 0 var(--line);
 }
 .navitem-sub[hidden] { display: none; }
-.navitem-sub .navitem-name { font-size: 15px; font-weight: 500; color: var(--muted); }
-.navitem-sub:hover .navitem-name { color: var(--text); }
-.navitem-sub .navitem-note { font-size: 12px; }
+.navitem-sub .navitem-name { font-size: 14px; font-weight: 500; color: var(--muted); }
+.navitem-sub:hover .navitem-name { color: var(--live); }
 
+.drawer-rule { height: 1px; margin: 18px 0 4px; border: 0; background: var(--line); }
 
-.drawer-rule { height: 1px; margin: 10px 12px; border: 0; background: var(--line); }
-
-.drawer-foot { margin-top: auto; padding: 14px 12px 0; font-size: 12px; color: var(--muted); }
+.drawer-foot { margin-top: auto; padding-top: 20px; font-size: 11px; line-height: 1.6; color: var(--dim); }
 
 /* ---------- Sisältö ---------- */
-.wrap { max-width: 560px; margin: 0 auto; padding: 20px 18px 64px; }
+.wrap { position: relative; z-index: 1; max-width: 540px; margin: 0 auto; padding: 12px 18px 40px; }
 .view[hidden] { display: none; }
 
-.big { font-size: 28px; font-weight: 700; letter-spacing: -.02em; margin-bottom: 10px; }
-.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
-.hint { color: var(--muted); font-size: 14px; }
+.big {
+  font-family: var(--display);
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -.035em;
+  line-height: 1.05;
+  margin-bottom: 12px;
+}
+.hint { color: var(--muted); font-size: 13px; }
 .hint:empty { display: none; }
+
+/* Peli täyttää ruudun: soitin asettuu jäljelle jäävän tilan keskelle,
+   jolloin alalaitaan ei jää tyhjää mustaa. */
+.view-game {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100dvh - var(--bar-h) - 52px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+}
 
 .meta {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 10px;
-  margin-bottom: 14px;
-  font-size: 14px;
-  color: var(--muted);
+  margin-bottom: 12px;
 }
-.meta-score { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+#mode-label { font-size: 13px; color: var(--muted); }
+.meta-score {
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
+}
 
-/* Vaikeustasorivi: vapaassa pelissä napit, päivän pelissä etenemisen näyttö.
-   Rivi vierii vaakasuunnassa, jotta kaikki viisi mahtuvat kapeallekin näytölle. */
+/* Vaikeustasorivi: vapaassa pelissä napit, päivän pelissä biisien
+   välinen navigointi. Rivi täyttää leveyden ja vierii kapealla näytöllä. */
 .tierbar {
   display: flex;
   gap: 3px;
-  /* Täysleveä vieritys: rivi ulottuu näytön reunaan, mutta sisältö pysyy
-     samassa sisennyksessä kuin muu sivu, joten reunaan jäävä puolikas
-     nappi näyttää vihjeeltä eikä virheeltä. */
-  margin: 0 -18px 14px;
+  margin: 0 -18px;
   padding: 0 18px 4px;
   overflow-x: auto;
   scroll-padding: 0 18px;
@@ -198,127 +332,188 @@ body.drawer-open .drawer { transform: none; visibility: visible; }
 .tierbar::-webkit-scrollbar { display: none; }
 
 .tchip {
-  /* Napit venyvät täyttämään rivin, mutta eivät kutistu tekstiä pienemmiksi:
-     leveällä näytöllä rivi on tasainen, kapealla se vierii kuten ennenkin. */
   flex: 1 0 auto;
   padding: 5px 7px;
   text-align: center;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: transparent;
-  color: var(--muted);
+  color: var(--dim);
   font-size: 12px;
   letter-spacing: -.01em;
   white-space: nowrap;
+  transition: color .15s ease, border-color .15s ease;
 }
 button.tchip { cursor: pointer; }
-button.tchip:hover { color: var(--text); border-color: var(--tier-dot, var(--line)); }
+button.tchip:hover { color: var(--text); }
 .tchip.is-on {
-  background: var(--tier-dot, var(--accent));
-  border-color: var(--tier-dot, var(--accent));
-  color: #16130f;
+  background: var(--tier-hue);
+  border-color: var(--tier-hue);
+  color: var(--live-ink);
   font-weight: 600;
 }
 /* Päivän pelissä pelattu biisi näkyy värillä, ei merkillä: viisi nimeä
    mahtuu puhelimen ruudulle vain ilman ylimääräisiä kuvakkeita. */
 .tchip.is-ok { border-color: var(--ok); color: var(--ok); }
-.tchip.is-miss { opacity: .4; text-decoration: line-through; }
-.tchip.is-now { border-color: var(--tier-dot); color: var(--text); }
-.tchip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tchip.is-miss { color: var(--dim); text-decoration: line-through; opacity: .55; }
+.tchip.is-now { border-color: var(--tier-hue); color: var(--text); }
+.tchip:focus-visible { outline: 2px solid var(--live); outline-offset: 2px; }
 
-.tchip[data-tier="1"] { --tier-dot: #4fae7d; }
-.tchip[data-tier="2"] { --tier-dot: #8fae45; }
-.tchip[data-tier="3"] { --tier-dot: #d99f2c; }
-.tchip[data-tier="4"] { --tier-dot: #dd7440; }
-.tchip[data-tier="5"] { --tier-dot: #cf5252; }
-.tchip[data-tier="0"] { --tier-dot: var(--accent); }
+.tchip[data-tier="1"] { --tier-hue: var(--t1); }
+.tchip[data-tier="2"] { --tier-hue: var(--t2); }
+.tchip[data-tier="3"] { --tier-hue: var(--t3); }
+.tchip[data-tier="4"] { --tier-hue: var(--t4); }
+.tchip[data-tier="5"] { --tier-hue: var(--t5); }
 
-.results .r-tier { font-size: 12px; color: var(--muted); }
-.results .r-tier::before {
-  content: "";
-  display: inline-block;
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  margin-right: 6px;
-  vertical-align: 1px;
-  background: var(--tier-dot, var(--muted));
+/* ---------- Soitin ---------- */
+.stage {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 18px 0;
 }
-.results li[data-tier="1"] { --tier-dot: #4fae7d; }
-.results li[data-tier="2"] { --tier-dot: #8fae45; }
-.results li[data-tier="3"] { --tier-dot: #d99f2c; }
-.results li[data-tier="4"] { --tier-dot: #dd7440; }
-.results li[data-tier="5"] { --tier-dot: #cf5252; }
 
-/* Soittopainike */
-.player { display: grid; justify-items: center; gap: 12px; padding: 8px 0 2px; }
+.player { display: grid; justify-items: center; }
 
+/* Levy, ei nappi: sisäkkäiset hiusrenkaat ja väristä lähtevä hehku
+   tekevät siitä esineen, jota tekee mieli painaa. */
 .play-btn {
   position: relative;
   display: grid;
   place-items: center;
-  width: 156px;
-  height: 156px;
+  width: 182px;
+  height: 182px;
   border: 0;
   border-radius: 50%;
-  background: var(--surface);
+  background:
+    radial-gradient(circle at 50% 34%, #1d1a16, #0e0c0a 72%);
+  box-shadow:
+    inset 0 0 0 1px var(--line),
+    inset 0 1px 0 rgba(255, 255, 255, .05),
+    0 0 0 1px rgba(255, 255, 255, .03),
+    0 24px 60px -30px var(--live);
   cursor: pointer;
+  transition: transform .12s ease;
 }
-.play-btn:disabled { cursor: progress; opacity: .6; }
+.play-btn:active { transform: scale(.985); }
+.play-btn:disabled { cursor: progress; }
 
-.ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
-.ring circle { fill: none; stroke-width: 4; }
-.ring-bg { stroke: var(--line); }
+.ring { position: absolute; inset: -1px; width: calc(100% + 2px); height: calc(100% + 2px); transform: rotate(-90deg); }
+.ring circle { fill: none; stroke-width: 2.5; }
+.ring-bg { stroke: rgba(255, 255, 255, .07); }
 .ring-fg {
-  stroke: var(--accent);
+  stroke: var(--live);
   stroke-linecap: round;
   stroke-dasharray: 339.292;
   stroke-dashoffset: 339.292;
 }
 
-.play-icon { font-size: 44px; line-height: 1; color: var(--accent); margin-left: 6px; }
-.play-btn.is-playing .play-icon { margin-left: 0; font-size: 38px; }
+.play-icon { display: block; color: var(--live); }
+.play-icon.is-play {
+  width: 0;
+  height: 0;
+  margin-left: 8px;
+  border-left: 32px solid currentColor;
+  border-top: 20px solid transparent;
+  border-bottom: 20px solid transparent;
+}
+.play-icon.is-stop { width: 26px; height: 26px; border-radius: 2px; background: currentColor; }
+.play-icon.is-load {
+  width: 28px;
+  height: 28px;
+  border: 2.5px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-.clip-len { font-size: 30px; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+/* Sekunnit ovat sivun suurin asia. Yksikkö kutistuu, jotta luku hallitsee. */
+.clip-len {
+  margin-top: 22px;
+  font-family: var(--display);
+  font-size: 58px;
+  font-weight: 800;
+  letter-spacing: -.05em;
+  line-height: .9;
+  font-variant-numeric: tabular-nums;
+}
+.clip-len .unit {
+  margin-left: .12em;
+  font-size: .34em;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--muted);
+  vertical-align: .28em;
+}
 
-/* Askelmat */
+.stake {
+  margin-top: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.stake b { color: var(--live); font-weight: 700; }
+.stake:empty { display: none; }
+
+/* Askelmat mittarina: viisi palkkia, joista mennyt himmenee ja nykyinen
+   palaa. Näyttää siltä miltä pisteiden valuminen tuntuu. */
 .ladder {
   display: flex;
-  gap: 6px;
+  gap: 4px;
   list-style: none;
   padding: 0;
-  margin: 14px 0 8px;
+  margin: 0 0 18px;
 }
 .ladder li {
   flex: 1;
-  padding: 7px 4px;
-  border-radius: 8px;
-  background: var(--line-soft);
-  color: var(--muted);
-  font-size: 12px;
+  position: relative;
+  padding-top: 12px;
   text-align: center;
+  font-size: 10px;
+  letter-spacing: .06em;
+  color: var(--dim);
   font-variant-numeric: tabular-nums;
 }
-.ladder li.is-done { opacity: .4; }
-.ladder li.is-current { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.ladder li::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--line);
+}
+.ladder li.is-done::before { background: var(--live); opacity: .32; }
+.ladder li.is-current::before { background: var(--live); box-shadow: 0 0 14px -1px var(--live); }
+.ladder li.is-current { color: var(--text); }
 
-/* Arvaus */
-.guess { margin-top: 20px; display: grid; gap: 10px; }
+/* ---------- Arvaus ---------- */
+.guess { display: grid; gap: 12px; }
 .guess[hidden] { display: none; }
 .field { position: relative; }
 
+/* Alleviivattu kenttä laatikon sijaan: rivi näyttää siltä, että siihen
+   kirjoitetaan, eikä kilpaile napin kanssa huomiosta. */
 #guess-input {
   width: 100%;
-  padding: 13px 14px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--surface);
-  font-size: 16px;
+  padding: 12px 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  font-size: 17px;
+  letter-spacing: -.01em;
   outline: none;
+  transition: border-color .15s ease;
 }
-#guess-input:focus { border-color: var(--accent); }
-#guess-input::placeholder { color: #6a6a76; }
+#guess-input:focus { border-bottom-color: var(--live); }
+#guess-input::placeholder { color: var(--dim); }
 #guess-input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none;
-  width: 18px; height: 18px; margin-left: 6px; cursor: pointer;
+  width: 17px; height: 17px; margin-left: 6px; cursor: pointer;
   background: var(--muted);
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10 1a9 9 0 100 18 9 9 0 000-18zm3.5 12.1-1.4 1.4L10 12.4l-2.1 2.1-1.4-1.4L8.6 11 6.5 8.9l1.4-1.4L10 9.6l2.1-2.1 1.4 1.4L11.4 11z'/%3E%3C/svg%3E") center/contain no-repeat;
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10 1a9 9 0 100 18 9 9 0 000-18zm3.5 12.1-1.4 1.4L10 12.4l-2.1 2.1-1.4-1.4L8.6 11 6.5 8.9l1.4-1.4L10 9.6l2.1-2.1 1.4 1.4L11.4 11z'/%3E%3C/svg%3E") center/contain no-repeat;
@@ -327,158 +522,240 @@ button.tchip:hover { color: var(--text); border-color: var(--tier-dot, var(--lin
 .suggestions {
   position: absolute;
   z-index: 15;
-  left: 0;
-  right: 0;
-  top: calc(100% + 6px);
+  left: -6px;
+  right: -6px;
+  top: calc(100% + 4px);
   margin: 0;
-  padding: 5px;
+  padding: 4px;
   list-style: none;
-  background: var(--surface);
+  background: var(--bg-lift);
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--r);
+  box-shadow: 0 20px 40px -20px #000;
   max-height: 46vh;
   overflow-y: auto;
 }
 .suggestions[hidden] { display: none; }
-.suggestion { padding: 9px 11px; border-radius: 7px; cursor: pointer; }
+.suggestion { padding: 9px 10px; border-radius: 2px; cursor: pointer; }
 .suggestion:hover, .suggestion.is-active { background: var(--line-soft); }
-.suggestion .s-title { display: block; font-weight: 600; }
-.suggestion .s-artist { display: block; font-size: 13px; color: var(--muted); }
-.suggestions .empty { padding: 9px 11px; color: var(--muted); font-size: 14px; }
+.suggestion .s-title { display: block; font-weight: 600; font-size: 15px; letter-spacing: -.01em; }
+.suggestion .s-artist { display: block; font-size: 12px; color: var(--muted); }
+.suggestions .empty { padding: 9px 10px; color: var(--dim); font-size: 13px; }
 
 .row { display: flex; gap: 8px; }
 .row-wrap { flex-wrap: wrap; }
 .row .btn { flex: 1; }
-/* Yhdistetty ohita/arvaa-nappi vie koko rivin. */
 .btn-wide { width: 100%; }
 
+/* Napit ovat teräväkulmaisia ja hiusviivalla rajattuja; täytetty pinta on
+   varattu sille yhdelle napille, joka juuri nyt on oikea. */
 .btn {
-  padding: 12px 18px;
+  padding: 14px 18px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--r);
   background: transparent;
-  font-weight: 600;
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -.01em;
   cursor: pointer;
-  transition: background .12s ease, opacity .12s ease;
+  transition: border-color .14s ease, color .14s ease, background .14s ease;
 }
-.btn:hover { background: var(--surface); }
+.btn:hover { border-color: var(--muted); }
 .btn:disabled { opacity: .4; cursor: not-allowed; }
-.btn-accent { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-.btn-accent:not(:disabled):hover { background: #ffcc5e; }
-/* Himmennetty korostusväri näyttäisi likaiselta, joten passiivinen nappi on hillitty. */
+.btn-accent { background: var(--live); border-color: var(--live); color: var(--live-ink); }
+.btn-accent:not(:disabled):hover { filter: brightness(1.08); }
 .btn-accent:disabled { background: transparent; border-color: var(--line); color: var(--muted); opacity: 1; }
-.btn-quiet { border-color: transparent; color: var(--muted); font-weight: 400; }
-.btn-quiet:hover { color: var(--bad); background: transparent; }
+.btn-quiet { border-color: transparent; color: var(--dim); font-family: var(--sans); font-weight: 500; }
+.btn-quiet:hover { color: var(--bad); border-color: transparent; }
 
-/* Arvausloki */
-.log { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 5px; }
+/* ---------- Arvausloki ---------- */
+.log { list-style: none; padding: 0; margin: 16px 0 0; }
 .log li {
   display: flex;
-  gap: 9px;
-  padding: 9px 12px;
-  border-radius: 8px;
-  background: var(--surface);
+  align-items: baseline;
+  gap: 10px;
+  padding: 9px 0;
+  border-top: 1px solid var(--line-soft);
   color: var(--muted);
-  font-size: 14px;
+  font-size: 13px;
 }
-.log .mark { font-weight: 700; }
-.log .wrong .mark, .log li.wrong .mark { color: var(--bad); }
-.log li.skip .mark { color: var(--accent); }
+.log .mark { font-size: 11px; color: var(--dim); }
+.log li.wrong .mark { color: var(--bad); }
+.log li.skip .mark { color: var(--live); }
 
-/* Paljastus */
+/* ---------- Paljastus ---------- */
 .reveal {
-  margin-top: 20px;
-  padding: 18px;
-  border: 1px solid var(--line);
-  border-left-width: 3px;
-  border-radius: var(--radius);
-  background: var(--surface);
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 2px solid var(--line);
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 14px;
+  gap: 16px;
   align-items: center;
 }
 .reveal[hidden] { display: none; }
-.reveal.is-correct { border-left-color: var(--ok); }
-.reveal.is-wrong { border-left-color: var(--bad); }
-.reveal-art { width: 64px; height: 64px; border-radius: 8px; object-fit: cover; background: var(--line-soft); }
-.reveal-verdict { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.reveal.is-correct { border-top-color: var(--ok); }
+.reveal.is-wrong { border-top-color: var(--bad); }
+.reveal-art {
+  width: 82px;
+  height: 82px;
+  border-radius: var(--r);
+  object-fit: cover;
+  background: var(--line-soft);
+}
+.reveal-verdict {
+  margin-bottom: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
 .reveal.is-correct .reveal-verdict { color: var(--ok); }
 .reveal.is-wrong .reveal-verdict { color: var(--bad); }
-.reveal-title { font-size: 19px; font-weight: 700; line-height: 1.2; }
-.reveal-artist { color: var(--muted); font-size: 14px; }
-.reveal-points { grid-column: 1 / -1; font-weight: 700; font-variant-numeric: tabular-nums; }
-.reveal .row { grid-column: 1 / -1; }
+.reveal-title {
+  font-family: var(--display);
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: -.03em;
+  line-height: 1.1;
+}
+.reveal-artist { margin-top: 2px; color: var(--muted); font-size: 13px; }
+.reveal-points {
+  grid-column: 1 / -1;
+  margin-top: 2px;
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -.03em;
+  font-variant-numeric: tabular-nums;
+}
+.reveal .row { grid-column: 1 / -1; margin-top: 2px; }
 
-/* Tulokset */
-.score-big { font-size: 15px; color: var(--muted); margin-bottom: 4px; }
-.score-big strong { display: block; font-size: 52px; color: var(--text); letter-spacing: -.03em; line-height: 1.05; font-variant-numeric: tabular-nums; }
+/* ---------- Tulokset ---------- */
+.score-big { margin: 2px 0 0; font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.score-big strong {
+  display: block;
+  margin-bottom: 4px;
+  font-family: var(--display);
+  font-size: 76px;
+  font-weight: 800;
+  letter-spacing: -.055em;
+  line-height: .92;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
 
-.results { list-style: none; padding: 0; margin: 20px 0 0; display: grid; gap: 6px; }
+.results { list-style: none; padding: 0; margin: 24px 0 0; }
 .results li {
   display: grid;
-  grid-template-columns: 44px 1fr auto;
-  gap: 11px;
-  align-items: center;
-  padding: 9px 11px;
-  border-radius: 10px;
-  background: var(--surface);
+  grid-template-columns: 46px 1fr auto;
+  gap: 14px;
+  align-items: start;
+  padding: 14px 0;
+  border-top: 1px solid var(--line-soft);
 }
-.results img { width: 44px; height: 44px; border-radius: 6px; object-fit: cover; background: var(--line-soft); }
-.results .r-title { font-weight: 600; font-size: 15px; }
-.results .r-artist { color: var(--muted); font-size: 13px; }
-.results .r-squares { font-size: 11px; letter-spacing: 1px; margin-top: 2px; }
-.results .r-points { font-weight: 700; font-variant-numeric: tabular-nums; }
-.results .r-points.zero { color: var(--muted); }
+.results img { width: 46px; height: 46px; border-radius: 2px; object-fit: cover; background: var(--line-soft); }
+.results .r-title { font-family: var(--display); font-weight: 700; font-size: 16px; letter-spacing: -.02em; line-height: 1.15; }
+.results .r-artist { margin-top: 1px; color: var(--muted); font-size: 12px; }
+/* Kierroksen kulku pieninä palkkeina: osuma tason värillä, hukattu askel
+   himmeänä, pelaamaton tyhjänä. */
+.results .r-squares { display: flex; gap: 3px; margin-top: 6px; }
+.results .sq { width: 13px; height: 3px; border-radius: 2px; background: var(--line); }
+.results .sq.is-miss { background: var(--dim); }
+.results .sq.is-hit { background: var(--tier-hue, var(--ok)); }
+.results .r-points {
+  font-family: var(--display);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -.03em;
+  font-variant-numeric: tabular-nums;
+}
+.results .r-points.zero { color: var(--dim); }
 
-.results + .row { margin-top: 20px; }
+.results .r-tier { font-size: 11px; color: var(--dim); }
+.results .r-tier::before {
+  content: "";
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: 1px;
+  background: var(--tier-hue, var(--dim));
+}
+.results li[data-tier="1"] { --tier-hue: var(--t1); }
+.results li[data-tier="2"] { --tier-hue: var(--t2); }
+.results li[data-tier="3"] { --tier-hue: var(--t3); }
+.results li[data-tier="4"] { --tier-hue: var(--t4); }
+.results li[data-tier="5"] { --tier-hue: var(--t5); }
+
+.results + .row { margin-top: 24px; }
 
 .share {
-  margin: 16px 0 0;
-  padding: 13px;
+  margin: 18px 0 0;
+  padding: 14px;
   border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--surface);
+  border-radius: var(--r);
+  background: var(--bg-lift);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 13px;
+  font-size: 12px;
+  line-height: 1.7;
   white-space: pre-wrap;
 }
 .share[hidden] { display: none; }
 
-/* Tilastot */
-.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-bottom: 20px; }
-.stat { padding: 14px; border-radius: 10px; background: var(--surface); }
-.stat-value { font-size: 25px; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
-.stat-label { font-size: 13px; color: var(--muted); }
-.stat-head { grid-column: 1 / -1; margin-top: 8px; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+/* ---------- Tilastot ---------- */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 1px; margin-bottom: 24px; background: var(--line-soft); }
+.stat { padding: 16px 14px; background: var(--bg); }
+.stat-value {
+  font-family: var(--display);
+  font-size: 27px;
+  font-weight: 800;
+  letter-spacing: -.035em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.stat-label { margin-top: 2px; font-size: 12px; color: var(--muted); }
+.stat-head {
+  grid-column: 1 / -1;
+  padding: 20px 0 6px;
+  background: var(--bg);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
 
-/* Ohjeet */
-.help { padding-left: 20px; color: var(--muted); }
-.help li { margin-bottom: 8px; }
-.help strong { color: var(--text); }
-#view-help h2 { font-size: 17px; margin: 24px 0 6px; }
-#view-help p { color: var(--muted); margin-bottom: 8px; }
-#view-help strong { color: var(--text); }
-#view-help .row { margin-top: 24px; }
+/* ---------- Ohjeet ---------- */
+.help { padding-left: 18px; color: var(--muted); font-size: 14px; }
+.help li { margin-bottom: 10px; padding-left: 4px; }
+.help li::marker { color: var(--live); font-weight: 700; }
+.help strong { color: var(--text); font-weight: 600; }
+#view-help h2 { font-family: var(--display); font-size: 18px; font-weight: 800; letter-spacing: -.025em; margin: 28px 0 8px; }
+#view-help p { color: var(--muted); font-size: 14px; margin-bottom: 10px; }
+#view-help strong { color: var(--text); font-weight: 600; }
+#view-help .row { margin-top: 28px; }
 
-/* Ilmoitus */
+/* ---------- Ilmoitus ---------- */
 .toast {
   position: fixed;
   left: 50%;
-  bottom: calc(20px + env(safe-area-inset-bottom));
+  bottom: calc(22px + env(safe-area-inset-bottom));
   transform: translateX(-50%);
   z-index: 40;
   padding: 11px 16px;
   border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--surface);
-  font-size: 14px;
+  border-radius: var(--r);
+  background: var(--bg-lift);
+  font-size: 13px;
+  box-shadow: 0 20px 40px -20px #000;
 }
 .toast[hidden] { display: none; }
 
-@media (min-width: 720px) {
-  .tile { padding: 34px 26px 38px; }
-  .tile-len { font-size: 40px; }
+@media (min-width: 600px) {
+  .clip-len { font-size: 66px; }
+  .play-btn { width: 184px; height: 184px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

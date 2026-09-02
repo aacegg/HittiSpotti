@@ -6,10 +6,11 @@
   <meta name="color-scheme" content="dark">
   <title>HittiSpotti – tunnista suomibiisi sekunnin kymmenyksestä</title>
   <meta name="description" content="Musiikkivisa suomalaisilla biiseillä. Kuuntele 0,1 sekunnin pätkä ja arvaa kappale. Mitä nopeammin tunnistat, sitä enemmän pisteitä.">
-  <meta name="theme-color" content="#0c0c0e">
+  <meta name="theme-color" content="#0a0908">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="favicon.svg">
-  <link rel="stylesheet" href="style.css?v=12">
+  <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
 
@@ -57,26 +58,33 @@
   <main class="wrap">
 
     <!-- PELI -->
-    <section id="view-game" class="view" hidden>
+    <section id="view-game" class="view view-game" hidden>
       <div class="meta">
         <span id="mode-label">Päivän biisit</span>
         <span id="score-label" class="meta-score">0 p</span>
       </div>
       <div class="tierbar" id="tierbar" aria-label="Vaikeustaso"></div>
 
-      <div class="player">
-        <button type="button" id="play-btn" class="play-btn" aria-label="Soita pätkä">
-          <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
-            <circle class="ring-bg" cx="60" cy="60" r="54"></circle>
-            <circle class="ring-fg" id="ring-fg" cx="60" cy="60" r="54"></circle>
-          </svg>
-          <span class="play-icon" id="play-icon" aria-hidden="true">▶</span>
-        </button>
-        <p class="clip-len" id="clip-len">0,1 s</p>
+      <!-- Soitin ja mittari vievät jäljelle jäävän tilan, jotta ruudun
+           alalaitaan ei jää tyhjää. -->
+      <div class="stage">
+        <div class="player">
+          <button type="button" id="play-btn" class="play-btn" aria-label="Soita pätkä">
+            <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
+              <circle class="ring-bg" cx="60" cy="60" r="54"></circle>
+              <circle class="ring-fg" id="ring-fg" cx="60" cy="60" r="54"></circle>
+            </svg>
+            <span class="play-icon is-play" id="play-icon" aria-hidden="true"></span>
+          </button>
+          <p class="clip-len" id="clip-len">0,1<span class="unit">s</span></p>
+          <p class="stake" id="stake"></p>
+        </div>
       </div>
 
-      <ol class="ladder" id="ladder"></ol>
       <p class="hint" id="hint"></p>
+
+      <!-- Mittari kuuluu napin viereen: se kertoo mitä ohitus maksaa. -->
+      <ol class="ladder" id="ladder"></ol>
 
       <form id="guess-form" class="guess" autocomplete="off">
         <div class="field">
@@ -158,6 +166,6 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=12"></script>
+  <script src="app.js?v=13"></script>
 </body>
 </html>

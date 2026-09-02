@@ -67,6 +67,7 @@
     playBtn: $("#play-btn"),
     playIcon: $("#play-icon"),
     clipLen: $("#clip-len"),
+    stake: $("#stake"),
     ring: $("#ring-fg"),
     tierBar: $("#tierbar"),
     ladder: $("#ladder"),
@@ -186,6 +187,9 @@
   function show(name) {
     state.view = name;
     for (const [k, v] of Object.entries(el.views)) v.hidden = k !== name;
+    // Elävä väri kuuluu soivalle biisille. Muualla sivu palaa perusväriin,
+    // jotta sovelluksella on myös oma pysyvä sävynsä.
+    if (name !== "game") delete el.body.dataset.tier;
     window.scrollTo({ top: 0 });
     if (name === "stats") renderStats();
     updateBar();
@@ -374,6 +378,13 @@
     return audio.starts.get(song.id);
   }
 
+  /* Soittimen kuvake piirretään muodoilla, ei merkeillä: ▶ ja ■ ovat
+   * fontin armoilla eivätkä istu keskelle, ja latauksesta saa kunnon
+   * kehän pisteiden sijaan. */
+  function setPlayIcon(kind) {
+    el.playIcon.className = "play-icon is-" + kind;
+  }
+
   function stopPlayback() {
     if (audio.source) {
       try { audio.source.stop(); } catch { /* jo pysäytetty */ }
@@ -384,7 +395,7 @@
     cancelAnimationFrame(audio.raf);
     audio.playing = false;
     el.playBtn.classList.remove("is-playing");
-    el.playIcon.textContent = "▶";
+    setPlayIcon("play");
     el.ring.style.strokeDashoffset = RING;
   }
 
@@ -405,18 +416,18 @@
     if (!song) return;
     stopPlayback();
     el.playBtn.disabled = true;
-    el.playIcon.textContent = "…";
+    setPlayIcon("load");
 
     const ready = () => {
       el.playBtn.disabled = false;
       audio.playing = true;
       el.playBtn.classList.add("is-playing");
-      el.playIcon.textContent = "■";
+      setPlayIcon("stop");
     };
     const failed = (err) => {
       console.error(err);
       el.playBtn.disabled = false;
-      el.playIcon.textContent = "▶";
+      setPlayIcon("play");
       el.hint.textContent = "Pätkän lataus epäonnistui. Tarkista verkkoyhteys tai ohita biisi.";
       toast("Esikuuntelua ei saatu ladattua.");
     };
@@ -543,8 +554,12 @@
       ? `Päivän biisit · ${todayPretty()}`
       : "Vapaa peli";
     el.scoreLabel.textContent = `${fmt(state.score)} p`;
+    // Koko sivun elävä väri on soivan biisin vaikeustaso.
+    el.body.dataset.tier = String(r.song.tier);
     renderTierBar();
-    el.clipLen.textContent = fmtSec(STEPS[r.finished ? STEPS.length - 1 : r.step]);
+    const sec = STEPS[r.finished ? STEPS.length - 1 : r.step];
+    el.clipLen.innerHTML = `${fmtSec(sec).replace(" s", "")}<span class="unit">s</span>`;
+    el.stake.innerHTML = r.finished ? "" : `<b>${fmt(POINTS[r.step])}</b> pistettä pelissä`;
     el.ladder.innerHTML = "";
     STEPS.forEach((sec, i) => {
       const li = document.createElement("li");
@@ -789,6 +804,13 @@
   // ---------- Tulokset ----------
   const squares = (r) => STEPS.map((_, i) => (i < r.step ? "🟥" : i === r.step ? (r.solved ? "🟩" : "🟥") : "⬜")).join("");
 
+  /* Sama tieto sivulla piirrettynä. Emojiruudut kuuluvat jaettavaan
+   * tekstiin, mutta muun typografian seassa ne näyttävät liimatuilta. */
+  const squaresHtml = (r) => STEPS.map((_, i) => {
+    const cls = i < r.step ? "miss" : i === r.step ? (r.solved ? "hit" : "miss") : "none";
+    return `<i class="sq is-${cls}"></i>`;
+  }).join("");
+
   function shareText() {
     const lines = [];
     if (state.mode === "daily") {
@@ -832,7 +854,7 @@
           <div class="r-title">${escapeHtml(s.title)}</div>
           <div class="r-artist">${escapeHtml(s.artist)} · ${escapeHtml(s.year ?? "")}</div>
           <div class="r-tier">${escapeHtml(TIER_NAMES[s.tier] || "")}</div>
-          <div class="r-squares">${squares(r)}</div>
+          <div class="r-squares" aria-hidden="true">${squaresHtml(r)}</div>
         </div>
         <div class="r-points${r.solved ? "" : " zero"}">${r.solved ? "+" + fmt(r.points) : "0"}</div>`;
       el.resultsList.appendChild(li);
@@ -903,7 +925,7 @@
       [s.dailyPlayed ? fmt(s.dailyTotal / s.dailyPlayed) : "–", "keskipisteet"],
       [fmt(s.dailyBest), "paras tulos"],
       [s.dailyPlayed ? Math.round((s.dailySolved / (s.dailyPlayed * DAILY_COUNT)) * 100) + " %" : "–", "tunnistettu"],
-      [streak + (todayDone ? "" : " ⏳"), "putki (päivää)"],
+      [streak, todayDone ? "putki (päivää)" : "putki · tänään pelaamatta"],
       [s.bestStreak, "pisin putki"],
       ["head", "Vapaa peli"],
       [s.freeRounds, "kierrosta"],

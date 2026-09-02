@@ -142,6 +142,19 @@ body.drawer-open .drawer { transform: none; visibility: visible; }
 .navitem-name { display: block; font-weight: 600; }
 .navitem-note { display: block; font-size: 13px; color: var(--muted); }
 
+/* Vapaan pelin nollaus roikkuu pelimuodon alla, jottei se näytä omalta
+   pelimuodolta. Sisennys ja viiva kertovat, mihin se kuuluu. */
+.navitem-sub {
+  margin-left: 12px;
+  padding: 8px 12px;
+  border-left: 2px solid var(--line);
+  border-radius: 0 10px 10px 0;
+}
+.navitem-sub[hidden] { display: none; }
+.navitem-sub .navitem-name { font-size: 15px; font-weight: 500; color: var(--muted); }
+.navitem-sub:hover .navitem-name { color: var(--text); }
+.navitem-sub .navitem-note { font-size: 12px; }
+
 
 .drawer-rule { height: 1px; margin: 10px 12px; border: 0; background: var(--line); }
 

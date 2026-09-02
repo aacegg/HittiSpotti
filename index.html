@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#0c0c0e">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="favicon.svg">
-  <link rel="stylesheet" href="style.css?v=10">
+  <link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
 
@@ -30,6 +30,11 @@
       <button type="button" class="navitem" data-go="free">
         <span class="navitem-name">Vapaa peli</span>
         <span class="navitem-note">loputtomasti kierroksia</span>
+      </button>
+
+      <button type="button" class="navitem navitem-sub" id="free-reset" data-go="refree" hidden>
+        <span class="navitem-name">Uudet biisit</span>
+        <span class="navitem-note" id="nav-free-note">aloita vapaa peli alusta</span>
       </button>
 
       <hr class="drawer-rule">
@@ -135,7 +140,7 @@
       </ol>
       <h2>Pelimuodot</h2>
       <p><strong>Päivän biisit</strong> on viiden biisin sarja, joka on sama kaikille pelaajille saman päivän aikana. Mukana on yksi biisi jokaiselta vaikeustasolta, ja ne tulevat helpoimmasta vaikeimpaan. Maksimi on 6 000 pistettä, ja tuloksen voi kopioida kavereille.</p>
-      <p><strong>Vapaassa pelissä</strong> kierroksia riittää loputtomiin. Se kiertää oletuksena kaikki tasot järjestyksessä Helposta Mahdottomaan, jolloin jokaiselta tulee yhtä paljon biisejä. Soittimen yläpuolella olevasta rivistä voit lukita yhden tason, ja saman tason napautus uudelleen palauttaa kierron.</p>
+      <p><strong>Vapaassa pelissä</strong> kierroksia riittää loputtomiin. Se kiertää oletuksena kaikki tasot järjestyksessä Helposta Mahdottomaan, jolloin jokaiselta tulee yhtä paljon biisejä. Soittimen yläpuolella olevasta rivistä voit lukita yhden tason, ja saman tason napautus uudelleen palauttaa kierron. Valikon <strong>Uudet biisit</strong> aloittaa vapaan pelin alusta, jos haluat kesken kaiken tuoreen biisipinon.</p>
       <p>Päivän pelissä samasta rivistä siirryt biisien välillä. Viisikko pysyy samana, joten voit jättää vaikean biisin kesken, kokeilla toista ja palata siihen myöhemmin. Ratkaistu biisi näkyy vihreänä ja ratkaisematta jäänyt yliviivattuna.</p>
       <h2>Musiikki</h2>
       <p>Mukana on sekä suomen- että englanninkielisiä suomalaisia kappaleita. Pätkät ovat Applen julkisia 30 sekunnin esikuunteluja, jotka selain hakee suoraan Applelta. Peli ei tallenna musiikkia. Pätkä alkaa esikuuntelun alusta, ja mahdollinen hiljaisuus ohitetaan.</p>
@@ -153,6 +158,6 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=10"></script>
+  <script src="app.js?v=11"></script>
 </body>
 </html>

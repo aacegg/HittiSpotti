@@ -58,6 +58,8 @@
     drawerClose: $("#drawer-close"),
     drawerFoot: $("#drawer-foot"),
     navDailyNote: $("#nav-daily-note"),
+    freeReset: $("#free-reset"),
+    navFreeNote: $("#nav-free-note"),
     barTag: $("#bar-tag"),
     loadingText: $("#loading-text"),
     modeLabel: $("#mode-label"),
@@ -218,6 +220,11 @@
       ? `pelattu tänään · ${fmt(done.score)} p`
       : `viisi biisiä · ${todayPretty()}`;
     el.drawerFoot.textContent = `${state.songs.length} suomibiisiä · tulokset tallentuvat vain tähän selaimeen`;
+    // "Uudet biisit" koskee vain vapaata peliä, joten se näkyy vasta siellä.
+    el.freeReset.hidden = !(state.mode === "free" && state.view === "game");
+    el.navFreeNote.textContent = !state.freeCount ? "aloita vapaa peli alusta"
+      : state.score ? `nollaa kierros ${state.freeCount + 1} ja ${fmt(state.score)} p`
+      : `nollaa kierros ${state.freeCount + 1}`;
     document.querySelectorAll("[data-go]").forEach((b) => {
       const isMode = b.dataset.go === "daily" || b.dataset.go === "free";
       if (isMode) b.classList.toggle("is-active", state.view === "game" && state.mode === b.dataset.go);
@@ -920,6 +927,17 @@
   // ---------- Navigointi ----------
   function go(target) {
     const midRound = state.view === "game" && state.rounds.some((r) => !r.finished);
+    // Vapaan pelin nollaus: uusi biisipino kesken pelin. Varmistetaan vain,
+    // jos jotain oikeasti menetetään.
+    if (target === "refree") {
+      const lose = state.score > 0 || state.freeCount > 0 || midRound;
+      if (lose && !confirm("Vapaa peli alkaa alusta ja pisteet nollautuvat. Jatketaanko?")) return;
+      closeDrawer();
+      stopPlayback();
+      startFree();
+      toast("Uudet biisit.");
+      return;
+    }
     if ((target === "daily" || target === "free") && midRound
       && !confirm("Kesken oleva kierros menetetään. Vaihdetaanko?")) return;
     closeDrawer();

@@ -140,7 +140,9 @@ h1, h2, p, ol, ul { margin: 0; }
    erottuu paremmin kuin toinen väri – ja toimii myös yhdellä värillä. */
 .wordmark {
   display: inline-flex;
-  align-items: baseline;
+  /* Pallolla ei ole perusviivaa, joten baseline jättäisi sen tekstin
+     alareunaan. Keskitys tasaa sen kirjainten kanssa. */
+  align-items: center;
   font-family: var(--display);
   font-size: 19px;
   font-weight: 800;
@@ -476,10 +478,13 @@ button.tchip:hover { color: var(--text); }
   position: relative;
   padding-top: 12px;
   text-align: center;
-  font-size: 10px;
-  letter-spacing: .06em;
+  /* Display-fontti myös tähän: järjestelmäfontin desimaalipilkku vie 0,33 em
+     eli lähes numeron verran, jolloin "0,1" luki "0, 1". Bricolagessa
+     pilkku on 0,10 em. */
+  font-family: var(--display);
+  font-size: 11px;
+  font-weight: 600;
   color: var(--dim);
-  font-variant-numeric: tabular-nums;
 }
 .ladder li::before {
   content: "";
@@ -620,12 +625,11 @@ button.tchip:hover { color: var(--text); }
   display: inline-flex;
   align-items: center;
   gap: 13px;
-  font-family: var(--sans);
+  font-family: var(--display);   /* ks. .ladder li – pilkun leveys */
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0;
   color: var(--muted);
-  font-variant-numeric: tabular-nums;
 }
 .btn-note::before {
   content: "";

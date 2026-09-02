@@ -4,11 +4,13 @@
     python3 scripts/tee_arviointi.py            # rakentaa työkalun
     python3 scripts/tee_arviointi.py --kuitattu  # merkitsee uudet käsitellyiksi
 
-Kirjoittaa arviointi.html, jonka voi avata suoraan selaimessa. Biisitiedot
-upotetaan tiedostoon, joten se toimii ilman palvelinta eikä lista päädy
-verkkoon. Pätkät ja kansikuvat haetaan Applelta niin kuin pelissäkin.
+Kirjoittaa arviointi.html, joka toimii sekä paikallisesti avattuna että
+sivustolta. Biisitiedot upotetaan tiedostoon, joten se ei tarvitse palvelinta.
+Pätkät ja kansikuvat haetaan Applelta niin kuin pelissäkin.
 
-Tiedosto on .gitignoressa: se on työkalu, ei osa peliä.
+Sivu julkaistaan sivustolle, mutta siihen ei ole linkkiä mistään eikä
+hakukoneita päästetä indeksoimaan sitä. Se ei näytä mitään, mitä julkinen
+songs.json ei jo kertoisi.
 """
 import json
 import sys
@@ -28,6 +30,8 @@ TEMPLATE = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="dark">
 <title>HittiSpotti – vaikeustasojen arviointi</title>
 <style>
 :root {
@@ -210,7 +214,9 @@ textarea {
 <script>
 const SONGS = __DATA__;
 const NAMES = {1:"Helppo",2:"Keskitaso",3:"Vaikea",4:"Mestari",5:"Mahdoton"};
-const KEY = "hittispotti:arviot";
+/* Oma avain, joka ei ala "hittispotti:" – peli tallentaa samalle sivustolle ja
+   sen tilastojen nollaus pyyhkii kaikki sillä alkavat avaimet. */
+const KEY = "hittispotti-arviointi:tila";
 
 let saved = { arviot: {}, poista: [] };
 try { saved = Object.assign(saved, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch {}

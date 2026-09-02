@@ -1,5 +1,3 @@
-# Arviointityökalu on vain omaan käyttöön, ei julkiselle sivustolle.
-# Luodaan tarvittaessa: python3 scripts/tee_arviointi.py
-arviointi.html
-katalogi.html
+# Työkalun muistitiedosto: mitkä biisit olivat mukana viime generoinnilla.
 .arviointi-tunnetut.json
+katalogi.html

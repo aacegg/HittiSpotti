@@ -294,8 +294,9 @@ body.drawer-open .drawer { transform: none; visibility: visible; }
 .hint:empty { display: none; }
 
 /* Peli täyttää ruudun: soitin asettuu jäljelle jäävän tilan keskelle,
-   jolloin alalaitaan ei jää tyhjää mustaa. */
-.view-game {
+   jolloin alalaitaan ei jää tyhjää mustaa. Arvausloki on tämän lohkon
+   ulkopuolella, joten sen kasvaminen ei siirrä soitinta eikä nappeja. */
+.screen {
   display: flex;
   flex-direction: column;
   min-height: calc(100dvh - var(--bar-h) - 52px - env(safe-area-inset-top) - env(safe-area-inset-bottom));

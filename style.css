@@ -198,8 +198,11 @@ body.drawer-open .drawer { transform: none; visibility: visible; }
 .tierbar::-webkit-scrollbar { display: none; }
 
 .tchip {
-  flex: 0 0 auto;
+  /* Napit venyvät täyttämään rivin, mutta eivät kutistu tekstiä pienemmiksi:
+     leveällä näytöllä rivi on tasainen, kapealla se vierii kuten ennenkin. */
+  flex: 1 0 auto;
   padding: 5px 7px;
+  text-align: center;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: transparent;

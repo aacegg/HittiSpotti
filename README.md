@@ -79,12 +79,6 @@ Kaikki biisit ovat tiedostossa [`songs.json`](songs.json). Yksi biisi näyttää
 
 Jos jokin esikuuntelun URL vanhenee, peli hakee sen pelin aikana automaattisesti uudestaan `id`-kentän avulla.
 
-## Vaikeustasojen arviointi
-
-`arviot.html` on työkalu tasojen läpikäyntiin. Se näyttää biisit yksi kerrallaan, soittaa 15 sekunnin pätkän samasta kohdasta kuin peli, ja tarjoaa viisi tasonappia sekä **Poista pelistä** -napin. Arviot tallentuvat selaimen localStorageen, ja **Kopioi arviot** antaa muutokset JSON-muodossa (`{"<trackId>": 1-5 tai "x"}`), jonka voi liittää talteen tai välittää eteenpäin.
-
-Sivu ei ole linkitetty pelistä, ja se on merkitty `noindex`-tagilla, mutta osoite on julkinen kuten `songs.json`.
-
 ## Muutosten julkaisu
 
 GitHub Pages käskee selainta pitämään tiedostot välimuistissa kymmenen minuuttia. Siksi `index.html` viittaa tyyleihin ja koodiin versionumerolla (`style.css?v=2`, `app.js?v=2`). **Kasvata numeroa aina kun muutat `style.css`- tai `app.js`-tiedostoa**, niin selaimet hakevat uuden version heti.

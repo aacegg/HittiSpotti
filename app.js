@@ -81,6 +81,11 @@
     revealTitle: $("#reveal-title"),
     revealArtist: $("#reveal-artist"),
     revealPoints: $("#reveal-points"),
+    rate: $("#rate"),
+    rateQ: $("#rate-q"),
+    rateRow: $("#rate-row"),
+    exportBtn: $("#export-btn"),
+    exportOut: $("#export-out"),
     replayBtn: $("#replay-btn"),
     nextBtn: $("#next-btn"),
     resultsKicker: $("#results-kicker"),
@@ -746,6 +751,7 @@
     el.revealTitle.textContent = song.title;
     el.revealArtist.textContent = `${song.artist} · ${song.year}`;
     el.revealPoints.textContent = r.solved ? `+${fmt(r.points)} pistettä` : "0 pistettä";
+    renderRate(song);
     // Viimeisen biisin jälkeen nappi vie tuloksiin kummassakin pelimuodossa.
     el.nextBtn.textContent = state.rounds.some((x) => !x.finished) ? "Seuraava" : "Tulokset";
   }
@@ -757,6 +763,7 @@
     r.solved = solved;
     r.points = solved ? POINTS[r.step] : 0;
     state.score += r.points;
+    logRound(r);
     renderRound();
     showReveal(r);
     el.nextBtn.focus({ preventScroll: true });
@@ -970,6 +977,45 @@
     }
   }
 
+  /* ---------- Kerätty aineisto ----------
+   * Kaksi eri asiaa, joista jälkimmäinen on arvokkaampi:
+   *   arviot   – pelaajan oma arvio siitä miltä biisi tuntui (vapaaehtoinen)
+   *   kierrokset – millä askeleella biisi tunnistettiin, vai luovutettiinko
+   * Askel on käyttäytymistä eikä mielipidettä, ja se kertyy joka kierroksesta
+   * ilman että pelaajalta kysytään mitään. Kaikki jää tähän selaimeen: sivu
+   * on staattinen eikä lähetä mitään minnekään.
+   */
+  const LOG_MAX = 3000;
+
+  function logRound(r) {
+    const log = store.get("kierrokset", []);
+    log.push({
+      id: r.song.id,
+      taso: r.song.tier,
+      askel: r.step,          // 0-4, eli 0,1 s ... 15 s
+      osui: r.solved,
+      pv: todayKey(),
+      tila: state.mode,
+    });
+    store.set("kierrokset", log.slice(-LOG_MAX));
+  }
+
+  function saveRating(id, tier) {
+    const all = store.get("arviot", {});
+    all[id] = tier;
+    store.set("arviot", all);
+  }
+
+  /* Arviorivi näyttää samalta kuin pelin tasorivi, mutta ei paljasta biisin
+   * nykyistä tasoa: valmiiksi valittu vaihtoehto ohjaisi vastausta. */
+  function renderRate(song) {
+    const given = store.get("arviot", {})[song.id];
+    el.rateQ.textContent = given ? `Arviosi: ${TIER_NAMES[given]}` : "Miltä tämä tuntui?";
+    el.rateRow.innerHTML = TIER_CYCLE.map((t) => `<button type="button"
+      class="tchip${given === t ? " is-on" : ""}" data-rate="${t}" data-tier="${t}"
+      aria-pressed="${given === t}">${TIER_NAMES[t]}</button>`).join("");
+  }
+
   // ---------- Tallennus & tilastot ----------
   function defaultStats() {
     return {
@@ -1030,6 +1076,44 @@
       : `<div class="stat"><div class="stat-value">${v}</div><div class="stat-label">${l}</div></div>`)).join("");
   }
 
+  /* Vienti kokoaa biisikohtaisen yhteenvedon: oma arvio ja se, millä
+   * askeleella biisi keskimäärin tunnistettiin. Raakaloki olisi tarpeettoman
+   * iso liitettäväksi, ja tasojen säätöön riittää tiivistelmä. */
+  function exportData() {
+    const arviot = store.get("arviot", {});
+    const log = store.get("kierrokset", []);
+    const per = new Map();
+    for (const k of log) {
+      const e = per.get(k.id) || { n: 0, osui: 0, askeleet: 0 };
+      e.n += 1;
+      if (k.osui) e.osui += 1;
+      e.askeleet += k.askel;
+      per.set(k.id, e);
+    }
+    const ids = new Set([...per.keys(), ...Object.keys(arviot).map(Number)]);
+    const biisit = [...ids].map((id) => {
+      const song = state.byId.get(String(id));
+      const e = per.get(id);
+      const rec = { id, nimi: song ? song.label : "?", nykyinen: song ? song.tier : null };
+      if (arviot[id]) rec.arvio = arviot[id];
+      if (e) {
+        rec.kierroksia = e.n;
+        rec.osui = e.osui;
+        rec.keskiaskel = Math.round((e.askeleet / e.n) * 10) / 10;
+      }
+      return rec;
+    }).sort((x, y) => (y.kierroksia || 0) - (x.kierroksia || 0));
+
+    if (!biisit.length) { toast("Ei vielä kerättyä dataa."); return; }
+    el.exportOut.textContent = JSON.stringify({
+      versio: 1, kierroksia: log.length, arvioita: Object.keys(arviot).length, biisit,
+    }, null, 1);
+    el.exportOut.hidden = false;
+    navigator.clipboard?.writeText(el.exportOut.textContent)
+      .then(() => toast("Kopioitu leikepöydälle."))
+      .catch(() => toast("Kopioi teksti alta."));
+  }
+
   function resetStats() {
     if (!confirm("Nollataanko tilastot ja tämän päivän tulos tästä selaimesta?")) return;
     store.clear();
@@ -1077,6 +1161,13 @@
       playClip(cur().finished ? STEPS[STEPS.length - 1] : STEPS[cur().step]);
     });
     el.replayBtn.addEventListener("click", () => playClip(STEPS[STEPS.length - 1]));
+    el.rateRow.addEventListener("click", (e) => {
+      const chip = e.target.closest("[data-rate]");
+      if (!chip || cur() === undefined) return;
+      saveRating(cur().song.id, Number(chip.dataset.rate));
+      renderRate(cur().song);
+    });
+    el.exportBtn.addEventListener("click", exportData);
     el.nextBtn.addEventListener("click", nextRound);
     el.tierBar.addEventListener("click", (e) => {
       const chip = e.target.closest("button.tchip");

@@ -10,7 +10,7 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="favicon.svg">
   <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=24">
+  <link rel="stylesheet" href="style.css?v=25">
 </head>
 <body>
 
@@ -105,6 +105,14 @@
           <p id="reveal-artist" class="reveal-artist"></p>
         </div>
         <p id="reveal-points" class="reveal-points"></p>
+
+        <!-- Vapaaehtoinen arvio. Ei estä eteenpäin menoa eikä näytä nykyistä
+             tasoa, jottei se ohjaa vastausta. -->
+        <div class="rate" id="rate">
+          <p class="rate-q" id="rate-q">Miltä tämä tuntui?</p>
+          <div class="tierbar rate-row" id="rate-row"></div>
+        </div>
+
         <div class="row">
           <button type="button" class="btn" id="replay-btn">Kuuntele</button>
           <button type="button" class="btn btn-accent" id="next-btn">Seuraava</button>
@@ -135,8 +143,10 @@
       <div class="stats" id="stat-grid"></div>
       <div class="row row-wrap">
         <button type="button" class="btn" data-go="back">Takaisin peliin</button>
+        <button type="button" class="btn" id="export-btn">Vie pelidata</button>
         <button type="button" class="btn btn-quiet" id="reset-stats-btn">Nollaa tilastot</button>
       </div>
+      <pre id="export-out" class="share" hidden></pre>
     </section>
 
     <!-- OHJEET -->
@@ -154,6 +164,8 @@
       <h2>Tasorivi</h2>
       <p>Soittimen yläpuolella oleva rivi siirtää biisien välillä molemmissa pelimuodoissa. Biisit pysyvät paikoillaan, joten voit jättää vaikean kesken, kokeilla toista ja palata siihen myöhemmin — edistyminen odottaa siellä missä sen jätit. Aloitetun biisin taso näkyy värillisellä reunuksella.</p>
       <p>Pelattu biisi näkyy rivillä vihreänä, jos tunnistit sen, ja yliviivattuna jos et.</p>
+      <h2>Vaikeustasojen arviointi</h2>
+      <p>Kun biisi paljastuu, voit kertoa miltä se sinusta tuntui. Arvio on vapaaehtoinen eikä vaikuta pisteisiin. Peli myös merkitsee muistiin, monenko sekunnin pätkästä tunnistit biisin — se kertoo vaikeudesta enemmän kuin mikään arvio. Kaikki tämä tallentuu <strong>vain omaan selaimeesi</strong>, eikä sitä lähetetä minnekään. Tilastosivun <strong>Vie pelidata</strong> antaa kertyneen aineiston, jos haluat lähettää sen tasojen tarkentamiseksi.</p>
       <h2>Musiikki</h2>
       <p>Mukana on sekä suomen- että englanninkielisiä suomalaisia kappaleita. Pätkät ovat Applen julkisia 30 sekunnin esikuunteluja, jotka selain hakee suoraan Applelta. Peli ei tallenna musiikkia. Pätkä alkaa esikuuntelun alusta, ja mahdollinen hiljaisuus ohitetaan.</p>
       <p>Tulokset ja tilastot tallentuvat vain omaan selaimeesi.</p>
@@ -170,6 +182,6 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=24"></script>
+  <script src="app.js?v=25"></script>
 </body>
 </html>

@@ -28,6 +28,7 @@
     results: [],
     score: 0,
     selected: null,
+    pinned: null,        // vapaassa pelissä lukittu taso, null = kierto
     suggestions: [],
     activeSuggestion: -1,
     view: "loading",
@@ -67,7 +68,7 @@
     playIcon: $("#play-icon"),
     clipLen: $("#clip-len"),
     ring: $("#ring-fg"),
-    tierBadge: $("#tier-badge"),
+    tierBar: $("#tierbar"),
     ladder: $("#ladder"),
     hint: $("#hint"),
     form: $("#guess-form"),
@@ -476,6 +477,7 @@
 
   function startFree() {
     state.mode = "free";
+    state.pinned = null;
     state.used = new Set();
     state.roundIndex = 0;
     state.results = [];
@@ -488,7 +490,7 @@
    * kapea taso ei lopu kesken: Mahdoton toistuu vasta 175 kierroksen päästä
    * eikä 35:n, ja jokainen taso tulee yhtä usein vastaan. */
   function nextFreeSong() {
-    const tier = TIER_CYCLE[state.roundIndex % TIER_CYCLE.length];
+    const tier = state.pinned || TIER_CYCLE[state.roundIndex % TIER_CYCLE.length];
     let pool = state.songs.filter((s) => s.tier === tier && !state.used.has(s.id));
     if (!pool.length) {
       // Taso käyty läpi: aloitetaan se alusta muita tasoja nollaamatta.
@@ -522,9 +524,7 @@
       ? `Päivän biisit · ${todayPretty()}`
       : "Vapaa peli";
     el.scoreLabel.textContent = `${fmt(state.score)} p`;
-    const tier = state.current ? state.current.tier : 0;
-    el.tierBadge.textContent = TIER_NAMES[tier] || "";
-    el.tierBadge.dataset.tier = tier;
+    renderTierBar();
     el.clipLen.textContent = fmtSec(STEPS[state.finished ? STEPS.length - 1 : state.step]);
     el.ladder.innerHTML = "";
     STEPS.forEach((sec, i) => {
@@ -536,6 +536,27 @@
     });
     renderAction();
     updateBar();
+  }
+
+  /* Vapaassa pelissä rivi on napit, joilla tason voi vaihtaa kesken pelin.
+   * Päivän pelissä tasoa ei voi valita, koska sarja on kaikille sama, joten
+   * siellä sama rivi näyttää vain missä kohtaa viisikkoa ollaan. */
+  function renderTierBar() {
+    const now = state.current ? state.current.tier : 0;
+    if (state.mode === "daily") {
+      el.tierBar.innerHTML = TIER_CYCLE.map((t, i) => {
+        const cls = i + 1 === state.roundIndex ? " is-on" : i + 1 < state.roundIndex ? " is-done" : "";
+        return `<span class="tchip${cls}" data-tier="${t}">${TIER_NAMES[t]}</span>`;
+      }).join("");
+      return;
+    }
+    const chips = [[0, "Kierto"]].concat(TIER_CYCLE.map((t) => [t, TIER_NAMES[t]]));
+    el.tierBar.innerHTML = chips.map(([t, label]) => {
+      const chosen = state.pinned === null ? t === 0 : state.pinned === t;
+      // Kierrossa nykyinen taso saa vain reunuksen, jottei kahta täytettyä nappia.
+      const cls = chosen ? " is-on" : (state.pinned === null && t === now ? " is-now" : "");
+      return `<button type="button" class="tchip${cls}" data-tier="${t}" aria-pressed="${chosen}">${label}</button>`;
+    }).join("");
   }
 
   /* Yksi nappi riittää: ohitus ja väärä arvaus vievät kierrosta yhtä paljon
@@ -888,6 +909,15 @@
     });
     el.replayBtn.addEventListener("click", () => playClip(STEPS[STEPS.length - 1]));
     el.nextBtn.addEventListener("click", nextRound);
+    el.tierBar.addEventListener("click", (e) => {
+      const chip = e.target.closest("button.tchip");
+      if (!chip || state.mode !== "free") return;
+      const t = Number(chip.dataset.tier);
+      state.pinned = t === 0 ? null : t;
+      stopPlayback();
+      beginRound(nextFreeSong());   // vaihto näkyy heti seuraavassa biisissä
+    });
+
     el.actionBtn.addEventListener("click", () => {
       if (state.selected || exactMatch(el.input.value)) submitGuess();
       else skipStep();

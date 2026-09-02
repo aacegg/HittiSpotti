@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#0c0c0e">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="favicon.svg">
-  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 
@@ -57,7 +57,7 @@
         <span id="mode-label">Päivän biisit</span>
         <span id="score-label" class="meta-score">0 p</span>
       </div>
-      <p class="tierline"><span id="tier-badge" class="tierbadge"></span></p>
+      <div class="tierbar" id="tierbar" aria-label="Vaikeustaso"></div>
 
       <div class="player">
         <button type="button" id="play-btn" class="play-btn" aria-label="Soita pätkä">
@@ -135,7 +135,8 @@
       </ol>
       <h2>Pelimuodot</h2>
       <p><strong>Päivän biisit</strong> on viiden biisin sarja, joka on sama kaikille pelaajille saman päivän aikana. Mukana on yksi biisi jokaiselta vaikeustasolta, ja ne tulevat helpoimmasta vaikeimpaan. Maksimi on 6 000 pistettä, ja tuloksen voi kopioida kavereille.</p>
-      <p><strong>Vapaassa pelissä</strong> kierroksia riittää loputtomiin. Se kiertää samaa vaikeusastetta kuin päivän peli: Helppo, Keskitaso, Vaikea, Mestari, Mahdoton, ja sitten alusta. Jokaiselta tasolta tulee siis yhtä paljon biisejä.</p>
+      <p><strong>Vapaassa pelissä</strong> kierroksia riittää loputtomiin. Se kiertää oletuksena kaikki tasot järjestyksessä Helposta Mahdottomaan, jolloin jokaiselta tulee yhtä paljon biisejä. Soittimen yläpuolella olevasta rivistä voit lukita yhden tason ja vaihtaa sitä milloin tahansa. <strong>Kierto</strong> palauttaa automaattisen kierron.</p>
+      <p>Päivän pelissä sama rivi näyttää missä kohtaa viisikkoa olet. Tasoa ei siellä voi vaihtaa, koska sarja on kaikille sama.</p>
       <h2>Musiikki</h2>
       <p>Mukana on sekä suomen- että englanninkielisiä suomalaisia kappaleita. Pätkät ovat Applen julkisia 30 sekunnin esikuunteluja, jotka selain hakee suoraan Applelta. Peli ei tallenna musiikkia. Pätkä alkaa esikuuntelun alusta, ja mahdollinen hiljaisuus ohitetaan.</p>
       <p>Tulokset ja tilastot tallentuvat vain omaan selaimeesi.</p>
@@ -152,6 +153,6 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>

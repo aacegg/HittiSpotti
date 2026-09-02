@@ -166,30 +166,51 @@ body.drawer-open .drawer { transform: none; visibility: visible; }
 }
 .meta-score { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
 
-/* Vaikeustaso: pieni väripiste kertoo tason yhdellä silmäyksellä. */
-.tierline { margin: -8px 0 14px; }
-.tierbadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 4px 11px;
+/* Vaikeustasorivi: vapaassa pelissä napit, päivän pelissä etenemisen näyttö.
+   Rivi vierii vaakasuunnassa, jotta kaikki viisi mahtuvat kapeallekin näytölle. */
+.tierbar {
+  display: flex;
+  gap: 6px;
+  /* Täysleveä vieritys: rivi ulottuu näytön reunaan, mutta sisältö pysyy
+     samassa sisennyksessä kuin muu sivu, joten reunaan jäävä puolikas
+     nappi näyttää vihjeeltä eikä virheeltä. */
+  margin: 0 -18px 16px;
+  padding: 0 18px 4px;
+  overflow-x: auto;
+  scroll-padding: 0 18px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.tierbar::-webkit-scrollbar { display: none; }
+
+.tchip {
+  flex: 0 0 auto;
+  padding: 6px 13px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  font-size: 13px;
+  background: transparent;
   color: var(--muted);
+  font-size: 13px;
+  white-space: nowrap;
 }
-.tierbadge::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--tier-dot, var(--muted));
+button.tchip { cursor: pointer; }
+button.tchip:hover { color: var(--text); border-color: var(--tier-dot, var(--line)); }
+.tchip.is-on {
+  background: var(--tier-dot, var(--accent));
+  border-color: var(--tier-dot, var(--accent));
+  color: #16130f;
+  font-weight: 600;
 }
-.tierbadge[data-tier="1"] { --tier-dot: #4fae7d; }
-.tierbadge[data-tier="2"] { --tier-dot: #8fae45; }
-.tierbadge[data-tier="3"] { --tier-dot: #d99f2c; }
-.tierbadge[data-tier="4"] { --tier-dot: #dd7440; }
-.tierbadge[data-tier="5"] { --tier-dot: #cf5252; }
+.tchip.is-done { opacity: .4; }
+.tchip.is-now { border-color: var(--tier-dot); color: var(--text); }
+.tchip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.tchip[data-tier="1"] { --tier-dot: #4fae7d; }
+.tchip[data-tier="2"] { --tier-dot: #8fae45; }
+.tchip[data-tier="3"] { --tier-dot: #d99f2c; }
+.tchip[data-tier="4"] { --tier-dot: #dd7440; }
+.tchip[data-tier="5"] { --tier-dot: #cf5252; }
+.tchip[data-tier="0"] { --tier-dot: var(--accent); }
 
 .results .r-tier { font-size: 12px; color: var(--muted); }
 .results .r-tier::before {

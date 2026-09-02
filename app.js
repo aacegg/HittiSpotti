@@ -764,7 +764,14 @@
       li.innerHTML = `<span class="s-title">${escapeHtml(s.title)}</span>`
         + `<span class="s-artist">${escapeHtml(s.artist)}</span>`
         + (used ? '<span class="s-used">arvattu</span>' : "");
-      if (!used) li.addEventListener("mousedown", (e) => { e.preventDefault(); chooseSuggestion(s); });
+      // Kuuntelija myös estetylle riville: napautus, joka ei tee yhtään mitään,
+      // näyttää rikkinäiseltä. preventDefault pitää kentän kohdistettuna,
+      // jolloin lista ei sulkeudu alta.
+      li.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        if (used) toast(`${s.title} on jo arvattu tällä biisillä.`);
+        else chooseSuggestion(s);
+      });
       el.suggestions.appendChild(li);
     });
     el.suggestions.hidden = false;

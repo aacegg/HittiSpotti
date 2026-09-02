@@ -631,10 +631,14 @@
     el.log.appendChild(li);
   }
 
-  function addGuess(type, label) {
-    cur().guesses.push({ type, label });
+  function addGuess(type, label, id) {
+    cur().guesses.push({ type, label, id });
     logGuess(type, label);
   }
+
+  /* Onko tämä biisi jo arvattu tällä kierroksella. Väärä arvaus ei kannata
+   * toistaa: se veisi askeleen eteenpäin antamatta mitään uutta. */
+  const alreadyGuessed = (song) => !!song && cur().guesses.some((g) => g.id === song.id);
 
   function advanceStep() {
     const r = cur();
@@ -656,7 +660,7 @@
     const guess = state.selected || exactMatch(el.input.value);
     if (!guess) { toast("Valitse biisi listasta."); return; }
     if (guess.id === r.song.id) finishRound(true);
-    else { addGuess("wrong", guess.label); advanceStep(); }
+    else { addGuess("wrong", guess.label, guess.id); advanceStep(); }
   }
 
   function skipStep() {
@@ -720,7 +724,8 @@
   function exactMatch(text) {
     const key = normalize(text);
     if (!key) return null;
-    return state.songs.find((s) => s.key === key || normalize(s.label) === key) || null;
+    const hit = state.songs.find((s) => s.key === key || normalize(s.label) === key) || null;
+    return alreadyGuessed(hit) ? null : hit;
   }
 
   function findSuggestions(text) {
@@ -750,11 +755,16 @@
       el.suggestions.innerHTML = `<li class="empty">Ei osumia – kokeile artistin tai biisin nimeä.</li>`;
     }
     state.suggestions.forEach((s, i) => {
+      const used = alreadyGuessed(s);
       const li = document.createElement("li");
-      li.className = "suggestion" + (i === state.activeSuggestion ? " is-active" : "");
+      li.className = "suggestion" + (used ? " is-used" : "")
+        + (i === state.activeSuggestion && !used ? " is-active" : "");
       li.setAttribute("role", "option");
-      li.innerHTML = `<span class="s-title">${escapeHtml(s.title)}</span><span class="s-artist">${escapeHtml(s.artist)}</span>`;
-      li.addEventListener("mousedown", (e) => { e.preventDefault(); chooseSuggestion(s); });
+      li.setAttribute("aria-disabled", String(used));
+      li.innerHTML = `<span class="s-title">${escapeHtml(s.title)}</span>`
+        + `<span class="s-artist">${escapeHtml(s.artist)}</span>`
+        + (used ? '<span class="s-used">arvattu</span>' : "");
+      if (!used) li.addEventListener("mousedown", (e) => { e.preventDefault(); chooseSuggestion(s); });
       el.suggestions.appendChild(li);
     });
     el.suggestions.hidden = false;
@@ -769,6 +779,7 @@
   }
 
   function chooseSuggestion(song) {
+    if (alreadyGuessed(song)) return;
     state.selected = song;
     el.input.value = song.label;
     closeSuggestions();
@@ -790,13 +801,21 @@
       return;
     }
     const n = state.suggestions.length;
+    // Jo arvatut ohitetaan, jottei niihin voi päätyä näppäimistölläkään.
+    const move = (dir) => {
+      for (let k = 1; k <= n; k++) {
+        const i = ((state.activeSuggestion + dir * k) % n + n) % n;
+        if (!alreadyGuessed(state.suggestions[i])) return i;
+      }
+      return -1;
+    };
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      state.activeSuggestion = n ? (state.activeSuggestion + 1) % n : -1;
+      state.activeSuggestion = n ? move(1) : -1;
       renderSuggestions();
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      state.activeSuggestion = n ? (state.activeSuggestion - 1 + n) % n : -1;
+      state.activeSuggestion = n ? move(-1) : -1;
       renderSuggestions();
     } else if (e.key === "Enter") {
       if (state.activeSuggestion >= 0 && state.suggestions[state.activeSuggestion]) {

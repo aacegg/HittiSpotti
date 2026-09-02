@@ -599,14 +599,21 @@
 
   /* Yksi nappi riittää: ohitus ja väärä arvaus vievät kierrosta yhtä paljon
    * eteenpäin, joten nappi tekee aina sen mitä kentän sisältö tarkoittaa. */
+  /* Nappi kertoo teon vasemmalla ja sen hinnan oikealla: arvaus näyttää mitä
+   * on voitettavana, ohitus sen mihin pätkä pitenee. Luovutuksella ei ole
+   * hintaa kerrottavana, joten se on keskitetty ja hillitty. */
   function renderAction() {
     const r = cur();
     const ready = !!(state.selected || exactMatch(el.input.value));
     const last = r.step >= STEPS.length - 1;
-    el.actionBtn.textContent = ready
-      ? "Arvaa"
-      : last ? "Luovuta" : `Ohita → ${fmtSec(STEPS[r.step + 1])}`;
+    const label = ready ? "Arvaa" : last ? "Luovuta" : "Ohita";
+    const note = ready ? `+${fmt(POINTS[r.step])} p` : last ? "" : fmtSec(STEPS[r.step + 1]);
+    el.actionBtn.innerHTML = `<span class="btn-label">${label}</span>`
+      + (note ? `<span class="btn-note">${note}</span>` : "");
+    // Kaksi erillistä elementtiä luetaan yhteen ilman väliä, joten nimi erikseen.
+    el.actionBtn.setAttribute("aria-label", note ? `${label}, ${note}` : label);
     el.actionBtn.classList.toggle("btn-accent", ready);
+    el.actionBtn.classList.toggle("is-give", !ready && last);
   }
 
   function logGuess(type, label) {

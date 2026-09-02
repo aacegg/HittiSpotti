@@ -565,11 +565,69 @@ button.tchip:hover { color: var(--text); }
 }
 .btn:hover { border-color: var(--muted); }
 .btn:disabled { opacity: .4; cursor: not-allowed; }
+/* Selaimen oletusrengas on kirkkaan valkoinen eikä istu palettiin. */
+.btn:focus-visible { outline: 2px solid var(--live); outline-offset: 2px; }
+.play-btn:focus-visible { outline: 2px solid var(--live); outline-offset: 4px; }
+#guess-input:focus-visible { outline: none; }
 .btn-accent { background: var(--live); border-color: var(--live); color: var(--live-ink); }
 .btn-accent:not(:disabled):hover { filter: brightness(1.08); }
 .btn-accent:disabled { background: transparent; border-color: var(--line); color: var(--muted); opacity: 1; }
 .btn-quiet { border-color: transparent; color: var(--dim); font-family: var(--sans); font-weight: 500; }
 .btn-quiet:hover { color: var(--bad); border-color: transparent; }
+
+/* Pelin päänappi. Leveä rivi jaetaan kahtia: teko vasemmalle, sen hinta
+   oikealle. Keskitetty pikkuteksti jätti rivin tyhjän näköiseksi. */
+.btn-wide {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 15px 18px;
+  font-size: 16px;
+}
+.btn-wide.is-give { justify-content: center; }
+
+.btn-label { letter-spacing: -.015em; }
+
+.btn-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+/* Pieni kulmanuoli piirrettynä, ei merkkinä: → istuu eri fonteissa eri
+   korkeudelle eikä osu tasan tekstin keskiviivaan. */
+.btn-note::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-top: 1.6px solid currentColor;
+  border-right: 1.6px solid currentColor;
+  transform: translateX(-1px) rotate(45deg);
+  opacity: .5;
+}
+
+/* Ohitus on hillitty, mutta ei litteä: ohut valo ylhäältä antaa napille
+   saman pinnan kuin soittimella. Reunus herää tason väriin kun sitä koskee. */
+.btn-wide:not(.btn-accent) {
+  background: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, 0) 62%);
+}
+.btn-wide:not(.btn-accent):hover { border-color: var(--live); }
+.btn-wide:not(.btn-accent):hover .btn-note { color: var(--text); }
+.btn-wide.is-give:hover { border-color: var(--bad); color: var(--bad); }
+
+/* Arvaus on kierroksen palkinto: täysi väri, pehmeä hehku ja pisteet
+   näkyvissä, jotta näkee mistä pelaa. Nuoli kuuluu vain ohitukselle, jossa se
+   osoittaa seuraavaan pituuteen; palkinto ei osoita mihinkään. */
+.btn-accent.btn-wide { box-shadow: 0 10px 30px -14px var(--live); }
+.btn-accent .btn-note { color: rgba(20, 15, 8, .66); font-weight: 600; }
+.btn-accent .btn-note::before { display: none; }
+.btn-wide:active { transform: translateY(1px); }
 
 /* ---------- Arvausloki ---------- */
 .log { list-style: none; padding: 0; margin: 16px 0 0; }

@@ -9,7 +9,7 @@ Peli on puhdas selainsovellus: ei build-vaihetta, ei palvelinta, ei riippuvuuksi
 | Muoto | Kuvaus |
 | --- | --- |
 | **Päivän biisit** | Sama viisi biisiä kaikille pelaajille saman päivän aikana, yksi jokaiselta vaikeustasolta. Biisien välillä voi liikkua vapaasti ja palata kesken jääneeseen. Maksimi 6 000 pistettä. Tuloksen voi kopioida ja jakaa kavereille. |
-| **Vapaa peli** | Loputtomasti kierroksia. Kiertää oletuksena kaikki tasot, mutta yhden tason voi lukita pelinäkymän tasoriviltä. |
+| **Vapaa peli** | Loputtomasti kierroksia. Kiertää oletuksena kaikki tasot, mutta yhden tason voi lukita tasoriviltä ja purkaa lukituksen napauttamalla samaa tasoa uudelleen. |
 
 Pisteet askeleittain: **1 200 · 975 · 750 · 525 · 300**. Jos 15 sekunnin jälkeenkään ei nappaa, kierroksesta saa nolla.
 

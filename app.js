@@ -525,7 +525,9 @@
     } else {
       el.reveal.hidden = true;
       el.form.hidden = false;
-      el.hint.textContent = "Paina kuunnellaksesi.";
+      el.hint.textContent = state.pinned
+        ? `${TIER_NAMES[state.pinned]} lukittu — napauta sitä uudelleen palataksesi kiertoon.`
+        : "Paina kuunnellaksesi.";
     }
     renderRound();
   }
@@ -564,12 +566,11 @@
       return;
     }
     const now = cur().song.tier;
-    const chips = [[0, "Kierto"]].concat(TIER_CYCLE.map((t) => [t, TIER_NAMES[t]]));
-    el.tierBar.innerHTML = chips.map(([t, label]) => {
-      const chosen = state.pinned === null ? t === 0 : state.pinned === t;
-      // Kierrossa nykyinen taso saa vain reunuksen, jottei kahta täytettyä nappia.
-      const cls = chosen ? " is-on" : (state.pinned === null && t === now ? " is-now" : "");
-      return `<button type="button" class="tchip${cls}" data-tier="${t}" aria-pressed="${chosen}">${label}</button>`;
+    el.tierBar.innerHTML = TIER_CYCLE.map((t) => {
+      const pinned = state.pinned === t;
+      // Kierrossa nykyinen taso saa vain reunuksen, lukittu taso täytön.
+      const cls = pinned ? " is-on" : (state.pinned === null && t === now ? " is-now" : "");
+      return `<button type="button" class="tchip${cls}" data-tier="${t}" aria-pressed="${pinned}">${TIER_NAMES[t]}</button>`;
     }).join("");
   }
 
@@ -960,7 +961,7 @@
         return;
       }
       const t = Number(chip.dataset.tier);
-      state.pinned = t === 0 ? null : t;
+      state.pinned = state.pinned === t ? null : t;   // sama taso uudelleen purkaa lukituksen
       state.freeCount += 1;
       state.rounds = [newRound(nextFreeSong())];
       state.at = 0;

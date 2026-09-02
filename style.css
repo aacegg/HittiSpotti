@@ -284,7 +284,19 @@ body.drawer-open .drawer { transform: none; visibility: visible; }
 .wrap { position: relative; z-index: 1; max-width: 540px; margin: 0 auto; padding: 12px 18px 40px; }
 .view[hidden] { display: none; }
 
-.big {
+/* Vain ruudunlukijalle ja hakukoneelle: sivu tarvitsee oikean otsikon,
+   mutta ulkoasussa sen paikan ottaa sanamerkki. */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Näkymien otsikot ovat h2, koska sivulla on yksi h1. */
+h2.big, .big {
   font-family: var(--display);
   font-size: 34px;
   font-weight: 800;

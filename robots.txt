@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://aacegg.github.io/HittiSpotti/sitemap.xml

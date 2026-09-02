@@ -7,10 +7,42 @@
   <title>HittiSpotti – tunnista suomibiisi sekunnin kymmenyksestä</title>
   <meta name="description" content="Musiikkivisa suomalaisilla biiseillä. Kuuntele 0,1 sekunnin pätkä ja arvaa kappale. Mitä nopeammin tunnistat, sitä enemmän pisteitä.">
   <meta name="theme-color" content="#0a0908">
+  <link rel="canonical" href="https://aacegg.github.io/HittiSpotti/">
+
+  <!-- Linkin esikatselu jaettaessa ja hakutuloksissa. -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="HittiSpotti">
+  <meta property="og:locale" content="fi_FI">
+  <meta property="og:url" content="https://aacegg.github.io/HittiSpotti/">
+  <meta property="og:title" content="HittiSpotti – tunnistatko suomibiisin 0,1 sekunnista?">
+  <meta property="og:description" content="Musiikkivisa suomalaisilla biiseillä. Viisi uutta biisiä joka päivä, sama kaikille. Mitä lyhyemmästä pätkästä tunnistat, sitä enemmän pisteitä.">
+  <meta property="og:image" content="https://aacegg.github.io/HittiSpotti/jakokuva.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="HittiSpotti – tunnistatko biisin 0,1 sekunnista?">
+  <meta name="twitter:card" content="summary_large_image">
+
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="favicon.svg">
   <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=31">
+  <link rel="stylesheet" href="style.css?v=32">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "HittiSpotti",
+    "url": "https://aacegg.github.io/HittiSpotti/",
+    "description": "Musiikkivisa suomalaisilla biiseillä. Kuuntele 0,1 sekunnin pätkä ja arvaa kappale. Viisi uutta biisiä joka päivä, sama kaikille pelaajille.",
+    "inLanguage": "fi",
+    "genre": ["Musiikkivisa", "Tietovisa"],
+    "gamePlatform": "Verkkoselain",
+    "applicationCategory": "GameApplication",
+    "operatingSystem": "Kaikki, joissa on selain",
+    "isAccessibleForFree": true,
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+  }
+  </script>
 </head>
 <body>
 
@@ -56,6 +88,10 @@
   </header>
 
   <main class="wrap">
+
+    <!-- Sivun varsinainen otsikko. Ulkoasussa sen paikan ottaa sanamerkki,
+         mutta hakukone ja ruudunlukija tarvitsevat oikean otsikon. -->
+    <h1 class="sr-only">HittiSpotti – tunnista suomalainen biisi 0,1 sekunnin pätkästä</h1>
 
     <!-- PELI -->
     <section id="view-game" class="view view-game" hidden>
@@ -126,7 +162,7 @@
     <!-- TULOKSET -->
     <section id="view-results" class="view" hidden>
       <p class="eyebrow" id="results-kicker"></p>
-      <h1 id="results-title" class="big">Tulokset</h1>
+      <h2 id="results-title" class="big">Tulokset</h2>
       <p class="score-big"><strong id="results-score">0</strong> pistettä</p>
       <p class="hint" id="results-sub"></p>
       <ol id="results-list" class="results"></ol>
@@ -139,7 +175,7 @@
 
     <!-- TILASTOT -->
     <section id="view-stats" class="view" hidden>
-      <h1 class="big">Tilastot</h1>
+      <h2 class="big">Tilastot</h2>
       <div class="stats" id="stat-grid"></div>
       <div class="row row-wrap">
         <button type="button" class="btn" data-go="back">Takaisin peliin</button>
@@ -151,7 +187,7 @@
 
     <!-- OHJEET -->
     <section id="view-help" class="view" hidden>
-      <h1 class="big">Näin pelataan</h1>
+      <h2 class="big">Näin pelataan</h2>
       <ol class="help">
         <li>Paina soittopainiketta. Kuulet biisistä <strong>0,1 sekuntia</strong>. Kuulokkeet auttavat.</li>
         <li>Kirjoita arvaus ja valitse kappale listasta. Voit hakea artistilla tai biisin nimellä. Sama nappi vaihtuu ohituksesta arvaukseksi, kun olet valinnut biisin. Jo arvattu biisi näkyy listassa harmaana merkinnällä <em>arvattu</em>, eikä sitä voi valita uudestaan.</li>
@@ -183,6 +219,6 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=31"></script>
+  <script src="app.js?v=32"></script>
 </body>
 </html>

@@ -575,41 +575,37 @@ button.tchip:hover { color: var(--text); }
 .btn-quiet { border-color: transparent; color: var(--dim); font-family: var(--sans); font-weight: 500; }
 .btn-quiet:hover { color: var(--bad); border-color: transparent; }
 
-/* Pelin päänappi. Leveä rivi jaetaan kahtia: teko vasemmalle, sen hinta
-   oikealle. Keskitetty pikkuteksti jätti rivin tyhjän näköiseksi. */
+/* Pelin päänappi. Teko ja sen hinta ovat yksi keskitetty ryhmä, jonka
+   jakaa hiusviiva – sama viiva kuin muualla sivulla. Reunoille levitettynä
+   napin keskelle jäi kuoppa, ja erillinen nuoli näytti irtomerkiltä. */
 .btn-wide {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 15px 18px;
-  font-size: 16px;
+  justify-content: center;
+  gap: 13px;
+  padding: 16px 18px;
+  font-size: 17px;
 }
-.btn-wide.is-give { justify-content: center; }
 
 .btn-label { letter-spacing: -.015em; }
 
 .btn-note {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 13px;
   font-family: var(--sans);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   letter-spacing: 0;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
-/* Pieni kulmanuoli piirrettynä, ei merkkinä: → istuu eri fonteissa eri
-   korkeudelle eikä osu tasan tekstin keskiviivaan. */
 .btn-note::before {
   content: "";
-  width: 6px;
-  height: 6px;
-  border-top: 1.6px solid currentColor;
-  border-right: 1.6px solid currentColor;
-  transform: translateX(-1px) rotate(45deg);
-  opacity: .5;
+  width: 1px;
+  height: 15px;
+  background: currentColor;
+  opacity: .3;
 }
 
 /* Ohitus on hillitty, mutta ei litteä: ohut valo ylhäältä antaa napille
@@ -622,11 +618,9 @@ button.tchip:hover { color: var(--text); }
 .btn-wide.is-give:hover { border-color: var(--bad); color: var(--bad); }
 
 /* Arvaus on kierroksen palkinto: täysi väri, pehmeä hehku ja pisteet
-   näkyvissä, jotta näkee mistä pelaa. Nuoli kuuluu vain ohitukselle, jossa se
-   osoittaa seuraavaan pituuteen; palkinto ei osoita mihinkään. */
+   näkyvissä, jotta näkee mistä pelaa. */
 .btn-accent.btn-wide { box-shadow: 0 10px 30px -14px var(--live); }
 .btn-accent .btn-note { color: rgba(20, 15, 8, .66); font-weight: 600; }
-.btn-accent .btn-note::before { display: none; }
 .btn-wide:active { transform: translateY(1px); }
 
 /* ---------- Arvausloki ---------- */

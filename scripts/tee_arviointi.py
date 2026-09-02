@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Rakentaa itsenäisen arviointityökalun songs.json:in pohjalta.
 
-    python3 scripts/tee_arviointi.py
+    python3 scripts/tee_arviointi.py            # rakentaa työkalun
+    python3 scripts/tee_arviointi.py --kuitattu  # merkitsee uudet käsitellyiksi
 
 Kirjoittaa arviointi.html, jonka voi avata suoraan selaimessa. Biisitiedot
 upotetaan tiedostoon, joten se toimii ilman palvelinta eikä lista päädy
@@ -327,15 +328,28 @@ document.addEventListener("keydown", (e) => {
 ["f-tier", "f-decade", "f-done", "f-text"].forEach((id) =>
   $("#" + id).addEventListener("input", () => { at = 0; render(); }));
 
+/* Vienti antaa vain sen, mikä poikkeaa katalogin nykytilasta: jo sovelletut
+   arviot ja poistot jäävät pois, jotta liitettävä pala pysyy pienenä ja
+   kertoo yhdellä silmäyksellä mitä on tehty viime kerran jälkeen. */
 $("#export").addEventListener("click", () => {
-  const muutetut = [...rate.entries()]
-    .filter(([id, t]) => SONGS.find((s) => s.id === id)?.tier !== t)
-    .map(([id, t]) => ({ id, taso: t }));
-  $("#out").value = JSON.stringify({
-    arviot: muutetut,
-    poista: [...gone],
-    kayty: new Set([...rate.keys(), ...gone]).size,
-  }, null, 1);
+  const out = { arviot: [], poista: [], palauta: [] };
+  for (const [id, t] of rate) {
+    const s = SONGS.find((x) => x.id === id);
+    if (s && s.tier !== t) out.arviot.push({ id, taso: t, nimi: `${s.artist} – ${s.title}` });
+  }
+  for (const id of gone) {
+    const s = SONGS.find((x) => x.id === id);
+    if (s && s.peli !== false) out.poista.push(id);
+  }
+  for (const s of SONGS) {
+    if (s.peli === false && !gone.has(s.id)) out.palauta.push(s.id);
+  }
+  for (const k of ["poista", "palauta"]) if (!out[k].length) delete out[k];
+  if (!out.arviot.length) delete out.arviot;
+
+  $("#out").value = Object.keys(out).length
+    ? JSON.stringify(out, null, 1)
+    : "Ei muutoksia katalogin nykytilaan.";
   $("#dlg").showModal();
 });
 $("#copy").addEventListener("click", async () => {
@@ -356,6 +370,7 @@ focusRow(0, false);
 
 
 def main() -> int:
+    kuitattu = "--kuitattu" in sys.argv
     songs = json.loads(SONGS.read_text(encoding="utf-8"))
     tunnetut = set(json.loads(TILA.read_text(encoding="utf-8"))) if TILA.exists() else {s["id"] for s in songs}
     uusia = sum(1 for s in songs if s["id"] not in tunnetut)
@@ -368,9 +383,12 @@ def main() -> int:
     } for s in songs]
     data = json.dumps(slim, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     OUT.write_text(TEMPLATE.replace("__DATA__", data), encoding="utf-8")
-    TILA.write_text(json.dumps(sorted(s["id"] for s in songs)), encoding="utf-8")
+    if not TILA.exists() or kuitattu:
+        TILA.write_text(json.dumps(sorted(s["id"] for s in songs)), encoding="utf-8")
     kb = OUT.stat().st_size / 1024
     print(f"{OUT.name}: {len(songs)} biisiä, {kb:.0f} kt, joista uusia {uusia}")
+    if uusia and not kuitattu:
+        print("  (kun uudet on käyty läpi: python3 scripts/tee_arviointi.py --kuitattu)")
     return 0
 
 

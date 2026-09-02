@@ -599,17 +599,25 @@
 
   /* Yksi nappi riittää: ohitus ja väärä arvaus vievät kierrosta yhtä paljon
    * eteenpäin, joten nappi tekee aina sen mitä kentän sisältö tarkoittaa. */
-  /* Nappi kertoo teon vasemmalla ja sen hinnan oikealla: arvaus näyttää mitä
-   * on voitettavana, ohitus sen mihin pätkä pitenee. Luovutuksella ei ole
-   * hintaa kerrottavana, joten se on keskitetty ja hillitty. */
+  /* Soittimen "seuraava raita" -kuvake: ohitus on juuri sitä, joten merkki
+   * sanoo saman kuin sana. Piirretty, koska ⏭-merkin ulkoasu ja korkeus
+   * vaihtelevat laitteittain. */
+  const SKIP_ICON = '<svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true">'
+    + '<path d="M2.6 3.1a.7.7 0 0 1 1.09-.58l6.1 4.32a.8.8 0 0 1 0 1.31l-6.1 4.32A.7.7 0 0 1 2.6 12.9z"/>'
+    + '<rect x="11.5" y="2.5" width="2.1" height="11" rx="1.05"/></svg>';
+
+  /* Nappi kertoo teon ja sen hinnan: arvaus näyttää mitä on voitettavana,
+   * ohitus sen mihin pätkä pitenee. Luovutuksella ei ole hintaa
+   * kerrottavana, joten se on pelkkä sana. */
   function renderAction() {
     const r = cur();
     const ready = !!(state.selected || exactMatch(el.input.value));
     const last = r.step >= STEPS.length - 1;
     const label = ready ? "Arvaa" : last ? "Luovuta" : "Ohita";
     const note = ready ? `+${fmt(POINTS[r.step])} p` : last ? "" : fmtSec(STEPS[r.step + 1]);
+    const skip = !ready && !last;
     el.actionBtn.innerHTML = `<span class="btn-label">${label}</span>`
-      + (note ? `<span class="btn-note">${note}</span>` : "");
+      + (note ? `<span class="btn-note${skip ? " has-icon" : ""}">${skip ? SKIP_ICON : ""}${note}</span>` : "");
     // Kaksi erillistä elementtiä luetaan yhteen ilman väliä, joten nimi erikseen.
     el.actionBtn.setAttribute("aria-label", note ? `${label}, ${note}` : label);
     el.actionBtn.classList.toggle("btn-accent", ready);

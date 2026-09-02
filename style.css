@@ -607,6 +607,15 @@ button.tchip:hover { color: var(--text); }
   background: currentColor;
   opacity: .3;
 }
+/* Ohituksessa erottimen paikan ottaa soittimen seuraava-raita-kuvake. */
+.btn-note.has-icon::before { display: none; }
+.btn-icon {
+  width: 15px;
+  height: 15px;
+  fill: currentColor;
+  opacity: .75;
+  flex: 0 0 auto;
+}
 
 /* Ohitus on hillitty, mutta ei litteä: ohut valo ylhäältä antaa napille
    saman pinnan kuin soittimella. Reunus herää tason väriin kun sitä koskee. */

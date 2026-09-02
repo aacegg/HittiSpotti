@@ -121,6 +121,43 @@ textarea {
   font-family: ui-monospace, Menlo, monospace; font-size: 12px;
 }
 .empty { padding: 40px 16px; color: var(--dim); text-align: center; }
+
+/* ---------- Puhelin ----------
+   Työtila on tehty näppäimistölle, mutta kosketuksella rivi ei mahdu yhdelle
+   riville: nimi ja viisi tasonappia vaativat molemmat leveyttä. Rivi jaetaan
+   kahteen kerrokseen ja napeista tehdään sormenkokoisia. */
+@media (max-width: 720px) {
+  body { font-size: 16px; }
+  header { padding: 10px 12px 8px; }
+  /* Edistymispalkin negatiivinen marginaali on sidottu yläpalkin sisennykseen;
+     kapeammassa sisennyksessä se työntyisi ruudun ulkopuolelle. */
+  .progress { margin: 8px -12px -8px; }
+  h1 { font-size: 15px; }
+  h1 small { display: block; margin: 2px 0 0; font-size: 12px; }
+  .bar { gap: 6px; }
+  select, input[type=search] { flex: 1 1 46%; min-width: 0; padding: 9px 8px; }
+  #export { flex: 1 1 100%; padding: 10px; }
+  .spacer { display: none; }
+  .hint { display: none; }   /* näppäinohjeet eivät koske kosketusta */
+
+  li {
+    grid-template-columns: 44px 1fr;
+    grid-template-areas: "play teksti" "tasot tasot";
+    gap: 10px 12px;
+    padding: 12px;
+    scroll-margin-top: 150px;
+  }
+  li > .play { grid-area: play; width: 44px; height: 44px; }
+  li > img { display: none; }        /* kansi vie tilaa jota nimi tarvitsee */
+  li > div:not(.bar) { grid-area: teksti; min-width: 0; }
+  li > .bar { grid-area: tasot; gap: 6px; }
+  .name { font-size: 15px; }
+  .tiers { flex: 1; gap: 5px; }
+  .t { flex: 1; min-width: 0; padding: 13px 0; font-size: 14px; }
+  .del { padding: 13px 14px; font-size: 13px; }
+  dialog { padding: 14px; }
+  textarea { height: 40vh; }
+}
 </style>
 </head>
 <body>

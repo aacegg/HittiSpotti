@@ -356,7 +356,9 @@ button.tchip:hover { color: var(--text); }
    mahtuu puhelimen ruudulle vain ilman ylimääräisiä kuvakkeita. */
 .tchip.is-ok { border-color: var(--ok); color: var(--ok); }
 .tchip.is-miss { color: var(--dim); text-decoration: line-through; opacity: .55; }
-.tchip.is-now { border-color: var(--tier-hue); color: var(--text); }
+/* Aloitettu mutta kesken jäänyt biisi: reunus tason värissä kertoo, että
+   tänne kannattaa palata. */
+.tchip.is-part { border-color: var(--tier-hue); color: var(--text); }
 .tchip:focus-visible { outline: 2px solid var(--live); outline-offset: 2px; }
 
 .tchip[data-tier="1"] { --tier-hue: var(--t1); }

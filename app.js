@@ -26,7 +26,6 @@
     results: [],
     score: 0,
     selected: null,
-    pinned: null,        // vapaassa pelissä lukittu taso, null = kierto
     suggestions: [],
     activeSuggestion: -1,
     view: "loading",
@@ -492,24 +491,25 @@
     state.rounds.forEach((r) => prefetch(r.song));
   }
 
+  /* Vapaassa pelissä on auki viisi kierrosta, yksi jokaiselta tasolta, aivan
+   * kuten päivän pelissä. Tasorivi on siis navigointia: kesken jäänyt biisi
+   * odottaa omalla tasollaan, kunnes palaat siihen. Ero päivän peliin on,
+   * että valmis kierros korvautuu heti saman tason uudella biisillä, joten
+   * kierroksia riittää loputtomiin. */
   function startFree() {
     state.mode = "free";
-    state.pinned = null;
     state.used = new Set();
     state.freeCount = 0;
     state.results = [];
     state.score = 0;
-    state.rounds = [newRound(nextFreeSong())];
+    state.rounds = TIER_CYCLE.map((t) => newRound(pickFreeSong(t)));
     state.at = 0;
     show("game");
     openRound();
+    state.rounds.forEach((r) => prefetch(r.song));
   }
 
-  /* Vapaa peli kiertää tasot samassa järjestyksessä kuin päivän peli. Näin
-   * kapea taso ei lopu kesken: Mahdoton toistuu vasta 175 kierroksen päästä
-   * eikä 35:n, ja jokainen taso tulee yhtä usein vastaan. */
-  function nextFreeSong() {
-    const tier = state.pinned || TIER_CYCLE[state.freeCount % TIER_CYCLE.length];
+  function pickFreeSong(tier) {
     let pool = state.songs.filter((s) => s.tier === tier && !state.used.has(s.id));
     if (!pool.length) {
       // Taso käyty läpi: aloitetaan se alusta muita tasoja nollaamatta.
@@ -572,26 +572,30 @@
     updateBar();
   }
 
-  /* Päivän pelissä rivi on biisien välinen navigointi: viisikko pysyy samana,
-   * mutta kesken jääneeseen voi palata myöhemmin. Vapaassa pelissä samalla
-   * rivillä vaihdetaan vaikeustasoa. */
+  /* Tasorivi on biisien välinen navigointi kummassakin pelimuodossa: viisikko
+   * pysyy paikallaan ja kesken jääneeseen biisiin voi palata myöhemmin. */
   function renderTierBar() {
-    if (state.mode === "daily") {
-      el.tierBar.innerHTML = state.rounds.map((r, i) => {
-        const done = r.finished ? (r.solved ? "ratkaistu" : "ei ratkaistu") : "kesken";
-        const cls = i === state.at ? " is-on" : r.finished ? (r.solved ? " is-ok" : " is-miss") : "";
-        return `<button type="button" class="tchip${cls}" data-slot="${i}" data-tier="${r.song.tier}"
-          aria-pressed="${i === state.at}" aria-label="${TIER_NAMES[r.song.tier]}, ${done}"
-          >${TIER_NAMES[r.song.tier]}</button>`;
-      }).join("");
-      return;
-    }
-    const now = cur().song.tier;
-    el.tierBar.innerHTML = TIER_CYCLE.map((t) => {
-      const pinned = state.pinned === t;
-      // Kierrossa nykyinen taso saa vain reunuksen, lukittu taso täytön.
-      const cls = pinned ? " is-on" : (state.pinned === null && t === now ? " is-now" : "");
-      return `<button type="button" class="tchip${cls}" data-tier="${t}" aria-pressed="${pinned}">${TIER_NAMES[t]}</button>`;
+    const daily = state.mode === "daily";
+    el.tierBar.innerHTML = state.rounds.map((r, i) => {
+      const name = TIER_NAMES[r.song.tier];
+      let cls = "";
+      let state_ = "kesken";
+      if (i === state.at) {
+        cls = " is-on";
+      } else if (daily && r.finished) {
+        // Päivän pelissä pelattu biisi jää paikalleen merkittynä. Vapaassa
+        // pelissä valmis kierros vaihtuu heti uuteen, joten sitä tilaa ei ole.
+        cls = r.solved ? " is-ok" : " is-miss";
+        state_ = r.solved ? "ratkaistu" : "ei ratkaistu";
+      } else if (r.step > 0) {
+        cls = " is-part";   // aloitettu mutta kesken: tänne kannattaa palata
+        state_ = `kesken, ${fmtSec(STEPS[r.step])}`;
+      } else {
+        state_ = "aloittamatta";
+      }
+      return `<button type="button" class="tchip${cls}" data-slot="${i}" data-tier="${r.song.tier}"
+        aria-pressed="${i === state.at}" aria-label="${name}, ${state_}"
+        >${name}</button>`;
     }).join("");
   }
 
@@ -702,9 +706,12 @@
       show("results");
       return;
     }
+    // Pelattu biisi korvataan samalta tasolta uudella, ja kierto siirtyy
+    // seuraavalle tasolle. Kesken jääneet kierrokset säilyvät paikoillaan.
     state.freeCount += 1;
-    state.rounds = [newRound(nextFreeSong())];
-    state.at = 0;
+    state.rounds[state.at] = newRound(pickFreeSong(cur().song.tier));
+    prefetch(state.rounds[state.at].song);
+    state.at = (state.at + 1) % state.rounds.length;
     openRound();
   }
 
@@ -991,16 +998,9 @@
     el.tierBar.addEventListener("click", (e) => {
       const chip = e.target.closest("button.tchip");
       if (!chip) return;
-      if (state.mode === "daily") {
-        state.at = Number(chip.dataset.slot);   // biisit säilyvät, vain näkymä vaihtuu
-        openRound();
-        return;
-      }
-      const t = Number(chip.dataset.tier);
-      state.pinned = state.pinned === t ? null : t;   // sama taso uudelleen purkaa lukituksen
-      state.freeCount += 1;
-      state.rounds = [newRound(nextFreeSong())];
-      state.at = 0;
+      // Molemmissa pelimuodoissa rivi vaihtaa vain näkymää: biisit ja niiden
+      // kesken jäänyt edistyminen säilyvät paikoillaan.
+      state.at = Number(chip.dataset.slot);
       openRound();
     });
 

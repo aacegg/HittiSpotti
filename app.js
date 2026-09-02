@@ -6,7 +6,13 @@
 
   // ---------- Säännöt ----------
   const STEPS = [0.1, 0.5, 2, 8, 15];          // pätkän pituus sekunteina
-  const POINTS = [1200, 975, 750, 525, 300];   // pisteet, jos tunnistat tällä askeleella
+  /* Pisteet putoavat suhteellisesti, eivät tasaisesti: joka askel maksaa noin
+   * 29 % siitä mitä pelaajalla oli. Pätkän pituus moninkertaistuu askeleittain
+   * (0,1 -> 0,5 on viisinkertainen määrä ääntä), joten tasainen pudotus teki
+   * ensimmäisistä askelista liian halpoja ohittaa ja viimeisistä liian
+   * kalliita. Maksimi pysyy 1200:ssa, jotta vanhat tulokset ovat vertailu-
+   * kelpoisia. Ohjeteksti index.html:ssä toistaa nämä luvut. */
+  const POINTS = [1200, 850, 600, 425, 300];   // pisteet, jos tunnistat tällä askeleella
   const DAILY_COUNT = 5;
   const TIER_CYCLE = [1, 2, 3, 4, 5];          // yksi biisi jokaiselta tasolta, helpoimmasta vaikeimpaan
   const TIER_NAMES = { 1: "Helppo", 2: "Keskitaso", 3: "Vaikea", 4: "Mestari", 5: "Mahdoton" };
@@ -105,8 +111,24 @@
 
   // ---------- Apurit ----------
   const fmt = (n) => Math.round(n).toLocaleString("fi-FI");
-  const fmtSec = (s) => (s < 1 ? s.toFixed(1).replace(".", ",") : String(s)) + " s";
+  const secNum = (s) => (s < 1 ? s.toFixed(1).replace(".", ",") : String(s));
+  const fmtSec = (s) => secNum(s) + " s";
+  /* "0,1 sekunnista" – paljastuksen sanamuotoon, jossa "0,1 s" lukisi oudosti. */
+  const secWord = (s) => secNum(s) + " sekunnista";
   const pad = (n) => String(n).padStart(2, "0");
+
+  /* Tulosotsikko kertoo mitä tapahtui, ei arvostele pelaajaa: "Neljä
+   * viidestä", ei "Hyvä korva!". Sarja on aina viisi biisiä, mutta taulukot
+   * kattavat pienemmätkin varmuuden vuoksi ja tuntemattomasta koosta
+   * pudotaan murtolukuun. */
+  const LUKU = ["Nolla", "Yksi", "Kaksi", "Kolme", "Neljä", "Viisi"];
+  const KAIKISTA = { 1: "yhdestä", 2: "kahdesta", 3: "kolmesta", 4: "neljästä", 5: "viidestä" };
+  function resultHeadline(solved, total) {
+    if (!solved) return "Ei osumia";
+    if (solved >= total) return LUKU[total] ? `Kaikki ${LUKU[total].toLowerCase()}` : `Kaikki ${total}`;
+    return LUKU[solved] && KAIKISTA[total] ? `${LUKU[solved]} ${KAIKISTA[total]}` : `${solved}/${total}`;
+  }
+
   const dayKey = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   const todayKey = () => dayKey(new Date());
   const todayPretty = () => new Date().toLocaleDateString("fi-FI");
@@ -752,8 +774,8 @@
     el.revealArt.src = song.art || "";
     el.revealArt.alt = song.art ? `${song.title} – kansikuva` : "";
     el.revealVerdict.textContent = r.solved
-      ? (r.step === 0 ? "Uskomatonta – 0,1 sekunnista" : `Oikein ${fmtSec(STEPS[r.step])} pätkästä`)
-      : "Ei tällä kertaa";
+      ? `Oikein · ${secWord(STEPS[r.step])}`
+      : "Ei osunut";
     el.revealTitle.textContent = song.title;
     el.revealArtist.textContent = `${song.artist} · ${song.year}`;
     // Sama trackId kuin esikuuntelussa; Apple ohjaa sen kappaleen sivulle.
@@ -943,13 +965,10 @@
     const solved = state.results.filter((r) => r.solved).length;
     el.resultsKicker.textContent = daily ? `Päivän biisit · ${todayPretty()}` : "Vapaa peli";
     el.resultsScore.textContent = fmt(state.score);
-    el.resultsTitle.textContent = state.score >= 5000 ? "Mestarillista!"
-      : state.score >= 3000 ? "Hyvä korva!"
-      : state.score > 0 ? "Ihan kelpo"
-      : daily ? "Huomenna uudestaan" : "Uusiksi vaan";
-    el.resultsSub.textContent = daily
-      ? `Tunnistit ${solved}/${DAILY_COUNT} biisistä. Uusi sarja huomenna.`
-      : `Tunnistit ${solved}/${state.results.length} biisistä.`;
+    el.resultsTitle.textContent = resultHeadline(solved, daily ? DAILY_COUNT : state.results.length);
+    // Otsikko kertoo jo osumamäärän, joten alarivi ei toista sitä.
+    el.resultsSub.textContent = daily ? "Uusi sarja huomenna." : "";
+    el.resultsSub.hidden = !el.resultsSub.textContent;
     el.resultsList.innerHTML = "";
     state.results.forEach((r) => {
       const s = r.song || state.byId.get(String(r.id)) || { title: "?", artist: "?", art: "", year: "" };
@@ -980,7 +999,7 @@
         return;
       }
       await navigator.clipboard.writeText(text);
-      toast("Tulos kopioitu leikepöydälle!");
+      toast("Tulos kopioitu leikepöydälle.");
     } catch {
       toast("Kopioi teksti alta.");
     }

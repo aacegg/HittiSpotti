@@ -1,2 +1,4 @@
-# Katalogin tarkistussivu on vain omaan käyttöön, ei julkiselle sivustolle.
+# Arviointityökalu on vain omaan käyttöön, ei julkiselle sivustolle.
+# Luodaan tarvittaessa: python3 scripts/tee_arviointi.py
+arviointi.html
 katalogi.html

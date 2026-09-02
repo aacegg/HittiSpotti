@@ -9,7 +9,7 @@ Peli on puhdas selainsovellus: ei build-vaihetta, ei palvelinta, ei riippuvuuksi
 | Muoto | Kuvaus |
 | --- | --- |
 | **Päivän biisit** | Sama viisi biisiä kaikille pelaajille saman päivän aikana, yksi jokaiselta vaikeustasolta helpoimmasta vaikeimpaan. Maksimi 6 000 pistettä. Tuloksen voi kopioida ja jakaa kavereille. |
-| **Vapaa peli** | Loputtomasti kierroksia. Vaikeustaso valitaan sivupalkista (Helppo–Mahdoton tai Kaikki). |
+| **Vapaa peli** | Loputtomasti kierroksia. Kiertää vaikeustasot samassa järjestyksessä kuin päivän peli, joten kapea taso ei lopu kesken. |
 
 Pisteet askeleittain: **1 200 · 975 · 750 · 525 · 300**. Jos 15 sekunnin jälkeenkään ei nappaa, kierroksesta saa nolla.
 
@@ -17,7 +17,7 @@ Tulokset ja tilastot tallentuvat vain omaan selaimeen (localStorage).
 
 ## Käyttöliittymä
 
-Sivu avautuu suoraan päivän peliin. Vasemman yläkulman valikosta vaihdetaan vapaaseen peliin, valitaan vaikeustaso ja avataan tilastot ja ohjeet. Ulkoasu on tarkoituksella riisuttu: tumma tausta, yksi korostusväri ja ei liukuvärejä eikä varjoja.
+Sivu avautuu suoraan päivän peliin. Vasemman yläkulman valikosta vaihdetaan vapaaseen peliin ja avataan tilastot ja ohjeet. Käynnissä olevan biisin vaikeustaso näkyy pistemäärän alla. Ulkoasu on tarkoituksella riisuttu: tumma tausta, yksi korostusväri ja ei liukuvärejä eikä varjoja.
 
 ## Mistä pätkä alkaa
 

@@ -8,8 +8,8 @@
   const STEPS = [0.1, 0.5, 2, 8, 15];          // pätkän pituus sekunteina
   const POINTS = [1200, 975, 750, 525, 300];   // pisteet, jos tunnistat tällä askeleella
   const DAILY_COUNT = 5;
-  const DAILY_TIERS = [1, 2, 3, 4, 5];         // yksi biisi jokaiselta tasolta, helpoimmasta vaikeimpaan
-  const TIER_NAMES = { 0: "Kaikki", 1: "Helppo", 2: "Keskitaso", 3: "Vaikea", 4: "Mestari", 5: "Mahdoton" };
+  const TIER_CYCLE = [1, 2, 3, 4, 5];          // yksi biisi jokaiselta tasolta, helpoimmasta vaikeimpaan
+  const TIER_NAMES = { 1: "Helppo", 2: "Keskitaso", 3: "Vaikea", 4: "Mestari", 5: "Mahdoton" };
   const STORE = "hittispotti:";
   const STORE_OLD = "songspot-suomi:";         // aiempi nimi, tiedot siirretään kerran
   const RING = 2 * Math.PI * 54;               // soittopainikkeen kehän pituus (r = 54)
@@ -19,7 +19,6 @@
     songs: [],
     byId: new Map(),
     mode: "daily",        // "daily" | "free"
-    tier: 0,
     queue: [],
     used: new Set(),
     roundIndex: 0,
@@ -60,7 +59,6 @@
     drawerClose: $("#drawer-close"),
     drawerFoot: $("#drawer-foot"),
     navDailyNote: $("#nav-daily-note"),
-    tiers: $(".tiers"),
     barTag: $("#bar-tag"),
     loadingText: $("#loading-text"),
     modeLabel: $("#mode-label"),
@@ -225,7 +223,6 @@
       const isMode = b.dataset.go === "daily" || b.dataset.go === "free";
       if (isMode) b.classList.toggle("is-active", state.view === "game" && state.mode === b.dataset.go);
     });
-    el.tiers.querySelectorAll(".tier").forEach((t) => t.classList.toggle("is-active", Number(t.dataset.tier) === state.tier));
   }
 
   // ---------- Katalogi ----------
@@ -244,13 +241,11 @@
     if (state.songs.length < DAILY_COUNT) throw new Error("Katalogissa on liian vähän biisejä.");
   }
 
-  const songsForTier = (tier) => (tier ? state.songs.filter((s) => s.tier === tier) : state.songs);
-
   function dailySongs(key) {
     const rnd = mulberry32(hashString("songspot-suomi:" + key)); // siemen pidetään ennallaan, ettei päivän sarja vaihdu
     const picked = [];
     const ids = new Set();
-    for (const tier of DAILY_TIERS) {
+    for (const tier of TIER_CYCLE) {
       let pool = state.songs.filter((s) => s.tier === tier && !ids.has(s.id));
       if (!pool.length) pool = state.songs.filter((s) => !ids.has(s.id));
       const song = pool[Math.floor(rnd() * pool.length)];
@@ -480,8 +475,6 @@
   }
 
   function startFree() {
-    const pool = songsForTier(state.tier);
-    if (!pool.length) { toast("Tällä tasolla ei ole vielä biisejä."); return; }
     state.mode = "free";
     state.used = new Set();
     state.roundIndex = 0;
@@ -491,9 +484,17 @@
     beginRound(nextFreeSong());
   }
 
+  /* Vapaa peli kiertää tasot samassa järjestyksessä kuin päivän peli. Näin
+   * kapea taso ei lopu kesken: Mahdoton toistuu vasta 175 kierroksen päästä
+   * eikä 35:n, ja jokainen taso tulee yhtä usein vastaan. */
   function nextFreeSong() {
-    let pool = songsForTier(state.tier).filter((s) => !state.used.has(s.id));
-    if (!pool.length) { state.used.clear(); pool = songsForTier(state.tier); }
+    const tier = TIER_CYCLE[state.roundIndex % TIER_CYCLE.length];
+    let pool = state.songs.filter((s) => s.tier === tier && !state.used.has(s.id));
+    if (!pool.length) {
+      // Taso käyty läpi: aloitetaan se alusta muita tasoja nollaamatta.
+      state.songs.forEach((s) => { if (s.tier === tier) state.used.delete(s.id); });
+      pool = state.songs.filter((s) => s.tier === tier);
+    }
     const song = pool[Math.floor(Math.random() * pool.length)];
     state.used.add(song.id);
     return song;
@@ -519,7 +520,7 @@
   function renderRound() {
     el.modeLabel.textContent = state.mode === "daily"
       ? `Päivän biisit · ${todayPretty()}`
-      : `Vapaa peli · ${TIER_NAMES[state.tier]}`;
+      : "Vapaa peli";
     el.scoreLabel.textContent = `${fmt(state.score)} p`;
     const tier = state.current ? state.current.tier : 0;
     el.tierBadge.textContent = TIER_NAMES[tier] || "";
@@ -727,7 +728,7 @@
       lines.push(`🎵 HittiSpotti · ${todayPretty()}`);
       lines.push(`${fmt(state.score)} / ${fmt(POINTS[0] * DAILY_COUNT)} pistettä`);
     } else {
-      lines.push(`🎵 HittiSpotti · vapaa peli (${TIER_NAMES[state.tier]})`);
+      lines.push("🎵 HittiSpotti · vapaa peli");
       lines.push(`${fmt(state.score)} pistettä · ${state.results.length} ${state.results.length === 1 ? "biisi" : "biisiä"}`);
     }
     lines.push("");
@@ -742,7 +743,7 @@
   function renderResults() {
     const daily = state.mode === "daily";
     const solved = state.results.filter((r) => r.solved).length;
-    el.resultsKicker.textContent = daily ? `Päivän biisit · ${todayPretty()}` : `Vapaa peli · ${TIER_NAMES[state.tier]}`;
+    el.resultsKicker.textContent = daily ? `Päivän biisit · ${todayPretty()}` : "Vapaa peli";
     el.resultsScore.textContent = fmt(state.score);
     if (daily) {
       el.resultsTitle.textContent = state.score >= 5000 ? "Mestarillista!"
@@ -881,15 +882,6 @@
 
     document.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => go(b.dataset.go)));
 
-    el.tiers.addEventListener("click", (e) => {
-      const chip = e.target.closest(".tier");
-      if (!chip) return;
-      state.tier = Number(chip.dataset.tier);
-      store.set("tier", state.tier);
-      refreshDrawer();
-      go("free");
-    });
-
     el.playBtn.addEventListener("click", () => {
       if (audio.playing) { stopPlayback(); return; }
       playClip(state.finished ? STEPS[STEPS.length - 1] : STEPS[state.step]);
@@ -921,7 +913,6 @@
   async function init() {
     migrateStore();
     bind();
-    state.tier = Number(store.get("tier", 0)) || 0;
     try {
       await loadCatalog();
       refreshDrawer();

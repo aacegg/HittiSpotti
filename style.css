@@ -142,26 +142,6 @@ body.drawer-open .drawer { transform: none; visibility: visible; }
 .navitem-name { display: block; font-weight: 600; }
 .navitem-note { display: block; font-size: 13px; color: var(--muted); }
 
-.navgroup { display: contents; }
-
-.tiers {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 2px 12px 10px;
-}
-
-.tier {
-  padding: 6px 11px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--muted);
-  font-size: 13px;
-  cursor: pointer;
-}
-.tier:hover { color: var(--text); }
-.tier.is-active { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
 
 .drawer-rule { height: 1px; margin: 10px 12px; border: 0; background: var(--line); }
 

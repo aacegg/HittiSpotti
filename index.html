@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#0c0c0e">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="favicon.svg">
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 
@@ -27,20 +27,10 @@
         <span class="navitem-note" id="nav-daily-note">viisi biisiä</span>
       </button>
 
-      <div class="navgroup">
-        <button type="button" class="navitem" data-go="free">
-          <span class="navitem-name">Vapaa peli</span>
-          <span class="navitem-note">loputtomasti kierroksia</span>
-        </button>
-        <div class="tiers" role="group" aria-label="Vaikeustaso">
-          <button type="button" class="tier" data-tier="0">Kaikki</button>
-          <button type="button" class="tier" data-tier="1">Helppo</button>
-          <button type="button" class="tier" data-tier="2">Keskitaso</button>
-          <button type="button" class="tier" data-tier="3">Vaikea</button>
-          <button type="button" class="tier" data-tier="4">Mestari</button>
-          <button type="button" class="tier" data-tier="5">Mahdoton</button>
-        </div>
-      </div>
+      <button type="button" class="navitem" data-go="free">
+        <span class="navitem-name">Vapaa peli</span>
+        <span class="navitem-note">loputtomasti kierroksia</span>
+      </button>
 
       <hr class="drawer-rule">
 
@@ -145,7 +135,7 @@
       </ol>
       <h2>Pelimuodot</h2>
       <p><strong>Päivän biisit</strong> on viiden biisin sarja, joka on sama kaikille pelaajille saman päivän aikana. Mukana on yksi biisi jokaiselta vaikeustasolta, ja ne tulevat helpoimmasta vaikeimpaan. Maksimi on 6 000 pistettä, ja tuloksen voi kopioida kavereille.</p>
-      <p><strong>Vapaassa pelissä</strong> kierroksia riittää loputtomiin. Vaikeustason valitset valikosta: Helppo tarkoittaa biisejä, jotka kaikki tuntevat, Mahdoton harvinaisempia helmiä.</p>
+      <p><strong>Vapaassa pelissä</strong> kierroksia riittää loputtomiin. Se kiertää samaa vaikeusastetta kuin päivän peli: Helppo, Keskitaso, Vaikea, Mestari, Mahdoton, ja sitten alusta. Jokaiselta tasolta tulee siis yhtä paljon biisejä.</p>
       <h2>Musiikki</h2>
       <p>Mukana on sekä suomen- että englanninkielisiä suomalaisia kappaleita. Pätkät ovat Applen julkisia 30 sekunnin esikuunteluja, jotka selain hakee suoraan Applelta. Peli ei tallenna musiikkia. Pätkä alkaa esikuuntelun alusta, ja mahdollinen hiljaisuus ohitetaan.</p>
       <p>Tulokset ja tilastot tallentuvat vain omaan selaimeesi.</p>
@@ -162,6 +152,6 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>

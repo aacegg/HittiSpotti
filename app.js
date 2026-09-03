@@ -341,7 +341,13 @@
    * Järjestys on yhä pelkkä päivämäärän funktio, joten sarja on sama kaikilla
    * ilman palvelinta. */
   const DAY_MS = 86400000;
-  const EPOCH = Date.UTC(2025, 0, 1);
+  /* Kierron alkupäivä. Tästä päivästä lähtien jaetaan pakkojen ensimmäinen
+   * kortti, eli EPOCH:n siirtäminen aloittaa koko kierron alusta. */
+  const EPOCH = Date.UTC(2026, 8, 3);   // 3.9.2026
+  /* Sekoituksen sukupolvi. Kulkee jokaisen pakan siemeneen, joten numeron
+   * nostaminen antaa kaikille tasoille kokonaan uuden järjestyksen ilman
+   * että kierron alkupäivää tarvitsee koskea. */
+  const SEKOITUS = 2;
 
   function dayIndex(key) {
     const [y, m, d] = key.split("-").map(Number);
@@ -368,10 +374,10 @@
   const GAP = 7;
 
   function tierOrder(list, tier, cycle) {
-    const order = shuffled(list, hashString(`hittispotti:${tier}:${cycle}`));
+    const order = shuffled(list, hashString(`hittispotti:${SEKOITUS}:${tier}:${cycle}`));
     const n = order.length;
     if (cycle <= 0 || n < 2 * GAP + 2) return order;
-    const prev = shuffled(list, hashString(`hittispotti:${tier}:${cycle - 1}`));
+    const prev = shuffled(list, hashString(`hittispotti:${SEKOITUS}:${tier}:${cycle - 1}`));
     const tail = new Set(prev.slice(n - GAP).map((x) => x.id));
     for (let i = 0; i < GAP; i++) {
       if (!tail.has(order[i].id)) continue;

@@ -25,10 +25,10 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <!-- iOS ei tue SVG:tä kotinäytön kuvakkeena: SVG:llä se otti sivusta
        ruudunkaappauksen kuvakkeen sijaan. 180 px on iPhonen koko. -->
-  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=39">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=39">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=41">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=41">
   <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=39">
+  <link rel="stylesheet" href="style.css?v=41">
 
   <script type="application/ld+json">
   {
@@ -221,7 +221,9 @@
       <h2>Musiikki</h2>
       <p>Hakulistalla on enemmän biisejä kuin peli koskaan jakaa arvattavaksi: osa on mukana vain täytteenä, jottei oikeaa vastausta voisi päätellä siitä mitä listalla sattuu olemaan.</p>
       <p>Mukana on sekä suomen- että englanninkielisiä suomalaisia kappaleita. Pätkät ovat Applen julkisia 30 sekunnin esikuunteluja, jotka selain hakee suoraan Applelta. Peli ei tallenna musiikkia. Pätkä alkaa esikuuntelun alusta, ja mahdollinen hiljaisuus ohitetaan.</p>
-      <p>Tulokset ja tilastot tallentuvat vain omaan selaimeesi.</p>
+      <h2>Yksityisyys</h2>
+      <p>Tulokset, tilastot ja arviot tallentuvat vain omaan selaimeesi. Peli ei kysy nimeä, sähköpostia eikä mitään muutakaan.</p>
+      <p>Sivu laskee kävijämäärän <strong>GoatCounterilla</strong>, jotta tiedän pelaako peliä kukaan. Se kirjaa käynnin ja kaksi tapahtumaa: päivän sarjan aloituksen ja sen valmiiksi pelaamisen. Mitään ei yhdistetä sinuun: ei evästeitä, ei kirjautumista, ei seurantaa muille sivustoille. Siksi tämä sivu ei tarvitse evästeilmoitusta.</p>
       <div class="row">
         <button type="button" class="btn" data-go="back">Takaisin peliin</button>
       </div>
@@ -240,6 +242,12 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=39"></script>
+  <script src="app.js?v=41"></script>
+
+  <!-- Kävijälaskenta: ei evästeitä, ei henkilötietoja, ei seurantaa yli
+       sivustorajojen – siksi tämä ei vaadi suostumusikkunaa. Ladataan
+       viimeisenä ja asynkronisesti, joten peli ei odota sitä. -->
+  <script data-goatcounter="https://hittispotti.goatcounter.com/count"
+          async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

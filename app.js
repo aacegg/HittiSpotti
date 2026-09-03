@@ -144,6 +144,29 @@
    * jonka sarja on auki – ei kellon päivää, joka voi vaihtua kesken pelin. */
   const keyToDate = (key) => { const [y, m, d] = key.split("-").map(Number); return new Date(y, m - 1, d); };
 
+  /* Nimetön tapahtumalaskuri. Kirjaa vain sen, että jokin tapahtui – ei
+   * biisiä, tulosta eikä mitään pelaajasta. Kaksi tapahtumaa riittää siihen
+   * mikä on oikeasti kiinnostavaa: montako aloitettua päivän sarjaa pelataan
+   * loppuun. Skripti latautuu asynkronisesti ja mainosesto voi estää sen
+   * kokonaan, joten kutsu ei saa kaatua sen puuttumiseen. */
+  function track(nimi) {
+    /* Laskuri ladataan asynkronisesti, ja "päivä aloitettu" tapahtuu heti
+     * sivun auettua – mitattuna skripti oli valmis vasta 147 ms kohdalla,
+     * jolloin suora kutsu katosi hiljaa. Siksi yritetään uudestaan kunnes
+     * skripti on paikalla, ja luovutetaan viiden sekunnin jälkeen: silloin
+     * kyseessä on mainosesto, joka on pelaajan oma valinta. */
+    let yritys = 0;
+    (function yrita() {
+      try {
+        if (window.goatcounter && window.goatcounter.count) {
+          window.goatcounter.count({ path: nimi, title: nimi, event: true });
+          return;
+        }
+      } catch { return; }   // analytiikka ei koskaan riko peliä
+      if (++yritys < 20) setTimeout(yrita, 250);
+    })();
+  }
+
   const dayKey = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   const todayKey = () => dayKey(new Date());
   const todayPretty = () => new Date().toLocaleDateString("fi-FI");
@@ -601,7 +624,9 @@
       return;
     }
     state.at = 0;
-    state.rounds = restoreDailyProgress(key) || dailySongs(key).map(newRound);
+    const jatkuu = restoreDailyProgress(key);
+    if (!jatkuu) track("paiva-aloitettu");
+    state.rounds = jatkuu || dailySongs(key).map(newRound);
     state.results = [];
     state.score = state.rounds.reduce((sum, r) => sum + r.points, 0);
     // Poikkeustapaus: kaikki palautetut kierrokset ovat valmiita, mutta
@@ -1131,6 +1156,7 @@
       results: state.results.map((r) => ({ id: r.id, step: r.step, points: r.points, solved: r.solved })),
     });
     if (already) return;   // sama päivä kirjataan tilastoihin vain kerran
+    track("paiva-valmis");
     const stats = { ...defaultStats(), ...store.get("stats", {}) };
     stats.dailyPlayed += 1;
     stats.dailyTotal += state.score;

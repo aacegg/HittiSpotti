@@ -50,6 +50,7 @@
     starts: new Map(),    // id -> pätkän aloituskohta sekunteina
     source: null,
     gain: null,        // pätkän häivytys, ajastetaan uusiksi jos aikaa pidennetään
+    revive: false,     // sivu kävi taustalla: konteksti rakennetaan uusiksi
     startedAt: 0,      // ctx.currentTime pätkän alkaessa
     total: 0,          // pätkän ajastettu pituus sekunteina
     raf: 0,
@@ -513,6 +514,27 @@
     try { await ctx.resume(); } catch { /* selain voi kieltäytyä ilman elettä */ }
   }
 
+  /* iOS keskeyttää äänikontekstin kun käyttäjä poistuu toiseen sovellukseen.
+   * Pelkkä resume() ei riitä: se voi onnistua näennäisesti niin että tila on
+   * "running" mutta ääntä ei silti kuulu, eikä herätys ole luotettava ilman
+   * käyttäjän elettä. Siksi konteksti rakennetaan uusiksi ensimmäisellä
+   * painalluksella sivulle palaamisen jälkeen.
+   *
+   * Tehdään synkronisesti painalluksen sisällä, koska iOS sallii uuden
+   * kontekstin käynnistämisen vain eleen yhteydessä. Vanhan sulkemista ei
+   * odoteta. Puretut äänipuskurit eivät ole sidottuja kontekstiin, joten ne
+   * säilyvät välimuistissa eikä pätkiä tarvitse ladata uudestaan. */
+  function reviveAudio() {
+    if (!audio.revive) return;
+    audio.revive = false;
+    const vanha = audio.ctx;
+    audio.ctx = null;
+    audio.source = null;
+    audio.gain = null;
+    if (vanha) { try { vanha.close(); } catch { /* ignore */ } }
+    ensureAudio();
+  }
+
   async function refreshPreviewUrl(song) {
     // Applen esikuuntelu-URL voi vanhentua: haetaan tuore trackId:llä.
     const res = await fetch(`https://itunes.apple.com/lookup?id=${song.id}&country=fi`);
@@ -659,6 +681,7 @@
     const song = state.rounds.length ? cur().song : null;
     if (!song) return;
     stopPlayback();
+    reviveAudio();
     el.playBtn.disabled = true;
     setPlayIcon("load");
 
@@ -1526,12 +1549,14 @@
       renderRate(cur().song);
     });
     el.retryBtn.addEventListener("click", loadAndStart);
-    /* Lukitusnäytöltä tai toisesta sovelluksesta palatessa äänikonteksti voi
-     * olla keskeytetty. Herätetään heti, ettei seuraava painallus ole mykkä. */
+    /* Toiseen sovellukseen siirtyminen katkaisee äänen iOS:ssä. Kaksi asiaa
+     * meni tässä pieleen: soitto jäi päälle omassa kirjanpidossamme, jolloin
+     * ensimmäinen painallus paluun jälkeen tulkittiin pysäytykseksi eikä
+     * mitään soinut, ja itse äänikonteksti jäi keskeytettyyn tilaan josta se
+     * ei toivu pelkällä herätyksellä. Siksi soitto pysäytetään siististi
+     * poistuttaessa ja konteksti merkitään uusittavaksi. */
     document.addEventListener("visibilitychange", () => {
-      if (!document.hidden && audio.ctx && audio.ctx.state !== "running") {
-        audio.ctx.resume().catch(() => {});
-      }
+      if (document.hidden) { stopPlayback(); audio.revive = true; }
     });
     // Näppäimistön avautuminen ja sulkeutuminen muuttaa näkyvää aluetta.
     if (window.visualViewport) {

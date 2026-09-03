@@ -257,6 +257,12 @@
   // ---------- Näkymät ----------
   function show(name) {
     state.view = name;
+    /* Ääni kuuluu vain peliin. openRound pysäyttää soiton kierrosten välillä
+     * ja go() valikosta siirryttäessä, mutta viimeisen biisin jälkeen
+     * Tulokset-nappi vie tuloksiin kolmatta reittiä, eikä pätkä pysähtynyt:
+     * se jäi soimaan tulosnäkymään. Pysäytys näkymän vaihdossa kattaa kaikki
+     * reitit kerralla. */
+    if (name !== "game") stopPlayback();
     for (const [k, v] of Object.entries(el.views)) v.hidden = k !== name;
     // Elävä väri kuuluu soivalle biisille. Muualla sivu palaa perusväriin,
     // jotta sovelluksella on myös oma pysyvä sävynsä.

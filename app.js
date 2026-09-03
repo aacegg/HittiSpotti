@@ -49,6 +49,9 @@
     buffers: new Map(),   // id -> AudioBuffer
     starts: new Map(),    // id -> pätkän aloituskohta sekunteina
     source: null,
+    gain: null,        // pätkän häivytys, ajastetaan uusiksi jos aikaa pidennetään
+    startedAt: 0,      // ctx.currentTime pätkän alkaessa
+    total: 0,          // pätkän ajastettu pituus sekunteina
     raf: 0,
     playing: false,
   };
@@ -609,15 +612,18 @@
     }
     stopFallback();
     cancelAnimationFrame(audio.raf);
+    audio.gain = null;
+    audio.startedAt = 0;
+    audio.total = 0;
     audio.playing = false;
     el.playBtn.classList.remove("is-playing");
     setPlayIcon("play");
     el.ring.style.strokeDashoffset = RING;
   }
 
-  function animateBar(seconds) {
+  function animateBar(seconds, kulunut = 0) {
     const visual = Math.max(seconds, 0.45); // 0,1 s näkyy silti palkissa
-    const start = performance.now();
+    const start = performance.now() - kulunut * 1000;
     const tick = () => {
       const t = Math.min(1, (performance.now() - start) / (visual * 1000));
       el.ring.style.strokeDashoffset = RING * (1 - t);
@@ -676,10 +682,56 @@
     gain.gain.setValueAtTime(1, now + seconds - fade);
     gain.gain.linearRampToValueAtTime(0, now + seconds);
     src.connect(gain).connect(ctx.destination);
-    src.start(now, clipOffset(song, buffer), seconds);
+    /* Kesto ajastetaan stop():lla eikä start():n kolmantena parametrina:
+     * kestoparametri lyö lopetushetken lukkoon eikä myöhempi stop() voi
+     * siirtää sitä, jolloin ajan pidentäminen kesken soiton ei onnistuisi. */
+    src.start(now, clipOffset(song, buffer));
+    src.stop(now + seconds);
     audio.source = src;
+    audio.gain = gain;
+    audio.startedAt = now;
+    audio.total = seconds;
     ready();
     animateBar(seconds);
+  }
+
+  /* Ajan pidentäminen kesken soiton ei katkaise ääntä: pätkä jatkaa siitä
+   * mihin se ehti ja pysähtyy vasta uuden mitan täytyttyä. Jos ääni ei soi,
+   * uusi pätkä alkaa alusta niin kuin ennenkin.
+   *
+   * Koskee vain arvausvaiheen pidennystä. Luovutuksen jälkeinen paljastus
+   * soittaa pisimmän pätkän alusta, koska siinä halutaan kuulla biisi
+   * kokonaan eikä jatkaa keskeltä. */
+  function extendClip(seconds) {
+    if (!audio.playing) { playClip(seconds); return; }
+    // Varasoitin: pysäytysajastin uusiksi jäljellä olevalle ajalle.
+    if (!audio.source) {
+      const a = fallback.el;
+      if (!a) { playClip(seconds); return; }
+      clearTimeout(fallback.timer);
+      const jaljella = Math.max(0, seconds - a.currentTime);
+      fallback.timer = setTimeout(() => a.pause(), jaljella * 1000);
+      animateBar(seconds, a.currentTime);
+      return;
+    }
+    const ctx = audio.ctx;
+    const nyt = ctx.currentTime;
+    const kulunut = nyt - audio.startedAt;
+    if (kulunut >= seconds) { playClip(seconds); return; }   // ehti jo ohi
+    const loppu = audio.startedAt + seconds;
+    try { audio.source.stop(loppu); } catch { playClip(seconds); return; }
+    // Häivytys oli ajastettu vanhalle lopulle, joten se ajastetaan uusiksi.
+    const g = audio.gain && audio.gain.gain;
+    if (g) {
+      const fade = Math.min(0.02, seconds / 4);
+      if (g.cancelAndHoldAtTime) g.cancelAndHoldAtTime(nyt);
+      else { g.cancelScheduledValues(nyt); g.setValueAtTime(1, nyt); }
+      g.setValueAtTime(1, Math.max(nyt, loppu - fade));
+      g.linearRampToValueAtTime(0, loppu);
+    }
+    audio.total = seconds;
+    cancelAnimationFrame(audio.raf);
+    animateBar(seconds, kulunut);
   }
 
   function prefetch(song) {
@@ -909,7 +961,7 @@
     persistDaily();
     renderRound();
     el.hint.textContent = "";
-    playClip(STEPS[r.step]);
+    extendClip(STEPS[r.step]);
     el.input.value = "";
     state.selected = null;
     closeSuggestions();

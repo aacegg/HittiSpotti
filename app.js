@@ -82,6 +82,7 @@
     loadingRetry: $("#loading-retry"),
     retryBtn: $("#retry-btn"),
     modeLabel: $("#mode-label"),
+    modeSub: $("#mode-sub"),
     scoreLabel: $("#score-label"),
     playBtn: $("#play-btn"),
     playIcon: $("#play-icon"),
@@ -274,10 +275,17 @@
   }
 
   function updateBar() {
-    if (state.view === "game" && state.rounds.length) {
-      el.barTag.textContent = `${state.rounds.filter((r) => r.finished).length}/${state.rounds.length} valmis`;
+    el.body.dataset.mode = state.mode;
+    if (state.view !== "game" || !state.rounds.length) { el.barTag.textContent = ""; return; }
+    const valmis = state.rounds.filter((r) => r.finished).length;
+    /* Yläpalkki pysyy paikallaan kun sivu vierii, joten se on ainoa kohta
+     * josta pelimuodon näkee koko ajan. Vapaa peli merkitään nimeltä, päivän
+     * biisit ei: se on oletus, ja saman sanan toistaminen otsikon vieressä
+     * näyttäisi vahingolta. Poikkeus on se joka pitää huomata. */
+    if (state.mode === "free") {
+      el.barTag.innerHTML = `<b>Vapaa peli</b> · ${valmis}/${state.rounds.length}`;
     } else {
-      el.barTag.textContent = "";
+      el.barTag.textContent = `${valmis}/${state.rounds.length} valmis`;
     }
   }
 
@@ -910,10 +918,14 @@
 
   function renderRound() {
     const r = cur();
-    // Sama sanamuoto kuin tulosnäkymässä, ettei sama asia ole kahta tyyliä.
-    el.modeLabel.textContent = state.mode === "daily"
-      ? `Päivän biisit, ${dateLine(keyToDate(state.dayKey || todayKey()))}`
-      : "Vapaa peli";
+    /* Pelimuoto on näkymän otsikko, ei kuvateksti. Aiemmin ainoa ero muotojen
+     * välillä oli tämä rivi himmeällä pikkutekstillä, eikä testaaja huomannut
+     * vaihtaneensa muotoa. Nyt nimi on otsikkokokoinen ja päivämäärä jää sen
+     * alle pieneksi. Vapaan pelin värin hoitaa CSS body[data-mode]:n kautta. */
+    el.modeLabel.textContent = state.mode === "daily" ? "Päivän biisit" : "Vapaa peli";
+    el.modeSub.textContent = state.mode === "daily"
+      ? dateLine(keyToDate(state.dayKey || todayKey()))
+      : "";
     el.scoreLabel.textContent = `${fmt(state.score)} p`;
     // Koko sivun elävä väri on soivan biisin vaikeustaso.
     el.body.dataset.tier = String(r.song.tier);

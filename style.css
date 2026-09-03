@@ -52,6 +52,15 @@
   --t4: #ff8a4c;
   --t5: #ff5f6d;
 
+  /* Vapaan pelin tunnusväri. Tarkoituksella asteikon ulkopuolelta: kaikki
+     vaikeustasot ovat lämpimiä (vihreästä punaiseen), joten viileä sininen ei
+     voi mennä sekaisin vaikeustason kanssa vaan luetaan toiseksi asiaksi.
+     Kirkkaus on samaa luokkaa kuin tasoväreillä (9,25:1 taustaa vasten,
+     --t1 10,3 ja --t3 10,8), joten se istuu samaan perheeseen huutamatta.
+     Käytössä vain pelimuodon nimessä, ei missään muualla: sivun elävä väri
+     on edelleen yksi kerrallaan ja se on vaikeustaso. */
+  --vapaa: #86b6de;
+
   /* Elävä väri: body saa data-tier-attribuutin ja koko sivu seuraa. */
   --live: var(--t3);
   --live-ink: #17120a;
@@ -364,7 +373,31 @@ h2.big, .big {
   gap: var(--s4);
   margin-bottom: var(--s4);
 }
-#mode-label { font-size: var(--f3); color: var(--muted); }
+/* Pelimuodon nimi on näkymän otsikko. Päivämäärä kulkee sen perässä pienenä
+   ja siirtyy omalle rivilleen vasta jos se ei mahdu (esim. "keskiviikkona
+   24.12." kapealla puhelimella), joten pystysuuntaa ei kulu turhaan. */
+.mode {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 var(--s3);
+  min-width: 0;
+}
+#mode-label {
+  font-family: var(--display);
+  font-size: var(--f6);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  color: var(--text);
+}
+#mode-sub { font-size: var(--f2); color: var(--dim); }
+
+/* Vapaa peli erottuu värillä, päivän biisit on neutraali oletus. */
+body[data-mode="free"] #mode-label,
+body[data-mode="free"] #results-title,
+body[data-mode="free"] .bar-tag b { color: var(--vapaa); }
+.bar-tag b { font-weight: 600; }
+
 .meta-score {
   font-family: var(--display);
   font-size: var(--f4);

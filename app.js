@@ -351,7 +351,7 @@
   /* Sekoituksen sukupolvi. Kulkee jokaisen pakan siemeneen, joten numeron
    * nostaminen antaa kaikille tasoille kokonaan uuden järjestyksen ilman
    * että kierron alkupäivää tarvitsee koskea. */
-  const SEKOITUS = 3;
+  const SEKOITUS = 4;
 
   function dayIndex(key) {
     const [y, m, d] = key.split("-").map(Number);

@@ -322,7 +322,7 @@ body.drawer-open .drawer { transform: none; visibility: visible; }
 .drawer-foot { margin-top: auto; padding-top: var(--s6); font-size: var(--f1); line-height: 1.6; color: var(--dim); }
 
 /* ---------- Sisältö ---------- */
-.wrap { position: relative; z-index: 1; max-width: var(--palsta); margin: 0 auto; padding: var(--s4) var(--s5) var(--s8); }
+.wrap { position: relative; z-index: 1; max-width: var(--palsta); margin: 0 auto; padding: var(--s4) var(--s5) var(--s6); }
 .view[hidden] { display: none; }
 
 /* Vain ruudunlukijalle ja hakukoneelle: sivu tarvitsee oikean otsikon,
@@ -873,13 +873,13 @@ button.tchip:hover { color: var(--text); }
 .results-sub { margin: var(--s4) 0 0; font-size: var(--f4); line-height: 1.45; color: var(--text); }
 .results-sub:empty { display: none; }
 
-.results { list-style: none; padding: 0; margin: var(--s6) 0 0; }
+.results { list-style: none; padding: 0; margin: var(--s5) 0 0; }
 .results li {
   display: grid;
   grid-template-columns: 46px 1fr auto;
-  gap: var(--s5);
+  gap: var(--s4);
   align-items: start;
-  padding: var(--s5) 0;
+  padding: var(--s3) 0;
   border-top: 1px solid var(--line-soft);
 }
 .results img { width: 46px; height: 46px; border-radius: 2px; object-fit: cover; background: var(--line-soft); }
@@ -887,7 +887,11 @@ button.tchip:hover { color: var(--text); }
 .results .r-artist { margin-top: var(--s1); color: var(--muted); font-size: var(--f2); }
 /* Kierroksen kulku pieninä palkkeina: osuma tason värillä, hukattu askel
    himmeänä, pelaamaton tyhjänä. */
-.results .r-squares { display: flex; gap: 3px; margin-top: var(--s3); }
+/* Taso ja kierroksen kulku ovat samaa tietoa: miten meni. Yhdellä rivillä
+   ne vievät puolet siitä tilasta kuin kahdella, ja tulossivu mahtuu
+   puhelimen ruudulle ilman vieritystä. */
+.results .r-meta { display: flex; align-items: center; gap: var(--s3); margin-top: var(--s2); }
+.results .r-squares { display: flex; gap: 3px; }
 .results .sq { width: 13px; height: 3px; border-radius: 2px; background: var(--line); }
 .results .sq.is-miss { background: var(--dim); }
 .results .sq.is-hit { background: var(--tier-hue, var(--ok)); }
@@ -916,7 +920,7 @@ button.tchip:hover { color: var(--text); }
 .results li[data-tier="4"] { --tier-hue: var(--t4); }
 .results li[data-tier="5"] { --tier-hue: var(--t5); }
 
-.results + .row { margin-top: var(--s6); }
+.results + .row { margin-top: var(--s5); }
 
 .share {
   margin: var(--s5) 0 0;

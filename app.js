@@ -1204,8 +1204,10 @@
         <div>
           <div class="r-title">${escapeHtml(s.title)}</div>
           <div class="r-artist">${escapeHtml(s.artist)} · ${escapeHtml(s.year ?? "")}</div>
-          <div class="r-tier">${escapeHtml(TIER_NAMES[s.tier] || "")}</div>
-          <div class="r-squares" aria-hidden="true">${squaresHtml(r)}</div>
+          <div class="r-meta">
+            <span class="r-tier">${escapeHtml(TIER_NAMES[s.tier] || "")}</span>
+            <span class="r-squares" aria-hidden="true">${squaresHtml(r)}</span>
+          </div>
         </div>
         <div class="r-points${r.solved ? "" : " zero"}">${r.solved ? "+" + fmt(r.points) : "0"}</div>`;
       el.resultsList.appendChild(li);

@@ -72,6 +72,7 @@
     navDailyNote: $("#nav-daily-note"),
     freeReset: $("#free-reset"),
     navFreeNote: $("#nav-free-note"),
+    bar: document.querySelector(".bar"),
     barTag: $("#bar-tag"),
     loadingText: $("#loading-text"),
     loadingRetry: $("#loading-retry"),
@@ -1044,10 +1045,48 @@
     });
     el.suggestions.hidden = false;
     el.input.setAttribute("aria-expanded", "true");
+    placeSuggestions();
+  }
+
+  /* Ehdotuslistan paikka ja korkeus näkyvän alueen mukaan.
+   *
+   * Puhelimessa näppäimistö peittää alaosan, eikä sivu tiedä siitä mitään:
+   * mitattuna 440 px:n näkyvässä alueessa kentän alle jäi 136 px ja listasta
+   * näkyi kaksi riviä kahdeksasta. Kentän yläpuolella oli 254 px tyhjää.
+   * Siksi lista käännetään ylös kun sinne mahtuu enemmän, ja korkeus
+   * rajataan siihen mitä oikeasti on käytettävissä.
+   *
+   * visualViewport kertoo näppäimistön viemän tilan; ilman sitä (vanhat
+   * selaimet, työpöytä) käytetään ikkunan korkeutta, jolloin lista pysyy
+   * alhaalla niin kuin ennenkin. */
+  function placeSuggestions() {
+    if (el.suggestions.hidden) return;
+    const vv = window.visualViewport;
+    const nakyvaYla = vv ? vv.offsetTop : 0;
+    const alaraja = nakyvaYla + (vv ? vv.height : window.innerHeight);
+    /* Yläpalkki on sticky ja piirtyy listan päälle, joten sen alareuna on
+     * todellinen yläraja. Ilman tätä ylöspäin auennut lista jäi osittain
+     * palkin alle ja ylin ehdotus näkyi puolikkaana. */
+    const palkki = el.bar ? el.bar.getBoundingClientRect().bottom : 0;
+    const ylaraja = Math.max(nakyvaYla, palkki);
+    const r = el.input.getBoundingClientRect();
+    const MARGIN = 8, VAHIN = 120, ENINTAAN = 360;
+    const alla = alaraja - r.bottom - MARGIN;
+    const ylla = r.top - ylaraja - MARGIN;
+    // Sääntö on tarkoituksella yksinkertainen: lista aukeaa sinne missä on
+    // enemmän tilaa. Kynnysarvo "alle 120 px alapuolella" ei riittänyt, koska
+    // näppäimistön kanssa alle jäi 128 px eli juuri ja juuri yli rajan, ja
+    // lista pysyi alhaalla kaksi riviä korkeana.
+    const ylos = ylla > alla;
+    el.suggestions.classList.toggle("is-up", ylos);
+    const tila = Math.floor(ylos ? ylla : alla);
+    el.suggestions.style.maxHeight = Math.max(VAHIN, Math.min(tila, ENINTAAN)) + "px";
   }
 
   function closeSuggestions() {
     el.suggestions.hidden = true;
+    el.suggestions.classList.remove("is-up");
+    el.suggestions.style.maxHeight = "";
     el.input.setAttribute("aria-expanded", "false");
     state.activeSuggestion = -1;
     state.suggestions = [];
@@ -1390,6 +1429,12 @@
       renderRate(cur().song);
     });
     el.retryBtn.addEventListener("click", loadAndStart);
+    // Näppäimistön avautuminen ja sulkeutuminen muuttaa näkyvää aluetta.
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", placeSuggestions);
+      window.visualViewport.addEventListener("scroll", placeSuggestions);
+    }
+    window.addEventListener("resize", placeSuggestions);
     el.exportBtn.addEventListener("click", exportData);
     el.nextBtn.addEventListener("click", nextRound);
     el.tierBar.addEventListener("click", (e) => {

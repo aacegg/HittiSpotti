@@ -595,8 +595,14 @@ button.tchip:hover { color: var(--text); }
   box-shadow: 0 20px 40px -20px #000;
   max-height: 46vh;
   overflow-y: auto;
+  overscroll-behavior: contain;   /* listan vieritys ei valu sivulle */
 }
 .suggestions[hidden] { display: none; }
+/* Näppäimistön ollessa auki hakukenttä jää lähelle sen yläreunaa, jolloin
+   alaspäin aukeavasta listasta mahtui näkyviin kaksi riviä kahdeksasta.
+   Tällöin lista käännetään kentän yläpuolelle, jossa tilaa on moninkertaisesti.
+   Korkeuden asettaa app.js sen mukaan mitä näkyvissä oikeasti on. */
+.suggestions.is-up { top: auto; bottom: calc(100% + var(--s2)); }
 .suggestion { position: relative; padding: var(--s3) var(--s4); border-radius: 2px; cursor: pointer; }
 .suggestion:hover, .suggestion.is-active { background: var(--line-soft); }
 .suggestion .s-title {

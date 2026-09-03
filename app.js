@@ -68,6 +68,8 @@
     navFreeNote: $("#nav-free-note"),
     barTag: $("#bar-tag"),
     loadingText: $("#loading-text"),
+    loadingRetry: $("#loading-retry"),
+    retryBtn: $("#retry-btn"),
     modeLabel: $("#mode-label"),
     scoreLabel: $("#score-label"),
     playBtn: $("#play-btn"),
@@ -1269,6 +1271,7 @@
       saveRating(cur().song.id, Number(chip.dataset.rate));
       renderRate(cur().song);
     });
+    el.retryBtn.addEventListener("click", loadAndStart);
     el.exportBtn.addEventListener("click", exportData);
     el.nextBtn.addEventListener("click", nextRound);
     el.tierBar.addEventListener("click", (e) => {
@@ -1314,20 +1317,40 @@
       .forEach((k) => store.remove(k));
   }
 
-  async function init() {
-    migrateStore();
-    pruneProgress();
-    bind();
+  /* Virheteksti pelaajan kielellä. Selaimen oma viesti ("Failed to fetch")
+   * on englantia eikä kerro mitä tehdä, joten se jää konsoliin. */
+  function loadErrorText(err) {
+    if (location.protocol === "file:") {
+      return "Selain ei salli songs.json-tiedoston lukemista suoraan levyltä. "
+           + "Käynnistä paikallinen palvelin, esimerkiksi python3 -m http.server, ja avaa http://localhost:8000.";
+    }
+    if (!navigator.onLine) return "Ei verkkoyhteyttä. Biisit haetaan uudestaan kun yhteys palaa.";
+    const status = /\((\d{3})\)/.exec(String(err && err.message));
+    if (status) return `Biisilistaa ei saatu palvelimelta (virhe ${status[1]}). Yritä hetken päästä uudelleen.`;
+    return "Biisien lataus ei onnistunut. Tarkista verkkoyhteys ja yritä uudelleen.";
+  }
+
+  async function loadAndStart() {
+    el.loadingRetry.hidden = true;
+    el.loadingText.textContent = "Ladataan biisejä…";
     try {
       await loadCatalog();
       refreshDrawer();
       startDaily();          // sivu avautuu suoraan päivän peliin
     } catch (err) {
       console.error(err);
-      el.loadingText.textContent = location.protocol === "file:"
-        ? "Selain ei salli songs.json-tiedoston lukemista suoraan levyltä. Käynnistä paikallinen palvelin, esimerkiksi python3 -m http.server, ja avaa http://localhost:8000."
-        : "Biisien lataus epäonnistui: " + err.message;
+      el.loadingText.textContent = loadErrorText(err);
+      // Levyltä avattua sivua ei korjaa uudelleenyritys vaan palvelin.
+      el.loadingRetry.hidden = location.protocol === "file:";
+      show("loading");
     }
+  }
+
+  async function init() {
+    migrateStore();
+    pruneProgress();
+    bind();
+    await loadAndStart();
   }
 
   init();

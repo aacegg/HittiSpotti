@@ -755,6 +755,21 @@ button.tchip:hover { color: var(--text); }
 .view-game.is-revealed .hint { display: none; }
 .view-game.is-revealed .screen { min-height: 0; }
 
+/* Hakutila. Kun kenttään kirjoitetaan, näppäimistö vie alaosan ja ehdotuksille
+   jää murto-osa ruudusta: mitattuna kahdeksasta ehdotuksesta ylsi painettavaksi
+   kaksi. Kirjoittaessa soitinta, mittaria ja tasoriviä ei kuitenkaan tarvita,
+   joten ne väistyvät ja kenttä nousee yläpalkin alle. Lista saa silloin koko
+   jäljelle jäävän ruudun näppäimistöön asti.
+   Toteutettu piilottamalla eikä siirtämällä: kenttää ei saa siirtää DOM:issa
+   kesken kirjoittamisen, koska se veisi kohdistuksen ja sulkisi näppäimistön.
+   Luokan asettaa app.js vasta kun näppäimistö oikeasti peittää alaosan. */
+.view-game.is-searching .meta,
+.view-game.is-searching .tierbar,
+.view-game.is-searching .stage,
+.view-game.is-searching .ladder,
+.view-game.is-searching .hint { display: none; }
+.view-game.is-searching .screen { min-height: 0; }
+
 .reveal {
   margin-top: var(--s6);
   padding-top: var(--s6);

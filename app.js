@@ -1198,6 +1198,25 @@
     el.suggestions.style.maxHeight = Math.max(VAHIN, Math.min(tila, ENINTAAN)) + "px";
   }
 
+  /* Hakutila: kirjoitettaessa soitin, mittari ja tasorivi väistyvät, jolloin
+   * kenttä nousee yläpalkin alle ja ehdotuksille jää koko ruutu näppäimistöön
+   * asti. Ks. style.css.
+   *
+   * Ehtona on nimenomaan se, että näppäimistö oikeasti vie tilaa – ei pelkkä
+   * kohdistus kenttään. Työpöydällä ja näppäimistöllisellä tabletilla mitään
+   * ei peity, ja soittimen piilottaminen siellä olisi turhaa välkkymistä.
+   * visualViewport kertoo tämän suoraan; ilman sitä pysytään entisellään. */
+  function keyboardCovers() {
+    const vv = window.visualViewport;
+    return !!vv && window.innerHeight - vv.height > 120;
+  }
+
+  function updateSearchMode() {
+    const paalla = document.activeElement === el.input && keyboardCovers();
+    el.views.game.classList.toggle("is-searching", paalla);
+    placeSuggestions();
+  }
+
   function closeSuggestions() {
     el.suggestions.hidden = true;
     el.suggestions.classList.remove("is-up");
@@ -1212,6 +1231,9 @@
     state.selected = song;
     el.input.value = song.label;
     closeSuggestions();
+    // Valinta on tehty: näppäimistö pois ja soitin takaisin näkyviin, jotta
+    // Arvaa-nappi on heti painettavissa.
+    el.input.blur();
     renderAction();
     el.actionBtn.focus({ preventScroll: true });
   }
@@ -1549,6 +1571,8 @@
       renderRate(cur().song);
     });
     el.retryBtn.addEventListener("click", loadAndStart);
+    el.input.addEventListener("focus", updateSearchMode);
+    el.input.addEventListener("blur", updateSearchMode);
     /* Toiseen sovellukseen siirtyminen katkaisee äänen iOS:ssä. Kaksi asiaa
      * meni tässä pieleen: soitto jäi päälle omassa kirjanpidossamme, jolloin
      * ensimmäinen painallus paluun jälkeen tulkittiin pysäytykseksi eikä
@@ -1560,10 +1584,10 @@
     });
     // Näppäimistön avautuminen ja sulkeutuminen muuttaa näkyvää aluetta.
     if (window.visualViewport) {
-      window.visualViewport.addEventListener("resize", placeSuggestions);
-      window.visualViewport.addEventListener("scroll", placeSuggestions);
+      window.visualViewport.addEventListener("resize", updateSearchMode);
+      window.visualViewport.addEventListener("scroll", updateSearchMode);
     }
-    window.addEventListener("resize", placeSuggestions);
+    window.addEventListener("resize", updateSearchMode);
     el.exportBtn.addEventListener("click", exportData);
     el.nextBtn.addEventListener("click", nextRound);
     el.tierBar.addEventListener("click", (e) => {

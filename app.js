@@ -322,6 +322,10 @@
      * tule arvattavaksi, mutta tekevät ehdotuslistasta niin tiheän, ettei
      * oikeaa vastausta voi päätellä pelkästään siitä mitä listalla on. */
     state.pool = state.songs.filter((s) => s.peli !== false);
+    /* Pakat johdetaan poolista, joten uudelleenlataus (Yritä uudelleen)
+     * mitätöi ne. Ilman tyhjennystä jäisi käyttöön vanhan katalogin pakka. */
+    tierLists.clear();
+    deckCache.clear();
     state.songs.forEach((s) => {
       s.label = `${s.artist} – ${s.title}`;
       s.key = normalize(s.artist + " " + s.title);
@@ -388,16 +392,73 @@
     return order;
   }
 
+  /* Tason biisit vakaassa lähtöjärjestyksessä, ettei songs.json:in
+   * rivijärjestys vaikuta. Välimuistissa, koska sekä pakkojen rakentaminen
+   * että törmäysten korjaus tarvitsevat tätä toistuvasti. */
+  const tierLists = new Map();
+  function tierList(tier) {
+    if (!tierLists.has(tier)) {
+      tierLists.set(tier, state.pool.filter((s) => s.tier === tier).sort((a, b) => a.id - b.id));
+    }
+    return tierLists.get(tier);
+  }
+
+  // "Juice Leskinen & Grand Slam" ja "Juice Leskinen" ovat sama artisti.
+  const artistKey = (song) => normalize(String(song.artist).split(/\s*[,&]\s*|\s+ja\s+/)[0]);
+
+  /* Pakka, josta saman päivän artistitörmäykset on korjattu.
+   *
+   * Korjaus on VAIHTO pakan sisällä, ei siirtymä eteenpäin. Siirtymä olisi
+   * ilmeisempi, mutta se jakaisi väistetyn biisin kahdesti – kerran nyt ja
+   * kerran omalla vuorollaan – ja yhden askeleen väistö toisi saman biisin
+   * kahtena peräkkäisenä päivänä. Mitattuna lyhin väli toistoon romahti
+   * kahdeksasta päivästä yhteen. Vaihdossa syrjäytetty biisi siirtyy sen
+   * toisen vuorolle, joten jokainen jaetaan yhä täsmälleen kerran
+   * kierroksessa.
+   *
+   * Tasoilla on kiinteä arvojärjestys: taso 1 ei koskaan väisty, taso 2
+   * väistää tasoa 1, taso 3 tasoja 1-2 ja niin edelleen. Riippuvuus kulkee
+   * siis aina alaspäin eikä kierrä kehää. */
+  const deckCache = new Map();
+
+  function deck(tier, cycle) {
+    const avain = tier + ":" + cycle;
+    const valmis = deckCache.get(avain);
+    if (valmis) return valmis;
+    const order = tierOrder(tierList(tier), tier, cycle).slice();
+    deckCache.set(avain, order);
+    if (tier === TIER_CYCLE[0]) return order;   // ylin taso ei väisty
+    const n = order.length;
+    for (let pos = 0; pos < n; pos++) {
+      const day = cycle * n + pos;
+      const varatut = new Set();
+      for (const alempi of TIER_CYCLE) {
+        if (alempi === tier) break;
+        const song = dealt(alempi, day);
+        if (song) varatut.add(artistKey(song));
+      }
+      if (!varatut.has(artistKey(order[pos]))) continue;
+      for (let j = pos + 1; j < n; j++) {
+        if (varatut.has(artistKey(order[j]))) continue;
+        [order[pos], order[j]] = [order[j], order[pos]];
+        break;   // vaihdettu biisi tarkistetaan uudestaan kun sen vuoro tulee
+      }
+    }
+    return order;
+  }
+
+  function dealt(tier, day) {
+    const n = tierList(tier).length;
+    if (!n) return null;
+    return deck(tier, Math.floor(day / n))[((day % n) + n) % n];
+  }
+
   function dailySongs(key) {
     const day = dayIndex(key);
     const picked = [];
     for (const tier of TIER_CYCLE) {
-      // Vakaa lähtöjärjestys, ettei songs.json:in rivijärjestys vaikuta.
-      const list = state.pool.filter((s) => s.tier === tier).sort((a, b) => a.id - b.id);
-      if (!list.length) continue;
-      const n = list.length;
-      const at = ((day % n) + n) % n;
-      picked.push(tierOrder(list, tier, Math.floor(day / n))[at]);
+      const song = dealt(tier, day);
+      if (song) picked.push(song);
     }
     // Jos jokin taso olisi tyhjä, täytetään viisikko muilta tasoilta.
     const ids = new Set(picked.map((s) => s.id));

@@ -1202,18 +1202,22 @@
    * kenttä nousee yläpalkin alle ja ehdotuksille jää koko ruutu näppäimistöön
    * asti. Ks. style.css.
    *
-   * Ehtona on nimenomaan se, että näppäimistö oikeasti vie tilaa – ei pelkkä
-   * kohdistus kenttään. Työpöydällä ja näppäimistöllisellä tabletilla mitään
-   * ei peity, ja soittimen piilottaminen siellä olisi turhaa välkkymistä.
-   * visualViewport kertoo tämän suoraan; ilman sitä pysytään entisellään. */
-  function keyboardCovers() {
-    const vv = window.visualViewport;
-    return !!vv && window.innerHeight - vv.height > 120;
-  }
+   * Ehto on pelkkä ruudun leveys. Ensin kokeiltiin mitata näppäimistön viemä
+   * tila (window.innerHeight - visualViewport.height), koska se olisi ollut
+   * tarkin ehto: työpöydällä ja näppäimistöllisellä tabletilla mikään ei peity.
+   * iPhonella se ei kuitenkaan mennyt kertaakaan päälle, joten mittaus jäi.
+   * Kapealla ruudulla kenttään painaminen avaa näppäimistön joka tapauksessa,
+   * eikä väärää tulkintaa käytännössä synny. */
+  const kapea = window.matchMedia("(max-width: 720px)");
 
   function updateSearchMode() {
-    const paalla = document.activeElement === el.input && keyboardCovers();
+    const paalla = document.activeElement === el.input && kapea.matches;
     el.views.game.classList.toggle("is-searching", paalla);
+    /* Selain vierittää sivua itse saadakseen kentän näppäimistön yläpuolelle.
+     * Kun muu sisältö väistyy, sivu on lyhyt eikä vieritystä enää tarvita,
+     * mutta selain ei palauta sitä. Ilman tätä yläpalkki jäi ruudun
+     * yläpuolelle. Lyhyellä sivulla tämä on muutenkin tyhjä käsky. */
+    if (paalla && window.scrollY > 0) window.scrollTo(0, 0);
     placeSuggestions();
   }
 

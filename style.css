@@ -762,7 +762,7 @@ button.tchip:hover { color: var(--text); }
    jäljelle jäävän ruudun näppäimistöön asti.
    Toteutettu piilottamalla eikä siirtämällä: kenttää ei saa siirtää DOM:issa
    kesken kirjoittamisen, koska se veisi kohdistuksen ja sulkisi näppäimistön.
-   Luokan asettaa app.js vasta kun näppäimistö oikeasti peittää alaosan. */
+   Luokan asettaa app.js kapealla ruudulla, kun kenttä on kohdistettuna. */
 .view-game.is-searching .meta,
 .view-game.is-searching .tierbar,
 .view-game.is-searching .stage,

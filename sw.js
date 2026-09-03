@@ -7,19 +7,19 @@
  * Välimuistin nimessä on versio. Kun se vaihtuu, vanha poistetaan kokonaan,
  * joten jumiin jäänyttä välimuistia ei pääse syntymään.
  */
-const VERSIO = "hittispotti-v59";
+const VERSIO = "hittispotti-v60";
 
 /* Sivupohja esiladataan asennuksessa. songs.json ei ole mukana: peli hakee
  * sen joka tapauksessa heti, ja esilataus tarkoittaisi saman 780 kt:n
  * lataamista kahdesti. Se päätyy välimuistiin ensimmäisellä haulla. */
 const POHJA = [
   "./",
-  "./style.css?v=59",
-  "./app.js?v=59",
+  "./style.css?v=60",
+  "./app.js?v=60",
   "./favicon.svg",
-  "./icon-180.png?v=59",
-  "./icon-192.png?v=59",
-  "./manifest.webmanifest?v=59",
+  "./icon-180.png?v=60",
+  "./icon-192.png?v=60",
+  "./manifest.webmanifest?v=60",
   "./fonts/bricolage-latin.woff2",
   "./fonts/bricolage-latin-ext.woff2",
 ];

@@ -801,6 +801,11 @@ button.tchip:hover { color: var(--text); }
 .view-game.is-searching .stage,
 .view-game.is-searching .ladder,
 .view-game.is-searching .hint { display: none; }
+/* Myös Ohita/Arvaa-nappi. Se on ehdotuslistan takana aina kun lista on auki,
+   eli hakutilassa sitä ei pysty painamaan. Lyhyellä listalla ("Ei osumia")
+   napin alareunasta jäi 22 px näkyviin listan alapuolelle, ja koska teksti
+   jäi listan taakse, se näytti irralliselta tyhjältä laatikolta. */
+.view-game.is-searching .guess .row { display: none; }
 .view-game.is-searching .screen { min-height: 0; }
 
 .reveal {

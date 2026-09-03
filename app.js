@@ -19,6 +19,12 @@
   const STORE = "hittispotti:";
   const STORE_OLD = "songspot-suomi:";         // aiempi nimi, tiedot siirretään kerran
   const RING = 2 * Math.PI * 54;               // soittopainikkeen kehän pituus (r = 54)
+  /* Katalogilla on oma versionumeronsa, jota nostetaan vain kun songs.json
+   * muuttuu. Näin selain ja service worker saavat pitää 780 kt:n tiedoston
+   * välimuistissa tyylimuutosten yli, mutta uusi katalogi on eri osoite ja
+   * tulee varmasti perille – vanha versio antaisi pelaajalle eri päivän
+   * biisit kuin muille. */
+  const KATALOGI = "songs.json?k=2";
 
   // ---------- Tila ----------
   const state = {
@@ -308,7 +314,7 @@
 
   // ---------- Katalogi ----------
   async function loadCatalog() {
-    const res = await fetch("songs.json", { cache: "no-cache" });
+    const res = await fetch(KATALOGI);
     if (!res.ok) throw new Error("songs.json ei latautunut (" + res.status + ")");
     const all = await res.json();
     state.songs = all.filter((s) => s.preview && s.id);
@@ -1380,4 +1386,13 @@
   }
 
   init();
+
+  /* Service worker tekee sivusta nopean ja offline-kelpoisen. Rekisteröinti
+   * viimeisenä ja hiljaa: jos selain ei tue sitä tai sivu on avattu levyltä,
+   * peli toimii silti tismalleen samoin. */
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js").catch(() => { /* ei pakollinen */ });
+    });
+  }
 })();

@@ -1117,6 +1117,15 @@
 
 
   // ---------- Ehdotukset ----------
+
+  /* Montako ehdotusta lista näyttää enimmillään. Raja oli kahdeksan, mikä
+   * riitti biisin nimellä haettaessa mutta katkaisi artistihaun kesken:
+   * "gettomasa" antoi kahdeksan yhdeksästä. Katalogin suurimmilla artisteilla
+   * (Eppu Normaali ja PMMP, 20 kappaletta) menee yli kahdenkymmenen vasta jos
+   * katalogi kasvaa, joten 25 näyttää nykyisellään jokaisen artistin koko
+   * tuotannon. Lista vierii, joten pituus ei vie ruudulta tilaa. */
+  const OSUMIA = 25;
+
   function exactMatch(text) {
     const key = normalize(text);
     if (!key) return null;
@@ -1141,7 +1150,7 @@
       scored.push([score, s]);
     }
     scored.sort((a, b) => b[0] - a[0] || a[1].label.localeCompare(b[1].label, "fi"));
-    return scored.slice(0, 8).map((x) => x[1]);
+    return scored.slice(0, OSUMIA).map((x) => x[1]);
   }
 
   function renderSuggestions() {
@@ -1173,6 +1182,19 @@
     el.suggestions.hidden = false;
     el.input.setAttribute("aria-expanded", "true");
     updateSearchMode();
+    scrollActiveIntoView();
+  }
+
+  /* Nuolinäppäimillä liikkuminen piirtää listan uusiksi, joten valittu rivi
+   * voi jäädä vieritetyn listan ulkopuolelle. Vieritetään vain listaa, ei
+   * sivua: scrollIntoView liikuttaisi myös taustalla olevaa näkymää. */
+  function scrollActiveIntoView() {
+    const rivi = el.suggestions.children[state.activeSuggestion];
+    if (!rivi) return;
+    const lista = el.suggestions.getBoundingClientRect();
+    const r = rivi.getBoundingClientRect();
+    if (r.top < lista.top) el.suggestions.scrollTop -= lista.top - r.top;
+    else if (r.bottom > lista.bottom) el.suggestions.scrollTop += r.bottom - lista.bottom;
   }
 
   /* Ehdotuslistan paikka ja korkeus näkyvän alueen mukaan.

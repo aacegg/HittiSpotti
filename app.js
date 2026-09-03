@@ -26,6 +26,7 @@
     pool: [],            // näistä peli jakaa biisit
     byId: new Map(),
     mode: "daily",        // "daily" | "free"
+    dayKey: null,         // minkä päivän sarja on auki – ei kellosta, ks. startDaily
     rounds: [],           // biisikohtaiset tilat, päivän pelissä viisi
     at: 0,                // mikä niistä on auki
     used: new Set(),
@@ -133,10 +134,13 @@
   /* Päiväys niin kuin sen puhuisi: "keskiviikkona 3.9.". Viikonpäivä on
    * taulukossa eikä toLocaleDateStringissä, koska tarvitaan essiivi
    * ("keskiviikkona") jota selaimen lokaali ei anna. Vuosi jätetään pois:
-   * päivän tulos on aina kuluvalta päivältä. */
+   * näytettävä päivä on aina kuluva tai eilinen. */
   const VIIKONPAIVA = ["sunnuntaina", "maanantaina", "tiistaina", "keskiviikkona",
                        "torstaina", "perjantaina", "lauantaina"];
   const dateLine = (d) => `${VIIKONPAIVA[d.getDay()]} ${d.getDate()}.${d.getMonth() + 1}.`;
+  /* Avaimesta takaisin paikalliseksi päiväksi. Pelinäkymä näyttää sen päivän,
+   * jonka sarja on auki – ei kellon päivää, joka voi vaihtua kesken pelin. */
+  const keyToDate = (key) => { const [y, m, d] = key.split("-").map(Number); return new Date(y, m - 1, d); };
 
   const dayKey = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   const todayKey = () => dayKey(new Date());
@@ -186,6 +190,9 @@
     },
     set(key, value) {
       try { localStorage.setItem(STORE + key, JSON.stringify(value)); } catch { /* yksityinen tila tms. */ }
+    },
+    remove(key) {
+      try { localStorage.removeItem(STORE + key); } catch { /* ignore */ }
     },
     keys() {
       try {
@@ -576,9 +583,14 @@
 
   // ---------- Peli ----------
   function startDaily() {
+    /* Avain otetaan kerran tässä ja kulkee state.dayKey:ssä loppuun asti.
+     * Jos se luettaisiin kellosta uudestaan tallennettaessa, 23.58 aloitettu
+     * ja 00.03 päättynyt peli kirjautuisi huomisen päivälle tämän päivän
+     * biiseillä. */
     const key = todayKey();
     const done = store.get("daily:" + key, null);
     state.mode = "daily";
+    state.dayKey = key;
     if (done) {
       state.results = done.results.map((r) => ({ ...r, song: state.byId.get(String(r.id)) }));
       state.score = done.score;
@@ -586,13 +598,50 @@
       show("results");
       return;
     }
-    state.rounds = dailySongs(key).map(newRound);
     state.at = 0;
+    state.rounds = restoreDailyProgress(key) || dailySongs(key).map(newRound);
     state.results = [];
-    state.score = 0;
+    state.score = state.rounds.reduce((sum, r) => sum + r.points, 0);
+    // Poikkeustapaus: kaikki palautetut kierrokset ovat valmiita, mutta
+    // lopputulos jäi kirjaamatta (selain kaatui juuri viimeisen jälkeen).
+    if (state.rounds.every((r) => r.finished)) { collectResults(); saveDaily(); renderResults(); show("results"); return; }
     show("game");
     openRound();
     state.rounds.forEach((r) => prefetch(r.song));
+  }
+
+  /* Kesken jäänyt päivän sarja tallennetaan joka toiminnon jälkeen ja
+   * palautetaan kun päivä avataan uudestaan. Ilman tätä puhelimen selain,
+   * joka pudottaa taustalle jääneen välilehden muistista, aloitti sarjan
+   * alusta – ja pelaaja oli jo nähnyt osan vastauksista. Biisit palautetaan
+   * tallennetuista tunnisteista eikä arvonnasta uudestaan, koska katalogin
+   * päivitys voi vaihtaa päivän biisit; pelaajalle kuuluvat ne jotka hän
+   * aloitti. */
+  const progressKey = (key) => `daily:${key}:kesken`;
+
+  function persistDaily() {
+    if (state.mode !== "daily" || !state.dayKey) return;
+    store.set(progressKey(state.dayKey), {
+      at: state.at,
+      rounds: state.rounds.map((r) => ({
+        id: r.song.id, step: r.step, guesses: r.guesses,
+        finished: r.finished, solved: r.solved, points: r.points,
+      })),
+    });
+  }
+
+  function restoreDailyProgress(key) {
+    const saved = store.get(progressKey(key), null);
+    if (!saved || !Array.isArray(saved.rounds) || saved.rounds.length !== DAILY_COUNT) return null;
+    const rounds = [];
+    for (const s of saved.rounds) {
+      const song = state.byId.get(String(s.id));
+      if (!song) return null;   // biisi poistunut katalogista: aloitetaan puhtaalta
+      rounds.push({ ...newRound(song), step: s.step, guesses: s.guesses || [],
+                    finished: !!s.finished, solved: !!s.solved, points: s.points || 0 });
+    }
+    state.at = Number.isInteger(saved.at) ? saved.at : 0;
+    return rounds;
   }
 
   /* Vapaa peli on satunnainen viiden biisin sarja, yksi jokaiselta tasolta:
@@ -655,7 +704,7 @@
     const r = cur();
     // Sama sanamuoto kuin tulosnäkymässä, ettei sama asia ole kahta tyyliä.
     el.modeLabel.textContent = state.mode === "daily"
-      ? `Päivän biisit, ${dateLine(new Date())}`
+      ? `Päivän biisit, ${dateLine(keyToDate(state.dayKey || todayKey()))}`
       : "Vapaa peli";
     el.scoreLabel.textContent = `${fmt(state.score)} p`;
     // Koko sivun elävä väri on soivan biisin vaikeustaso.
@@ -748,6 +797,7 @@
     if (r.finished) return;
     if (r.step >= STEPS.length - 1) { finishRound(false); return; }
     r.step += 1;
+    persistDaily();
     renderRound();
     el.hint.textContent = "";
     playClip(STEPS[r.step]);
@@ -809,19 +859,25 @@
     showReveal(r);
     el.nextBtn.focus({ preventScroll: true });
     if (state.rounds.every((x) => x.finished)) {
-      state.results = state.rounds.map((x) => ({
-        id: x.song.id, song: x.song, step: x.step, points: x.points, solved: x.solved,
-      }));
+      collectResults();
       if (state.mode === "daily") saveDaily();
       else saveFree();
+    } else {
+      persistDaily();
     }
+  }
+
+  function collectResults() {
+    state.results = state.rounds.map((x) => ({
+      id: x.song.id, song: x.song, step: x.step, points: x.points, solved: x.solved,
+    }));
   }
 
   function nextRound() {
     // Siirry seuraavaan kesken olevaan biisiin, tarvittaessa alusta kiertäen.
     for (let k = 1; k <= state.rounds.length; k++) {
       const i = (state.at + k) % state.rounds.length;
-      if (!state.rounds[i].finished) { state.at = i; openRound(); return; }
+      if (!state.rounds[i].finished) { state.at = i; persistDaily(); openRound(); return; }
     }
     renderResults();
     show("results");
@@ -973,7 +1029,9 @@
   function renderResults() {
     const daily = state.mode === "daily";
     const solved = state.results.filter((r) => r.solved).length;
-    el.resultsTitle.textContent = daily ? `Päivän biisit, ${dateLine(new Date())}` : "Vapaa peli";
+    el.resultsTitle.textContent = daily
+      ? `Päivän biisit, ${dateLine(keyToDate(state.dayKey || todayKey()))}`
+      : "Vapaa peli";
     el.resultsScore.textContent = fmt(state.score);
     const yhteenveto = resultSummary(solved, daily ? DAILY_COUNT : state.results.length);
     el.resultsSub.textContent = daily ? `${yhteenveto} Uusi sarja huomenna.` : yhteenveto;
@@ -1030,7 +1088,7 @@
       taso: r.song.tier,
       askel: r.step,          // 0-4, eli 0,1 s ... 15 s
       osui: r.solved,
-      pv: todayKey(),
+      pv: (state.mode === "daily" && state.dayKey) || todayKey(),
       tila: state.mode,
     });
     store.set("kierrokset", log.slice(-LOG_MAX));
@@ -1061,17 +1119,23 @@
   }
 
   function saveDaily() {
-    const key = todayKey();
+    // Sen päivän avain, jonka sarja pelattiin – ei kellon päivä. Keskiyön yli
+    // pelattu sarja kuuluu sille päivälle jolta biisit ovat.
+    const key = state.dayKey || todayKey();
+    const already = !!store.get("daily:" + key, null);
+    store.remove(progressKey(key));
     store.set("daily:" + key, {
       score: state.score,
       results: state.results.map((r) => ({ id: r.id, step: r.step, points: r.points, solved: r.solved })),
     });
+    if (already) return;   // sama päivä kirjataan tilastoihin vain kerran
     const stats = { ...defaultStats(), ...store.get("stats", {}) };
     stats.dailyPlayed += 1;
     stats.dailyTotal += state.score;
     stats.dailyBest = Math.max(stats.dailyBest, state.score);
     stats.dailySolved += state.results.filter((r) => r.solved).length;
-    const y = new Date(); y.setDate(y.getDate() - 1);
+    // Edellinen päivä lasketaan sarjan omasta päivästä, ei kellosta.
+    const y = keyToDate(key); y.setDate(y.getDate() - 1);
     stats.streak = stats.lastDaily === dayKey(y) ? stats.streak + 1 : 1;
     stats.bestStreak = Math.max(stats.bestStreak, stats.streak);
     stats.lastDaily = key;
@@ -1211,6 +1275,7 @@
       // Molemmissa pelimuodoissa rivi vaihtaa vain näkymää: biisit ja niiden
       // kesken jäänyt edistyminen säilyvät paikoillaan.
       state.at = Number(chip.dataset.slot);
+      persistDaily();
       openRound();
     });
 
@@ -1236,8 +1301,20 @@
   }
 
   // ---------- Käynnistys ----------
+  /* Kesken jäänyt sarja on tarpeeton heti kun sen päivä on vaihtunut: sitä ei
+   * enää pääse pelaamaan, koska päivän peli avaa aina kuluvan päivän sarjan.
+   * Siivotaan, ettei localStorageen jää päivä päivältä kasvavaa jäämää. */
+  function pruneProgress() {
+    const tag = ":kesken";
+    const today = progressKey(todayKey());
+    store.keys()
+      .filter((k) => k.startsWith("daily:") && k.endsWith(tag) && k !== today)
+      .forEach((k) => store.remove(k));
+  }
+
   async function init() {
     migrateStore();
+    pruneProgress();
     bind();
     try {
       await loadCatalog();

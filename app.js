@@ -488,13 +488,29 @@
   }
 
   // ---------- Ääni ----------
+  /* Äänikontekstin herätys.
+   *
+   * Aiemmin herätys tehtiin vain tilassa "suspended". iOS:n Safarissa on oma
+   * tila "interrupted", johon konteksti siirtyy kun puhelu, herätys, toisen
+   * sovelluksen ääni tai näytön lukitus keskeyttää sen. Silloin ehto ei
+   * täsmännyt, ääntä ei herätetty, eikä loppupelissä kuulunut enää mitään:
+   * testaajan sanoin "ääni toimi puolet pelistä". Nyt herätetään aina kun
+   * tila ei ole "running", eli myös tuntemattomista tiloista. */
   function ensureAudio() {
     if (!audio.ctx) {
       const Ctx = window.AudioContext || window.webkitAudioContext;
       audio.ctx = new Ctx();
     }
-    if (audio.ctx.state === "suspended") audio.ctx.resume();
+    if (audio.ctx.state !== "running") audio.ctx.resume().catch(() => {});
     return audio.ctx;
+  }
+
+  /* Herätys on lupaus, eikä sitä ennen kannata ajastaa mitään: pysähtyneessä
+   * kontekstissa currentTime ei etene, jolloin pätkä ei kuuluisi eikä sen
+   * pysäytys laukeaisi. */
+  async function wakeAudio(ctx) {
+    if (ctx.state === "running") return;
+    try { await ctx.resume(); } catch { /* selain voi kieltäytyä ilman elettä */ }
   }
 
   async function refreshPreviewUrl(song) {
@@ -677,6 +693,8 @@
     if (cur().song !== song) return; // biisi ehti vaihtua
 
     const ctx = ensureAudio();
+    await wakeAudio(ctx);
+    if (cur().song !== song) return;   // biisi ehti vaihtua odotuksen aikana
     const src = ctx.createBufferSource();
     src.buffer = buffer;
     // Pieni häivytys, ettei 0,1 s pätkä naksahda.
@@ -1508,6 +1526,13 @@
       renderRate(cur().song);
     });
     el.retryBtn.addEventListener("click", loadAndStart);
+    /* Lukitusnäytöltä tai toisesta sovelluksesta palatessa äänikonteksti voi
+     * olla keskeytetty. Herätetään heti, ettei seuraava painallus ole mykkä. */
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden && audio.ctx && audio.ctx.state !== "running") {
+        audio.ctx.resume().catch(() => {});
+      }
+    });
     // Näppäimistön avautuminen ja sulkeutuminen muuttaa näkyvää aluetta.
     if (window.visualViewport) {
       window.visualViewport.addEventListener("resize", placeSuggestions);

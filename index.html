@@ -25,7 +25,7 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="favicon.svg">
   <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=36">
+  <link rel="stylesheet" href="style.css?v=38">
 
   <script type="application/ld+json">
   {
@@ -79,12 +79,17 @@
     <p class="drawer-foot" id="drawer-foot"></p>
   </aside>
 
+  <!-- Palkin tausta on täysleveä, mutta sen sisältö noudattaa samaa palstaa
+       kuin muu sivu: leveällä näytöllä sanamerkki ja sisältö olivat 400 px
+       eri kohdissa eikä mikään ollut linjassa. -->
   <header class="bar">
-    <button type="button" class="iconbtn" id="menu-btn" aria-label="Avaa valikko" aria-expanded="false" aria-controls="drawer">
-      <span class="burger" aria-hidden="true"></span>
-    </button>
-    <span class="wordmark">Hitti<em>Spotti</em></span>
-    <span class="bar-tag" id="bar-tag"></span>
+    <div class="bar-inner">
+      <button type="button" class="iconbtn" id="menu-btn" aria-label="Avaa valikko" aria-expanded="false" aria-controls="drawer">
+        <span class="burger" aria-hidden="true"></span>
+      </button>
+      <span class="wordmark">Hitti<em>Spotti</em></span>
+      <span class="bar-tag" id="bar-tag"></span>
+    </div>
   </header>
 
   <main class="wrap">
@@ -227,6 +232,6 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=36"></script>
+  <script src="app.js?v=38"></script>
 </body>
 </html>

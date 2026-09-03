@@ -267,8 +267,8 @@
   function refreshDrawer() {
     const done = store.get("daily:" + todayKey(), null);
     el.navDailyNote.textContent = done
-      ? `pelattu tänään · ${fmt(done.score)} p`
-      : `viisi biisiä · ${todayPretty()}`;
+      ? `pelattu tänään, ${fmt(done.score)} p`
+      : `viisi biisiä, ${dateLine(new Date())}`;
     el.drawerFoot.textContent = `${state.pool.length} arvattavaa biisiä · tulokset tallentuvat vain tähän selaimeen`;
     // "Uusi sarja" koskee vain vapaata peliä, joten se näkyy vasta siellä.
     el.freeReset.hidden = !(state.mode === "free" && state.view === "game");
@@ -1163,7 +1163,9 @@
       [s.dailyPlayed ? fmt(s.dailyTotal / s.dailyPlayed) : "–", "keskipisteet"],
       [fmt(s.dailyBest), "paras tulos"],
       [s.dailyPlayed ? Math.round((s.dailySolved / (s.dailyPlayed * DAILY_COUNT)) * 100) + " %" : "–", "tunnistettu"],
-      [streak, todayDone ? "putki (päivää)" : "putki · tänään pelaamatta"],
+      // Kaikki muut selitteet ovat kahden sanan mittaisia; tämä oli kolme
+      // riviä pitkä ja venytti ruudukon rivin muita korkeammaksi.
+      [streak, todayDone ? "päivän putki" : "putki, ei vielä tänään"],
       [s.bestStreak, "pisin putki"],
       ["head", "Vapaa peli"],
       [s.freeGames, "pelattua sarjaa"],

@@ -1160,7 +1160,7 @@
     });
     el.suggestions.hidden = false;
     el.input.setAttribute("aria-expanded", "true");
-    placeSuggestions();
+    updateSearchMode();
   }
 
   /* Ehdotuslistan paikka ja korkeus näkyvän alueen mukaan.
@@ -1211,7 +1211,14 @@
   const kapea = window.matchMedia("(max-width: 720px)");
 
   function updateSearchMode() {
-    const paalla = document.activeElement === el.input && kapea.matches;
+    /* Hakutila vaatii myös ehdotuksia näkyviin. Pelkkä kentän kohdistus ei
+     * riitä: tyhjällä kentällä ruudulle jäi vain kenttä ja Ohita-nappi, eikä
+     * takaisin pelinäkymään ollut mitään mihin painaa. Kun tila on sidottu
+     * listaan, se avautuu vasta kun tilalle on käyttöä ja sulkeutuu heti kun
+     * kenttä tyhjennetään. "Ei osumia" ei kelpaa: silloin ei ole listaa jolle
+     * tilaa raivattaisiin. */
+    const lista = !el.suggestions.hidden && state.suggestions.length > 0;
+    const paalla = document.activeElement === el.input && kapea.matches && lista;
     el.views.game.classList.toggle("is-searching", paalla);
     /* Selain vierittää sivua itse saadakseen kentän näppäimistön yläpuolelle.
      * Kun muu sisältö väistyy, sivu on lyhyt eikä vieritystä enää tarvita,
@@ -1228,6 +1235,7 @@
     el.input.setAttribute("aria-expanded", "false");
     state.activeSuggestion = -1;
     state.suggestions = [];
+    updateSearchMode();
   }
 
   function chooseSuggestion(song) {

@@ -596,6 +596,9 @@
    * kehän pisteiden sijaan. */
   function setPlayIcon(kind) {
     el.playIcon.className = "play-icon is-" + kind;
+    /* Paljastuksessa iso soitin on piilossa, joten Kuuntele-nappi on ainoa
+     * äänen hallinta. Sen tekstin pitää kertoa mitä painallus tekee. */
+    if (el.replayBtn) el.replayBtn.textContent = kind === "stop" ? "Pysäytä" : "Kuuntele";
   }
 
   function stopPlayback() {
@@ -801,6 +804,7 @@
       el.reveal.hidden = true;
       el.form.hidden = false;
       el.hint.textContent = "";
+      el.views.game.classList.remove("is-revealed");
     }
     renderRound();
   }
@@ -933,6 +937,8 @@
     el.form.hidden = true;
     closeSuggestions();
     el.reveal.hidden = false;
+    /* Soitin ja mittari väistyvät paljastuksen tieltä, ks. style.css. */
+    el.views.game.classList.add("is-revealed");
     el.reveal.classList.toggle("is-correct", r.solved);
     el.reveal.classList.toggle("is-wrong", !r.solved);
     el.revealArt.hidden = !song.art;
@@ -962,6 +968,16 @@
     logRound(r);
     renderRound();
     showReveal(r);
+    /* Biisi lähtee soimaan samalla kun vastaus ilmestyy: pelaaja haluaa
+     * kuulla mikä se oli, eikä sitä varten pitäisi tarvita erillistä
+     * painallusta. Soitetaan pisin pätkä, jotta biisin tunnistaa.
+     *
+     * Tämä on tarkoituksella finishRoundissa eikä showRevealissa: showReveal
+     * ajetaan myös kun sivu avataan valmiiseen kierrokseen tai kun tasoriviltä
+     * palataan jo pelattuun biisiin, eikä ääni saa käynnistyä silloin itsestään.
+     * Kierroksen päättyminen taas seuraa aina napin painalluksesta, joten myös
+     * iOS sallii äänen. */
+    playClip(STEPS[STEPS.length - 1]);
     el.nextBtn.focus({ preventScroll: true });
     if (state.rounds.every((x) => x.finished)) {
       collectResults();
@@ -1421,7 +1437,10 @@
       if (audio.playing) { stopPlayback(); return; }
       playClip(cur().finished ? STEPS[STEPS.length - 1] : STEPS[cur().step]);
     });
-    el.replayBtn.addEventListener("click", () => playClip(STEPS[STEPS.length - 1]));
+    el.replayBtn.addEventListener("click", () => {
+      if (audio.playing) { stopPlayback(); return; }
+      playClip(STEPS[STEPS.length - 1]);
+    });
     el.rateRow.addEventListener("click", (e) => {
       const chip = e.target.closest("[data-rate]");
       if (!chip || cur() === undefined) return;

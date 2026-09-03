@@ -743,6 +743,18 @@ button.tchip:hover { color: var(--text); }
 .log li.skip .mark { color: var(--live); }
 
 /* ---------- Paljastus ---------- */
+
+/* Paljastuksen ajan soitin, vihjerivi ja pistemittari väistyvät, ja vastaus
+   nousee niiden tilalle. Ilman tätä vastaus jäi soittimen alapuolelle:
+   mitattuna 670 pikselin käyttöalueella (iPhone, Safarin palkit mukaan
+   luettuna) Seuraava-nappi oli 140 px näkymän alapuolella, eli joka kierroksen
+   jälkeen piti vierittää. Soitinta ei kaivata, koska paljastuksessa on oma
+   Kuuntele-nappi. */
+.view-game.is-revealed .stage,
+.view-game.is-revealed .ladder,
+.view-game.is-revealed .hint { display: none; }
+.view-game.is-revealed .screen { min-height: 0; }
+
 .reveal {
   margin-top: var(--s6);
   padding-top: var(--s6);

@@ -1209,7 +1209,7 @@
    * selaimet, työpöytä) käytetään ikkunan korkeutta, jolloin lista pysyy
    * alhaalla niin kuin ennenkin. */
   function placeSuggestions() {
-    if (el.suggestions.hidden) return;
+    if (el.suggestions.hidden) { suunta = null; korkeus = 0; return; }
     const vv = window.visualViewport;
     const nakyvaYla = vv ? vv.offsetTop : 0;
     const alaraja = nakyvaYla + (vv ? vv.height : window.innerHeight);
@@ -1219,17 +1219,29 @@
     const palkki = el.bar ? el.bar.getBoundingClientRect().bottom : 0;
     const ylaraja = Math.max(nakyvaYla, palkki);
     const r = el.input.getBoundingClientRect();
-    const MARGIN = 8, VAHIN = 120, ENINTAAN = 360;
+    const MARGIN = 8, VAHIN = 120, ENINTAAN = 360, KUOLLUT = 12;
     const alla = alaraja - r.bottom - MARGIN;
     const ylla = r.top - ylaraja - MARGIN;
-    // Sääntö on tarkoituksella yksinkertainen: lista aukeaa sinne missä on
-    // enemmän tilaa. Kynnysarvo "alle 120 px alapuolella" ei riittänyt, koska
-    // näppäimistön kanssa alle jäi 128 px eli juuri ja juuri yli rajan, ja
-    // lista pysyi alhaalla kaksi riviä korkeana.
-    const ylos = ylla > alla;
+    /* Suunta valitaan kerran listan auetessa ja se pidetään. Sääntö oli
+     * aiemmin pelkkä "sinne missä on enemmän tilaa", ja se laskettiin uusiksi
+     * joka näppäinpainalluksella. Androidilla näppäimistö pienentää sivun
+     * asetteluikkunaa, jolloin tilat muuttuvat kesken kirjoittamisen ja lista
+     * loikki kentän ylä- ja alapuolen väliä. Suunta vaihtuu enää vain jos
+     * nykyiselle puolelle ei mahdu vähimmäiskorkeutta ja toisella on enemmän. */
+    if (suunta === null) suunta = ylla > alla ? "ylos" : "alas";
+    else if (suunta === "alas" && alla < VAHIN && ylla > alla) suunta = "ylos";
+    else if (suunta === "ylos" && ylla < VAHIN && alla > ylla) suunta = "alas";
+    const ylos = suunta === "ylos";
     el.suggestions.classList.toggle("is-up", ylos);
     const tila = Math.floor(ylos ? ylla : alla);
-    el.suggestions.style.maxHeight = Math.max(VAHIN, Math.min(tila, ENINTAAN)) + "px";
+    /* Sama syy: parin pikselin heilahdus näkyvässä alueessa muutti listan
+     * korkeutta joka merkillä. Kirjoitetaan vain kun ero on sen verran suuri
+     * ettei kyse ole näppäimistön animaation aiheuttamasta värähdyksestä. */
+    const uusi = Math.max(VAHIN, Math.min(tila, ENINTAAN));
+    if (Math.abs(uusi - korkeus) >= KUOLLUT) {
+      korkeus = uusi;
+      el.suggestions.style.maxHeight = uusi + "px";
+    }
   }
 
   /* Hakutila: kirjoitettaessa soitin, mittari ja tasorivi väistyvät, jolloin
@@ -1243,6 +1255,8 @@
    * Kapealla ruudulla kenttään painaminen avaa näppäimistön joka tapauksessa,
    * eikä väärää tulkintaa käytännössä synny. */
   const kapea = window.matchMedia("(max-width: 720px)");
+  /* Listan voimassa oleva suunta ja korkeus. Nollataan kun lista suljetaan. */
+  let suunta = null, korkeus = 0;
 
   function updateSearchMode() {
     /* Hakutila vaatii myös ehdotuksia näkyviin. Pelkkä kentän kohdistus ei
@@ -1251,14 +1265,25 @@
      * listaan, se avautuu vasta kun tilalle on käyttöä ja sulkeutuu heti kun
      * kenttä tyhjennetään. "Ei osumia" ei kelpaa: silloin ei ole listaa jolle
      * tilaa raivattaisiin. */
-    const lista = !el.suggestions.hidden && state.suggestions.length > 0;
-    const paalla = document.activeElement === el.input && kapea.matches && lista;
+    const rivit = !el.suggestions.hidden && state.suggestions.length > 0;
+    const kirjoitettu = el.input.value.trim() !== "";
+    const oli = el.views.game.classList.contains("is-searching");
+    /* Auki mennään vasta kun listalla on rivejä, mutta auki myös pysytään niin
+     * kauan kuin kentässä on tekstiä. Aiemmin ehtona olivat pelkät rivit, ja
+     * kesken sanan kirjoittaminen osui jatkuvasti tilaan jossa osumia ei ole
+     * ("gettomasaa"). Näkymä romahti ja palautui joka merkillä, mikä näkyi
+     * Androidilla sivun heittelynä. Tyhjä kenttä sulkee tilan yhä, joten
+     * ulospääsy kentän tyhjennysnapista säilyy. */
+    const paalla = document.activeElement === el.input && kapea.matches
+      && (rivit || (oli && kirjoitettu));
     el.views.game.classList.toggle("is-searching", paalla);
     /* Selain vierittää sivua itse saadakseen kentän näppäimistön yläpuolelle.
      * Kun muu sisältö väistyy, sivu on lyhyt eikä vieritystä enää tarvita,
-     * mutta selain ei palauta sitä. Ilman tätä yläpalkki jäi ruudun
-     * yläpuolelle. Lyhyellä sivulla tämä on muutenkin tyhjä käsky. */
-    if (paalla && window.scrollY > 0) window.scrollTo(0, 0);
+     * mutta selain ei palauta sitä. Vain tilaan siirryttäessä: Androidilla
+     * näppäimistö laukaisee resize-tapahtumia pitkin kirjoittamista, ja
+     * jokaisella kerralla vierittäminen kilpaili selaimen oman vierityksen
+     * kanssa. Se oli heittelyn pääsyy. */
+    if (paalla && !oli && window.scrollY > 0) window.scrollTo(0, 0);
     placeSuggestions();
   }
 

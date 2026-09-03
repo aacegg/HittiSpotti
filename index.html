@@ -25,7 +25,7 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="favicon.svg">
   <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=34">
+  <link rel="stylesheet" href="style.css?v=35">
 
   <script type="application/ld+json">
   {
@@ -168,10 +168,11 @@
 
     <!-- TULOKSET -->
     <section id="view-results" class="view" hidden>
-      <p class="eyebrow" id="results-kicker"></p>
-      <h2 id="results-title" class="big">Tulokset</h2>
-      <p class="score-big"><strong id="results-score">0</strong> pistettä</p>
-      <p class="hint" id="results-sub"></p>
+      <!-- Yksi kärki, ei viittä päällekkäistä tyylikerrosta: päiväys hiljaa
+           ylhäällä, pisteluku isona, yhteenveto pienenä alla. -->
+      <h2 id="results-title" class="results-dateline">Tulokset</h2>
+      <p class="score-big"><strong id="results-score">0</strong> <span class="unit">pistettä</span></p>
+      <p class="results-sub" id="results-sub"></p>
       <ol id="results-list" class="results"></ol>
       <div class="row row-wrap">
         <button type="button" class="btn btn-accent" id="share-btn">Kopioi tulos</button>
@@ -226,6 +227,6 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=34"></script>
+  <script src="app.js?v=35"></script>
 </body>
 </html>

@@ -96,7 +96,6 @@
     exportOut: $("#export-out"),
     replayBtn: $("#replay-btn"),
     nextBtn: $("#next-btn"),
-    resultsKicker: $("#results-kicker"),
     resultsTitle: $("#results-title"),
     resultsScore: $("#results-score"),
     resultsSub: $("#results-sub"),
@@ -117,17 +116,27 @@
   const secWord = (s) => secNum(s) + " sekunnista";
   const pad = (n) => String(n).padStart(2, "0");
 
-  /* Tulosotsikko kertoo mitä tapahtui, ei arvostele pelaajaa: "Neljä
-   * viidestä", ei "Hyvä korva!". Sarja on aina viisi biisiä, mutta taulukot
-   * kattavat pienemmätkin varmuuden vuoksi ja tuntemattomasta koosta
-   * pudotaan murtolukuun. */
+  /* Yhteenveto kertoo mitä tapahtui, ei arvostele pelaajaa: "Neljä viidestä
+   * tunnistettu", ei "Hyvä korva!". Sarja on aina viisi biisiä, mutta
+   * taulukot kattavat pienemmätkin varmuuden vuoksi ja tuntemattomasta
+   * koosta pudotaan murtolukuun. */
   const LUKU = ["Nolla", "Yksi", "Kaksi", "Kolme", "Neljä", "Viisi"];
   const KAIKISTA = { 1: "yhdestä", 2: "kahdesta", 3: "kolmesta", 4: "neljästä", 5: "viidestä" };
-  function resultHeadline(solved, total) {
-    if (!solved) return "Ei osumia";
-    if (solved >= total) return LUKU[total] ? `Kaikki ${LUKU[total].toLowerCase()}` : `Kaikki ${total}`;
-    return LUKU[solved] && KAIKISTA[total] ? `${LUKU[solved]} ${KAIKISTA[total]}` : `${solved}/${total}`;
+  function resultSummary(solved, total) {
+    if (!solved) return "Ei osumia.";
+    if (solved >= total) return LUKU[total] ? `Kaikki ${LUKU[total].toLowerCase()} tunnistettu.` : `Kaikki ${total} tunnistettu.`;
+    return LUKU[solved] && KAIKISTA[total]
+      ? `${LUKU[solved]} ${KAIKISTA[total]} tunnistettu.`
+      : `${solved}/${total} tunnistettu.`;
   }
+
+  /* Päiväys niin kuin sen puhuisi: "keskiviikkona 3.9.". Viikonpäivä on
+   * taulukossa eikä toLocaleDateStringissä, koska tarvitaan essiivi
+   * ("keskiviikkona") jota selaimen lokaali ei anna. Vuosi jätetään pois:
+   * päivän tulos on aina kuluvalta päivältä. */
+  const VIIKONPAIVA = ["sunnuntaina", "maanantaina", "tiistaina", "keskiviikkona",
+                       "torstaina", "perjantaina", "lauantaina"];
+  const dateLine = (d) => `${VIIKONPAIVA[d.getDay()]} ${d.getDate()}.${d.getMonth() + 1}.`;
 
   const dayKey = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   const todayKey = () => dayKey(new Date());
@@ -644,8 +653,9 @@
 
   function renderRound() {
     const r = cur();
+    // Sama sanamuoto kuin tulosnäkymässä, ettei sama asia ole kahta tyyliä.
     el.modeLabel.textContent = state.mode === "daily"
-      ? `Päivän biisit · ${todayPretty()}`
+      ? `Päivän biisit, ${dateLine(new Date())}`
       : "Vapaa peli";
     el.scoreLabel.textContent = `${fmt(state.score)} p`;
     // Koko sivun elävä väri on soivan biisin vaikeustaso.
@@ -963,12 +973,10 @@
   function renderResults() {
     const daily = state.mode === "daily";
     const solved = state.results.filter((r) => r.solved).length;
-    el.resultsKicker.textContent = daily ? `Päivän biisit · ${todayPretty()}` : "Vapaa peli";
+    el.resultsTitle.textContent = daily ? `Päivän biisit, ${dateLine(new Date())}` : "Vapaa peli";
     el.resultsScore.textContent = fmt(state.score);
-    el.resultsTitle.textContent = resultHeadline(solved, daily ? DAILY_COUNT : state.results.length);
-    // Otsikko kertoo jo osumamäärän, joten alarivi ei toista sitä.
-    el.resultsSub.textContent = daily ? "Uusi sarja huomenna." : "";
-    el.resultsSub.hidden = !el.resultsSub.textContent;
+    const yhteenveto = resultSummary(solved, daily ? DAILY_COUNT : state.results.length);
+    el.resultsSub.textContent = daily ? `${yhteenveto} Uusi sarja huomenna.` : yhteenveto;
     el.resultsList.innerHTML = "";
     state.results.forEach((r) => {
       const s = r.song || state.byId.get(String(r.id)) || { title: "?", artist: "?", art: "", year: "" };

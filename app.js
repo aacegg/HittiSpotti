@@ -230,13 +230,6 @@
         return Object.keys(localStorage).filter((k) => k.startsWith(STORE)).map((k) => k.slice(STORE.length));
       } catch { return []; }
     },
-    clear() {
-      try {
-        Object.keys(localStorage)
-          .filter((k) => k.startsWith(STORE) || k.startsWith(STORE_OLD))
-          .forEach((k) => localStorage.removeItem(k));
-      } catch { /* ignore */ }
-    },
   };
 
   // Siirtää aiemman nimen alla olevat tulokset kerran, ettei putki ja tilastot katoa.
@@ -1328,9 +1321,24 @@
       .catch(() => toast("Kopioi teksti alta."));
   }
 
+  /* Nollaus koskee tilastoja ja menneiden päivien tuloksia – ei enempää.
+   *
+   * Aiemmin tämä pyyhki kaikki avaimet, myös kierroslokin ja omat
+   * vaikeusarviot. Ne ovat juuri se aineisto, jota varten "Vie pelidata" on
+   * olemassa, eikä varmistusteksti maininnut niitä lainkaan: nappi hävitti
+   * hiljaa kerätyn datan ja lupasi tehdä jotain vaatimattomampaa.
+   *
+   * Myös tämän päivän tulos jää. Se ei estä uudelleenpelaamista – yksityinen
+   * ikkuna tai toinen selain ajaa saman asian, eikä sitä voi selaimessa
+   * pyörivässä pelissä estää – mutta poistaa vahingossa tapahtuvan reitin ja
+   * tekee napista sen mitä sen nimi lupaa. */
   function resetStats() {
-    if (!confirm("Nollataanko tilastot ja tämän päivän tulos tästä selaimesta?")) return;
-    store.clear();
+    if (!confirm("Nollataanko tilastot ja aiempien päivien tulokset? Omat arviot ja kerätty pelidata säilyvät.")) return;
+    const tanaan = "daily:" + todayKey();
+    for (const key of store.keys()) {
+      const menneetTulokset = key.startsWith("daily:") && key !== tanaan && !key.endsWith(":kesken");
+      if (key === "stats" || menneetTulokset) store.remove(key);
+    }
     renderStats();
     refreshDrawer();
     toast("Tilastot nollattu.");

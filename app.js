@@ -351,7 +351,7 @@
   /* Sekoituksen sukupolvi. Kulkee jokaisen pakan siemeneen, joten numeron
    * nostaminen antaa kaikille tasoille kokonaan uuden järjestyksen ilman
    * että kierron alkupäivää tarvitsee koskea. */
-  const SEKOITUS = 2;
+  const SEKOITUS = 3;
 
   function dayIndex(key) {
     const [y, m, d] = key.split("-").map(Number);
@@ -429,20 +429,31 @@
     deckCache.set(avain, order);
     if (tier === TIER_CYCLE[0]) return order;   // ylin taso ei väisty
     const n = order.length;
-    for (let pos = 0; pos < n; pos++) {
-      const day = cycle * n + pos;
-      const varatut = new Set();
-      for (const alempi of TIER_CYCLE) {
-        if (alempi === tier) break;
-        const song = dealt(alempi, day);
-        if (song) varatut.add(artistKey(song));
+    /* Vaihtopari haetaan pakan ympäri kiertäen, ei vain eteenpäin: pakan
+     * viimeisellä paikalla eteenpäin ei ole mistä vaihtaa, ja mittauksessa
+     * juuri sinne jäi yksi törmäys 800 päivästä. Taaksepäin vaihtaminen voi
+     * tuoda törmäyksen aiemmalle paikalle, joten kierroksia ajetaan kunnes
+     * mikään ei enää muutu – käytännössä yksi tai kaksi riittää. */
+    for (let kierros = 0; kierros < 3; kierros++) {
+      let muutoksia = 0;
+      for (let pos = 0; pos < n; pos++) {
+        const day = cycle * n + pos;
+        const varatut = new Set();
+        for (const alempi of TIER_CYCLE) {
+          if (alempi === tier) break;
+          const song = dealt(alempi, day);
+          if (song) varatut.add(artistKey(song));
+        }
+        if (!varatut.has(artistKey(order[pos]))) continue;
+        for (let askel = 1; askel < n; askel++) {
+          const j = (pos + askel) % n;
+          if (varatut.has(artistKey(order[j]))) continue;
+          [order[pos], order[j]] = [order[j], order[pos]];
+          muutoksia++;
+          break;
+        }
       }
-      if (!varatut.has(artistKey(order[pos]))) continue;
-      for (let j = pos + 1; j < n; j++) {
-        if (varatut.has(artistKey(order[j]))) continue;
-        [order[pos], order[j]] = [order[j], order[pos]];
-        break;   // vaihdettu biisi tarkistetaan uudestaan kun sen vuoro tulee
-      }
+      if (!muutoksia) break;
     }
     return order;
   }

@@ -1840,7 +1840,7 @@
    *
    * Osoite on tyhjä kunnes palvelin on julkaistu; silloin tämä ei tee mitään
    * ja peli toimii täsmälleen kuten ennenkin. */
-  const PALVELIN = "";
+  const PALVELIN = "https://hittispotti-tilastot.hittispotti.workers.dev";
 
   const dataLupa = () => store.get("datalupa", true) !== false;
 

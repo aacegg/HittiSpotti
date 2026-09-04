@@ -356,7 +356,15 @@ a.navitem { color: inherit; text-decoration: none; }
 .navitem-sub .navitem-note { margin-top: 0; }
 .navitem-sub:hover .navitem-name { color: var(--live); }
 
-.drawer-rule { height: 1px; margin: var(--s5) 0 var(--s2); border: 0; background: var(--line); }
+/* Osion vaihto. Viiva on kirkkaampi kuin rivien omat hiusviivat, koska se
+   erottaa ryhmät eikä rivejä.
+
+   Seuraavan rivin oma yläreunus otetaan pois: kaksi viivaa neljän pikselin
+   päässä toisistaan luki kaksoisviivana, jossa toinen oli kirkas ja toinen
+   himmeä. Yksi viiva riittää erottamaan, ja välit ovat nyt symmetriset sen
+   molemmin puolin. */
+.drawer-rule { height: 1px; margin: var(--s5) 0; border: 0; background: var(--line); }
+.drawer-rule + .navitem { border-top: 0; }
 
 /* Oma tilanne valikon alla. Putki on kärki ja saa display-fontin ja elävän
    värin; muut neljä lukua ovat tasavertaisia ja pysyvät hiljaisina, jottei

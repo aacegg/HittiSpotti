@@ -124,8 +124,6 @@
     rate: $("#rate"),
     rateQ: $("#rate-q"),
     rateRow: $("#rate-row"),
-    exportBtn: $("#export-btn"),
-    exportOut: $("#export-out"),
     dataConsent: $("#data-consent"),
     replayBtn: $("#replay-btn"),
     nextBtn: $("#next-btn"),
@@ -2159,50 +2157,11 @@
       : `<div class="stat"><div class="stat-value">${v}</div><div class="stat-label">${l}</div></div>`)).join("");
   }
 
-  /* Vienti kokoaa biisikohtaisen yhteenvedon: oma arvio ja se, millä
-   * askeleella biisi keskimäärin tunnistettiin. Raakaloki olisi tarpeettoman
-   * iso liitettäväksi, ja tasojen säätöön riittää tiivistelmä. */
-  function exportData() {
-    const arviot = store.get("arviot", {});
-    const log = store.get("kierrokset", []);
-    const per = new Map();
-    for (const k of log) {
-      const e = per.get(k.id) || { n: 0, osui: 0, askeleet: 0 };
-      e.n += 1;
-      if (k.osui) e.osui += 1;
-      e.askeleet += k.askel;
-      per.set(k.id, e);
-    }
-    const ids = new Set([...per.keys(), ...Object.keys(arviot).map(Number)]);
-    const biisit = [...ids].map((id) => {
-      const song = state.byId.get(String(id));
-      const e = per.get(id);
-      const rec = { id, nimi: song ? song.label : "?", nykyinen: song ? song.tier : null };
-      if (arviot[id]) rec.arvio = arviot[id];
-      if (e) {
-        rec.kierroksia = e.n;
-        rec.osui = e.osui;
-        rec.keskiaskel = Math.round((e.askeleet / e.n) * 10) / 10;
-      }
-      return rec;
-    }).sort((x, y) => (y.kierroksia || 0) - (x.kierroksia || 0));
-
-    if (!biisit.length) { toast("Ei vielä kerättyä dataa."); return; }
-    el.exportOut.textContent = JSON.stringify({
-      versio: 1, kierroksia: log.length, arvioita: Object.keys(arviot).length, biisit,
-    }, null, 1);
-    el.exportOut.hidden = false;
-    navigator.clipboard?.writeText(el.exportOut.textContent)
-      .then(() => toast("Kopioitu leikepöydälle."))
-      .catch(() => toast("Kopioi teksti alta."));
-  }
-
   /* Nollaus koskee tilastoja ja menneiden päivien tuloksia – ei enempää.
    *
    * Aiemmin tämä pyyhki kaikki avaimet, myös kierroslokin ja omat
-   * vaikeusarviot. Ne ovat juuri se aineisto, jota varten "Vie pelidata" on
-   * olemassa, eikä varmistusteksti maininnut niitä lainkaan: nappi hävitti
-   * hiljaa kerätyn datan ja lupasi tehdä jotain vaatimattomampaa.
+   * vaikeusarviot, eikä varmistusteksti maininnut niitä lainkaan: nappi
+   * hävitti hiljaa kerätyn datan ja lupasi tehdä jotain vaatimattomampaa.
    *
    * Myös tämän päivän tulos jää. Se ei estä uudelleenpelaamista – yksityinen
    * ikkuna tai toinen selain ajaa saman asian, eikä sitä voi selaimessa
@@ -2310,7 +2269,6 @@
       window.visualViewport.addEventListener("scroll", updateSearchMode);
     }
     window.addEventListener("resize", updateSearchMode);
-    el.exportBtn.addEventListener("click", exportData);
     el.nextBtn.addEventListener("click", nextRound);
     el.tierBar.addEventListener("click", (e) => {
       const chip = e.target.closest("button.tchip");

@@ -1683,9 +1683,14 @@
       const tiedosto = new File([kuvaBlob], "hittispotti.png", { type: "image/png" });
       el.shareNative.hidden = !(navigator.canShare && navigator.canShare({ files: [tiedosto] }));
       el.shareCopyImg.hidden = !(window.ClipboardItem && navigator.clipboard && navigator.clipboard.write);
-      el.shareNote.textContent = el.shareNative.hidden
-        ? "Voit myös tallentaa kuvan painamalla sitä pitkään."
-        : "Kuva ei paljasta biisejä, joten voit lähettää sen myös niille jotka eivät ole vielä pelanneet.";
+      /* Selite kertoo mitä kuvassa on, ja se riippuu pelimuodosta eikä
+       * laitteen ominaisuuksista. Nämä menivät aiemmin sekaisin: vapaan pelin
+       * kuvan alla luki että kuva ei paljasta biisejä, vaikka se listaa ne. */
+      const osat = [state.mode === "daily"
+        ? "Kuva ei paljasta biisejä, joten voit lähettää sen myös niille jotka eivät ole vielä pelanneet."
+        : "Kuvassa näkyvät biisit. Vapaassa pelissä ne arvotaan jokaiselle erikseen, joten kenenkään peli ei mene pilalle."];
+      if (el.shareNative.hidden) osat.push("Voit tallentaa kuvan painamalla sitä pitkään.");
+      el.shareNote.textContent = osat.join(" ");
     } else {
       // Kuvaa ei saatu: näytetään tekstiversio, jotta jakaminen onnistuu silti.
       el.shareImg.hidden = true;

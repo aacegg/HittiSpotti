@@ -323,13 +323,25 @@ a.navitem { color: inherit; text-decoration: none; }
 
 /* Vapaan pelin nollaus roikkuu pelimuodon alla, jottei se näytä omalta
    pelimuodolta. Sisennys ja viiva kertovat, mihin se kuuluu. */
+/* "Uusi sarja" on vapaan pelin alarivi, ei oma kohtansa valikossa. Se vei
+   saman pystytilan kuin varsinaiset kohdat, mikä työnsi palkin sisällön yli
+   ruudun matalilla kannettavilla. Nyt nimi ja selite ovat samalla rivillä ja
+   pystytäyte on poissa, mutta korkeus pysyy 44 pikselissä: sormi tarvitsee
+   sen vaikka silmä ei. */
 .navitem-sub {
-  padding: var(--s4) 0 var(--s4) var(--s5);
+  display: flex;
+  /* Keskitys eikä perusviiva: yhden pikselin kokoero ei näy, mutta
+     perusviiva jättäisi rivin 44 pikselin laatikon yläreunaan. */
+  align-items: center;
+  gap: var(--s3);
+  min-height: 44px;
+  padding: 0 0 0 var(--s5);
   border-top: 0;
   box-shadow: inset 1px 0 0 var(--line);
 }
 .navitem-sub[hidden] { display: none; }
 .navitem-sub .navitem-name { font-size: var(--f3); font-weight: 500; color: var(--muted); }
+.navitem-sub .navitem-note { margin-top: 0; }
 .navitem-sub:hover .navitem-name { color: var(--live); }
 
 .drawer-rule { height: 1px; margin: var(--s5) 0 var(--s2); border: 0; background: var(--line); }
@@ -484,10 +496,19 @@ h2.big, .big {
 }
 #mode-sub { font-size: var(--f2); color: var(--dim); }
 
-/* Vapaa peli erottuu värillä, päivän biisit on neutraali oletus. */
+/* Vapaa peli erottuu värillä, päivän biisit on neutraali oletus.
+ *
+ * Pelinäkymässä väri on soivan biisin vaikeustaso, ei oma sävynsä. Oma
+ * sininen tarkoitti että ruudulla oli kaksi elävää väriä yhtä aikaa:
+ * otsikko sinisenä ja kaikki muu tason mukaan. Nyt otsikko vaihtuu tasosta
+ * toiseen samaan tahtiin kuin hehku ja tasorivi, eli sivulla on jälleen
+ * yksi elävä väri kerrallaan.
+ *
+ * Tuloksissa tasoa ei ole, joten siellä vapaan pelin oma väri jää: se on
+ * ainoa kohta jossa se erottaa muodon päivän biiseistä. */
 body[data-mode="free"] #mode-label,
-body[data-mode="free"] #results-title,
-body[data-mode="free"] .bar-tag b { color: var(--vapaa); }
+body[data-mode="free"] .bar-tag b { color: var(--live); }
+body[data-mode="free"] #results-title { color: var(--vapaa); }
 .bar-tag b { font-weight: 600; }
 
 .meta-score {

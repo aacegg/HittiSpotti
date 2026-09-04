@@ -910,8 +910,10 @@
    * kuin haluaa. Sarja päättyy tuloksiin ja seuraava alkaa puhtaalta
    * pöydältä, joten pisteet eivät kasaannu loputtomiin. */
   function startFree() {
-    // state.used säilyy sivun latauksen yli, joten peräkkäisissä sarjoissa ei
-    // tule samoja biisejä uudestaan.
+    /* state.used elää saman sivulatauksen ajan, joten peräkkäisissä sarjoissa
+     * ei tule samoja biisejä uudestaan. Sivun päivitys nollaa sen: muistia ei
+     * talleteta, koska satunnaisuus riittää eikä toistoa käytännössä ehdi
+     * huomata yhden istunnon aikana. */
     state.mode = "free";
     state.results = [];
     state.score = 0;

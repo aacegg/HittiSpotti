@@ -300,6 +300,10 @@
 
   function updateBar() {
     el.body.dataset.mode = state.mode;
+    /* Kiinteä sivupalkki on näkyvissä koko ajan, joten sen sisältö on
+     * pidettävä ajan tasalla ilman avaamista. Kapealla ruudulla riittää
+     * päivitys avattaessa, koska suljettua ei näe kukaan. */
+    if (LEVEA.matches && !palkkiKiinni() && state.pool.length) refreshDrawer();
     if (state.view !== "game" || !state.rounds.length) { el.barTag.textContent = ""; return; }
     const valmis = state.rounds.filter((r) => r.finished).length;
     /* Yläpalkki pysyy paikallaan kun sivu vierii, joten se on ainoa kohta
@@ -313,7 +317,33 @@
     }
   }
 
-  // ---------- Sivupalkki ----------
+  /* ---------- Sivupalkki ----------
+   *
+   * Kaksi eri asiaa saman elementin takana. Kapealla ruudulla valikko on
+   * napin takana ja liukuu sisällön päälle. Leveällä se on kiinteä osa
+   * sivua: auki oletuksena, sisältö siirtyy sen verran oikealle, eikä
+   * mitään ole peitetty. Raja on CSS:ssä, ja tämä kysyy siltä samaa rajaa
+   * eikä arvaa omaansa.
+   *
+   * Avaus ja sulku eivät siksi tarkoita samaa molemmissa. Kapealla ne
+   * ovat hetken tila, leveällä pysyvä valinta joka muistetaan. */
+  const LEVEA = window.matchMedia("(min-width: 1000px)");
+  const palkkiKiinni = () => store.get("palkki-kiinni", false) === true;
+
+  function paivitaPalkki() {
+    if (!LEVEA.matches) {
+      el.body.classList.remove("drawer-shut");
+      el.menuBtn.setAttribute("aria-expanded", String(el.body.classList.contains("drawer-open")));
+      return;
+    }
+    const kiinni = palkkiKiinni();
+    el.body.classList.toggle("drawer-shut", kiinni);
+    // Kapean ruudun tila ei saa jäädä päälle, jos ikkunaa on levennetty.
+    el.body.classList.remove("drawer-open");
+    el.menuBtn.setAttribute("aria-expanded", String(!kiinni));
+    if (!kiinni && state.pool.length) refreshDrawer();
+  }
+
   function openDrawer() {
     refreshDrawer();
     el.body.classList.add("drawer-open");
@@ -2090,7 +2120,20 @@
 
   // ---------- Tapahtumat ----------
   function bind() {
-    el.menuBtn.addEventListener("click", () => (el.body.classList.contains("drawer-open") ? closeDrawer() : openDrawer()));
+    el.menuBtn.addEventListener("click", () => {
+      // Leveällä ruudulla sama nappi kätkee ja palauttaa kiinteän palkin,
+      // ja valinta jää voimaan seuraavallekin kerralle.
+      if (LEVEA.matches) {
+        store.set("palkki-kiinni", !palkkiKiinni());
+        paivitaPalkki();
+        return;
+      }
+      if (el.body.classList.contains("drawer-open")) closeDrawer();
+      else openDrawer();
+    });
+    // Ikkunan koon muutos vaihtaa palkin luonteen kesken kaiken.
+    LEVEA.addEventListener("change", paivitaPalkki);
+    paivitaPalkki();
     el.drawerClose.addEventListener("click", closeDrawer);
     el.scrim.addEventListener("click", closeDrawer);
     document.addEventListener("keydown", (e) => {

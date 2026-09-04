@@ -70,6 +70,7 @@
   --r: 3px;
   --bar-h: 54px;
   --palsta: 540px;   /* sisällön leveys – myös yläpalkki noudattaa tätä */
+  --palkki: 300px;   /* sivupalkin leveys, sama luku kuin .drawerissa */
 
   /* Väliasteikko. Kaikki marginaalit, täytteet ja gapit tulevat täältä.
      Aiemmin käytössä oli 21 eri arvoa (1,2,4,5,6,7,8,9,10,11,12,13,14,16,
@@ -260,7 +261,7 @@ body.drawer-open .scrim { opacity: 1; visibility: visible; }
   top: 0;
   left: 0;
   bottom: 0;
-  width: min(300px, 82vw);
+  width: min(var(--palkki), 82vw);
   display: flex;
   flex-direction: column;
   padding: var(--s3) var(--s6) calc(var(--s5) + env(safe-area-inset-bottom));
@@ -384,6 +385,41 @@ a.navitem { color: inherit; text-decoration: none; }
 .dstats-grid dt { font-size: var(--f1); color: var(--dim); }
 
 .drawer-foot { margin-top: auto; padding-top: var(--s6); font-size: var(--f1); line-height: 1.6; color: var(--dim); }
+
+/* ---------- Sivupalkki kiinteänä leveällä näytöllä ----------
+   Työpöydällä sisältö on 540 pikselin palsta keskellä ja molemmin puolin jää
+   satoja pikseleitä käyttämätöntä tilaa. Valikko mahtuu vasemmalle ilman että
+   palsta kaventuu lainkaan, joten siellä sen kuuluu olla: napin takana
+   piilottaminen on ratkaisu ahtaaseen ruutuun, ei väljään.
+
+   Sivu siirtyy palkin verran oikealle sen sijaan että palkki kelluisi
+   sisällön päällä. Siksi myös yläpalkki ja sen kolme viivaa liikkuvat mukana,
+   ja sama nappi joka avaa palkin sulkee sen. Erillistä sulkunappia ja
+   varjostinta ei tarvita, koska mitään ei ole peitetty.
+
+   Raja on 1000 px: palkki (300) ja palsta (540) mahtuisivat kapeammallekin,
+   mutta vasta tästä ylöspäin niiden molemmin puolin jää tilaa hengittää. */
+@media (min-width: 1000px) {
+  body {
+    padding-left: var(--palkki);
+    transition: padding-left .24s cubic-bezier(.32, .72, 0, 1);
+  }
+  body.drawer-shut { padding-left: 0; }
+
+  .drawer {
+    transform: none;
+    visibility: visible;
+    border-right: 1px solid var(--line);
+    padding-top: var(--s3);
+  }
+  body.drawer-shut .drawer { transform: translateX(-100%); visibility: hidden; }
+
+  .scrim { display: none; }
+  .drawer-head .wordmark, .drawer-head .iconbtn { display: none; }
+  /* Otsikkorivin korkeus jää vaikka sisältö katoaa: se pitää valikon
+     ensimmäisen rivin samalla korkeudella kuin sisällön ensimmäisen. */
+  .drawer-head { margin-bottom: var(--s4); }
+}
 
 /* ---------- Sisältö ---------- */
 .wrap { position: relative; z-index: 1; max-width: var(--palsta); margin: 0 auto; padding: var(--s4) var(--s5) var(--s6); }

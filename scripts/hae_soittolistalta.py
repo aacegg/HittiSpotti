@@ -49,6 +49,20 @@ def has_word(text: str, words) -> bool:
     return any(re.search(rf"(?<![a-z0-9]){re.escape(w)}(?![a-z0-9])", text) for w in words)
 
 
+"""Keikkamerkintä sulkeissa ilman sanaa "live".
+
+Riki Sorsan Haaveissa vainko oot mun oli katalogissa muodossa
+"(Gumbostrand 4.7 -93)", eli keikkapaikka ja päivämäärä. Sanahaku ei
+huomannut sitä, ja koska vanhin julkaisu voittaa, se valittiin studioversion
+ohi. Sulkeissa oleva päivä.kuukausi on Suomessa niin vakiintunut tapa merkitä
+keikka, ettei se juuri muuta voi tarkoittaa."""
+GIG = re.compile(r"\([^)]*\b\d{1,2}\.\d{1,2}\b[^)]*\)")
+
+
+def is_live(title: str) -> bool:
+    return bool(GIG.search(title))
+
+
 def norm(s: str) -> str:
     s = unicodedata.normalize("NFKD", s)
     s = "".join(c for c in s if not unicodedata.combining(c))
@@ -141,7 +155,7 @@ def pick(results: list, artist: str, title: str):
             continue
         if base_title(r.get("trackName", "")) != want_t:
             continue
-        if has_word(norm(r.get("trackName", "")), SKIP_TITLE):
+        if has_word(norm(r.get("trackName", "")), SKIP_TITLE) or is_live(r.get("trackName", "")):
             continue
         if has_word(norm(r.get("collectionName", "")), SKIP_ALBUM):
             continue

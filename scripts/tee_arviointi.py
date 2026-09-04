@@ -373,12 +373,20 @@ document.addEventListener("keydown", (e) => {
 
 /* Vienti antaa vain sen, mikä poikkeaa katalogin nykytilasta: jo sovelletut
    arviot ja poistot jäävät pois, jotta liitettävä pala pysyy pienenä ja
-   kertoo yhdellä silmäyksellä mitä on tehty viime kerran jälkeen. */
+   kertoo yhdellä silmäyksellä mitä on tehty viime kerran jälkeen.
+
+   Samaan päätyneistä lähtee silti pelkkä tunnistelista. Ilman sitä kuunneltu
+   biisi, jonka taso sattui olemaan jo oikein, näytti ulospäin täsmälleen
+   samalta kuin kuuntelematon: 71 arvioidusta biisistä vietiin 44, ja loput 27
+   luettiin virheellisesti käymättömiksi. Tunniste on lyhyt, joten lista
+   pysyy pienenä vaikka se kertookin mitä on kuunneltu. */
 $("#export").addEventListener("click", () => {
-  const out = { arviot: [], poista: [], palauta: [] };
+  const out = { arviot: [], samat: [], poista: [], palauta: [] };
   for (const [id, t] of rate) {
     const s = SONGS.find((x) => x.id === id);
-    if (s && s.tier !== t) out.arviot.push({ id, taso: t, nimi: `${s.artist} – ${s.title}` });
+    if (!s) continue;
+    if (s.tier !== t) out.arviot.push({ id, taso: t, nimi: `${s.artist} – ${s.title}` });
+    else out.samat.push(id);
   }
   for (const id of gone) {
     const s = SONGS.find((x) => x.id === id);
@@ -387,8 +395,7 @@ $("#export").addEventListener("click", () => {
   for (const s of SONGS) {
     if (s.peli === false && !gone.has(s.id)) out.palauta.push(s.id);
   }
-  for (const k of ["poista", "palauta"]) if (!out[k].length) delete out[k];
-  if (!out.arviot.length) delete out.arviot;
+  for (const k of ["arviot", "samat", "poista", "palauta"]) if (!out[k].length) delete out[k];
 
   $("#out").value = Object.keys(out).length
     ? JSON.stringify(out, null, 1)

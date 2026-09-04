@@ -71,6 +71,9 @@
     scrim: $("#scrim"),
     drawer: $("#drawer"),
     menuBtn: $("#menu-btn"),
+    // Kolme viivaa asuu näissä kahdessa vuorotellen, ks. siirraNappi.
+    barInner: $(".bar-inner"),
+    drawerHead: $(".drawer-head"),
     drawerClose: $("#drawer-close"),
     drawerFoot: $("#drawer-foot"),
     drawerStats: $("#drawer-stats"),
@@ -321,27 +324,42 @@
    *
    * Kaksi eri asiaa saman elementin takana. Kapealla ruudulla valikko on
    * napin takana ja liukuu sisällön päälle. Leveällä se on kiinteä osa
-   * sivua: auki oletuksena, sisältö siirtyy sen verran oikealle, eikä
+   * sivua: auki oletuksena, siinä tilassa joka oli muutenkin tyhjää, eikä
    * mitään ole peitetty. Raja on CSS:ssä, ja tämä kysyy siltä samaa rajaa
    * eikä arvaa omaansa.
    *
    * Avaus ja sulku eivät siksi tarkoita samaa molemmissa. Kapealla ne
    * ovat hetken tila, leveällä pysyvä valinta joka muistetaan. */
-  const LEVEA = window.matchMedia("(min-width: 1000px)");
+  const LEVEA = window.matchMedia("(min-width: 1200px)");
   const palkkiKiinni = () => store.get("palkki-kiinni", false) === true;
 
   function paivitaPalkki() {
-    if (!LEVEA.matches) {
+    const kiinteä = LEVEA.matches;
+    const kiinni = kiinteä && palkkiKiinni();
+    if (kiinteä) {
+      el.body.classList.toggle("drawer-shut", kiinni);
+      // Kapean ruudun tila ei saa jäädä päälle, jos ikkunaa on levennetty.
+      el.body.classList.remove("drawer-open");
+      el.menuBtn.setAttribute("aria-expanded", String(!kiinni));
+      if (!kiinni && state.pool.length) refreshDrawer();
+    } else {
       el.body.classList.remove("drawer-shut");
       el.menuBtn.setAttribute("aria-expanded", String(el.body.classList.contains("drawer-open")));
-      return;
     }
-    const kiinni = palkkiKiinni();
-    el.body.classList.toggle("drawer-shut", kiinni);
-    // Kapean ruudun tila ei saa jäädä päälle, jos ikkunaa on levennetty.
-    el.body.classList.remove("drawer-open");
-    el.menuBtn.setAttribute("aria-expanded", String(!kiinni));
-    if (!kiinni && state.pool.length) refreshDrawer();
+    siirraNappi(kiinteä && !kiinni);
+  }
+
+  /* Sama nappi, eri paikka. Näkyvissä oleva palkki ottaa kolme viivaa
+   * omakseen; muulloin ne ovat yläpalkissa. Elementti siirretään eikä
+   * piiloteta ja näytetä kahta kappaletta, koska kaksi nappia samalle
+   * toiminnolle olisi ruudunlukijalle kaksi eri asiaa. */
+  function siirraNappi(palkkiin) {
+    const kohde = palkkiin ? el.drawerHead : el.barInner;
+    if (el.menuBtn.parentElement === kohde) return;
+    // Siirto vie kohdistuksen mukanaan, joten se palautetaan.
+    const oliKohdistus = document.activeElement === el.menuBtn;
+    kohde.prepend(el.menuBtn);
+    if (oliKohdistus) el.menuBtn.focus({ preventScroll: true });
   }
 
   function openDrawer() {

@@ -389,35 +389,36 @@ a.navitem { color: inherit; text-decoration: none; }
 /* ---------- Sivupalkki kiinteänä leveällä näytöllä ----------
    Työpöydällä sisältö on 540 pikselin palsta keskellä ja molemmin puolin jää
    satoja pikseleitä käyttämätöntä tilaa. Valikko mahtuu vasemmalle ilman että
-   palsta kaventuu lainkaan, joten siellä sen kuuluu olla: napin takana
+   palsta liikkuu mihinkään, joten siellä sen kuuluu olla: napin takana
    piilottaminen on ratkaisu ahtaaseen ruutuun, ei väljään.
 
-   Sivu siirtyy palkin verran oikealle sen sijaan että palkki kelluisi
-   sisällön päällä. Siksi myös yläpalkki ja sen kolme viivaa liikkuvat mukana,
-   ja sama nappi joka avaa palkin sulkee sen. Erillistä sulkunappia ja
-   varjostinta ei tarvita, koska mitään ei ole peitetty.
+   Palsta pysyy tarkalleen ruudun keskellä. Palkki ei siis työnnä sivua
+   sivuun vaan asettuu siihen tilaan joka oli jo tyhjää.
 
-   Raja on 1000 px: palkki (300) ja palsta (540) mahtuisivat kapeammallekin,
-   mutta vasta tästä ylöspäin niiden molemmin puolin jää tilaa hengittää. */
-@media (min-width: 1000px) {
-  body {
-    padding-left: var(--palkki);
-    transition: padding-left .24s cubic-bezier(.32, .72, 0, 1);
-  }
-  body.drawer-shut { padding-left: 0; }
-
+   Raja on 1200 px, ja se seuraa suoraan tuosta: palsta keskellä alkaa
+   kohdasta (leveys - 540) / 2, ja palkki (300) tarvitsee sitä ennen vielä
+   välin. Kapeammalla ne menisivät päällekkäin, joten siellä valikko on
+   napin takana kuten puhelimessa. */
+@media (min-width: 1200px) {
   .drawer {
     transform: none;
     visibility: visible;
     border-right: 1px solid var(--line);
-    padding-top: var(--s3);
+    /* Sama pystyviiva kuin yläpalkilla, jotta palkin ensimmäinen rivi ja
+       sisällön ensimmäinen rivi ovat samalla korkeudella. */
+    padding-top: 0;
   }
   body.drawer-shut .drawer { transform: translateX(-100%); visibility: hidden; }
 
   .scrim { display: none; }
-  .drawer-head .wordmark, .drawer-head .iconbtn { display: none; }
-  /* Otsikkorivin korkeus jää vaikka sisältö katoaa: se pitää valikon
-     ensimmäisen rivin samalla korkeudella kuin sisällön ensimmäisen. */
+
+  /* Kolme viivaa kuuluu palkkiin silloin kun palkki on näkyvissä. Se on sama
+     nappi ja sama elementti, vain siirrettynä: kaksi erillistä nappia samalle
+     toiminnolle olisi ruudunlukijalle kaksi eri asiaa. Kun palkki on kiinni,
+     nappi palaa yläpalkkiin, koska muuten sitä ei olisi missään. */
+  body:not(.drawer-shut) .drawer-head .wordmark,
+  body:not(.drawer-shut) .drawer-head #drawer-close { display: none; }
+  .drawer-head #menu-btn { margin: 0 0 0 calc(var(--s5) * -1); }
   .drawer-head { margin-bottom: var(--s4); }
 }
 

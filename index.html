@@ -26,14 +26,14 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <!-- iOS ei tue SVG:tä kotinäytön kuvakkeena: SVG:llä se otti sivusta
        ruudunkaappauksen kuvakkeen sijaan. 180 px on iPhonen koko. -->
-  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=67">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=67">
-  <link rel="manifest" href="manifest.webmanifest?v=67">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=68">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=68">
+  <link rel="manifest" href="manifest.webmanifest?v=68">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HittiSpotti">
   <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=67">
+  <link rel="stylesheet" href="style.css?v=68">
 
   <script type="application/ld+json">
   {
@@ -235,29 +235,88 @@
       <pre id="export-out" class="share" hidden></pre>
     </section>
 
-    <!-- OHJEET -->
+    <!-- OHJEET
+         Kysymyksinä ja haitarina, ei yhtenä pitkänä tekstiseinänä. Kysymykset
+         mahtuvat yhdelle ruudulle, joten näkee kerralla mihin täältä saa
+         vastauksen. Toteutus on selaimen oma details-elementti: se toimii
+         ilman JavaScriptiä ja on näppäimistöllä ja ruudunlukijalla
+         käytettävissä ilman erillistä työtä. -->
     <section id="view-help" class="view" hidden>
-      <h2 class="big">Näin pelataan</h2>
-      <ol class="help">
-        <li>Paina soittopainiketta. Kuulet biisistä <strong>0,1 sekuntia</strong>. Kuulokkeet auttavat. Jos iPhonella ei kuulu mitään, ota äänetön tila pois päältä laitteen sivussa olevasta kytkimestä: se vaimentaa myös selaimen äänet.</li>
-        <li>Kirjoita arvaus ja valitse kappale listasta. Voit hakea artistilla tai biisin nimellä. Sama nappi vaihtuu ohituksesta arvaukseksi, kun olet valinnut biisin. Jo arvattu biisi näkyy listassa harmaana merkinnällä <em>arvattu</em>, eikä sitä voi valita uudestaan.</li>
-        <li>Väärä arvaus tai ohitus pidentää pätkää: 0,1 → 0,5 → 2 → 8 → 15 sekuntia.</li>
-        <li>Pisteet putoavat joka askeleella: <strong>1 200 · 850 · 600 · 425 · 300</strong>. Jos 15 sekunnin jälkeenkään ei nappaa, kierros menee nollille.</li>
-      </ol>
-      <h2>Pelimuodot</h2>
-      <p><strong>Päivän biisit</strong> on viiden biisin sarja, joka on sama kaikille pelaajille saman päivän aikana. Mukana on yksi biisi jokaiselta vaikeustasolta, ja ne tulevat helpoimmasta vaikeimpaan. Maksimi on 6 000 pistettä, ja tuloksen voi kopioida kavereille.</p>
-      <p><strong>Vapaa peli</strong> on samanlainen viiden biisin sarja, mutta biisit arvotaan ja sarjoja voi pelata niin monta kuin haluaa. Kun kaikki viisi on pelattu, näet sarjan pisteet ja seuraava sarja alkaa nollasta. Valikon <strong>Uusi sarja</strong> aloittaa kesken olevan sarjan alusta.</p>
-      <h2>Tasorivi</h2>
-      <p>Soittimen yläpuolella oleva rivi siirtää biisien välillä molemmissa pelimuodoissa. Biisit pysyvät paikoillaan, joten voit jättää vaikean kesken, kokeilla toista ja palata siihen myöhemmin — edistyminen odottaa siellä missä sen jätit. Aloitetun biisin taso näkyy värillisellä reunuksella.</p>
-      <p>Pelattu biisi näkyy rivillä vihreänä, jos tunnistit sen, ja yliviivattuna jos et.</p>
-      <h2>Vaikeustasojen arviointi</h2>
-      <p>Kun biisi paljastuu, voit kertoa miltä se sinusta tuntui. Arvio on vapaaehtoinen eikä vaikuta pisteisiin. Peli myös merkitsee muistiin, monenko sekunnin pätkästä tunnistit biisin — se kertoo vaikeudesta enemmän kuin mikään arvio. Kaikki tämä tallentuu <strong>vain omaan selaimeesi</strong>, eikä sitä lähetetä minnekään. Tilastosivun <strong>Vie pelidata</strong> antaa kertyneen aineiston, jos haluat lähettää sen tasojen tarkentamiseksi.</p>
-      <h2>Musiikki</h2>
-      <p>Hakulistalla on enemmän biisejä kuin peli koskaan jakaa arvattavaksi: osa on mukana vain täytteenä, jottei oikeaa vastausta voisi päätellä siitä mitä listalla sattuu olemaan.</p>
-      <p>Mukana on sekä suomen- että englanninkielisiä suomalaisia kappaleita. Pätkät ovat Applen julkisia 30 sekunnin esikuunteluja, jotka selain hakee suoraan Applelta. Peli ei tallenna musiikkia. Pätkä alkaa esikuuntelun alusta, ja mahdollinen hiljaisuus ohitetaan.</p>
-      <h2>Yksityisyys</h2>
-      <p>Tulokset, tilastot ja arviot tallentuvat vain omaan selaimeesi. Peli ei kysy nimeä, sähköpostia eikä mitään muutakaan.</p>
-      <p>Sivu laskee kävijämäärän <strong>GoatCounterilla</strong>, jotta tiedän pelaako peliä kukaan. Se kirjaa käynnin ja kaksi tapahtumaa: päivän sarjan aloituksen ja sen valmiiksi pelaamisen. Mitään ei yhdistetä sinuun: ei evästeitä, ei kirjautumista, ei seurantaa muille sivustoille. Siksi tämä sivu ei tarvitse evästeilmoitusta.</p>
+      <h2 class="big">Ohjeet</h2>
+      <p class="help-lead">Miten peli toimii, mistä biisit tulevat ja mitä tietoja sinusta kerätään.</p>
+
+      <div class="faq">
+        <details>
+          <summary><span>Miten peliä pelataan?</span></summary>
+          <div class="faq-body">
+            <ol class="help">
+              <li>Paina soittopainiketta. Kuulet biisistä <strong>0,1 sekuntia</strong>.</li>
+              <li>Kirjoita arvaus ja valitse kappale listasta. Voit hakea artistilla tai biisin nimellä. Sama nappi vaihtuu ohituksesta arvaukseksi, kun olet valinnut biisin.</li>
+              <li>Väärä arvaus tai ohitus pidentää pätkää: 0,1 → 0,5 → 2 → 8 → 15 sekuntia.</li>
+              <li>Pisteet putoavat joka askeleella: <strong>1 200 · 850 · 600 · 425 · 300</strong>. Jos 15 sekunnin jälkeenkään ei nappaa, kierros menee nollille.</li>
+            </ol>
+            <p>Jo arvattu biisi näkyy hakulistassa harmaana merkinnällä <em>arvattu</em>, eikä sitä voi valita uudestaan.</p>
+          </div>
+        </details>
+
+        <details>
+          <summary><span>Ääntä ei kuulu, mikä avuksi?</span></summary>
+          <div class="faq-body">
+            <p><strong>iPhonella</strong> yleisin syy on äänetön tila. Laitteen sivussa oleva kytkin vaimentaa myös selaimen äänet, vaikka musiikki muuten kuuluisi. Ota se pois päältä.</p>
+            <p>Jos palasit peliin toisesta sovelluksesta eikä ääntä kuulu, paina soittopainiketta kerran: peli rakentaa äänen uusiksi ensimmäisellä painalluksella.</p>
+            <p>Kuulokkeet auttavat aina. Puhelimen kaiuttimesta 0,1 sekunnin pätkä on huomattavasti vaikeampi tunnistaa.</p>
+          </div>
+        </details>
+
+        <details>
+          <summary><span>Mitä pelimuotoja on?</span></summary>
+          <div class="faq-body">
+            <p><strong>Päivän biisit</strong> on viiden biisin sarja, joka on sama kaikille pelaajille saman päivän aikana. Mukana on yksi biisi jokaiselta vaikeustasolta, ja ne tulevat helpoimmasta vaikeimpaan. Maksimi on 6 000 pistettä.</p>
+            <p><strong>Vapaa peli</strong> on samanlainen viiden biisin sarja, mutta biisit arvotaan ja sarjoja voi pelata niin monta kuin haluaa. Valikon <strong>Uusi sarja</strong> aloittaa kesken olevan sarjan alusta.</p>
+          </div>
+        </details>
+
+        <details>
+          <summary><span>Mikä on soittimen yläpuolella oleva rivi?</span></summary>
+          <div class="faq-body">
+            <p>Tasorivi siirtää biisien välillä molemmissa pelimuodoissa. Biisit pysyvät paikoillaan, joten voit jättää vaikean kesken, kokeilla toista ja palata siihen myöhemmin. Edistyminen odottaa siellä missä sen jätit.</p>
+            <p>Aloitetun biisin taso näkyy värillisellä reunuksella. Pelattu biisi näkyy rivillä vihreänä jos tunnistit sen, ja yliviivattuna jos et.</p>
+          </div>
+        </details>
+
+        <details>
+          <summary><span>Voinko jakaa tulokseni?</span></summary>
+          <div class="faq-body">
+            <p>Tulosnäkymän <strong>Jaa tulos</strong> tekee tuloksesta kuvan. Päivän biisien kuvassa näkyvät vain neliöt, eivät biisien nimet, joten sen voi lähettää myös niille jotka eivät ole vielä pelanneet. Vapaan pelin kuvassa biisit näkyvät, koska ne ovat jokaisella eri.</p>
+          </div>
+        </details>
+
+        <details>
+          <summary><span>Mistä biisit tulevat?</span></summary>
+          <div class="faq-body">
+            <p>Mukana on sekä suomen- että englanninkielisiä suomalaisia kappaleita. Pätkät ovat Applen julkisia 30 sekunnin esikuunteluja, jotka selain hakee suoraan Applelta. Peli ei tallenna musiikkia. Pätkä alkaa esikuuntelun alusta, ja mahdollinen hiljaisuus ohitetaan.</p>
+            <p>Hakulistalla on enemmän biisejä kuin peli koskaan jakaa arvattavaksi: osa on mukana vain täytteenä, jottei oikeaa vastausta voisi päätellä siitä mitä listalla sattuu olemaan.</p>
+            <p>Puuttuuko jokin? Valikon <strong>Ehdota biisiä</strong> lähettää ehdotuksen.</p>
+          </div>
+        </details>
+
+        <details>
+          <summary><span>Kuka päättää vaikeustasot?</span></summary>
+          <div class="faq-body">
+            <p>Kun biisi paljastuu, voit kertoa miltä se sinusta tuntui. Arvio on vapaaehtoinen eikä vaikuta pisteisiin. Peli myös merkitsee muistiin, monenko sekunnin pätkästä tunnistit biisin, ja se kertoo vaikeudesta enemmän kuin mikään arvio.</p>
+            <p>Kaikki tämä tallentuu <strong>vain omaan selaimeesi</strong>, eikä sitä lähetetä minnekään. Tilastosivun <strong>Vie pelidata</strong> antaa kertyneen aineiston, jos haluat lähettää sen tasojen tarkentamiseksi.</p>
+          </div>
+        </details>
+
+        <details>
+          <summary><span>Mitä tietoja minusta kerätään?</span></summary>
+          <div class="faq-body">
+            <p>Tulokset, tilastot ja arviot tallentuvat vain omaan selaimeesi. Peli ei kysy nimeä, sähköpostia eikä mitään muutakaan.</p>
+            <p>Sivu laskee kävijämäärän <strong>GoatCounterilla</strong>, jotta tiedän pelaako peliä kukaan. Se kirjaa käynnin ja kaksi tapahtumaa: päivän sarjan aloituksen ja sen valmiiksi pelaamisen. Mitään ei yhdistetä sinuun: ei evästeitä, ei kirjautumista, ei seurantaa muille sivustoille. Siksi tämä sivu ei tarvitse evästeilmoitusta.</p>
+          </div>
+        </details>
+      </div>
+
       <div class="row">
         <button type="button" class="btn" data-go="back">Takaisin peliin</button>
       </div>
@@ -298,7 +357,7 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=67"></script>
+  <script src="app.js?v=68"></script>
 
   <!-- Kävijälaskenta: ei evästeitä, ei henkilötietoja, ei seurantaa yli
        sivustorajojen – siksi tämä ei vaadi suostumusikkunaa. Ladataan

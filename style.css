@@ -1166,14 +1166,68 @@ body.sheet-open { overflow: hidden; }
 }
 
 /* ---------- Ohjeet ---------- */
-.help { padding-left: var(--s5); color: var(--muted); font-size: var(--f4); }
+.help { margin: 0; padding-left: var(--s5); color: var(--muted); font-size: var(--f4); }
 .help li { margin-bottom: var(--s4); padding-left: var(--s2); }
 .help li::marker { color: var(--live); font-weight: 700; }
 .help strong { color: var(--text); font-weight: 600; }
-#view-help h2 { font-family: var(--display); font-size: var(--f6); font-weight: 800; letter-spacing: -.025em; margin: var(--s7) 0 var(--s3); }
+.help-lead { margin-bottom: var(--s6); color: var(--muted); font-size: var(--f4); }
 #view-help p { color: var(--muted); font-size: var(--f4); margin-bottom: var(--s4); }
+#view-help p:last-child { margin-bottom: 0; }
 #view-help strong { color: var(--text); font-weight: 600; }
 #view-help .row { margin-top: var(--s7); }
+
+/* Ohjeet haitarina. Aiemmin tämä oli yksi pitkä tekstiseinä, josta piti
+   etsiä oma kysymyksensä vierittämällä; nyt kysymykset mahtuvat yhdelle
+   ruudulle ja vastaus avataan tarvittaessa.
+
+   Toteutus on selaimen oma details-elementti eikä JavaScript-haitari: se
+   toimii ilman skriptejä, on näppäimistöllä käytettävissä ja kertoo
+   ruudunlukijalle auki- ja kiinniolonsa ilman erillisiä aria-määreitä.
+
+   Ulkoasu noudattaa sivuston omaa sääntöä: rajat ovat hiusviivoja eivätkä
+   täytettyjä laatikoita. */
+.faq { border-top: 1px solid var(--line-soft); }
+.faq details { border-bottom: 1px solid var(--line-soft); }
+
+.faq summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s4);
+  min-height: 60px;
+  padding: var(--s4) 0;
+  font-family: var(--display);
+  font-size: var(--f5);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  line-height: 1.3;
+  cursor: pointer;
+  /* Selaimen oma kolmio pois: tilalle tulee oma plusmerkki. */
+  list-style: none;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary:hover { color: var(--live); }
+.faq summary:focus-visible { outline: 2px solid var(--live); outline-offset: 2px; }
+
+/* Plusmerkki piirretään kahdella viivalla: auki kääntyessä pystyviiva
+   kutistuu, jolloin jäljelle jää miinus. Yksi elementti, ei kuvatiedostoa. */
+.faq summary::after {
+  content: "";
+  flex: none;
+  width: 14px;
+  height: 14px;
+  background:
+    linear-gradient(var(--muted), var(--muted)) center / 14px 2px no-repeat,
+    linear-gradient(var(--muted), var(--muted)) center / 2px 14px no-repeat;
+  transition: transform .18s ease, background-size .18s ease;
+}
+.faq details[open] summary::after {
+  background-size: 14px 2px, 2px 0;
+  transform: rotate(180deg);
+}
+
+.faq-body { padding-bottom: var(--s5); }
+.faq-body > :first-child { margin-top: 0; }
 
 /* ---------- Ilmoitus ---------- */
 .toast {

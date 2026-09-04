@@ -875,7 +875,9 @@ button.tchip:hover { color: var(--text); }
   font-family: var(--display);
   font-size: var(--f9);
   font-weight: 800;
-  letter-spacing: -.05em;
+  /* Sama syy kuin pisteluvussa: 58 pikselissä negatiivinen väli sulki
+     numerot yhteen ("11" jätti yhden pikselin). */
+  letter-spacing: .015em;
   line-height: .9;
   font-variant-numeric: tabular-nums;
 }
@@ -1274,9 +1276,16 @@ button.tchip:hover { color: var(--text); }
   font-weight: 800;
   line-height: .95;
 }
+/* Merkkiväli on em-yksikössä, joten se kasvaa kirjasinkoon mukana: sama
+   -.055em joka on otsikossa huomaamaton oli 76 pikselin luvussa yli neljä
+   pikseliä joka välistä, ja numerot menivät kiinni toisiinsa. Mitattuna
+   "2225" piirtyi ilman yhtäkään musteetonta saraketta numeroiden välissä.
+   Bricolage on itsessään tiivis, joten pelkkä nollaus ei riitä: vasta
+   +.02em antaa 3-5 pikselin raon, ja viisinumeroinenkin tulos mahtuu yhä
+   riville 390 pikselin puhelimessa. */
 .score-big strong {
   font-size: var(--f10);
-  letter-spacing: -.055em;
+  letter-spacing: .02em;
   color: var(--text);
   font-variant-numeric: tabular-nums;
 }

@@ -18719,5 +18719,615 @@
     "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/5a/1d/e6/5a1de6f2-45c6-c233-1adf-782f6cd05bcd/mzaf_15200703944744515599.plus.aac.p.m4a",
     "art": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/07/ca/19/07ca19ef-0ac3-4deb-5d64-cd8fad4d1f31/00602547082268.rgb.jpg/300x300bb.jpg",
     "itunes": "Diandra – Paha poika (2014)"
+  },
+  {
+    "artist": "Kirka Rapitzin & Sarkastinen",
+    "title": "Kimmon Hondan Takapenkillä",
+    "year": 2016,
+    "tier": 3,
+    "id": 1518620559,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/d6/2c/49/d62c49c2-1455-9830-652a-29441dced08f/mzaf_9260282932500540595.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/f6/0d/15/f60d1501-eee6-b014-86d0-3cd35da7dd04/195081815558.jpg/300x300bb.jpg",
+    "itunes": "Kirka Rapitzin & Sarkastinen – Kimmon Hondan Takapenkillä (2016)"
+  },
+  {
+    "artist": "Stepa",
+    "title": "Oulu Anthem",
+    "year": 2022,
+    "tier": 3,
+    "id": 1802744492,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/0a/f9/3c/0af93cbd-8cf4-1a1a-0d88-781a8ca318ee/mzaf_4111426265812382844.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/db/3c/68/db3c6868-aace-e400-bad4-47c8c613cd37/6430068442773.png/300x300bb.jpg",
+    "itunes": "Stepa – Oulu Anthem (2022)"
+  },
+  {
+    "artist": "Marilii",
+    "title": "Nautin elämästä",
+    "year": 2016,
+    "tier": 3,
+    "id": 1155562489,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/72/da/f1/72daf1d6-637d-93c7-6088-1993955254be/mzaf_1253470017347038173.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music71/v4/40/d9/b8/40d9b8c1-2c2b-82ef-b1e5-fe26513240ed/cover.jpg/300x300bb.jpg",
+    "itunes": "Marilii – Nautin elämästä (2016)"
+  },
+  {
+    "artist": "Justimus",
+    "title": "Haapavesi (Bonus Track)",
+    "year": 2014,
+    "tier": 3,
+    "id": 1442344720,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/28/0e/e9/280ee92e-2f87-14e7-f23e-da24f1ea65a2/mzaf_2914897955107881270.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/1c/6a/e9/1c6ae9cc-7ed7-1002-b0dc-e9e595cbf1f3/06430025975290.rgb.jpg/300x300bb.jpg",
+    "itunes": "Justimus – Haapavesi (Bonus Track) (2014)"
+  },
+  {
+    "artist": "Justimus",
+    "title": "Lanit (Masa & Teurastaja) [Bonus Track]",
+    "year": 2014,
+    "tier": 3,
+    "id": 1442344712,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/4c/52/61/4c526187-8395-8f20-7547-6ae5cd552ee3/mzaf_11533917556614911023.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/1c/6a/e9/1c6ae9cc-7ed7-1002-b0dc-e9e595cbf1f3/06430025975290.rgb.jpg/300x300bb.jpg",
+    "itunes": "Justimus – Lanit (Masa & Teurastaja) [Bonus Track] (2014)"
+  },
+  {
+    "artist": "Meiju Suvas",
+    "title": "Kun lähdet armeijaan - You're In The Army Now",
+    "year": 1983,
+    "tier": 3,
+    "id": 362120539,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/be/d8/1a/bed81a14-6a76-e8e9-df6c-9ab469db5ed2/mzaf_15061781281059795243.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/ba/2e/11/mzi.cgnqrsrb.jpg/300x300bb.jpg",
+    "itunes": "Meiju Suvas – Kun lähdet armeijaan - You're In The Army Now (1983)"
+  },
+  {
+    "artist": "Annika Eklund",
+    "title": "Shanghain valot (UMK edit) [feat. BESS, Eini, Keira, Laura Voutilainen & Linda Lampenius]",
+    "year": 2006,
+    "tier": 3,
+    "id": 1794350804,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/26/cf/c6/26cfc6a7-158c-751f-cdf0-e90751ff09f1/mzaf_7470265255301336190.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/f3/61/42/f36142ac-6d3f-feb0-d9f0-f9769904d36c/5021732634221.jpg/300x300bb.jpg",
+    "itunes": "Annika Eklund – Shanghain valot (UMK edit) [feat. BESS, Eini, Keira, Laura Voutilainen & Linda Lampenius] (2006)"
+  },
+  {
+    "artist": "Jonna",
+    "title": "Minttu sekä Ville",
+    "year": 1986,
+    "tier": 3,
+    "id": 722435361,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/f7/13/7a/f7137aed-f941-14f3-3851-8633885e4e67/mzaf_12539928792059002654.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music6/v4/74/34/3b/74343b05-4441-bbb1-436c-9801ab342141/825646676989.jpg/300x300bb.jpg",
+    "itunes": "Jonna – Minttu sekä Ville (1986)"
+  },
+  {
+    "artist": "Leevi and the Leavings",
+    "title": "Onnelliset",
+    "year": 1992,
+    "tier": 3,
+    "id": 1443109278,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/a5/8a/21/a58a212b-27ac-912d-4133-6faab0afac4d/mzaf_9922336938084039705.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/18/d1/0d/18d10d6d-d49d-3014-5dcd-6576ef75e66e/06417734230865.rgb.jpg/300x300bb.jpg",
+    "itunes": "Leevi and the Leavings – Onnelliset (1992)"
+  },
+  {
+    "artist": "Leo Luoto",
+    "title": "Villi yö - Life Is Life",
+    "year": 2003,
+    "tier": 3,
+    "id": 655579720,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/c0/2d/1d/c02d1d82-01c7-7754-d9c5-4c97aebc8125/mzaf_18206600106399645298.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/a3/14/25/a31425f4-71b8-76ed-e0c5-24871763e7f1/825646702145.jpg/300x300bb.jpg",
+    "itunes": "Leo Luoto – Villi yö - Life Is Life (2003)"
+  },
+  {
+    "artist": "Danny & Armi",
+    "title": "Tahdon Olla Sulle Hellä (with Armi)",
+    "year": 1977,
+    "tier": 3,
+    "id": 689149630,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/33/94/26/33942665-e656-fde6-237e-cae1a4acb91f/mzaf_8388884259860897067.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/bc/80/7e/bc807e39-b842-1240-df29-f0ef926edde0/5099996422854_1400x1400_300dpi.jpg/300x300bb.jpg",
+    "itunes": "Danny & Armi – Tahdon Olla Sulle Hellä (with Armi) (1977)"
+  },
+  {
+    "artist": "Mika Sundqvist",
+    "title": "Moottoripyörä on moottoripyörä",
+    "year": 1980,
+    "tier": 3,
+    "id": 655588329,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/66/91/c5/6691c50f-6369-e7bb-390b-5f4beb5b8f64/mzaf_299911965710957382.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music2/v4/1c/b4/90/1cb490e9-1490-b482-e959-07502e61e93a/825646702381.jpg/300x300bb.jpg",
+    "itunes": "Mika Sundqvist – Moottoripyörä on moottoripyörä (1980)"
+  },
+  {
+    "artist": "Yölintu",
+    "title": "TV:n kokoinen haitari",
+    "year": 1998,
+    "tier": 3,
+    "id": 505889296,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/83/52/5b/83525b1e-540a-177c-5647-2e0435e57fb4/mzaf_187836937589868285.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/17/0d/31/mzi.nvnufbhi.jpg/300x300bb.jpg",
+    "itunes": "Yölintu – TV:n kokoinen haitari (1998)"
+  },
+  {
+    "artist": "Irwin Goodman",
+    "title": "Kusessa Ollaan",
+    "year": 1985,
+    "tier": 3,
+    "id": 40618347,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/81/73/0a/81730a58-2a70-a121-0755-c756bd19b7ab/mzaf_17239049454294711666.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/y2004/m12/d31/h16/s06.zoaqrbua.jpg/300x300bb.jpg",
+    "itunes": "Irwin Goodman – Kusessa Ollaan (1985)"
+  },
+  {
+    "artist": "Leevi and the Leavings",
+    "title": "Vasara Ja Nauloja",
+    "year": 1995,
+    "tier": 3,
+    "id": 1443109698,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/e5/f5/f2/e5f5f255-834d-7186-e3fc-d737ede72586/mzaf_6637900206699707732.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/18/d1/0d/18d10d6d-d49d-3014-5dcd-6576ef75e66e/06417734230865.rgb.jpg/300x300bb.jpg",
+    "itunes": "Leevi and the Leavings – Vasara Ja Nauloja (1995)"
+  },
+  {
+    "artist": "Bat & Ryyd",
+    "title": "Ehtaa Tavaraa (80-Luvun Tykki)",
+    "year": 2017,
+    "tier": 3,
+    "id": 1295098312,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/f1/81/1b/f1811b47-f8ad-1785-e4ab-757ba84c884d/mzaf_13954687220711805119.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/d9/59/8d/d9598dab-8053-a692-9535-6aa48eb7a0ee/cover.jpg/300x300bb.jpg",
+    "itunes": "Bat & Ryyd – Ehtaa Tavaraa (80-Luvun Tykki) (2017)"
+  },
+  {
+    "artist": "Kake Singers",
+    "title": "Mäntsälä Mielessäin",
+    "year": 1979,
+    "tier": 3,
+    "id": 216691246,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/6b/a4/aa/6ba4aaeb-c05c-9f04-db52-7c6de0d8dec0/mzaf_17812777723243611223.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/25/2b/3f/mzi.tjkqkcxg.jpg/300x300bb.jpg",
+    "itunes": "Kake Singers – Mäntsälä Mielessäin (1979)"
+  },
+  {
+    "artist": "Martti Servo & Napander",
+    "title": "Mikä On Kun Ei Taidot Riitä?",
+    "year": 2005,
+    "tier": 3,
+    "id": 1669986122,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/93/76/21/937621c3-fc62-fcd3-5b07-2aebc52a4cc3/mzaf_9451287321525377812.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/31/8d/39/318d3935-e0d4-bd8f-c4dc-8f9215c9fec4/5400863125950_cover.jpg/300x300bb.jpg",
+    "itunes": "Martti Servo & Napander – Mikä On Kun Ei Taidot Riitä? (2005)"
+  },
+  {
+    "artist": "Matti ja Teppo",
+    "title": "Näitä Polkuja Tallaan",
+    "year": 1981,
+    "tier": 3,
+    "id": 274562810,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/c8/47/57/c84757cb-f14a-e27d-4e70-e60d6d3acb29/mzaf_10779342741271951497.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/77/ed/b8/mzi.xbzrhewf.jpg/300x300bb.jpg",
+    "itunes": "Matti ja Teppo – Näitä Polkuja Tallaan (1981)"
+  },
+  {
+    "artist": "Erkki Liikanen ja Tuire Pentikäinen",
+    "title": "Hunajata",
+    "year": 1982,
+    "tier": 3,
+    "id": 656027662,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/73/91/21/73912199-c593-e5d9-1352-4427945154d0/mzaf_4807157609011825018.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music2/v4/6b/9a/9c/6b9a9c1f-9a43-accf-adc9-fe54fc6f77d2/825646681396.jpg/300x300bb.jpg",
+    "itunes": "Erkki Liikanen ja Tuire Pentikäinen – Hunajata (1982)"
+  },
+  {
+    "artist": "Matti ja Teppo",
+    "title": "Kaiken Takana On Nainen",
+    "year": 1986,
+    "tier": 3,
+    "id": 274562773,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/30/cc/fa/30ccfa23-aafd-7485-6484-601eff7e0b25/mzaf_2832125286488952106.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/77/ed/b8/mzi.xbzrhewf.jpg/300x300bb.jpg",
+    "itunes": "Matti ja Teppo – Kaiken Takana On Nainen (1986)"
+  },
+  {
+    "artist": "Virve Rosti",
+    "title": "Tuolta saapuu Charlie Brown - Charlie Brown",
+    "year": 1976,
+    "tier": 3,
+    "id": 928875555,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/00/68/2e/00682ed6-92e5-a27f-6664-996c7248453e/mzaf_15343125036635490096.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music3/v4/3a/f7/c0/3af7c09a-406c-456c-69ee-4bc4974a40d2/825646301829.jpg/300x300bb.jpg",
+    "itunes": "Virve Rosti – Tuolta saapuu Charlie Brown - Charlie Brown (1976)"
+  },
+  {
+    "artist": "Kaseva",
+    "title": "Striptease Tanssija",
+    "year": 2002,
+    "tier": 3,
+    "id": 1443377926,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/1e/b8/d4/1eb8d485-164f-e176-7cc2-ccc4eaa45219/mzaf_5528059602565082517.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/30/46/6a/30466a33-0306-f15f-ada7-a32eced6c15f/06417732010988.rgb.jpg/300x300bb.jpg",
+    "itunes": "Kaseva – Striptease Tanssija (2002)"
+  },
+  {
+    "artist": "J&J",
+    "title": "Köyhä laulaa",
+    "year": 2016,
+    "tier": 3,
+    "id": 1564968114,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/e2/c6/50/e2c650d2-71ad-c709-943f-00f06e000df6/mzaf_8960797677495258851.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/35/3e/60/353e6063-dc80-4bdc-73fb-eab94d79142c/0889172182734.jpg/300x300bb.jpg",
+    "itunes": "J&J – Köyhä laulaa (2016)"
+  },
+  {
+    "artist": "Pepe Willberg & Jormas",
+    "title": "Rööperiin",
+    "year": 1987,
+    "tier": 3,
+    "id": 608035763,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/fb/7b/0c/fb7b0cd3-ceb0-7123-b69b-745bf29e9e26/mzaf_11335341785107206828.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/e6/74/40/e67440cc-d503-622c-9311-3bee91c6c63d/825646529735.jpg/300x300bb.jpg",
+    "itunes": "Pepe Willberg & Jormas – Rööperiin (1987)"
+  },
+  {
+    "artist": "Matti Nykänen",
+    "title": "Jokainen Tsäänssi On Mahdollisuus",
+    "year": 2013,
+    "tier": 3,
+    "id": 662098730,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/d6/52/0b/d6520b04-f61b-7bc9-aeec-93de2e40fa90/mzaf_5884967936706886955.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music2/v4/94/fe/66/94fe66be-1c60-bdf8-4fe7-c2efa1c4d875/886444059633.jpg/300x300bb.jpg",
+    "itunes": "Matti Nykänen – Jokainen Tsäänssi On Mahdollisuus (2013)"
+  },
+  {
+    "artist": "Neljä Ruusua",
+    "title": "Poplaulajan Vapaapäivä",
+    "year": 1993,
+    "tier": 3,
+    "id": 713803285,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/74/fa/d4/74fad492-3bb6-0764-ddd0-bc4ce86a174b/mzaf_4126975283477612570.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/ab/a3/19/aba3194b-48f4-8638-8971-c9c14476cdd6/00724352834655.jpg/300x300bb.jpg",
+    "itunes": "Neljä Ruusua – Poplaulajan Vapaapäivä (1993)"
+  },
+  {
+    "artist": "Leevi and the Leavings",
+    "title": "Raparperitaivas",
+    "year": 1991,
+    "tier": 3,
+    "id": 1443110736,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/4b/24/2f/4b242f18-d999-a709-0f3f-366057d4c480/mzaf_7577660564287880024.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/18/d1/0d/18d10d6d-d49d-3014-5dcd-6576ef75e66e/06417734230865.rgb.jpg/300x300bb.jpg",
+    "itunes": "Leevi and the Leavings – Raparperitaivas (1991)"
+  },
+  {
+    "artist": "Martti Servo & Napander",
+    "title": "Viikonloppu",
+    "year": 1997,
+    "tier": 3,
+    "id": 996916278,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/69/1c/7d/691c7d1f-68f8-a640-b612-d032cf2fcd92/mzaf_14586039964906913832.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/74/ff/05/74ff05f8-8ccd-4336-07e8-4ee4a661bbf9/cover.jpg/300x300bb.jpg",
+    "itunes": "Martti Servo & Napander – Viikonloppu (1997)"
+  },
+  {
+    "artist": "Kolmas Nainen",
+    "title": "Valehtelisin Jos Väittäisin",
+    "year": 1990,
+    "tier": 3,
+    "id": 1443345663,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/a1/2b/5c/a12b5cfd-a5bb-bb9a-1975-9d71983f2e3d/mzaf_7049727990210234503.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/e7/15/1a/e7151ac2-44e4-c31c-cd03-c83d74b5309d/00601215791020.rgb.jpg/300x300bb.jpg",
+    "itunes": "Kolmas Nainen – Valehtelisin Jos Väittäisin (1990)"
+  },
+  {
+    "artist": "Mouhous",
+    "title": "Äänii",
+    "year": 2019,
+    "tier": 3,
+    "id": 1447226700,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/fe/1b/86/fe1b8644-149f-8bfc-4610-c593ba3e2fd1/mzaf_16051435995305821870.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/a7/39/cd/a739cdcc-d0fb-4f2f-d697-a816e31a4ac3/190295487669.jpg/300x300bb.jpg",
+    "itunes": "Mouhous – Äänii (2019)"
+  },
+  {
+    "artist": "JVG",
+    "title": "Tuulisii (feat. Pete Parkkonen)",
+    "year": 2015,
+    "tier": 3,
+    "id": 983375616,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/bf/fa/a6/bffaa673-7656-b30d-149a-c7331cb3634e/mzaf_8390503602482148652.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music3/v4/82/ea/16/82ea162c-6477-d31d-913e-2942a1411fbf/825646106295.jpg/300x300bb.jpg",
+    "itunes": "JVG – Tuulisii (feat. Pete Parkkonen) (2015)"
+  },
+  {
+    "artist": "Gasellit",
+    "title": "Mä en osaa tanssii (feat. Karri Koira)",
+    "year": 2025,
+    "tier": 3,
+    "id": 1815701461,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/98/c7/c7/98c7c77a-5545-ea0a-2709-77c1103c0f02/mzaf_2307825467676907431.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/ab/9c/e3/ab9ce3da-89dd-9e7f-d4a4-4f32c2d23c61/196873189819.jpg/300x300bb.jpg",
+    "itunes": "Gasellit – Mä en osaa tanssii (feat. Karri Koira) (2025)"
+  },
+  {
+    "artist": "Komiat",
+    "title": "Kaihosielu",
+    "year": 2025,
+    "tier": 3,
+    "id": 1803154584,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/5d/30/485d3046-5ffa-8270-6337-0e720e450ada/mzaf_10038472345110800755.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/2a/f6/aa/2af6aa22-b23c-5f0a-a611-e88fba85bdfa/5021732749772.jpg/300x300bb.jpg",
+    "itunes": "Komiat – Kaihosielu (2025)"
+  },
+  {
+    "artist": "KAJ",
+    "title": "Bara Bada Bastu",
+    "year": 2025,
+    "tier": 3,
+    "id": 1795494352,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/69/f3/76/69f37639-eebe-5bda-f626-4b5decc7f0e9/mzaf_2217814644548298902.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/78/9f/17/789f17a0-ea94-5942-e0dd-df62a9d8fd27/5021732655974.jpg/300x300bb.jpg",
+    "itunes": "KAJ – Bara Bada Bastu (2025)"
+  },
+  {
+    "artist": "Valvomo",
+    "title": "Mikä Kesä?",
+    "year": 2006,
+    "tier": 3,
+    "id": 1445118410,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/74/f6/d5/74f6d58e-d86c-8bd5-1ca3-60b9ce6fb0f1/mzaf_2602429666864515228.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/e4/c2/51/e4c25174-14a7-8697-aaa0-e02579e2023f/00602517000636.rgb.jpg/300x300bb.jpg",
+    "itunes": "Valvomo – Mikä Kesä? (2006)"
+  },
+  {
+    "artist": "OLGA",
+    "title": "Uus Bitch",
+    "year": 2024,
+    "tier": 3,
+    "id": 1802758209,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/67/6e/f9/676ef91d-66b2-4b87-69b7-7b9b7917075e/mzaf_8314642665562528479.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/f1/76/85/f1768565-9872-cc3d-aba8-4cdd53567cbc/6430068444401.png/300x300bb.jpg",
+    "itunes": "OLGA – Uus Bitch (2024)"
+  },
+  {
+    "artist": "Yksi Totuus & Matti Nykänen",
+    "title": "Suomi",
+    "year": 2018,
+    "tier": 3,
+    "id": 1443944113,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/3f/84/c0/3f84c0c5-9e94-f75f-75b8-3117dc82d38e/mzaf_4851022551027482265.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/36/21/3e/36213e7f-4470-90b0-26a1-f5ac459eb887/886447452370.jpg/300x300bb.jpg",
+    "itunes": "Yksi Totuus & Matti Nykänen – Suomi (2018)"
+  },
+  {
+    "artist": "Arttu Lindeman",
+    "title": "Läikkyy",
+    "year": 2016,
+    "tier": 3,
+    "id": 1122570629,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/d8/59/a1/d859a115-2079-7451-e05b-59bc4997eee6/mzaf_15435215694813537225.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music20/v4/81/c8/65/81c8655b-ab08-5259-b113-516ad2bc5fe8/886445954548.jpg/300x300bb.jpg",
+    "itunes": "Arttu Lindeman – Läikkyy (2016)"
+  },
+  {
+    "artist": "HesaÄijä",
+    "title": "Sauna lämpee (feat. Mäkki)",
+    "year": 2017,
+    "tier": 3,
+    "id": 1239798281,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/69/34/6e/69346ee6-4545-a26e-73c9-c9798e72d525/mzaf_13611641188039071237.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music127/v4/58/cb/65/58cb6580-f809-5f1b-eade-413e9d6ad134/886446519548.jpg/300x300bb.jpg",
+    "itunes": "HesaÄijä – Sauna lämpee (feat. Mäkki) (2017)"
+  },
+  {
+    "artist": "Teflon Brothers",
+    "title": "Juhannussimaa (feat. Kalevauva.fi)",
+    "year": 2019,
+    "tier": 3,
+    "id": 1465233222,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/a6/14/79/a614798d-9ac6-c33b-ee63-aa23f77d09a5/mzaf_1873081401301074654.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/e2/bc/e7/e2bce72d-b789-3a00-e188-bcd36e127ad0/19UMGIM46646.rgb.jpg/300x300bb.jpg",
+    "itunes": "Teflon Brothers – Juhannussimaa (feat. Kalevauva.fi) (2019)"
+  },
+  {
+    "artist": "VIIVI",
+    "title": "USA",
+    "year": 2021,
+    "tier": 3,
+    "id": 1782579895,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/7f/e7/ac/7fe7ac3f-a6f9-b6c0-c5d9-ab0d8a1ca7ce/mzaf_1073444927729565330.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/b5/2b/77/b52b77a2-7e6f-d78e-13ed-b4c8ade584cf/602438444045.jpg/300x300bb.jpg",
+    "itunes": "VIIVI – USA (2021)"
+  },
+  {
+    "artist": "Kuumaa",
+    "title": "Tässä on kaikki",
+    "year": 2023,
+    "tier": 3,
+    "id": 1700676922,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/3d/9e/b4/3d9eb4ea-32e1-6ba5-56f7-1ff5951d5217/mzaf_13807750935654688657.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/c8/1c/a9/c81ca934-91dd-02ec-fca0-88e0c694de46/23UMGIM88942.rgb.jpg/300x300bb.jpg",
+    "itunes": "Kuumaa – Tässä on kaikki (2023)"
+  },
+  {
+    "artist": "Tiktak",
+    "title": "Tuuleksi Taivaanrantaan",
+    "year": 2003,
+    "tier": 3,
+    "id": 1443348519,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/7b/d3/c8/7bd3c85a-fa28-9f70-cc9c-b61fcbbd5ce6/mzaf_709119697096873247.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/aa/2d/61/aa2d616d-5646-5312-182b-da93498a764a/00602498657249.rgb.jpg/300x300bb.jpg",
+    "itunes": "Tiktak – Tuuleksi Taivaanrantaan (2003)"
+  },
+  {
+    "artist": "Happoradio",
+    "title": "Pois Kalliosta",
+    "year": 2003,
+    "tier": 3,
+    "id": 331488395,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/4c/ed/02/4ced0216-ccd8-c3f9-bd1b-9691683f907e/mzaf_8157859223906346995.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/89/0e/ae/mzi.smucuxeq.jpg/300x300bb.jpg",
+    "itunes": "Happoradio – Pois Kalliosta (2003)"
+  },
+  {
+    "artist": "Gimmel",
+    "title": "Etsit Muijaa Seuraavaa",
+    "year": 2002,
+    "tier": 3,
+    "id": 255751849,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/84/5c/cf/845ccf0e-fca5-26cf-55ee-413c51920c4a/mzaf_17667734685332535909.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Features/89/35/6b/dj.fslvadxr.jpg/300x300bb.jpg",
+    "itunes": "Gimmel – Etsit Muijaa Seuraavaa (2002)"
+  },
+  {
+    "artist": "Gimmel",
+    "title": "Roviolla",
+    "year": 2002,
+    "tier": 3,
+    "id": 255752187,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/66/e8/cc/66e8ccd7-6b39-1a48-cada-425fe6d61c39/mzaf_16125422346730210050.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Features/89/35/6b/dj.fslvadxr.jpg/300x300bb.jpg",
+    "itunes": "Gimmel – Roviolla (2002)"
+  },
+  {
+    "artist": "Teflon Brothers",
+    "title": "Ilmastonmuutos (feat. Emma Gun)",
+    "year": 2021,
+    "tier": 3,
+    "id": 1569748376,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/3f/49/12/3f4912c6-1d89-b084-f311-f63bbf05c3d3/mzaf_10080670490114270479.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/b8/0f/be/b80fbedd-61eb-5b3b-da31-10caca7f5869/21UMGIM47456.rgb.jpg/300x300bb.jpg",
+    "itunes": "Teflon Brothers – Ilmastonmuutos (feat. Emma Gun) (2021)"
+  },
+  {
+    "artist": "Hohto",
+    "title": "Jos totta olisit",
+    "year": 2006,
+    "tier": 3,
+    "id": 1808245541,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/5a/6a/d8/5a6ad8fa-1423-1aa3-ba43-71cb59b28385/mzaf_10628334547668464683.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/33/2f/a0/332fa070-a543-9bc8-98f5-a0a7003ea5c0/336780.jpg/300x300bb.jpg",
+    "itunes": "Hohto – Jos totta olisit (2006)"
+  },
+  {
+    "artist": "Hank Solo",
+    "title": "Söpö",
+    "year": 2016,
+    "tier": 3,
+    "id": 1728466632,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/fb/bb/ee/fbbbeecc-fd3c-d3e7-a7f6-23219aa82475/mzaf_2580214323628035673.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/ec/14/7f/ec147f8e-cc2a-d8cb-f0a3-2b17d195e3e8/602557092790.jpg/300x300bb.jpg",
+    "itunes": "Hank Solo – Söpö (2016)"
+  },
+  {
+    "artist": "Aste",
+    "title": "Monaco",
+    "year": 2017,
+    "tier": 3,
+    "id": 1317862320,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/1c/e0/36/1ce0361e-399b-15ee-702e-5a49657b322e/mzaf_13430974424672335399.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/a5/be/a4/a5bea4b6-3c0e-53ad-4ba4-3c12dbe3ed04/886446890876.jpg/300x300bb.jpg",
+    "itunes": "Aste – Monaco (2017)"
+  },
+  {
+    "artist": "Elastinen",
+    "title": "Sua Seuraa Aurinko",
+    "year": 2019,
+    "tier": 3,
+    "id": 1565591567,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/94/ed/f8/94edf816-259d-7f27-c9b8-762b1565b3e7/mzaf_5581414393932364361.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/30/be/e0/30bee064-3c53-6f06-0443-951e8afbb766/6430041341703.jpg/300x300bb.jpg",
+    "itunes": "Elastinen – Sua Seuraa Aurinko (2019)"
+  },
+  {
+    "artist": "Melo",
+    "title": "e",
+    "year": 2021,
+    "tier": 3,
+    "id": 1868959757,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/79/b9/3f/79b93ffa-ac93-ae17-545b-dc191ddab4f7/mzaf_11245695020341785669.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/1a/8a/6b/1a8a6ba0-1aea-0f09-4f80-8adcc433e40a/602435466750.jpg/300x300bb.jpg",
+    "itunes": "Melo – e (2021)"
+  },
+  {
+    "artist": "Nost3 & Protro",
+    "title": "Bailandoo (feat. Herba & Lakko)",
+    "year": 2015,
+    "tier": 3,
+    "id": 1008403089,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/ca/a8/47/caa84709-9c08-8fc1-c48e-12d21ec30b38/mzaf_14313121466355303878.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music1/v4/18/e7/6d/18e76d68-1212-499a-2b7a-86f51ef9f943/859715021400_cover.jpg/300x300bb.jpg",
+    "itunes": "Nost3 & Protro – Bailandoo (feat. Herba & Lakko) (2015)"
+  },
+  {
+    "artist": "Ege Zulu & Gettomasa",
+    "title": "Valmiina futaa",
+    "year": 2021,
+    "tier": 3,
+    "id": 1802734751,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0b/df/e3/0bdfe3e6-a24a-7b35-6644-b5edfe0d1cee/mzaf_9852626940074366529.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/f3/99/86/f399869f-3062-ac1a-2992-0e2d856a693c/6430068442063.png/300x300bb.jpg",
+    "itunes": "Ege Zulu & Gettomasa – Valmiina futaa (2021)"
+  },
+  {
+    "artist": "PistePiste",
+    "title": "Hetken maailma on tässä",
+    "year": 2013,
+    "tier": 3,
+    "id": 655426771,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/d8/54/36/d85436f0-a46d-ac3c-387d-661682e9da9d/mzaf_1489163005948044955.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music2/v4/1d/4c/be/1d4cbe48-0e26-d14f-e4f5-792e4883b8bd/825646431854.jpg/300x300bb.jpg",
+    "itunes": "PistePiste – Hetken maailma on tässä (2013)"
+  },
+  {
+    "artist": "Sanni",
+    "title": "Jacuzzi",
+    "year": 2018,
+    "tier": 3,
+    "id": 1388998868,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/6b/a1/cc/6ba1ccfe-2f9e-9a40-175a-cf059e5bbf50/mzaf_8359162698792192264.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/6a/9b/15/6a9b15dc-0a2c-e6ba-0297-6156c31d1852/190295612719.jpg/300x300bb.jpg",
+    "itunes": "Sanni – Jacuzzi (2018)"
+  },
+  {
+    "artist": "Yön Polte",
+    "title": "Yön Polte - Tyttö sinä olet meritähti",
+    "year": 2012,
+    "tier": 3,
+    "id": 485609041,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/b3/1b/e1/b31be12e-11a4-5691-39b2-4be839cd54f3/mzaf_8038278637323116158.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/cc/4e/38/mzi.dszponhf.jpg/300x300bb.jpg",
+    "itunes": "Yön Polte – Yön Polte - Tyttö sinä olet meritähti (2012)"
+  },
+  {
+    "artist": "Uniklubi",
+    "title": "Bailaten koko elämä",
+    "year": 2019,
+    "tier": 3,
+    "id": 1477494249,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/be/9b/69/be9b6943-88c0-3aaa-2d6d-fe6d4c72b25d/mzaf_17704006680183008423.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/cb/8e/be/cb8ebe16-7e23-9b21-5214-dfbd075646d8/cover.jpg/300x300bb.jpg",
+    "itunes": "Uniklubi – Bailaten koko elämä (2019)"
+  },
+  {
+    "artist": "Teräsbetoni",
+    "title": "Taivas Lyö Tulta",
+    "year": 2005,
+    "tier": 3,
+    "id": 73642408,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/aa/b3/84/aab384f6-7bdd-5594-5ca4-e1e41f3fefec/mzaf_2320880887049683936.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/y2005/m06/d27/h16/s06.pphqnapt.jpg/300x300bb.jpg",
+    "itunes": "Teräsbetoni – Taivas Lyö Tulta (2005)"
+  },
+  {
+    "artist": "2. Maanantai",
+    "title": "Mixet tahdo olla munkaa",
+    "year": 1994,
+    "tier": 3,
+    "id": 1442671434,
+    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/7d/6d/45/7d6d45e6-4651-7c3c-b8ed-bf5a0adbcd38/mzaf_9718393085138172779.plus.aac.p.m4a",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/28/46/c0/2846c0e4-8444-2ffc-913f-893e23770124/00602527080369.rgb.jpg/300x300bb.jpg",
+    "itunes": "2. Maanantai – Mixet tahdo olla munkaa (Mixet tahdo mix) (1994)"
   }
 ]

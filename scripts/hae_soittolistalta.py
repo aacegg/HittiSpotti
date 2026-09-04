@@ -213,6 +213,17 @@ def main() -> int:
             hit = pick(search(title), artist, title)
         if hit is None:                      # kolmas: artistin koko tuotanto
             hit = pick(artist_songs(artist), artist, title)
+        # Spotify liittää nimeen usein väliviivalla käännöksen tai
+        #    versiomerkinnän: "Villi yö - Life Is Life", "Romeo Ja Julia -
+        #    Original Mix". Applella on sama biisi ilman sitä. Kokeillaan
+        #    molempia puolia; jos Applen oma nimi kertoo eri versiosta, pick()
+        #    hylkää sen edelleen.
+        if hit is None and " - " in title:
+            for osa in (title.split(" - ")[0], title.split(" - ")[-1]):
+                hit = pick(search(f"{first_artist(artist)} {osa}"), artist, osa) \
+                    or pick(artist_songs(artist), artist, osa)
+                if hit:
+                    break
         time.sleep(0.35)
         if hit is None:
             missing.append(f"{i:>3}. {artist} – {title}")

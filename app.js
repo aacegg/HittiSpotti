@@ -71,12 +71,11 @@
     scrim: $("#scrim"),
     drawer: $("#drawer"),
     menuBtn: $("#menu-btn"),
-    // Kolme viivaa asuu näissä kahdessa vuorotellen, ks. siirraNappi.
-    barInner: $(".bar-inner"),
-    drawerHead: $(".drawer-head"),
     // Oikea kisko ja se mistä sen sisältö on lainassa, ks. siirraKiskoon.
     rail: $("#rail"),
     railBody: $("#rail-body"),
+    railPoints: $("#rail-points"),
+    dsWeek: $("#ds-week"),
     stage: $(".stage"),
     drawerClose: $("#drawer-close"),
     drawerFoot: $("#drawer-foot"),
@@ -310,7 +309,7 @@
     /* Kiinteä sivupalkki on näkyvissä koko ajan, joten sen sisältö on
      * pidettävä ajan tasalla ilman avaamista. Kapealla ruudulla riittää
      * päivitys avattaessa, koska suljettua ei näe kukaan. */
-    if (LEVEA.matches && !palkkiKiinni() && state.pool.length) refreshDrawer();
+    if (LEVEA.matches && state.pool.length) refreshDrawer();
     paivitaKisko();
     if (state.view !== "game" || !state.rounds.length) { el.barTag.textContent = ""; return; }
     const valmis = state.rounds.filter((r) => r.finished).length;
@@ -329,43 +328,21 @@
    *
    * Kaksi eri asiaa saman elementin takana. Kapealla ruudulla valikko on
    * napin takana ja liukuu sisällön päälle. Leveällä se on kiinteä osa
-   * sivua: auki oletuksena, siinä tilassa joka oli muutenkin tyhjää, eikä
-   * mitään ole peitetty. Raja on CSS:ssä, ja tämä kysyy siltä samaa rajaa
-   * eikä arvaa omaansa.
+   * sivua siinä tilassa joka oli muutenkin tyhjää: aina auki, eikä sitä
+   * voi sulkea. Kun mitään ei ole peitetty, sulkeminen ei tekisi muuta
+   * kuin veisi valikon pois.
    *
-   * Avaus ja sulku eivät siksi tarkoita samaa molemmissa. Kapealla ne
-   * ovat hetken tila, leveällä pysyvä valinta joka muistetaan. */
+   * Raja on CSS:ssä, ja tämä kysyy siltä samaa rajaa eikä arvaa omaansa. */
   const LEVEA = window.matchMedia("(min-width: 1200px)");
-  const palkkiKiinni = () => store.get("palkki-kiinni", false) === true;
 
   function paivitaPalkki() {
-    const kiinteä = LEVEA.matches;
-    const kiinni = kiinteä && palkkiKiinni();
-    if (kiinteä) {
-      el.body.classList.toggle("drawer-shut", kiinni);
-      // Kapean ruudun tila ei saa jäädä päälle, jos ikkunaa on levennetty.
+    if (LEVEA.matches) {
+      // Kapean ruudun avaustila ei saa jäädä päälle, jos ikkunaa levennetään.
       el.body.classList.remove("drawer-open");
-      el.menuBtn.setAttribute("aria-expanded", String(!kiinni));
-      if (!kiinni && state.pool.length) refreshDrawer();
-    } else {
-      el.body.classList.remove("drawer-shut");
-      el.menuBtn.setAttribute("aria-expanded", String(el.body.classList.contains("drawer-open")));
+      if (state.pool.length) refreshDrawer();
     }
-    siirraNappi(kiinteä && !kiinni);
+    el.menuBtn.setAttribute("aria-expanded", String(el.body.classList.contains("drawer-open")));
     paivitaKisko();
-  }
-
-  /* Sama nappi, eri paikka. Näkyvissä oleva palkki ottaa kolme viivaa
-   * omakseen; muulloin ne ovat yläpalkissa. Elementti siirretään eikä
-   * piiloteta ja näytetä kahta kappaletta, koska kaksi nappia samalle
-   * toiminnolle olisi ruudunlukijalle kaksi eri asiaa. */
-  function siirraNappi(palkkiin) {
-    const kohde = palkkiin ? el.drawerHead : el.barInner;
-    if (el.menuBtn.parentElement === kohde) return;
-    // Siirto vie kohdistuksen mukanaan, joten se palautetaan.
-    const oliKohdistus = document.activeElement === el.menuBtn;
-    kohde.prepend(el.menuBtn);
-    if (oliKohdistus) el.menuBtn.focus({ preventScroll: true });
   }
 
   /* Oikea kisko.
@@ -393,6 +370,23 @@
       const vapaa = el.drawer.querySelector('[data-go="free"]');
       if (el.freeReset.parentElement !== vapaa.parentElement) vapaa.after(el.freeReset);
     }
+    if (kiskoon) piirraPisteet();
+  }
+
+  /* Pisteasteikko kiskon alalaidassa.
+   *
+   * Soittimen alla oleva mittari kertoo missä kohtaa ollaan, mutta ei sitä
+   * mitä seuraava askel maksaa. Ohittamisen hinta pitää olla nähtävissä
+   * ennen ohittamista eikä vasta jälkikäteen, joten koko asteikko on
+   * näkyvissä ja nykyinen askel korostettu. */
+  function piirraPisteet() {
+    const askel = cur() ? cur().step : 0;
+    const paljastettu = cur() ? cur().finished : false;
+    el.railPoints.innerHTML = STEPS.map((sec, i) => {
+      const nyt = !paljastettu && i === askel;
+      return `<li class="${nyt ? "is-now" : i < askel ? "is-past" : ""}">
+        <span>${fmtSec(sec)}</span><b>${fmt(POINTS[i])}</b></li>`;
+    }).join("");
   }
 
   function openDrawer() {
@@ -449,6 +443,40 @@
     el.dsBest.textContent = fmt(s.dailyBest);
     el.dsHit.textContent = Math.round((s.dailySolved / (s.dailyPlayed * DAILY_COUNT)) * 100) + " %";
     el.dsLongest.textContent = fmt(s.bestStreak);
+    piirraViikko();
+  }
+
+  /* Viimeiset seitsemän päivää pylväinä.
+   *
+   * Putkiluku kertoo että päiviä on peräkkäin muttei sitä miten ne menivät.
+   * Pylvään korkeus on sinä päivänä tunnistetut biisit nollasta viiteen, ja
+   * pelaamaton päivä on pelkkä hiusviiva. Väri on tason asteikolta samassa
+   * suunnassa kuin muuallakin: viisi oikein on vihreä, nolla punainen.
+   *
+   * Tiedot ovat jo selaimessa: joka päivä tallentaa oman tuloksensa. Tämä
+   * ei siis kerää mitään uutta vaan näyttää sen mitä on. */
+  function piirraViikko() {
+    const rivit = [];
+    for (let i = 6; i >= 0; i--) {
+      const pv = new Date();
+      pv.setDate(pv.getDate() - i);
+      const avain = dayKey(pv);
+      const tulos = store.get("daily:" + avain, null);
+      const osui = tulos ? tulos.results.filter((r) => r.solved).length : null;
+      const nimi = ["su", "ma", "ti", "ke", "to", "pe", "la"][pv.getDay()];
+      const otsikko = tulos
+        ? `${avain}: ${osui}/${DAILY_COUNT} tunnistettu, ${fmt(tulos.score)} p`
+        : `${avain}: ei pelattu`;
+      /* Korkeus 8-40 px myös nollatuloksella: nollan korkuinen pylväs on
+       * sama asia kuin pelaamaton päivä, vaikka ne ovat eri asioita. */
+      const korkeus = osui === null ? 0 : 8 + (osui / DAILY_COUNT) * 32;
+      // Viisi oikein = taso 1 (vihreä), nolla oikein = taso 5 (punainen).
+      const taso = Math.max(1, Math.min(5, 5 - osui));
+      rivit.push(`<li class="${osui === null ? "on-tyhja" : ""}${i === 0 ? " on-tanaan" : ""}"
+        title="${otsikko}"><span style="height:${korkeus}px"
+        ${osui === null ? "" : `data-tier="${taso}"`}></span><b>${nimi}</b></li>`);
+    }
+    el.dsWeek.innerHTML = rivit.join("");
   }
 
   // ---------- Katalogi ----------
@@ -2197,13 +2225,6 @@
   // ---------- Tapahtumat ----------
   function bind() {
     el.menuBtn.addEventListener("click", () => {
-      // Leveällä ruudulla sama nappi kätkee ja palauttaa kiinteän palkin,
-      // ja valinta jää voimaan seuraavallekin kerralle.
-      if (LEVEA.matches) {
-        store.set("palkki-kiinni", !palkkiKiinni());
-        paivitaPalkki();
-        return;
-      }
       if (el.body.classList.contains("drawer-open")) closeDrawer();
       else openDrawer();
     });

@@ -397,6 +397,46 @@ a.navitem { color: inherit; text-decoration: none; }
   margin: 0;
 }
 .dstats-grid div { min-width: 0; }
+
+/* Viikko pylväinä. Korkeus on tunnistetut biisit, väri tason asteikolta
+   samassa suunnassa kuin muualla: viisi oikein vihreä, nolla punainen.
+   Pelaamaton päivä on hiusviiva, ei nollan korkuinen pylväs: ne ovat eri
+   asioita ja näyttäisivät muuten samalta. */
+.dstats-week-head { margin: var(--s6) 0 var(--s3); }
+.dweek {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--s3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dweek li {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s2);
+}
+.dweek span {
+  width: 100%;
+  min-height: 1px;
+  border-radius: 2px;
+  background: var(--tier-hue, var(--line));
+}
+.dweek .on-tyhja span { background: var(--line); }
+.dweek b {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--dim);
+}
+/* Tämä päivä erottuu tekstistä, ei ylimääräisestä merkistä. */
+.dweek .on-tanaan b { color: var(--text); font-weight: 700; }
+.dweek span[data-tier="1"] { --tier-hue: var(--t1); }
+.dweek span[data-tier="2"] { --tier-hue: var(--t2); }
+.dweek span[data-tier="3"] { --tier-hue: var(--t3); }
+.dweek span[data-tier="4"] { --tier-hue: var(--t4); }
+.dweek span[data-tier="5"] { --tier-hue: var(--t5); }
 .dstats-grid dd {
   margin: 0;
   font-family: var(--display);
@@ -432,18 +472,20 @@ a.navitem { color: inherit; text-decoration: none; }
        sisällön ensimmäinen rivi ovat samalla korkeudella. */
     padding-top: 0;
   }
-  body.drawer-shut .drawer { transform: translateX(-100%); visibility: hidden; }
 
-  .scrim { display: none; }
-
-  /* Kolme viivaa kuuluu palkkiin silloin kun palkki on näkyvissä. Se on sama
-     nappi ja sama elementti, vain siirrettynä: kaksi erillistä nappia samalle
-     toiminnolle olisi ruudunlukijalle kaksi eri asiaa. Kun palkki on kiinni,
-     nappi palaa yläpalkkiin, koska muuten sitä ei olisi missään. */
-  body:not(.drawer-shut) .drawer-head .wordmark,
-  body:not(.drawer-shut) .drawer-head #drawer-close { display: none; }
-  .drawer-head #menu-btn { margin: 0 0 0 calc(var(--s5) * -1); }
+  /* Ei varjostinta eikä avausnappia. Palkki on työpöydällä osa sivua eikä
+     tila jonka voi sulkea: kun mitään ei ole peitetty, sulkeminen ei tee
+     kuin veisi valikon pois. Sulkunappi ja kolme viivaa piilotetaan
+     molemmat, ja niiden mukana katoaa koko kysymys siitä missä nappi
+     kulloinkin asuu. */
+  .scrim, #menu-btn, .drawer-head #drawer-close { display: none; }
+  .drawer-head .wordmark { display: none; }
   .drawer-head { margin-bottom: var(--s4); }
+
+  /* Oma tilanne ja alateksti painetaan palkin alalaitaan, jolloin tyhjä
+     tila jää keskelle kahden ryhmän väliin eikä lopuksi jäävään lohkoon. */
+  .dstats { margin-top: auto; }
+  .drawer-foot { margin-top: var(--s6); }
 }
 
 /* ---------- Oikea kisko ----------
@@ -511,11 +553,9 @@ a.navitem { color: inherit; text-decoration: none; }
   .rail .tchip {
     width: 100%;
     flex: 0 0 auto;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 1px;
-    min-height: 52px;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 48px;
     padding: var(--s3) var(--s4);
     /* Suorakulmio eikä pilleri: pystyssä oleva lista lukee riveinä, ja
        999 pikselin pyöristys tekisi jokaisesta rivistä oman kapselinsa. */
@@ -524,10 +564,9 @@ a.navitem { color: inherit; text-decoration: none; }
     font-size: var(--f3);
     white-space: normal;
   }
-  .rail .tchip-tila { display: block; font-size: var(--f1); font-weight: 400; opacity: .75; }
-  /* Yliviivaus koskisi pystyssä myös tilariviä. Teksti "ei osunut" kertoo
-     saman ilman sitä. */
-  .rail .tchip.is-miss { text-decoration: none; }
+  /* Tila jää ruudunlukijan aria-labeliin. Silmälle riittää nimi ja se mitä
+     rivin väri, reunus ja yliviivaus kertovat: kolme merkintätapaa samasta
+     asiasta on kaksi liikaa. */
 
   /* "Uusi sarja" tasorivin alle omalle rivilleen, kuten valikossa mutta
      ilman valikon pystyviivaa. */
@@ -537,6 +576,32 @@ a.navitem { color: inherit; text-decoration: none; }
     border-top: 1px solid var(--line-soft);
     box-shadow: none;
   }
+
+  /* Pisteasteikko kiskon alalaitaan, jolloin tyhjä tila jää keskelle. */
+  .rail-foot { margin-top: auto; }
+  .rail-foot .rail-head { height: auto; margin: 0 0 var(--s3); }
+  .pisteet {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-variant-numeric: tabular-nums;
+  }
+  .pisteet li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--s4);
+    padding: var(--s2) 0;
+    border-top: 1px solid var(--line-soft);
+    font-size: var(--f2);
+    color: var(--dim);
+  }
+  .pisteet li:first-child { border-top: 0; }
+  .pisteet b { font-weight: 600; }
+  /* Ohitetut askeleet ovat menneitä eivätkä enää valittavissa. */
+  .pisteet .is-past { opacity: .4; }
+  .pisteet .is-now { color: var(--live); }
+  .pisteet .is-now b { font-weight: 700; }
 }
 
 /* ---------- Sisältö ---------- */

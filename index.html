@@ -27,17 +27,17 @@
        kuvakkeesta kiinni omassa välimuistissaan sitkeämmin kuin mistään
        muusta, eikä pelkkä uusi tiedostosisältö samassa osoitteessa riitä
        vaihtamaan sitä. -->
-  <link rel="icon" href="favicon.svg?v=78" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg?v=79" type="image/svg+xml">
   <!-- iOS ei tue SVG:tä kotinäytön kuvakkeena: SVG:llä se otti sivusta
        ruudunkaappauksen kuvakkeen sijaan. 180 px on iPhonen koko. -->
-  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=78">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=78">
-  <link rel="manifest" href="manifest.webmanifest?v=78">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=79">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=79">
+  <link rel="manifest" href="manifest.webmanifest?v=79">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HittiSpotti">
   <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=78">
+  <link rel="stylesheet" href="style.css?v=79">
 
   <script type="application/ld+json">
   {
@@ -108,6 +108,12 @@
         <div><dd id="ds-hit">–</dd><dt>tunnistettu</dt></div>
         <div><dd id="ds-longest">0</dd><dt>pisin putki</dt></div>
       </dl>
+
+      <!-- Viikko kerrallaan: pylvään korkeus on sinä päivänä tunnistetut
+           biisit. Putkiluku kertoo että päiviä on peräkkäin, tämä kertoo
+           miten ne menivät. Sama viiden pylvään kieli kuin sanamerkissä. -->
+      <p class="dstats-head dstats-week-head">Viikko</p>
+      <ol class="dweek" id="ds-week"></ol>
     </div>
 
     <p class="drawer-foot" id="drawer-foot"></p>
@@ -120,6 +126,14 @@
   <aside class="rail" id="rail" aria-label="Sarjan tilanne" hidden>
     <p class="rail-head">Sarja</p>
     <div class="rail-body" id="rail-body"></div>
+
+    <!-- Pisteasteikko kiskon alalaitaan. Mittari soittimen alla kertoo
+         missä kohtaa ollaan, mutta ei sitä mitä seuraava askel maksaa.
+         Ohittamisen hinnan pitää olla nähtävissä ennen ohittamista. -->
+    <div class="rail-foot">
+      <p class="rail-head">Pisteet</p>
+      <ol class="pisteet" id="rail-points"></ol>
+    </div>
   </aside>
 
   <!-- Palkin tausta on täysleveä, mutta sen sisältö noudattaa samaa palstaa
@@ -381,7 +395,7 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=78"></script>
+  <script src="app.js?v=79"></script>
 
   <!-- Kävijälaskenta: ei evästeitä, ei henkilötietoja, ei seurantaa yli
        sivustorajojen – siksi tämä ei vaadi suostumusikkunaa. Ladataan

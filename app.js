@@ -50,6 +50,7 @@
     starts: new Map(),    // id -> pätkän aloituskohta sekunteina
     source: null,
     gain: null,        // pätkän häivytys, ajastetaan uusiksi jos aikaa pidennetään
+    master: null,      // pysyvä äänenvoimakkuus, elää kontekstin mukana
     revive: false,     // sivu kävi taustalla: konteksti rakennetaan uusiksi
     startedAt: 0,      // ctx.currentTime pätkän alkaessa
     total: 0,          // pätkän ajastettu pituus sekunteina
@@ -75,6 +76,8 @@
     rail: $("#rail"),
     railBody: $("#rail-body"),
     railPoints: $("#rail-points"),
+    aani: $("#aani"),
+    aaniArvo: $("#aani-arvo"),
     dsNumbers: $("#ds-numbers"),
     dsWeekBlock: $("#ds-week-block"),
     dsWeek: $("#ds-week"),
@@ -680,13 +683,46 @@
    * täsmännyt, ääntä ei herätetty, eikä loppupelissä kuulunut enää mitään:
    * testaajan sanoin "ääni toimi puolet pelistä". Nyt herätetään aina kun
    * tila ei ole "running", eli myös tuntemattomista tiloista. */
+  /* Äänenvoimakkuus.
+   *
+   * Pätkän oma vahvistin hoitaa häivytyksen ja syntyy uudestaan joka
+   * pätkälle, joten se ei voi kantaa asetusta. Sen ja kaiuttimen väliin
+   * tulee pysyvä pääsäädin, joka elää äänikontekstin mukana.
+   *
+   * Puhelimessa on laitteen omat näppäimet, koneella ei mitään: siellä ainoa
+   * keino on käyttöjärjestelmän mikseri. Siksi säädin on työpöydän kiskossa,
+   * ja siksi arvo muistetaan selaimessa. */
+  const AANI_OLETUS = 0.7;
+  const aaniTaso = () => {
+    const v = Number(store.get("aani", AANI_OLETUS));
+    return Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : AANI_OLETUS;
+  };
+
   function ensureAudio() {
     if (!audio.ctx) {
       const Ctx = window.AudioContext || window.webkitAudioContext;
       audio.ctx = new Ctx();
     }
+    if (!audio.master || audio.master.context !== audio.ctx) {
+      audio.master = audio.ctx.createGain();
+      audio.master.gain.value = aaniTaso();
+      audio.master.connect(audio.ctx.destination);
+    }
     if (audio.ctx.state !== "running") audio.ctx.resume().catch(() => {});
     return audio.ctx;
+  }
+
+  function asetaAani(arvo) {
+    store.set("aani", arvo);
+    if (audio.master) {
+      /* Liu'utetaan lyhyesti eikä hypätä: arvon vaihtaminen kesken soivan
+       * pätkän naksahtaisi. */
+      const g = audio.master.gain;
+      g.cancelScheduledValues(audio.ctx.currentTime);
+      g.setTargetAtTime(arvo, audio.ctx.currentTime, 0.015);
+    }
+    if (fallback.el) fallback.el.volume = arvo;
+    if (el.aaniArvo) el.aaniArvo.textContent = Math.round(arvo * 100) + " %";
   }
 
   /* Herätys on lupaus, eikä sitä ennen kannata ajastaa mitään: pysähtyneessä
@@ -714,6 +750,7 @@
     audio.ctx = null;
     audio.source = null;
     audio.gain = null;
+    audio.master = null;   // kuuluu vanhaan kontekstiin, ensureAudio tekee uuden
     if (vanha) { try { vanha.close(); } catch { /* ignore */ } }
     ensureAudio();
   }
@@ -765,6 +802,7 @@
       fallback.el = new Audio();
       fallback.el.preload = "auto";
       fallback.el.crossOrigin = "anonymous";
+      fallback.el.volume = aaniTaso();
     }
     return fallback.el;
   }
@@ -911,7 +949,7 @@
     gain.gain.linearRampToValueAtTime(1, now + fade);
     gain.gain.setValueAtTime(1, now + seconds - fade);
     gain.gain.linearRampToValueAtTime(0, now + seconds);
-    src.connect(gain).connect(ctx.destination);
+    src.connect(gain).connect(audio.master || ctx.destination);
     /* Kesto ajastetaan stop():lla eikä start():n kolmantena parametrina:
      * kestoparametri lyö lopetushetken lukkoon eikä myöhempi stop() voi
      * siirtää sitä, jolloin ajan pidentäminen kesken soiton ei onnistuisi. */
@@ -2209,6 +2247,12 @@
       if (el.body.classList.contains("drawer-open")) closeDrawer();
       else openDrawer();
     });
+    if (el.aani) {
+      el.aani.value = Math.round(aaniTaso() * 100);
+      asetaAani(aaniTaso());
+      // input eikä change: taso seuraa sormea, jotta muutoksen kuulee heti.
+      el.aani.addEventListener("input", () => asetaAani(Number(el.aani.value) / 100));
+    }
     // Ikkunan koon muutos vaihtaa palkin luonteen kesken kaiken.
     LEVEA.addEventListener("change", paivitaPalkki);
     paivitaPalkki();

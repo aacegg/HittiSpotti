@@ -74,6 +74,10 @@
     // Kolme viivaa asuu näissä kahdessa vuorotellen, ks. siirraNappi.
     barInner: $(".bar-inner"),
     drawerHead: $(".drawer-head"),
+    // Oikea kisko ja se mistä sen sisältö on lainassa, ks. siirraKiskoon.
+    rail: $("#rail"),
+    railBody: $("#rail-body"),
+    stage: $(".stage"),
     drawerClose: $("#drawer-close"),
     drawerFoot: $("#drawer-foot"),
     drawerStats: $("#drawer-stats"),
@@ -307,6 +311,7 @@
      * pidettävä ajan tasalla ilman avaamista. Kapealla ruudulla riittää
      * päivitys avattaessa, koska suljettua ei näe kukaan. */
     if (LEVEA.matches && !palkkiKiinni() && state.pool.length) refreshDrawer();
+    paivitaKisko();
     if (state.view !== "game" || !state.rounds.length) { el.barTag.textContent = ""; return; }
     const valmis = state.rounds.filter((r) => r.finished).length;
     /* Yläpalkki pysyy paikallaan kun sivu vierii, joten se on ainoa kohta
@@ -347,6 +352,7 @@
       el.menuBtn.setAttribute("aria-expanded", String(el.body.classList.contains("drawer-open")));
     }
     siirraNappi(kiinteä && !kiinni);
+    paivitaKisko();
   }
 
   /* Sama nappi, eri paikka. Näkyvissä oleva palkki ottaa kolme viivaa
@@ -360,6 +366,33 @@
     const oliKohdistus = document.activeElement === el.menuBtn;
     kohde.prepend(el.menuBtn);
     if (oliKohdistus) el.menuBtn.focus({ preventScroll: true });
+  }
+
+  /* Oikea kisko.
+   *
+   * Vasemmalla on navigointi ja oma tilanne pitkällä aikavälillä, oikealla
+   * käynnissä oleva sarja. Kisko ei ole uusi kopio mistään: tasorivi ja
+   * vapaan pelin "Uusi sarja" siirretään sinne samoina elementteinä kuin
+   * kapealla ruudulla, jolloin kuuntelijat, tila ja ruudunlukijan käsitys
+   * pysyvät yhtenä eikä kahtena.
+   *
+   * Kisko näkyy vain pelinäkymässä. Tuloksissa ja tilastoissa sarjaa ei ole
+   * käynnissä, ja tyhjä kisko olisi pelkkä reunaviiva. */
+  function paivitaKisko() {
+    const kiskoon = LEVEA.matches && state.view === "game" && state.rounds.length > 0;
+    el.rail.hidden = !kiskoon;
+    if (kiskoon) {
+      if (el.tierBar.parentElement !== el.railBody) el.railBody.append(el.tierBar);
+      if (el.freeReset.parentElement !== el.railBody) el.railBody.append(el.freeReset);
+    } else {
+      // Takaisin omille paikoilleen: tasorivi soittimen yläpuolelle,
+      // "Uusi sarja" vapaan pelin alle valikkoon.
+      if (el.tierBar.parentElement !== el.stage.parentElement) {
+        el.stage.parentElement.insertBefore(el.tierBar, el.stage);
+      }
+      const vapaa = el.drawer.querySelector('[data-go="free"]');
+      if (el.freeReset.parentElement !== vapaa.parentElement) vapaa.after(el.freeReset);
+    }
   }
 
   function openDrawer() {
@@ -1048,22 +1081,25 @@
   function renderTierBar() {
     el.tierBar.innerHTML = state.rounds.map((r, i) => {
       const name = TIER_NAMES[r.song.tier];
+      /* Tila lasketaan aina, myös vuorossa olevalle. Kapealla ruudulla se on
+       * vain ruudunlukijan aria-label, koska viisi nimeä mahtuu riville vain
+       * ilman lisätekstiä. Leveällä ruudulla kisko näyttää sen myös silmälle:
+       * siellä on tilaa, ja silloin sarjan tilanteen näkee vilkaisulla. */
       let cls = "";
-      let state_ = "kesken";
-      if (i === state.at) {
-        cls = " is-on";
-      } else if (r.finished) {
+      let tila;
+      if (r.finished) {
         cls = r.solved ? " is-ok" : " is-miss";
-        state_ = r.solved ? "ratkaistu" : "ei ratkaistu";
+        tila = r.solved ? `tunnistit ${fmtSec(STEPS[r.step])}` : "ei osunut";
       } else if (r.step > 0) {
         cls = " is-part";   // aloitettu mutta kesken: tänne kannattaa palata
-        state_ = `kesken, ${fmtSec(STEPS[r.step])}`;
+        tila = `kesken, ${fmtSec(STEPS[r.step])}`;
       } else {
-        state_ = "aloittamatta";
+        tila = "aloittamatta";
       }
+      if (i === state.at) cls = " is-on";
       return `<button type="button" class="tchip${cls}" data-slot="${i}" data-tier="${r.song.tier}"
-        aria-pressed="${i === state.at}" aria-label="${name}, ${state_}"
-        >${name}</button>`;
+        aria-pressed="${i === state.at}" aria-label="${name}, ${tila}"
+        >${name}<span class="tchip-tila">${tila}</span></button>`;
     }).join("");
   }
 

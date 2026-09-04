@@ -75,6 +75,7 @@
   --bar-h: 54px;
   --palsta: 540px;   /* sisällön leveys – myös yläpalkki noudattaa tätä */
   --palkki: 300px;   /* sivupalkin leveys, sama luku kuin .drawerissa */
+  --kisko: 260px;    /* oikean kiskon leveys leveällä näytöllä */
 
   /* Väliasteikko. Kaikki marginaalit, täytteet ja gapit tulevat täältä.
      Aiemmin käytössä oli 21 eri arvoa (1,2,4,5,6,7,8,9,10,11,12,13,14,16,
@@ -443,6 +444,99 @@ a.navitem { color: inherit; text-decoration: none; }
   body:not(.drawer-shut) .drawer-head #drawer-close { display: none; }
   .drawer-head #menu-btn { margin: 0 0 0 calc(var(--s5) * -1); }
   .drawer-head { margin-bottom: var(--s4); }
+}
+
+/* ---------- Oikea kisko ----------
+   Vasemmalla on navigointi ja oma tilanne pitkällä aikavälillä, oikealla
+   käynnissä oleva sarja. Kisko ei ole kopio mistään: tasorivi ja vapaan
+   pelin "Uusi sarja" siirretään tänne samoina elementteinä kuin kapealla
+   ruudulla. Kaksi nappia samalle asialle olisi ruudunlukijalle kaksi eri
+   asiaa, ja tilan kahdentaminen olisi kaksi paikkaa jossa se voi mennä
+   eri tahtiin.
+
+   Sivutuotteena keskipalsta kevenee: soittimen yläpuolelta lähtee rivi
+   pois, ja jäljelle jää otsikko, nappi, mittari ja hakukenttä.
+
+   Kisko on piilossa tuloksissa ja tilastoissa, koska siellä ei ole sarjaa
+   käynnissä eikä tyhjä kisko ole muuta kuin reunaviiva. */
+.rail { display: none; }
+.tchip-tila { display: none; }
+
+@media (min-width: 1200px) {
+  .rail {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    /* Yläpalkin yläpuolelle. Palkki on täysleveä ja sen tausta peitti
+       kiskon otsikon, joka näytti siltä kuin sitä ei olisi lainkaan.
+       Sama järjestys kuin vasemmalla sivupalkilla, joka on myös palkin
+       päällä. */
+    z-index: 25;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: var(--kisko);
+    padding: 0 var(--s6) calc(var(--s5) + env(safe-area-inset-bottom));
+    border-left: 1px solid var(--line);
+    background: var(--bg-lift);
+    overflow-y: auto;
+  }
+  .rail[hidden] { display: none; }
+
+  /* Sama korkeus kuin yläpalkilla, jotta kiskon otsikko, sanamerkki ja
+     valikon ensimmäinen rivi ovat samalla viivalla. */
+  .rail-head {
+    display: flex;
+    align-items: center;
+    height: var(--bar-h);
+    margin: 0 0 var(--s4);
+    font-size: var(--f1);
+    font-weight: 600;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .rail-body { display: flex; flex-direction: column; }
+
+  /* Sama tasorivi, eri asento: pillerien sijaan kiskon levyiset rivit,
+     joissa nimen alla lukee miten biisi meni. */
+  .rail .tierbar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s2);
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+  .rail .tchip {
+    width: 100%;
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 1px;
+    min-height: 52px;
+    padding: var(--s3) var(--s4);
+    /* Suorakulmio eikä pilleri: pystyssä oleva lista lukee riveinä, ja
+       999 pikselin pyöristys tekisi jokaisesta rivistä oman kapselinsa. */
+    border-radius: 12px;
+    text-align: left;
+    font-size: var(--f3);
+    white-space: normal;
+  }
+  .rail .tchip-tila { display: block; font-size: var(--f1); font-weight: 400; opacity: .75; }
+  /* Yliviivaus koskisi pystyssä myös tilariviä. Teksti "ei osunut" kertoo
+     saman ilman sitä. */
+  .rail .tchip.is-miss { text-decoration: none; }
+
+  /* "Uusi sarja" tasorivin alle omalle rivilleen, kuten valikossa mutta
+     ilman valikon pystyviivaa. */
+  .rail .navitem-sub {
+    margin-top: var(--s4);
+    padding: var(--s4) 0 0;
+    border-top: 1px solid var(--line-soft);
+    box-shadow: none;
+  }
 }
 
 /* ---------- Sisältö ---------- */

@@ -1154,6 +1154,11 @@
   }
 
   function nextRound() {
+    /* Viimeisen biisin arvio jäi ennen roikkumaan: sarjan lopussa mennään
+     * tuloksiin eikä openRoundin kautta, joten mikään ei tyhjentänyt jonoa
+     * ennen kuin välilehti suljettiin. Se meni yleensä perille mutta ei aina.
+     * Tyhjennys tässä kattaa molemmat haarat kerralla. */
+    lahetaArvio();
     // Siirry seuraavaan kesken olevaan biisiin, tarvittaessa alusta kiertäen.
     for (let k = 1; k <= state.rounds.length; k++) {
       const i = (state.at + k) % state.rounds.length;

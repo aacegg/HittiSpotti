@@ -118,6 +118,7 @@
     rateRow: $("#rate-row"),
     exportBtn: $("#export-btn"),
     exportOut: $("#export-out"),
+    dataConsent: $("#data-consent"),
     replayBtn: $("#replay-btn"),
     nextBtn: $("#next-btn"),
     resultsTitle: $("#results-title"),
@@ -1811,15 +1812,54 @@
 
   function logRound(r) {
     const log = store.get("kierrokset", []);
-    log.push({
+    const kierros = {
       id: r.song.id,
       taso: r.song.tier,
       askel: r.step,          // 0-4, eli 0,1 s ... 15 s
       osui: r.solved,
       pv: (state.mode === "daily" && state.dayKey) || todayKey(),
       tila: state.mode,
-    });
+    };
+    log.push(kierros);
     store.set("kierrokset", log.slice(-LOG_MAX));
+    lahetaKierros(kierros);
+  }
+
+  /* Kierroksen lähetys tilastopalvelimelle.
+   *
+   * Tämä on ainoa asia jonka peli lähettää itsestään ulos. Mukana menee
+   * biisi, taso, askel, osuiko ja pelimuoto. Ei tunnistetta, ei aikaleimaa,
+   * ei mitään mikä yhdistäisi kaksi kierrosta samaan pelaajaan: palvelin
+   * laskee vain koosteita. Päivämäärä jätetään pois tarkoituksella, koska
+   * sitä ei tarvita eikä sitä siksi kuulu lähettää.
+   *
+   * sendBeacon on tähän oikea työkalu: se ei odota vastausta, ei hidasta
+   * peliä, ja menee perille vaikka pelaaja sulkisi välilehden samalla
+   * sekunnilla. text/plain pitää pyynnön "yksinkertaisena", jolloin selain
+   * ei tee erillistä esikyselyä.
+   *
+   * Osoite on tyhjä kunnes palvelin on julkaistu; silloin tämä ei tee mitään
+   * ja peli toimii täsmälleen kuten ennenkin. */
+  const PALVELIN = "";
+
+  const dataLupa = () => store.get("datalupa", true) !== false;
+
+  function lahetaKierros(k) {
+    if (!PALVELIN || !dataLupa()) return;
+    const runko = JSON.stringify({
+      id: k.id, taso: k.taso, askel: k.askel, osui: k.osui, tila: k.tila,
+    });
+    try {
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(PALVELIN + "/kierros", new Blob([runko], { type: "text/plain" }));
+        return;
+      }
+      // Vanhemmat selaimet: keepalive tekee saman kuin sendBeacon.
+      fetch(PALVELIN + "/kierros", {
+        method: "POST", body: runko, keepalive: true,
+        headers: { "content-type": "text/plain" },
+      }).catch(() => {});
+    } catch { /* tilastointi ei koskaan riko peliä */ }
   }
 
   function saveRating(id, tier) {
@@ -2021,6 +2061,15 @@
     });
     el.retryBtn.addEventListener("click", loadAndStart);
     asetaPalautelinkki();
+    if (el.dataConsent) {
+      el.dataConsent.checked = dataLupa();
+      el.dataConsent.addEventListener("change", () => {
+        store.set("datalupa", el.dataConsent.checked);
+        toast(el.dataConsent.checked
+          ? "Kiitos. Kierrokset auttavat tasojen tarkentamisessa."
+          : "Selvä, mitään ei enää lähetetä.");
+      });
+    }
     el.input.addEventListener("focus", updateSearchMode);
     el.input.addEventListener("blur", updateSearchMode);
     /* Toiseen sovellukseen siirtyminen katkaisee äänen iOS:ssä. Kaksi asiaa

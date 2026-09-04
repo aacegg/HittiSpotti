@@ -1229,6 +1229,27 @@ body.sheet-open { overflow: hidden; }
 .faq-body { padding-bottom: var(--s5); }
 .faq-body > :first-child { margin-top: 0; }
 
+/* Lupakytkin tilastonäkymässä. Hiusviiva erottaa sen napeista: se ei ole
+   toiminto vaan asetus, eikä sen kuulu näyttää painettavalta napilta. */
+.lupa {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s4);
+  margin-top: var(--s7);
+  padding-top: var(--s5);
+  border-top: 1px solid var(--line-soft);
+  cursor: pointer;
+}
+.lupa input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  accent-color: var(--live);
+}
+.lupa strong { display: block; font-size: var(--f4); font-weight: 600; }
+.lupa-note { display: block; margin-top: var(--s1); font-size: var(--f2); line-height: 1.5; color: var(--dim); }
+
 /* ---------- Ilmoitus ---------- */
 .toast {
   position: fixed;

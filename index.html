@@ -26,14 +26,14 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <!-- iOS ei tue SVG:tä kotinäytön kuvakkeena: SVG:llä se otti sivusta
        ruudunkaappauksen kuvakkeen sijaan. 180 px on iPhonen koko. -->
-  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=68">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=68">
-  <link rel="manifest" href="manifest.webmanifest?v=68">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=69">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=69">
+  <link rel="manifest" href="manifest.webmanifest?v=69">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HittiSpotti">
   <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=68">
+  <link rel="stylesheet" href="style.css?v=69">
 
   <script type="application/ld+json">
   {
@@ -233,6 +233,17 @@
         <button type="button" class="btn btn-quiet" id="reset-stats-btn">Nollaa tilastot</button>
       </div>
       <pre id="export-out" class="share" hidden></pre>
+
+      <!-- Peli lähettää kierroksista koosteen vaikeustasojen tarkentamiseksi.
+           Se on niin vähän kuin mahdollista, mutta se on silti lähetys, joten
+           siitä kerrotaan ja sen saa kytkeä pois. -->
+      <label class="lupa">
+        <input type="checkbox" id="data-consent" checked>
+        <span>
+          <strong>Auta tarkentamaan vaikeustasoja</strong>
+          <span class="lupa-note">Lähettää jokaisesta kierroksesta biisin, tason ja sen monenko sekunnin pätkästä tunnistit. Ei nimeä, ei tunnistetta, ei mitään joka yhdistäisi kierroksesi toisiinsa.</span>
+        </span>
+      </label>
     </section>
 
     <!-- OHJEET
@@ -311,8 +322,10 @@
         <details>
           <summary><span>Mitä tietoja minusta kerätään?</span></summary>
           <div class="faq-body">
-            <p>Tulokset, tilastot ja arviot tallentuvat vain omaan selaimeesi. Peli ei kysy nimeä, sähköpostia eikä mitään muutakaan.</p>
-            <p>Sivu laskee kävijämäärän <strong>GoatCounterilla</strong>, jotta tiedän pelaako peliä kukaan. Se kirjaa käynnin ja kaksi tapahtumaa: päivän sarjan aloituksen ja sen valmiiksi pelaamisen. Mitään ei yhdistetä sinuun: ei evästeitä, ei kirjautumista, ei seurantaa muille sivustoille. Siksi tämä sivu ei tarvitse evästeilmoitusta.</p>
+            <p>Tulokset, tilastot ja omat arviot tallentuvat vain selaimeesi. Peli ei kysy nimeä, sähköpostia eikä mitään muutakaan, eikä sinusta luoda tunnistetta.</p>
+            <p>Ulos lähtee kaksi asiaa. <strong>Kävijälaskuri</strong> (GoatCounter) kirjaa käynnin ja kaksi tapahtumaa: päivän sarjan aloituksen ja sen valmiiksi pelaamisen. <strong>Kierroksista</strong> lähtee biisi, sen taso, monenko sekunnin pätkästä tunnistit sen ja kumpaa pelimuotoa pelasit.</p>
+            <p>Kierrostieto on vaikeustasoja varten. Se on ainoa luotettava tapa saada ne kohdalleen, koska se mittaa mitä ihmiset oikeasti tekevät eikä mitä he arvelevat. Mukana ei mene päivämäärää, tunnistetta eikä mitään joka yhdistäisi kaksi kierrostasi toisiinsa: palvelin laskee vain summia biiseittäin. Voit kytkeä sen pois <strong>Tilastot</strong>-sivun alalaidasta.</p>
+            <p>Ei evästeitä, ei kirjautumista, ei seurantaa muille sivustoille. Siksi tämä sivu ei tarvitse evästeilmoitusta.</p>
           </div>
         </details>
       </div>
@@ -357,7 +370,7 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=68"></script>
+  <script src="app.js?v=69"></script>
 
   <!-- Kävijälaskenta: ei evästeitä, ei henkilötietoja, ei seurantaa yli
        sivustorajojen – siksi tämä ei vaadi suostumusikkunaa. Ladataan

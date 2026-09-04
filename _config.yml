@@ -12,6 +12,7 @@
 # niitä. Staattisella sivustolla lähdekoodi ja sivusto ovat sama asia.
 exclude:
   - README.md
+  - palvelin/
   - arviointi.html
   - ehdotukset.json
   - scripts/

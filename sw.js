@@ -7,19 +7,22 @@
  * Välimuistin nimessä on versio. Kun se vaihtuu, vanha poistetaan kokonaan,
  * joten jumiin jäänyttä välimuistia ei pääse syntymään.
  */
-const VERSIO = "hittispotti-v60";
+const VERSIO = "hittispotti-v61";
+
+/* Sovelluksen juuri. Vain tähän osoitettu navigointi kelpaa offline-varasivuksi. */
+const JUURI = new URL("./", self.location).pathname;
 
 /* Sivupohja esiladataan asennuksessa. songs.json ei ole mukana: peli hakee
  * sen joka tapauksessa heti, ja esilataus tarkoittaisi saman 780 kt:n
  * lataamista kahdesti. Se päätyy välimuistiin ensimmäisellä haulla. */
 const POHJA = [
   "./",
-  "./style.css?v=60",
-  "./app.js?v=60",
+  "./style.css?v=61",
+  "./app.js?v=61",
   "./favicon.svg",
-  "./icon-180.png?v=60",
-  "./icon-192.png?v=60",
-  "./manifest.webmanifest?v=60",
+  "./icon-180.png?v=61",
+  "./icon-192.png?v=61",
+  "./manifest.webmanifest?v=61",
   "./fonts/bricolage-latin.woff2",
   "./fonts/bricolage-latin-ext.woff2",
 ];
@@ -59,8 +62,16 @@ self.addEventListener("fetch", (e) => {
     e.respondWith((async () => {
       try {
         const vastaus = await fetch(req);
-        const c = await caches.open(VERSIO);
-        c.put("./", vastaus.clone());
+        /* Vain onnistunut etusivu talteen. Aiemmin tähän tallennettiin mikä
+         * tahansa navigointi avaimella "./" ja ilman tilakoodin tarkistusta.
+         * Yksi käynti virheellisessä osoitteessa sivuston alta korvasi siis
+         * offline-varasivun virhesivulla: mitattuna välimuistin "./" vaihtui
+         * 14 444 tavun pelistä 335 tavun 404-sivuun. Sama olisi käynyt
+         * hetkellisestä palvelinvirheestä. */
+        if (vastaus.ok && url.pathname === JUURI) {
+          const c = await caches.open(VERSIO);
+          c.put("./", vastaus.clone());
+        }
         return vastaus;
       } catch {
         return (await caches.match("./")) || Response.error();

@@ -7,6 +7,13 @@ Syöte on JSON-lista muotoa [{"artist": "...", "title": "..."}, ...] siinä
 järjestyksessä kuin soittolistalla. --taso kertoo, mihin sijaan asti kukin
 vaikeustaso ulottuu (yllä: sijat 1-30 Helppo, 31-70 Keskitaso, 71-100 Vaikea).
 
+Rivi saa kaksi vapaaehtoista kenttää. "tier" antaa sille oman vaikeustason
+sijaan perustuvan säännön sijaan, mikä on tarpeen aina kun soittolista ei ole
+suosituimmuusjärjestyksessä. "nimeksi" korvaa artistin nimen: Apple kreditoi
+osan artisteista eri nimellä kuin millä heidät tunnetaan. "vuodeksi" korvaa
+julkaisuvuoden niissä tapauksissa joissa alkuperäistä levytystä ei ole Applen
+katalogissa lainkaan ja vanhinkin löytyvä päivä on kokoelmalta.
+
 Nimillä hakeminen on epävarmempaa kuin artistin katalogin selaaminen, joten
 skripti vaatii että sekä artisti että kappaleen nimi täsmäävät, ja tulostaa
 erikseen ne joita ei löytynyt. Se ei koskaan lisää biisiä, jonka nimi tai
@@ -62,11 +69,11 @@ def first_artist(artist: str) -> str:
     return re.split(r"\s*[,&]\s*|\s+ja\s+", artist)[0].strip()
 
 
-def search(term: str, limit: int = 12) -> list:
-    q = urllib.parse.urlencode({
-        "term": term, "country": "fi", "media": "music", "entity": "song", "limit": limit,
-    })
-    req = urllib.request.Request(f"{API}?{q}", headers={"User-Agent": "HittiSpotti/1.0"})
+def api(path: str, **params) -> list:
+    params.setdefault("country", "fi")
+    q = urllib.parse.urlencode(params)
+    req = urllib.request.Request(f"https://itunes.apple.com/{path}?{q}",
+                                 headers={"User-Agent": "HittiSpotti/1.0"})
     for attempt in range(4):
         try:
             with urllib.request.urlopen(req, timeout=25) as resp:
@@ -78,9 +85,54 @@ def search(term: str, limit: int = 12) -> list:
     return []
 
 
+def search(term: str, limit: int = 12) -> list:
+    return api("search", term=term, media="music", entity="song", limit=limit)
+
+
+"""Artistin koko tuotanto tunnisteen kautta.
+
+Vapaatekstihaku ei löydä läheskään kaikkea. Mitattu esimerkki: haku
+"NRO1 BÄMÄ" palauttaa nolla osumaa, vaikka OLGAn Nro1 Bämä on Applen
+Suomen katalogissa ja löytyy heti artistin tunnisteella. Näin katosi
+seitsemän biisiä yhdeltä soittolistalta ilman että mikään kertoi siitä.
+
+Siksi haku tehdään kahdessa vaiheessa: ensin nopea vapaatekstihaku, ja
+jos se ei tuota tulosta, artistin koko tuotanto ja nimien vertailu
+paikallisesti. Tuotanto haetaan artistia kohti kerran ja pidetään
+muistissa, joten toinen vaihe maksaa yhden kyselyn artistilta eikä
+biisiltä.
+"""
+_tuotannot: dict = {}
+
+
+def artist_songs(artist: str) -> list:
+    nimi = first_artist(artist)
+    if nimi in _tuotannot:
+        return _tuotannot[nimi]
+    kaikki = []
+    for a in api("search", term=nimi, entity="musicArtist", limit=8):
+        # Samannimisiä artisteja on useita; kaikki samannimiset käydään läpi
+        # ja pick() ratkaisee lopulta kappaleen nimen perusteella.
+        if norm(a.get("artistName", "")) != norm(nimi):
+            continue
+        tulos = api("lookup", id=a["artistId"], entity="song", limit=200)
+        kaikki += [t for t in tulos if t.get("kind") == "song"]
+        time.sleep(0.3)
+    _tuotannot[nimi] = kaikki
+    return kaikki
+
+
 def pick(results: list, artist: str, title: str):
-    """Paras osuma: artisti ja kappaleen nimi täsmäävät, versio on oikea."""
+    """Paras osuma: artisti ja kappaleen nimi täsmäävät, versio on oikea.
+
+    Kelvollisista valitaan vanhin julkaisu. Sama biisi on katalogissa usein
+    monta kertaa: alkuperäinen levy, kokoelmat ja uudelleenjulkaisut. Apple
+    antaa kullekin oman julkaisupäivänsä, ja peli näyttää vuoden pelaajalle
+    paljastuksessa. Ilman tätä Raptorin Oi Beibi olisi vuodelta 2010 ja Pojun
+    Poika saunoo vuodelta 2026, vaikka molemmat ovat vuosikymmeniä vanhempia.
+    Äänite on sama, joten vanhin päivä on lähinnä totuutta."""
     want_a, want_t = norm(first_artist(artist)), base_title(title)
+    kelpaavat = []
     for r in results:
         if r.get("kind") != "song" or not r.get("previewUrl"):
             continue
@@ -93,8 +145,10 @@ def pick(results: list, artist: str, title: str):
             continue
         if has_word(norm(r.get("collectionName", "")), SKIP_ALBUM):
             continue
-        return r
-    return None
+        kelpaavat.append(r)
+    if not kelpaavat:
+        return None
+    return min(kelpaavat, key=lambda r: r.get("releaseDate") or "9999")
 
 
 def parse_tiers(args) -> list:
@@ -138,6 +192,8 @@ def main() -> int:
         hit = pick(search(f"{first_artist(artist)} {title}"), artist, title)
         if hit is None:                      # toinen yritys pelkällä nimellä
             hit = pick(search(title), artist, title)
+        if hit is None:                      # kolmas: artistin koko tuotanto
+            hit = pick(artist_songs(artist), artist, title)
         time.sleep(0.35)
         if hit is None:
             missing.append(f"{i:>3}. {artist} – {title}")
@@ -145,11 +201,21 @@ def main() -> int:
         if hit["trackId"] in have_ids or norm(hit["artistName"]) + "|" + base_title(hit["trackName"]) in have_titles:
             already.append(f"{artist} – {title}")
             continue
-        tier = tier_for(i, rules, a.oletustaso)
+        # Rivikohtainen taso voittaa sijaan perustuvan säännön. Soittolista on
+        # harvoin suosituimmuusjärjestyksessä, joten sija on huono arvaus.
+        tier = w.get("tier") or tier_for(i, rules, a.oletustaso)
         rec = {
-            "artist": hit["artistName"],
+            # Apple kreditoi joskus artistin eri nimellä kuin millä hänet
+            # tunnetaan ("Abreu" / Anna Abreu) tai kirjoittaa nimen väärin
+            # ("Nelja Ruusua"). Kumpikin sotkisi haun pelissä.
+            "artist": w.get("nimeksi") or hit["artistName"],
             "title": hit["trackName"],
-            "year": int((hit.get("releaseDate") or "0")[:4]) or None,
+            # Applen julkaisupäivä on sen levyn päivä jolta pätkä tulee. Jos
+            # alkuperäistä levytystä ei ole katalogissa lainkaan, vanhinkin
+            # päivä on väärä: Raptorin Oi Beibi on siellä vain vuoden 2010
+            # kokoelmalla vaikka biisi on vuodelta 1990. Silloin oikea vuosi
+            # annetaan käsin.
+            "year": w.get("vuodeksi") or int((hit.get("releaseDate") or "0")[:4]) or None,
             "tier": tier,
             "id": hit["trackId"],
             "preview": hit["previewUrl"],

@@ -75,6 +75,8 @@
     rail: $("#rail"),
     railBody: $("#rail-body"),
     railPoints: $("#rail-points"),
+    dsNumbers: $("#ds-numbers"),
+    dsWeekBlock: $("#ds-week-block"),
     dsWeek: $("#ds-week"),
     stage: $(".stage"),
     drawerClose: $("#drawer-close"),
@@ -430,8 +432,22 @@
    * uudelle pelaajalle näytetä pelkkiä nollia. */
   function refreshDrawerStats() {
     const s = { ...defaultStats(), ...store.get("stats", {}) };
-    if (!s.dailyPlayed) { el.drawerStats.hidden = true; return; }
-    el.drawerStats.hidden = false;
+    /* Kaksi lohkoa, kaksi eri lähdettä, siis kaksi eri ehtoa. Luvut tulevat
+     * kootuista tilastoista, viikko suoraan päivien omista tuloksista.
+     *
+     * Aiemmin molemmat riippuivat samasta luvusta, ja se oli väärin:
+     * tilastojen nollaus poistaa "stats"-avaimen mutta jättää kuluvan päivän
+     * tuloksen paikalleen. Silloin valikossa luki "pelattu tänään, 1 500 p"
+     * mutta koko lohko oli piilossa, eli sivupalkin alalaita oli tyhjä
+     * vaikka näytettävää oli. */
+    const viikko = keraaViikko();
+    const onPaivia = viikko.some((d) => d.osui !== null);
+    el.dsNumbers.hidden = !s.dailyPlayed;
+    el.dsWeekBlock.hidden = !onPaivia;
+    el.drawerStats.hidden = !s.dailyPlayed && !onPaivia;
+    if (el.drawerStats.hidden) return;
+    piirraViikko(viikko);
+    if (!s.dailyPlayed) return;
     const eilen = new Date(); eilen.setDate(eilen.getDate() - 1);
     const tanaan = s.lastDaily === todayKey();
     const putki = (tanaan || s.lastDaily === dayKey(eilen)) ? s.streak : 0;
@@ -443,40 +459,46 @@
     el.dsBest.textContent = fmt(s.dailyBest);
     el.dsHit.textContent = Math.round((s.dailySolved / (s.dailyPlayed * DAILY_COUNT)) * 100) + " %";
     el.dsLongest.textContent = fmt(s.bestStreak);
-    piirraViikko();
   }
 
-  /* Viimeiset seitsemän päivää pylväinä.
+  /* Viimeiset seitsemän päivää.
    *
    * Putkiluku kertoo että päiviä on peräkkäin muttei sitä miten ne menivät.
-   * Pylvään korkeus on sinä päivänä tunnistetut biisit nollasta viiteen, ja
-   * pelaamaton päivä on pelkkä hiusviiva. Väri on tason asteikolta samassa
-   * suunnassa kuin muuallakin: viisi oikein on vihreä, nolla punainen.
-   *
-   * Tiedot ovat jo selaimessa: joka päivä tallentaa oman tuloksensa. Tämä
-   * ei siis kerää mitään uutta vaan näyttää sen mitä on. */
-  function piirraViikko() {
-    const rivit = [];
+   * Tiedot ovat jo selaimessa: joka päivä tallentaa oman tuloksensa. Tämä ei
+   * siis kerää mitään uutta vaan näyttää sen mitä on. */
+  function keraaViikko() {
+    const paivat = [];
     for (let i = 6; i >= 0; i--) {
       const pv = new Date();
       pv.setDate(pv.getDate() - i);
       const avain = dayKey(pv);
       const tulos = store.get("daily:" + avain, null);
-      const osui = tulos ? tulos.results.filter((r) => r.solved).length : null;
-      const nimi = ["su", "ma", "ti", "ke", "to", "pe", "la"][pv.getDay()];
-      const otsikko = tulos
-        ? `${avain}: ${osui}/${DAILY_COUNT} tunnistettu, ${fmt(tulos.score)} p`
-        : `${avain}: ei pelattu`;
-      /* Korkeus 8-40 px myös nollatuloksella: nollan korkuinen pylväs on
-       * sama asia kuin pelaamaton päivä, vaikka ne ovat eri asioita. */
-      const korkeus = osui === null ? 0 : 8 + (osui / DAILY_COUNT) * 32;
-      // Viisi oikein = taso 1 (vihreä), nolla oikein = taso 5 (punainen).
-      const taso = Math.max(1, Math.min(5, 5 - osui));
-      rivit.push(`<li class="${osui === null ? "on-tyhja" : ""}${i === 0 ? " on-tanaan" : ""}"
-        title="${otsikko}"><span style="height:${korkeus}px"
-        ${osui === null ? "" : `data-tier="${taso}"`}></span><b>${nimi}</b></li>`);
+      paivat.push({
+        avain,
+        tanaan: i === 0,
+        nimi: ["su", "ma", "ti", "ke", "to", "pe", "la"][pv.getDay()],
+        osui: tulos ? tulos.results.filter((r) => r.solved).length : null,
+        pisteet: tulos ? tulos.score : null,
+      });
     }
-    el.dsWeek.innerHTML = rivit.join("");
+    return paivat;
+  }
+
+  /* Pylvään korkeus on sinä päivänä tunnistetut biisit, väri tason asteikolta
+   * samassa suunnassa kuin muualla: viisi oikein vihreä, nolla punainen.
+   * Pelaamaton päivä on hiusviiva eikä nollan korkuinen pylväs, koska ne ovat
+   * eri asioita ja näyttäisivät muuten samalta. */
+  function piirraViikko(paivat) {
+    el.dsWeek.innerHTML = paivat.map((d) => {
+      const otsikko = d.osui === null
+        ? `${d.avain}: ei pelattu`
+        : `${d.avain}: ${d.osui}/${DAILY_COUNT} tunnistettu, ${fmt(d.pisteet)} p`;
+      const korkeus = d.osui === null ? 0 : 8 + (d.osui / DAILY_COUNT) * 32;
+      const taso = Math.max(1, Math.min(5, 5 - d.osui));
+      return `<li class="${d.osui === null ? "on-tyhja" : ""}${d.tanaan ? " on-tanaan" : ""}"
+        title="${otsikko}"><span style="height:${korkeus}px"
+        ${d.osui === null ? "" : `data-tier="${taso}"`}></span><b>${d.nimi}</b></li>`;
+    }).join("");
   }
 
   // ---------- Katalogi ----------

@@ -1083,20 +1083,27 @@ body.sheet-open { overflow: hidden; }
 }
 .sheet-head .iconbtn { margin: 0; font-size: var(--f3); }
 
-/* Kortti on kuvan kokoinen eikä venytetty: pelaaja näkee tarkalleen sen
-   mitä on lähettämässä. */
-.sheet-preview { margin: 0 0 var(--s5); text-align: center; }
+/* Kortti rajataan korkeudesta, ei leveydestä. Vapaan pelin kuva on 3:4, ja
+   leveyteen sidottuna se venyi 400 pikselin korkuiseksi: napit jäivät ruudun
+   alapuolelle ja niitä piti etsiä vierittämällä. Kuva on esikatselu, ei itse
+   sisältö, joten sen kuuluu antaa tilaa napeille. */
+.sheet-preview { margin: 0 0 var(--s4); text-align: center; }
 .sheet-preview img {
   display: block;
-  width: min(300px, 72vw);
-  height: auto;
+  width: auto;
+  max-width: 100%;
+  max-height: 38dvh;
   margin: 0 auto;
   border: 1px solid var(--line);
   border-radius: var(--r);
 }
-.sheet-note { margin: 0 0 var(--s5); font-size: var(--f2); line-height: 1.5; color: var(--muted); text-align: center; }
-.sheet-actions { display: flex; flex-direction: column; gap: var(--s3); }
-.sheet-actions .btn { width: 100%; }
+.sheet-note { margin: 0 0 var(--s4); font-size: var(--f2); line-height: 1.45; color: var(--muted); text-align: center; }
+
+/* Päätoiminto koko leveydeltä, kaksi muuta rinnakkain. Kolme täysleveää
+   nappia allekkain vei 172 px pystysuunnassa; tämä vie 112. */
+.sheet-actions { display: flex; flex-wrap: wrap; gap: var(--s3); }
+.sheet-actions .btn { flex: 1 1 calc(50% - var(--s3)); padding: var(--s4) var(--s4); }
+.sheet-actions .btn-accent { flex-basis: 100%; }
 
 @media (min-width: 560px) {
   .sheet {
@@ -1110,8 +1117,7 @@ body.sheet-open { overflow: hidden; }
     border-radius: 14px;
     padding: var(--s6);
   }
-  .sheet-actions { flex-direction: row; flex-wrap: wrap; }
-  .sheet-actions .btn { width: auto; flex: 1 1 auto; }
+  .sheet-preview img { max-height: 46dvh; }
 }
 
 /* ---------- Tilastot ---------- */

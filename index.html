@@ -26,14 +26,14 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <!-- iOS ei tue SVG:tä kotinäytön kuvakkeena: SVG:llä se otti sivusta
        ruudunkaappauksen kuvakkeen sijaan. 180 px on iPhonen koko. -->
-  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=70">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=70">
-  <link rel="manifest" href="manifest.webmanifest?v=70">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=71">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=71">
+  <link rel="manifest" href="manifest.webmanifest?v=71">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HittiSpotti">
   <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=70">
+  <link rel="stylesheet" href="style.css?v=71">
 
   <script type="application/ld+json">
   {
@@ -234,14 +234,14 @@
       </div>
       <pre id="export-out" class="share" hidden></pre>
 
-      <!-- Peli lähettää kierroksista koosteen vaikeustasojen tarkentamiseksi.
+      <!-- Peli lähettää kierroksista ja arvioista koosteen tasojen tarkentamiseksi.
            Se on niin vähän kuin mahdollista, mutta se on silti lähetys, joten
            siitä kerrotaan ja sen saa kytkeä pois. -->
       <label class="lupa">
         <input type="checkbox" id="data-consent" checked>
         <span>
           <strong>Auta tarkentamaan vaikeustasoja</strong>
-          <span class="lupa-note">Lähettää jokaisesta kierroksesta biisin, tason ja sen monenko sekunnin pätkästä tunnistit. Ei nimeä, ei tunnistetta, ei mitään joka yhdistäisi kierroksesi toisiinsa.</span>
+          <span class="lupa-note">Lähettää jokaisesta kierroksesta biisin, tason ja sen monenko sekunnin pätkästä tunnistit, sekä arviosi jos annat sellaisen. Ei nimeä, ei tunnistetta, ei mitään joka yhdistäisi kierroksesi toisiinsa.</span>
         </span>
       </label>
     </section>
@@ -315,7 +315,7 @@
           <summary><span>Kuka päättää vaikeustasot?</span></summary>
           <div class="faq-body">
             <p>Kun biisi paljastuu, voit kertoa miltä se sinusta tuntui. Arvio on vapaaehtoinen eikä vaikuta pisteisiin. Peli myös merkitsee muistiin, monenko sekunnin pätkästä tunnistit biisin, ja se kertoo vaikeudesta enemmän kuin mikään arvio.</p>
-            <p>Kaikki tämä tallentuu <strong>vain omaan selaimeesi</strong>, eikä sitä lähetetä minnekään. Tilastosivun <strong>Vie pelidata</strong> antaa kertyneen aineiston, jos haluat lähettää sen tasojen tarkentamiseksi.</p>
+            <p>Molemmat säilyvät kokonaisina omassa selaimessasi, ja molemmista lähtee nimetön kooste tasojen tarkentamiseksi. Näin nähdään myös se, ovatko nämä kaksi eri mieltä: biisi voi tuntua vaikealta vaikka melkein kaikki tunnistavat sen heti. Lähetyksen saa kytkeä pois <strong>Tilastot</strong>-sivun alalaidasta.</p>
           </div>
         </details>
 
@@ -323,8 +323,8 @@
           <summary><span>Mitä tietoja minusta kerätään?</span></summary>
           <div class="faq-body">
             <p>Tulokset, tilastot ja omat arviot tallentuvat vain selaimeesi. Peli ei kysy nimeä, sähköpostia eikä mitään muutakaan, eikä sinusta luoda tunnistetta.</p>
-            <p>Ulos lähtee kaksi asiaa. <strong>Kävijälaskuri</strong> (GoatCounter) kirjaa käynnin ja kaksi tapahtumaa: päivän sarjan aloituksen ja sen valmiiksi pelaamisen. <strong>Kierroksista</strong> lähtee biisi, sen taso, monenko sekunnin pätkästä tunnistit sen ja kumpaa pelimuotoa pelasit.</p>
-            <p>Kierrostieto on vaikeustasoja varten. Se on ainoa luotettava tapa saada ne kohdalleen, koska se mittaa mitä ihmiset oikeasti tekevät eikä mitä he arvelevat. Mukana ei mene päivämäärää, tunnistetta eikä mitään joka yhdistäisi kaksi kierrostasi toisiinsa: palvelin laskee vain summia biiseittäin. Voit kytkeä sen pois <strong>Tilastot</strong>-sivun alalaidasta.</p>
+            <p>Ulos lähtee kolme asiaa. <strong>Kävijälaskuri</strong> (GoatCounter) kirjaa käynnin ja kaksi tapahtumaa: päivän sarjan aloituksen ja sen valmiiksi pelaamisen. <strong>Kierroksista</strong> lähtee biisi, sen taso, monenko sekunnin pätkästä tunnistit sen ja kumpaa pelimuotoa pelasit. <strong>Arvioista</strong> lähtee biisi, sen taso ja se mitä vastasit, jos vastasit.</p>
+            <p>Nämä ovat vaikeustasoja varten. Kierros mittaa mitä ihmiset oikeasti tekevät, arvio mitä he ajattelivat, ja vasta yhdessä ne kertovat mikä biisi on minkäkin vaikea. Mukana ei mene päivämäärää, tunnistetta eikä mitään joka yhdistäisi kaksi kierrostasi toisiinsa: palvelin laskee vain summia biiseittäin. Voit kytkeä lähetyksen pois <strong>Tilastot</strong>-sivun alalaidasta.</p>
             <p>Ei evästeitä, ei kirjautumista, ei seurantaa muille sivustoille. Siksi tämä sivu ei tarvitse evästeilmoitusta.</p>
           </div>
         </details>
@@ -370,7 +370,7 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=70"></script>
+  <script src="app.js?v=71"></script>
 
   <!-- Kävijälaskenta: ei evästeitä, ei henkilötietoja, ei seurantaa yli
        sivustorajojen – siksi tämä ei vaadi suostumusikkunaa. Ladataan

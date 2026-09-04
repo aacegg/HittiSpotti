@@ -28,6 +28,15 @@ suurta tasoa, mikä on juuri se mitä peli tarvitsee.
 
 Ehdotus tehdään vain biiseille joilla on tarpeeksi kierroksia. Kahden
 kierroksen perusteella ei tiedä mitään.
+
+ARVIO
+
+Pelaajat voivat myös kertoa miltä biisi tuntui, 1-5. Se on eri asia kuin
+mitattu vaikeus: askel kertoo mitä ihminen teki, arvio mitä hän ajatteli.
+Nämä eivät aina ole samaa mieltä, ja juuri erimielisyys on kiinnostavaa.
+Biisi joka tunnistetaan heti mutta jonka kaikki merkitsevät vaikeaksi on
+todennäköisesti tuttu mutta hankalasti nimettävä, ja sellainen kuuluu
+korkeammalle tasolle kuin pelkkä mitattu luku ehdottaisi.
 """
 import csv
 import json
@@ -35,6 +44,7 @@ import pathlib
 import sys
 
 VAHINTAAN = 10          # kierrosta ennen kuin ehdotetaan mitään
+VAHINTAAN_ARVIOITA = 5  # arviota ennen kuin niiden keskiarvoa vertaillaan
 TASOT = {1: "Helppo", 2: "Keskitaso", 3: "Vaikea", 4: "Mestari", 5: "Mahdoton"}
 
 
@@ -54,6 +64,21 @@ def lue_tilastot(polku):
         teksti = f.read()
     erotin = ";" if teksti.count(";") > teksti.count(",") else ","
     return list(csv.DictReader(teksti.splitlines(), delimiter=erotin))
+
+
+def arvio(r):
+    """Pelaajien arvioiden keskiarvo ja määrä. (None, 0) jos ei arvioita.
+
+    Vanha CSV ei sisällä arviosarakkeita lainkaan, joten puuttuva sarake on
+    normaali tilanne eikä virhe."""
+    try:
+        jakauma = [int(r.get(f"arvio{i}") or 0) for i in range(1, 6)]
+    except ValueError:
+        return None, 0
+    n = sum(jakauma)
+    if not n:
+        return None, 0
+    return sum((i + 1) * k for i, k in enumerate(jakauma)) / n, n
 
 
 def vaikeusluku(r):
@@ -81,6 +106,7 @@ def main():
             tuntemattomat.append(tunnus)
             continue
         n = int(r["kierroksia"])
+        keski, arvioita = arvio(r)
         tieto = {
             "id": tunnus,
             "nimi": f'{biisi.get("artist", "?")} – {biisi.get("title", "?")}',
@@ -88,6 +114,8 @@ def main():
             "n": n,
             "osuma": sum(int(r[f"a{i}"]) for i in range(5)) / n if n else 0,
             "luku": vaikeusluku(r),
+            "arvio": keski,
+            "arvioita": arvioita,
         }
         (mitatut if n >= VAHINTAAN else ohuet).append(tieto)
 
@@ -96,6 +124,9 @@ def main():
         print(f"Tuntemattomia tunnisteita {len(tuntemattomat)}: {tuntemattomat[:5]}"
               " (testirivejä tai katalogista poistettuja)")
     print(f"Riittävästi dataa ({VAHINTAAN}+ kierrosta): {len(mitatut)} · liian vähän: {len(ohuet)}")
+    arvioita = sum(b["arvioita"] for b in mitatut + ohuet)
+    print(f"Arvioita yhteensä {arvioita}"
+          + (" (vanha CSV ilman arviosarakkeita?)" if not arvioita else ""))
     if not mitatut:
         print("\nEi vielä yhtään biisiä jolla olisi tarpeeksi kierroksia. Anna kertyä.")
         return
@@ -117,12 +148,26 @@ def main():
         print("otoksella ehdotukset kertovat vain näiden biisien keskinäisen järjestyksen,")
         print("eivät oikeaa tasoa. Käytä järjestystä, älä ehdotettua numeroa.")
 
-    print(f"\n{'':<52} {'nyt':>4} {'ehd':>4} {'kierr':>6} {'osuma':>6} {'vaikeus':>8}")
-    print("-" * 86)
+    print(f"\n{'':<52} {'nyt':>4} {'ehd':>4} {'kierr':>6} {'osuma':>6} {'vaikeus':>8} {'arvio':>10}")
+    print("-" * 98)
     for b in mitatut:
         merkki = "  " if b["taso"] == b["ehdotus"] else "->"
+        a = f'{b["arvio"]:.1f} ({b["arvioita"]})' if b["arvio"] is not None else "-"
         print(f'{b["nimi"][:50]:<52} {b["taso"]:>4} {merkki}{b["ehdotus"]:>2} '
-              f'{b["n"]:>6} {b["osuma"]*100:>5.0f}% {b["luku"]:>8.2f}')
+              f'{b["n"]:>6} {b["osuma"]*100:>5.0f}% {b["luku"]:>8.2f} {a:>10}')
+
+    erimielet = [b for b in mitatut
+                 if b["arvioita"] >= VAHINTAAN_ARVIOITA
+                 and abs(b["arvio"] - b["ehdotus"]) >= 1.5]
+    if erimielet:
+        montako = "1 biisi" if len(erimielet) == 1 else f"{len(erimielet)} biisiä"
+        print(f"\nMitattu ja koettu vaikeus eroavat ({montako}, "
+              f"{VAHINTAAN_ARVIOITA}+ arviota):")
+        for b in sorted(erimielet, key=lambda x: -abs(x["arvio"] - x["ehdotus"]))[:15]:
+            suunta = "tuntuu vaikeammalta" if b["arvio"] > b["ehdotus"] else "tuntuu helpommalta"
+            print(f'  {suunta}  mitattu {b["ehdotus"]}, koettu {b["arvio"]:.1f}  {b["nimi"][:40]}')
+        print("Tämä ei ole virhe kummassakaan luvussa. Se kertoo yleensä biisistä joka")
+        print("tunnistuu heti mutta jonka nimeäminen on hankalaa, tai päinvastoin.")
 
     muuttuu = [b for b in mitatut if b["taso"] != b["ehdotus"]]
     print(f"\nTaso muuttuisi {len(muuttuu)} biisillä {len(mitatut)}:stä.")

@@ -945,6 +945,8 @@
 
   function openRound() {
     stopPlayback();
+    // Edellisen biisin arvio on nyt lopullinen: pelaaja siirtyi eteenpäin.
+    lahetaArvio();
     const r = cur();
     state.selected = null;
     el.input.value = "";
@@ -1805,8 +1807,9 @@
    *   arviot   – pelaajan oma arvio siitä miltä biisi tuntui (vapaaehtoinen)
    *   kierrokset – millä askeleella biisi tunnistettiin, vai luovutettiinko
    * Askel on käyttäytymistä eikä mielipidettä, ja se kertyy joka kierroksesta
-   * ilman että pelaajalta kysytään mitään. Kaikki jää tähän selaimeen: sivu
-   * on staattinen eikä lähetä mitään minnekään.
+   * ilman että pelaajalta kysytään mitään. Molemmat jäävät kokonaisina tähän
+   * selaimeen, ja molemmista lähtee tilastopalvelimelle nimetön kooste, jos
+   * pelaaja ei ole kytkenyt sitä pois.
    */
   const LOG_MAX = 3000;
 
@@ -1862,10 +1865,56 @@
     } catch { /* tilastointi ei koskaan riko peliä */ }
   }
 
-  function saveRating(id, tier) {
+  /* Arvion lähetys.
+   *
+   * Arvio on toinen signaali samasta biisistä: askel kertoo mitä pelaaja
+   * teki, arvio mitä hän ajatteli. Vertaamalla niitä näkee onko biisi
+   * oikeasti vaikea vai tuntuuko se vain siltä.
+   *
+   * Kaksi eroa kierroksen lähetykseen, molemmat siksi että palvelin osaa
+   * vain kasvattaa lukua eikä siirtää sitä sarakkeesta toiseen:
+   *
+   *   1. Lähetys tapahtuu vasta kun pelaaja siirtyy eteenpäin, ei joka
+   *      napautuksesta. Mielensä saa siis muuttaa ilman että palvelin
+   *      laskee kolme mielipidettä yhdestä.
+   *   2. Kustakin biisistä lähtee vain ensimmäinen arvio. Jälkikäteen
+   *      vaihdettu arvio näkyy pelaajalle itselleen mutta jää selaimeen.
+   *
+   * Kolmas vaihtoehto olisi lähettää vanha ja uusi arvio ja antaa palvelimen
+   * vähentää edellinen. Se vaatisi luottamaan siihen mitä selain väittää
+   * lähettäneensä aiemmin, ja osoite on julkinen: kuka tahansa voisi
+   * vähentää mitä tahansa. Ensimmäinen arvio on huonompi mutta rehellinen.
+   */
+  let odottavaArvio = null;
+
+  function saveRating(song, tier) {
     const all = store.get("arviot", {});
-    all[id] = tier;
+    all[song.id] = tier;
     store.set("arviot", all);
+    // Toisen biisin odottava arvio lähtee ensin, jottei se jää jumiin.
+    if (odottavaArvio && odottavaArvio.id !== song.id) lahetaArvio();
+    odottavaArvio = { id: song.id, taso: song.tier, arvio: tier };
+  }
+
+  function lahetaArvio() {
+    const a = odottavaArvio;
+    odottavaArvio = null;
+    if (!a || !PALVELIN || !dataLupa()) return;
+    const lahetetyt = store.get("arviot:lahetetyt", []);
+    if (lahetetyt.includes(a.id)) return;
+    const runko = JSON.stringify({ id: a.id, taso: a.taso, arvio: a.arvio });
+    try {
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(PALVELIN + "/arvio", new Blob([runko], { type: "text/plain" }));
+      } else {
+        fetch(PALVELIN + "/arvio", {
+          method: "POST", body: runko, keepalive: true,
+          headers: { "content-type": "text/plain" },
+        }).catch(() => {});
+      }
+      lahetetyt.push(a.id);
+      store.set("arviot:lahetetyt", lahetetyt.slice(-LOG_MAX));
+    } catch { /* tilastointi ei koskaan riko peliä */ }
   }
 
   /* Arviorivi näyttää samalta kuin pelin tasorivi, mutta ei paljasta biisin
@@ -2024,6 +2073,7 @@
       && !confirm("Kesken oleva sarja menetetään. Vaihdetaanko?")) return;
     closeDrawer();
     stopPlayback();
+    lahetaArvio();
     if (target === "daily") startDaily();
     else if (target === "free") startFree();
     else if (target === "stats") show("stats");
@@ -2056,7 +2106,7 @@
     el.rateRow.addEventListener("click", (e) => {
       const chip = e.target.closest("[data-rate]");
       if (!chip || cur() === undefined) return;
-      saveRating(cur().song.id, Number(chip.dataset.rate));
+      saveRating(cur().song, Number(chip.dataset.rate));
       renderRate(cur().song);
     });
     el.retryBtn.addEventListener("click", loadAndStart);
@@ -2079,8 +2129,12 @@
      * ei toivu pelkällä herätyksellä. Siksi soitto pysäytetään siististi
      * poistuttaessa ja konteksti merkitään uusittavaksi. */
     document.addEventListener("visibilitychange", () => {
-      if (document.hidden) { stopPlayback(); audio.revive = true; }
+      if (document.hidden) { stopPlayback(); audio.revive = true; lahetaArvio(); }
     });
+    /* Välilehden sulkeminen on viimeinen hetki jolloin odottava arvio voi
+     * vielä lähteä. visibilitychange ei laukea kaikissa selaimissa sulkiessa,
+     * pagehide laukeaa. */
+    window.addEventListener("pagehide", lahetaArvio);
     // Näppäimistön avautuminen ja sulkeutuminen muuttaa näkyvää aluetta.
     if (window.visualViewport) {
       window.visualViewport.addEventListener("resize", updateSearchMode);

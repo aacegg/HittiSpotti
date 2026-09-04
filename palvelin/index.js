@@ -29,6 +29,16 @@ function kelpaa(k) {
     && (k.tila === "daily" || k.tila === "free");
 }
 
+/* Arvio on pelaajan oma mielipide biisin vaikeudesta, 1-5. Se on eri asia
+ * kuin askel: askel mittaa mitä ihminen teki, arvio mitä hän ajatteli.
+ * Molemmat tallennetaan, jotta niitä voi verrata keskenään. */
+function arvioKelpaa(k) {
+  return k
+    && Number.isInteger(k.id) && k.id > 0 && k.id < 1e13
+    && Number.isInteger(k.taso) && k.taso >= 1 && k.taso <= 5
+    && Number.isInteger(k.arvio) && k.arvio >= 1 && k.arvio <= 5;
+}
+
 function vastaus(body, status, origin, tyyppi = "application/json") {
   const h = { "content-type": tyyppi + "; charset=utf-8" };
   if (origin) {
@@ -89,22 +99,44 @@ export default {
       return vastaus('{"ok":true}', 200, origin);
     }
 
+    // ---- Arvioiden vastaanotto ----
+    if (req.method === "POST" && url.pathname === "/arvio") {
+      const teksti = await req.text();
+      if (teksti.length > 1000) return vastaus('{"virhe":"liian iso"}', 413, origin);
+      let k;
+      try { k = JSON.parse(teksti); } catch { return vastaus('{"virhe":"ei JSONia"}', 400, origin); }
+      if (!arvioKelpaa(k)) return vastaus('{"virhe":"kelpaamaton arvio"}', 400, origin);
+
+      /* Sarake valitaan arvion mukaan. Nimi rakennetaan vasta tarkistuksen
+       * jälkeen ja vain sallituista arvoista, joten SQL:ään ei pääse mitään
+       * pelaajan syöttämää. */
+      const sarake = "arvio" + k.arvio;
+      await env.DB.prepare(`
+        INSERT INTO biisi (id, taso, ${sarake}) VALUES (?1, ?2, 1)
+        ON CONFLICT(id) DO UPDATE SET
+          taso = excluded.taso,
+          ${sarake} = biisi.${sarake} + 1
+      `).bind(k.id, k.taso).run();
+      return vastaus('{"ok":true}', 200, origin);
+    }
+
     // ---- Koosteen luku ----
     if (req.method === "GET" && url.pathname === "/tilastot") {
       if (!env.AVAIN || url.searchParams.get("avain") !== env.AVAIN) {
         return vastaus('{"virhe":"väärä avain"}', 403, null);
       }
       const { results } = await env.DB.prepare(
-        "SELECT id, taso, kierroksia, osumia, a0, a1, a2, a3, a4 FROM biisi ORDER BY kierroksia DESC"
+        "SELECT id, taso, kierroksia, osumia, a0, a1, a2, a3, a4, " +
+        "arvio1, arvio2, arvio3, arvio4, arvio5 FROM biisi ORDER BY kierroksia DESC"
       ).all();
 
       if (url.searchParams.get("muoto") === "json") {
         return vastaus(JSON.stringify(results), 200, null);
       }
-      const rivit = ["id,taso,kierroksia,osumia,a0,a1,a2,a3,a4"];
-      for (const r of results) {
-        rivit.push([r.id, r.taso, r.kierroksia, r.osumia, r.a0, r.a1, r.a2, r.a3, r.a4].join(","));
-      }
+      const sarakkeet = ["id", "taso", "kierroksia", "osumia", "a0", "a1", "a2", "a3", "a4",
+        "arvio1", "arvio2", "arvio3", "arvio4", "arvio5"];
+      const rivit = [sarakkeet.join(",")];
+      for (const r of results) rivit.push(sarakkeet.map((c) => r[c]).join(","));
       return vastaus(rivit.join("\n"), 200, null, "text/csv");
     }
 

@@ -89,6 +89,7 @@
     loadingRetry: $("#loading-retry"),
     retryBtn: $("#retry-btn"),
     feedbackLink: $("#feedback-link"),
+    suggestLink: $("#suggest-link"),
     modeLabel: $("#mode-label"),
     modeSub: $("#mode-sub"),
     scoreLabel: $("#score-label"),
@@ -1668,26 +1669,45 @@
   const jaettavaOsoite = () => (location.protocol.startsWith("http")
     ? location.origin + location.pathname : "https://hittispotti.fi/");
 
-  /* Palautelinkki kootaan vasta selaimessa, ei kirjoiteta valmiiksi
-   * HTML:ään. Sivun lähdekoodia haravoivat roskapostirobotit eivät aja
-   * JavaScriptiä, joten osoite ei päädy niiden listoille aivan yhtä
-   * helposti. Viestiin tulee valmiiksi versio ja selain: ilman niitä
-   * vikailmoituksesta puuttuu juuri se tieto jota tarvitsee. */
+  /* Postilinkit kootaan vasta selaimessa, ei kirjoiteta valmiiksi HTML:ään.
+   * Sivun lähdekoodia haravoivat roskapostirobotit eivät aja JavaScriptiä,
+   * joten osoite ei päädy niiden listoille aivan yhtä helposti. */
+  const POSTI = ["hittispotti", "gmail.com"].join("@");
+
+  /* Laite ja selain lyhyesti. Ensin viestiin liitettiin koko user agent,
+   * mutta se vei puhelimen ruudulla viisi riviä ja näytti roskalta juuri
+   * siinä kohdassa jossa ihmisen pitäisi kirjoittaa. Vikailmoituksesta
+   * tarvitaan käytännössä vain versio ja karkea laite. */
+  function laite() {
+    const u = navigator.userAgent;
+    const alusta = /iPhone/.test(u) ? "iPhone" : /iPad/.test(u) ? "iPad"
+      : /Android/.test(u) ? "Android" : /Macintosh/.test(u) ? "Mac"
+      : /Windows/.test(u) ? "Windows" : /Linux/.test(u) ? "Linux" : "tuntematon";
+    // Järjestyksellä on väliä: Chrome iOS:ssä on CriOS, ja lähes kaikkien
+    // selainten tunnisteessa lukee myös Safari.
+    const selain = /CriOS|Chrome/.test(u) ? "Chrome" : /FxiOS|Firefox/.test(u) ? "Firefox"
+      : /EdgiOS|Edg\//.test(u) ? "Edge" : /Safari/.test(u) ? "Safari" : "tuntematon";
+    return `${alusta}, ${selain}`;
+  }
+
+  function postilinkki(aihe, runko) {
+    return "mailto:" + POSTI + "?subject=" + encodeURIComponent(aihe)
+      + "&body=" + encodeURIComponent(runko);
+  }
+
   function asetaPalautelinkki() {
-    if (!el.feedbackLink) return;
     const skripti = document.querySelector('script[src*="app.js"]');
     const versio = (skripti && (skripti.getAttribute("src").match(/v=(\d+)/) || [])[1]) || "?";
-    const runko = [
-      "Kirjoita palautteesi tähän.",
-      "",
-      "",
-      "— tekniset tiedot, älä poista —",
-      `versio: ${versio}`,
-      `selain: ${navigator.userAgent}`,
-    ].join("\n");
-    el.feedbackLink.href = "mailto:" + ["arttualanen", "gmail.com"].join("@")
-      + "?subject=" + encodeURIComponent("HittiSpotti-palaute")
-      + "&body=" + encodeURIComponent(runko);
+    // Kaksi tyhjää riviä alkuun: kohdistin on siinä missä kirjoittaminen
+    // alkaa, eikä käyttäjän tarvitse ensin poistaa mitään.
+    if (el.feedbackLink) {
+      el.feedbackLink.href = postilinkki("HittiSpotti-palaute",
+        `\n\n---\nversio ${versio} · ${laite()}`);
+    }
+    if (el.suggestLink) {
+      el.suggestLink.href = postilinkki("Biisiehdotus",
+        "Artisti:\nKappale:\n\nVoit ehdottaa useampaa kerralla.\n");
+    }
   }
 
   async function avaaJako() {

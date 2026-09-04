@@ -88,6 +88,7 @@
     loadingText: $("#loading-text"),
     loadingRetry: $("#loading-retry"),
     retryBtn: $("#retry-btn"),
+    feedbackLink: $("#feedback-link"),
     modeLabel: $("#mode-label"),
     modeSub: $("#mode-sub"),
     scoreLabel: $("#score-label"),
@@ -1667,6 +1668,28 @@
   const jaettavaOsoite = () => (location.protocol.startsWith("http")
     ? location.origin + location.pathname : "https://hittispotti.fi/");
 
+  /* Palautelinkki kootaan vasta selaimessa, ei kirjoiteta valmiiksi
+   * HTML:ään. Sivun lähdekoodia haravoivat roskapostirobotit eivät aja
+   * JavaScriptiä, joten osoite ei päädy niiden listoille aivan yhtä
+   * helposti. Viestiin tulee valmiiksi versio ja selain: ilman niitä
+   * vikailmoituksesta puuttuu juuri se tieto jota tarvitsee. */
+  function asetaPalautelinkki() {
+    if (!el.feedbackLink) return;
+    const skripti = document.querySelector('script[src*="app.js"]');
+    const versio = (skripti && (skripti.getAttribute("src").match(/v=(\d+)/) || [])[1]) || "?";
+    const runko = [
+      "Kirjoita palautteesi tähän.",
+      "",
+      "",
+      "— tekniset tiedot, älä poista —",
+      `versio: ${versio}`,
+      `selain: ${navigator.userAgent}`,
+    ].join("\n");
+    el.feedbackLink.href = "mailto:" + ["arttualanen", "gmail.com"].join("@")
+      + "?subject=" + encodeURIComponent("HittiSpotti-palaute")
+      + "&body=" + encodeURIComponent(runko);
+  }
+
   async function avaaJako() {
     el.sharePreview.hidden = true;
     if (!kuvaLupaus) valmisteleKuva();
@@ -1977,6 +2000,7 @@
       renderRate(cur().song);
     });
     el.retryBtn.addEventListener("click", loadAndStart);
+    asetaPalautelinkki();
     el.input.addEventListener("focus", updateSearchMode);
     el.input.addEventListener("blur", updateSearchMode);
     /* Toiseen sovellukseen siirtyminen katkaisee äänen iOS:ssä. Kaksi asiaa

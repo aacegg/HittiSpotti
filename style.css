@@ -219,9 +219,11 @@ h1, h2, p, ol, ul { margin: 0; }
 .iconbtn {
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
-  margin-left: calc(var(--s4) * -1);
+  /* 44 px kosketusalueelle. Kuvake itse pysyy samankokoisena, vain
+     painettava alue kasvaa, joten yläpalkin ilme ei muutu. */
+  width: 44px;
+  height: 44px;
+  margin-left: calc(var(--s5) * -1);
   border: 0;
   background: transparent;
   color: var(--muted);
@@ -293,6 +295,9 @@ body.drawer-open .drawer { transform: none; visibility: visible; }
   text-align: left;
   cursor: pointer;
 }
+/* Palauterivi on linkki eikä nappi, joten selaimen omat linkkityylit pitää
+   nollata erikseen. Muuten se olisi ainoa sininen alleviivattu rivi. */
+a.navitem { color: inherit; text-decoration: none; }
 .navitem:first-child { border-top: 0; }
 .navitem-name {
   display: block;
@@ -470,8 +475,15 @@ body[data-mode="free"] .bar-tag b { color: var(--vapaa); }
 }
 .tierbar::-webkit-scrollbar { display: none; }
 
+/* Korkeus 44 px: Applen ohje kosketusalueelle. Aiemmin pillerit olivat
+   67 x 28, eli käytetyin kontrolli soittonapin jälkeen oli myös pienin.
+   Vain täyte kasvaa, joten leveys ja ulkoasu pysyvät ennallaan. */
 .tchip {
   flex: 1 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
   padding: var(--s2) var(--s3);
   text-align: center;
   border: 1px solid var(--line);
@@ -837,6 +849,13 @@ button.tchip:hover { color: var(--text); }
 .view-game.is-revealed .ladder,
 .view-game.is-revealed .hint { display: none; }
 .view-game.is-revealed .screen { min-height: 0; }
+/* Myös tasorivi. Paljastuksessa on jo toinen pilleririvi, "Miltä tämä
+   tuntui?", ja se käyttää kirjaimellisesti samaa komponenttia: sama muoto,
+   sama koko, samat viisi sanaa parinsadan pikselin päässä. Pelaaja saattoi
+   painaa ylintä riviä luullen arvioivansa biisiä ja päätyikin toiseen
+   biisiin. Kun tasorivi väistyy, ruudulla on vain yksi pilleririvi ja se on
+   arvio. Biisistä toiseen pääsee Seuraava-napilla. */
+.view-game.is-revealed #tierbar { display: none; }
 
 /* Hakutila. Kun kenttään kirjoitetaan, näppäimistö vie alaosan ja ehdotuksille
    jää murto-osa ruudusta: mitattuna kahdeksasta ehdotuksesta ylsi painettavaksi
@@ -899,8 +918,11 @@ button.tchip:hover { color: var(--text); }
 .reveal-apple {
   display: inline-flex;
   align-items: center;
+  /* Linkki oli 165 x 21 eli hankala osua. Täyte nostaa sen 44 pikseliin
+     ilman että teksti kasvaa; negatiivinen marginaali pitää sen linjassa. */
+  min-height: 44px;
   gap: var(--s2);
-  margin-top: var(--s3);
+  margin-top: var(--s1);
   color: var(--muted);
   font-size: var(--f2);
   font-weight: 500;

@@ -328,6 +328,56 @@ body.drawer-open .drawer { transform: none; visibility: visible; }
 
 .drawer-rule { height: 1px; margin: var(--s5) 0 var(--s2); border: 0; background: var(--line); }
 
+/* Oma tilanne valikon alla. Putki on kärki ja saa display-fontin ja elävän
+   värin; muut neljä lukua ovat tasavertaisia ja pysyvät hiljaisina, jottei
+   kapeasta palkista tule numeroseinää. */
+.dstats { margin-top: var(--s7); }
+.dstats-head {
+  margin: 0 0 var(--s4);
+  font-size: var(--f1);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.dstats-streak {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s3);
+  margin: 0 0 var(--s5);
+  font-size: var(--f2);
+  color: var(--muted);
+}
+.dstats-streak strong {
+  font-family: var(--display);
+  font-size: var(--f8);
+  font-weight: 800;
+  letter-spacing: -.035em;
+  line-height: 1;
+  /* Ei elävää väriä: se tarkoittaa tässä pelissä vaikeustasoa, eikä putkella
+     ole vaikeustasoa. Elävällä värillä numero olisi myös vaihtanut sävyä sen
+     mukaan mistä näkymästä valikko avataan. Koko riittää korostukseksi. */
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+/* Kaksi saraketta mahtuu 300 px:n palkkiin ilman että selitteet katkeavat. */
+.dstats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s5) var(--s4);
+  margin: 0;
+}
+.dstats-grid div { min-width: 0; }
+.dstats-grid dd {
+  margin: 0;
+  font-family: var(--display);
+  font-size: var(--f6);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.dstats-grid dt { font-size: var(--f1); color: var(--dim); }
+
 .drawer-foot { margin-top: auto; padding-top: var(--s6); font-size: var(--f1); line-height: 1.6; color: var(--dim); }
 
 /* ---------- Sisältö ---------- */
@@ -987,6 +1037,82 @@ button.tchip:hover { color: var(--text); }
   white-space: pre-wrap;
 }
 .share[hidden] { display: none; }
+
+/* ---------- Jakoruutu ----------
+   Puhelimessa alalaidasta nouseva levy, työpöydällä keskitetty kortti.
+   Sama kuvio kuin sivupalkilla: oma taso sisällön päällä, tummennus alle. */
+.sheet-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: #000c;
+}
+.sheet-scrim[hidden] { display: none; }
+/* Tausta ei saa vieriä levyn alla: ilman tätä sormi liikuttaa sivua eikä
+   levyä, mikä tuntuu rikkinäiseltä. */
+body.sheet-open { overflow: hidden; }
+
+.sheet {
+  position: fixed;
+  z-index: 41;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 92dvh;
+  overflow-y: auto;
+  padding: var(--s5) var(--s5) calc(var(--s6) + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+  border-radius: 14px 14px 0 0;
+  background: var(--bg-lift);
+}
+.sheet[hidden] { display: none; }
+
+.sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s4);
+  margin-bottom: var(--s5);
+}
+.sheet-title {
+  margin: 0;
+  font-family: var(--display);
+  font-size: var(--f6);
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+.sheet-head .iconbtn { margin: 0; font-size: var(--f3); }
+
+/* Kortti on kuvan kokoinen eikä venytetty: pelaaja näkee tarkalleen sen
+   mitä on lähettämässä. */
+.sheet-preview { margin: 0 0 var(--s5); text-align: center; }
+.sheet-preview img {
+  display: block;
+  width: min(300px, 72vw);
+  height: auto;
+  margin: 0 auto;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+}
+.sheet-note { margin: 0 0 var(--s5); font-size: var(--f2); line-height: 1.5; color: var(--muted); text-align: center; }
+.sheet-actions { display: flex; flex-direction: column; gap: var(--s3); }
+.sheet-actions .btn { width: 100%; }
+
+@media (min-width: 560px) {
+  .sheet {
+    left: 50%;
+    bottom: auto;
+    top: 50%;
+    right: auto;
+    width: min(420px, 92vw);
+    transform: translate(-50%, -50%);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: var(--s6);
+  }
+  .sheet-actions { flex-direction: row; flex-wrap: wrap; }
+  .sheet-actions .btn { width: auto; flex: 1 1 auto; }
+}
 
 /* ---------- Tilastot ---------- */
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: var(--s1); margin-bottom: var(--s6); background: var(--line-soft); }

@@ -25,14 +25,14 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <!-- iOS ei tue SVG:tä kotinäytön kuvakkeena: SVG:llä se otti sivusta
        ruudunkaappauksen kuvakkeen sijaan. 180 px on iPhonen koko. -->
-  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=61">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=61">
-  <link rel="manifest" href="manifest.webmanifest?v=61">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=62">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=62">
+  <link rel="manifest" href="manifest.webmanifest?v=62">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HittiSpotti">
   <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=61">
+  <link rel="stylesheet" href="style.css?v=62">
 
   <script type="application/ld+json">
   {
@@ -82,6 +82,20 @@
       <button type="button" class="navitem" data-go="stats"><span class="navitem-name">Tilastot</span></button>
       <button type="button" class="navitem" data-go="help"><span class="navitem-name">Ohjeet</span></button>
     </nav>
+
+    <!-- Valikon alle jäi ruudusta yli puolet tyhjäksi (mitattuna 429 px
+         844:stä). Putki on se luku joka saa palaamaan huomenna, ja se oli
+         piilossa Tilastojen takana. Nyt se on siinä missä katse jo on. -->
+    <div class="dstats" id="drawer-stats" hidden>
+      <p class="dstats-head">Oma tilanne</p>
+      <p class="dstats-streak"><strong id="ds-streak">0</strong> <span id="ds-streak-label">päivän putki</span></p>
+      <dl class="dstats-grid">
+        <div><dd id="ds-played">0</dd><dt>pelattua päivää</dt></div>
+        <div><dd id="ds-best">0</dd><dt>paras tulos</dt></div>
+        <div><dd id="ds-hit">–</dd><dt>tunnistettu</dt></div>
+        <div><dd id="ds-longest">0</dd><dt>pisin putki</dt></div>
+      </dl>
+    </div>
 
     <p class="drawer-foot" id="drawer-foot"></p>
   </aside>
@@ -193,10 +207,9 @@
       <p class="results-sub" id="results-sub"></p>
       <ol id="results-list" class="results"></ol>
       <div class="row row-wrap">
-        <button type="button" class="btn btn-accent" id="share-btn">Kopioi tulos</button>
+        <button type="button" class="btn btn-accent" id="share-btn">Jaa tulos</button>
         <button type="button" class="btn" id="results-again-btn">Vapaa peli</button>
       </div>
-      <pre id="share-preview" class="share" hidden></pre>
     </section>
 
     <!-- TILASTOT -->
@@ -250,9 +263,31 @@
     </section>
   </main>
 
+  <!-- Jakoruutu. Oma näkymä eikä hiljainen kopiointi, jotta pelaaja näkee
+       mitä on lähettämässä ennen kuin lähettää. Sivutuotteena tämä korjaa
+       Safarin eleongelman: jakonapin painallus tämän sisällä on oma tuore
+       käyttäjän ele, eikä navigator.share menetä oikeuttaan odottelun takia. -->
+  <div class="sheet-scrim" id="share-scrim" hidden></div>
+  <aside class="sheet" id="share-sheet" hidden role="dialog" aria-modal="true" aria-labelledby="share-sheet-title">
+    <div class="sheet-head">
+      <h2 class="sheet-title" id="share-sheet-title">Jaa tulos</h2>
+      <button type="button" class="iconbtn" id="share-close" aria-label="Sulje jakoruutu">✕</button>
+    </div>
+    <figure class="sheet-preview">
+      <img id="share-img" alt="Tuloskuva jaettavaksi">
+    </figure>
+    <p class="sheet-note" id="share-note"></p>
+    <div class="sheet-actions">
+      <button type="button" class="btn btn-accent" id="share-native" hidden>Jaa kuva</button>
+      <button type="button" class="btn" id="share-copy-img">Kopioi kuva</button>
+      <button type="button" class="btn" id="share-copy-link">Kopioi linkki</button>
+    </div>
+    <pre id="share-preview" class="share" hidden></pre>
+  </aside>
+
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=61"></script>
+  <script src="app.js?v=62"></script>
 
   <!-- Kävijälaskenta: ei evästeitä, ei henkilötietoja, ei seurantaa yli
        sivustorajojen – siksi tämä ei vaadi suostumusikkunaa. Ladataan

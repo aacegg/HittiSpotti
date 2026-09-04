@@ -73,6 +73,13 @@
     menuBtn: $("#menu-btn"),
     drawerClose: $("#drawer-close"),
     drawerFoot: $("#drawer-foot"),
+    drawerStats: $("#drawer-stats"),
+    dsStreak: $("#ds-streak"),
+    dsStreakLabel: $("#ds-streak-label"),
+    dsPlayed: $("#ds-played"),
+    dsBest: $("#ds-best"),
+    dsHit: $("#ds-hit"),
+    dsLongest: $("#ds-longest"),
     navDailyNote: $("#nav-daily-note"),
     freeReset: $("#free-reset"),
     navFreeNote: $("#nav-free-note"),
@@ -117,6 +124,14 @@
     resultsList: $("#results-list"),
     shareBtn: $("#share-btn"),
     sharePreview: $("#share-preview"),
+    shareSheet: $("#share-sheet"),
+    shareScrim: $("#share-scrim"),
+    shareClose: $("#share-close"),
+    shareImg: $("#share-img"),
+    shareNote: $("#share-note"),
+    shareNative: $("#share-native"),
+    shareCopyImg: $("#share-copy-img"),
+    shareCopyLink: $("#share-copy-link"),
     againBtn: $("#results-again-btn"),
     statGrid: $("#stat-grid"),
     resetBtn: $("#reset-stats-btn"),
@@ -259,6 +274,12 @@
   // ---------- Näkymät ----------
   function show(name) {
     state.view = name;
+    // Jakoruutu kuuluu tuloksiin. Muualle siirryttäessä se jäisi leijumaan.
+    if (el.body.classList.contains("sheet-open")) {
+      el.shareSheet.hidden = true;
+      el.shareScrim.hidden = true;
+      el.body.classList.remove("sheet-open");
+    }
     /* Ääni kuuluu vain peliin. openRound pysäyttää soiton kierrosten välillä
      * ja go() valikosta siirryttäessä, mutta viimeisen biisin jälkeen
      * Tulokset-nappi vie tuloksiin kolmatta reittiä, eikä pätkä pysähtynyt:
@@ -322,6 +343,28 @@
       const isMode = b.dataset.go === "daily" || b.dataset.go === "free";
       if (isMode) b.classList.toggle("is-active", state.view === "game" && state.mode === b.dataset.go);
     });
+    refreshDrawerStats();
+  }
+
+  /* Oma tilanne valikossa. Sama putken laskenta kuin tilastonäkymässä: putki
+   * on voimassa vain jos viimeisin päivä on tänään tai eilen, muuten se on
+   * katkennut. Lohko piilotetaan kunnes ensimmäinen päivä on pelattu, jottei
+   * uudelle pelaajalle näytetä pelkkiä nollia. */
+  function refreshDrawerStats() {
+    const s = { ...defaultStats(), ...store.get("stats", {}) };
+    if (!s.dailyPlayed) { el.drawerStats.hidden = true; return; }
+    el.drawerStats.hidden = false;
+    const eilen = new Date(); eilen.setDate(eilen.getDate() - 1);
+    const tanaan = s.lastDaily === todayKey();
+    const putki = (tanaan || s.lastDaily === dayKey(eilen)) ? s.streak : 0;
+    el.dsStreak.textContent = putki;
+    el.dsStreakLabel.textContent = putki === 0 ? "putki katkesi"
+      : tanaan ? "päivän putki"
+      : "putki, et vielä tänään";
+    el.dsPlayed.textContent = fmt(s.dailyPlayed);
+    el.dsBest.textContent = fmt(s.dailyBest);
+    el.dsHit.textContent = Math.round((s.dailySolved / (s.dailyPlayed * DAILY_COUNT)) * 100) + " %";
+    el.dsLongest.textContent = fmt(s.bestStreak);
   }
 
   // ---------- Katalogi ----------
@@ -1404,24 +1447,214 @@
         <div class="r-points${r.solved ? "" : " zero"}">${r.solved ? "+" + fmt(r.points) : "0"}</div>`;
       el.resultsList.appendChild(li);
     });
-    el.sharePreview.hidden = true;
+    piilotaJako();
+    valmisteleKuva();
     el.againBtn.textContent = daily ? "Vapaa peli" : "Uusi sarja";
   }
 
-  async function copyShare() {
-    const text = shareText();
-    el.sharePreview.textContent = text;
-    el.sharePreview.hidden = false;
-    try {
-      if (navigator.share && /Mobi|Android/i.test(navigator.userAgent)) {
-        await navigator.share({ text });
-        return;
-      }
-      await navigator.clipboard.writeText(text);
-      toast("Tulos kopioitu leikepöydälle.");
-    } catch {
-      toast("Kopioi teksti alta.");
+  /* ---------- Tuloskuva ----------
+   *
+   * Kuvassa EI näy biisien nimiä eikä kansia, vaikka kannet sen sallisivat
+   * (Applen kuvapalvelin lähettää access-control-allow-origin: *). Syy on
+   * pelillinen: päivän biisit ovat kaikille samat, joten nimet paljastava
+   * kuva pilaisi päivän siltä jolle sen lähettää. Juuri se tekisi jakamisesta
+   * hyödytöntä. Neliöt kertovat miten meni paljastamatta mitä.
+   *
+   * Piirretään 1080 x 1080: neliö toistuu viestisovelluksissa ennustettavasti
+   * eikä rajaudu esikatselussa. */
+  const KUVA = 1080;
+
+  async function tulosKuva() {
+    // Oma fontti pitää olla ladattu ennen piirtoa, muuten canvas käyttää
+    // varafonttia eikä kuva näytä sivustolta.
+    if (document.fonts && document.fonts.ready) {
+      try { await document.fonts.ready; } catch { /* varafontilla mennään */ }
     }
+    const c = document.createElement("canvas");
+    c.width = KUVA; c.height = KUVA;
+    const g = c.getContext("2d");
+    const nayta = '"Bricolage Grotesque", system-ui, sans-serif';
+    const reuna = 92;
+
+    g.fillStyle = "#0a0908";
+    g.fillRect(0, 0, KUVA, KUVA);
+
+    // Sanamerkki: sama ladonta kuin sivulla, paino vaihtuu kesken sanan.
+    let y = reuna + 44;
+    g.fillStyle = "#5ecf9a";
+    g.beginPath(); g.arc(reuna + 9, y - 14, 9, 0, Math.PI * 2); g.fill();
+    g.textBaseline = "alphabetic";
+    g.font = `800 52px ${nayta}`;
+    g.fillStyle = "#f2ebdf";
+    const x0 = reuna + 34;
+    g.fillText("Hitti", x0, y);
+    const leveys = g.measureText("Hitti").width;
+    g.font = `400 52px ${nayta}`;
+    g.fillText("Spotti", x0 + leveys, y);
+
+    // Pelimuoto ja päiväys
+    y += 62;
+    g.font = `400 34px ${nayta}`;
+    g.fillStyle = "#8a8073";
+    g.fillText(state.mode === "daily"
+      ? `Päivän biisit · ${dateLine(keyToDate(state.dayKey || todayKey()))}`
+      : "Vapaa peli", reuna, y);
+
+    // Pisteluku
+    y += 176;
+    g.font = `800 152px ${nayta}`;
+    g.fillStyle = "#f2ebdf";
+    const pisteet = fmt(state.score);
+    g.fillText(pisteet, reuna, y);
+    const pl = g.measureText(pisteet).width;
+    g.font = `700 44px ${nayta}`;
+    g.fillStyle = "#8a8073";
+    g.fillText("pistettä", reuna + pl + 20, y);
+
+    // Neliörivit: yksi rivi biisiä kohti, viisi ruutua eli viisi pätkän
+    // pituutta. Täytetty = käytetty yritys, vihreä = osuma.
+    y += 74;
+    const koko = 62, vali = 16;
+    state.results.forEach((r) => {
+      STEPS.forEach((_, i) => {
+        const x = reuna + i * (koko + vali);
+        const osuma = i === r.step && r.solved;
+        const kaytetty = i < r.step || (i === r.step && !r.solved);
+        ruutu(g, x, y, koko, osuma ? "#5ecf9a" : kaytetty ? "#3a332c" : null);
+      });
+      y += koko + vali;
+    });
+
+    /* Yhteenvetorivi. Ilman tätä neliöiden ja osoitteen väliin jäi kuollut
+     * alue, ja lukijan pitäisi laskea vihreät ruudut itse. Putki tulee samaan
+     * riviin jos sellainen on: se on päivän biisien luku, ei vapaan pelin. */
+    const s = { ...defaultStats(), ...store.get("stats", {}) };
+    const eilen = new Date(); eilen.setDate(eilen.getDate() - 1);
+    const putki = (s.lastDaily === todayKey() || s.lastDaily === dayKey(eilen)) ? s.streak : 0;
+    const osumat = state.results.filter((r) => r.solved).length;
+    const osat = [`${osumat}/${state.results.length} tunnistettu`];
+    if (state.mode === "daily" && putki > 1) osat.push(`putki ${putki} päivää`);
+    y += 46;
+    g.font = `700 38px ${nayta}`;
+    g.fillStyle = "#8a8073";
+    g.fillText(osat.join("  ·  "), reuna, y);
+
+    // Osoite alalaitaan
+    g.font = `700 40px ${nayta}`;
+    g.fillStyle = "#5ecf9a";
+    g.fillText("hittispotti.fi", reuna, KUVA - reuna);
+    return c;
+  }
+
+  function ruutu(g, x, y, koko, tayte) {
+    const r = 8;
+    g.beginPath();
+    g.moveTo(x + r, y);
+    g.arcTo(x + koko, y, x + koko, y + koko, r);
+    g.arcTo(x + koko, y + koko, x, y + koko, r);
+    g.arcTo(x, y + koko, x, y, r);
+    g.arcTo(x, y, x + koko, y, r);
+    g.closePath();
+    if (tayte) { g.fillStyle = tayte; g.fill(); }
+    else { g.strokeStyle = "#2a2521"; g.lineWidth = 3; g.stroke(); }
+  }
+
+  /* Kuva tehdään valmiiksi heti kun tulosnäkymä avataan, ei vasta napista.
+   * Näin jakoruutu aukeaa ilman odotusta eikä tyhjä kehys ehdi vilahtaa. */
+  let kuvaLupaus = null, kuvaBlob = null;
+
+  function valmisteleKuva() {
+    kuvaLupaus = (async () => {
+      const c = await tulosKuva();
+      return await new Promise((r) => c.toBlob(r, "image/png"));
+    })().catch(() => null);
+  }
+
+  const jaettavaOsoite = () => (location.protocol.startsWith("http")
+    ? location.origin + location.pathname : "https://hittispotti.fi/");
+
+  async function avaaJako() {
+    el.sharePreview.hidden = true;
+    if (!kuvaLupaus) valmisteleKuva();
+    kuvaBlob = await kuvaLupaus;
+
+    if (kuvaBlob) {
+      if (el.shareImg.dataset.url) URL.revokeObjectURL(el.shareImg.dataset.url);
+      const url = URL.createObjectURL(kuvaBlob);
+      el.shareImg.dataset.url = url;
+      el.shareImg.src = url;
+      el.shareImg.hidden = false;
+      /* Tiedostojako ei ole kaikkialla: työpöytäselaimissa se yleensä
+       * puuttuu, ja silloin nappi on turha eikä sitä näytetä. */
+      const tiedosto = new File([kuvaBlob], "hittispotti.png", { type: "image/png" });
+      el.shareNative.hidden = !(navigator.canShare && navigator.canShare({ files: [tiedosto] }));
+      el.shareCopyImg.hidden = !(window.ClipboardItem && navigator.clipboard && navigator.clipboard.write);
+      el.shareNote.textContent = el.shareNative.hidden
+        ? "Voit myös tallentaa kuvan painamalla sitä pitkään."
+        : "Kuva ei paljasta biisejä, joten voit lähettää sen myös niille jotka eivät ole vielä pelanneet.";
+    } else {
+      // Kuvaa ei saatu: näytetään tekstiversio, jotta jakaminen onnistuu silti.
+      el.shareImg.hidden = true;
+      el.shareNative.hidden = true;
+      el.shareCopyImg.hidden = true;
+      el.shareNote.textContent = "Kuvan luonti ei onnistunut tällä selaimella. Tulos tekstinä:";
+      el.sharePreview.textContent = shareText();
+      el.sharePreview.hidden = false;
+    }
+
+    el.shareScrim.hidden = false;
+    el.shareSheet.hidden = false;
+    el.body.classList.add("sheet-open");
+    el.shareClose.focus({ preventScroll: true });
+  }
+
+  function suljeJako() {
+    el.shareSheet.hidden = true;
+    el.shareScrim.hidden = true;
+    el.body.classList.remove("sheet-open");
+    el.shareBtn.focus({ preventScroll: true });
+  }
+
+  async function jaaKuva() {
+    if (!kuvaBlob) return;
+    const tiedosto = new File([kuvaBlob], "hittispotti.png", { type: "image/png" });
+    try {
+      await navigator.share({ files: [tiedosto] });
+      suljeJako();
+    } catch (e) {
+      // Käyttäjän oma peruutus ei ole virhe eikä ansaitse ilmoitusta.
+      if (!e || e.name !== "AbortError") toast("Jakaminen ei onnistunut.");
+    }
+  }
+
+  async function kopioiKuva() {
+    if (!kuvaBlob) return;
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": kuvaBlob })]);
+      toast("Kuva kopioitu leikepöydälle.");
+    } catch {
+      toast("Kopiointi ei onnistunut. Paina kuvaa pitkään.");
+    }
+  }
+
+  async function kopioiLinkki() {
+    try {
+      await navigator.clipboard.writeText(jaettavaOsoite());
+      toast("Linkki kopioitu leikepöydälle.");
+    } catch {
+      toast("Kopiointi ei onnistunut.");
+    }
+  }
+
+  function piilotaJako() {
+    el.sharePreview.hidden = true;
+    if (el.shareImg.dataset.url) {
+      URL.revokeObjectURL(el.shareImg.dataset.url);
+      delete el.shareImg.dataset.url;
+      el.shareImg.removeAttribute("src");
+    }
+    kuvaBlob = null;
+    kuvaLupaus = null;
   }
 
   /* ---------- Kerätty aineisto ----------
@@ -1622,7 +1855,10 @@
     el.drawerClose.addEventListener("click", closeDrawer);
     el.scrim.addEventListener("click", closeDrawer);
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && el.body.classList.contains("drawer-open")) closeDrawer();
+      if (e.key !== "Escape") return;
+      // Jakoruutu on päällimmäisenä, joten se sulkeutuu ensin.
+      if (el.body.classList.contains("sheet-open")) suljeJako();
+      else if (el.body.classList.contains("drawer-open")) closeDrawer();
     });
 
     document.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => go(b.dataset.go)));
@@ -1681,7 +1917,12 @@
     el.input.addEventListener("keydown", onInputKey);
     el.input.addEventListener("focus", () => { if (el.input.value.trim() && !state.selected) onInput(); });
     el.input.addEventListener("blur", () => setTimeout(closeSuggestions, 120));
-    el.shareBtn.addEventListener("click", copyShare);
+    el.shareBtn.addEventListener("click", avaaJako);
+    el.shareClose.addEventListener("click", suljeJako);
+    el.shareScrim.addEventListener("click", suljeJako);
+    el.shareNative.addEventListener("click", jaaKuva);
+    el.shareCopyImg.addEventListener("click", kopioiKuva);
+    el.shareCopyLink.addEventListener("click", kopioiLinkki);
     el.againBtn.addEventListener("click", () => go("free"));
     el.resetBtn.addEventListener("click", resetStats);
 

@@ -39,7 +39,12 @@ API = "https://itunes.apple.com/search"
 # äänitettä, jonka pelaaja tuntee.
 SKIP_TITLE = (
     "live", "karaoke", "remix", "instrumental", "akustinen", "acoustic",
-    "demo", "version", "versio", "mix", "cover", "remaster", "vain elamaa",
+    # "remastered" tarvitaan erikseen: sanahaku vaatii tarkan rajan, joten
+    # pelkkä "remaster" ei osu taivutettuun muotoon. Eläkeläisten Humppaa tai
+    # kuole valittiin sen takia muodossa "(Remastered Bonus)", vaikka sama
+    # levytys on katalogissa myös ilman merkintää.
+    "demo", "version", "versio", "mix", "cover", "remaster", "remastered",
+    "remasteroitu", "vain elamaa",
     "radio edit", "sped up", "slowed", "commentary",
 )
 SKIP_ALBUM = ("live", "karaoke", "instrumental", "unplugged", "akustinen", "vain elamaa")

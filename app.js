@@ -24,7 +24,7 @@
    * välimuistissa tyylimuutosten yli, mutta uusi katalogi on eri osoite ja
    * tulee varmasti perille – vanha versio antaisi pelaajalle eri päivän
    * biisit kuin muille. */
-  const KATALOGI = "songs.json?k=6";
+  const KATALOGI = "songs.json?k=7";
 
   // ---------- Tila ----------
   const state = {
@@ -538,7 +538,7 @@
   /* Sekoituksen sukupolvi. Kulkee jokaisen pakan siemeneen, joten numeron
    * nostaminen antaa kaikille tasoille kokonaan uuden järjestyksen ilman
    * että kierron alkupäivää tarvitsee koskea. */
-  const SEKOITUS = 4;
+  const SEKOITUS = 5;
 
   function dayIndex(key) {
     const [y, m, d] = key.split("-").map(Number);

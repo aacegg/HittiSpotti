@@ -1567,14 +1567,36 @@
     g.textBaseline = "alphabetic";
   }
 
+  /* Sama viiden palkin aaltomuoto kuin kuvakkeessa ja sanamerkissä. Palkit
+   * piirretään paksuina viivoina pyörein päin eikä pyöristettyinä
+   * suorakulmioina: roundRect puuttuu vanhemmista Safareista, ja pyöreä
+   * viivanpää antaa täsmälleen saman muodon joka selaimessa.
+   *
+   * Yksiköt ovat samat kuin favicon.svg:ssä: 52 leveä, 46 korkea, palkki 8,
+   * väli 3. Mittakaava tulee halutusta korkeudesta. */
+  const MERKKI = [19.6, 34.8, 46, 28.4, 39.6];
+
+  function merkki(g, x, alaviiva, korkeus) {
+    const k = korkeus / 46;
+    g.lineCap = "round";
+    g.lineWidth = 8 * k;
+    MERKKI.forEach((h, i) => {
+      const kx = x + (i * 11 + 4) * k;
+      g.strokeStyle = TIER_VARIT[i + 1];
+      g.beginPath();
+      g.moveTo(kx, alaviiva - 4 * k);
+      g.lineTo(kx, alaviiva - (h - 4) * k);
+      g.stroke();
+    });
+  }
+
   // Sanamerkki, pelimuoto ja pisteluku ovat molemmissa kuvissa samat.
   function otsikko(g, reuna, muoto) {
     let y = reuna + 44;
-    g.fillStyle = "#5ecf9a";
-    g.beginPath(); g.arc(reuna + 9, y - 14, 9, 0, Math.PI * 2); g.fill();
+    merkki(g, reuna, y, 34);
     g.font = `800 52px ${NAYTA}`;
     g.fillStyle = "#f2ebdf";
-    const x0 = reuna + 34;
+    const x0 = reuna + 56;
     g.fillText("Hitti", x0, y);
     // Leveys on mitattava lihavalla fontilla, ei vaihdon jälkeen: kevyemmällä
     // mitattuna "Spotti" alkoi liian vasemmalta ja sanat menivät päällekkäin.

@@ -67,6 +67,10 @@
   --ok: var(--t1);
   --bad: var(--t5);
 
+  /* Sanamerkin aaltomuoto muottina. Sama geometria kuin favicon.svg:ssä,
+     ilman taustalaattaa ja ilman värejä: väri tulee taustasta muotin läpi. */
+  --merkki: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 52 46'%3E%3Crect x='0' y='26.4' width='8' height='19.6' rx='4'/%3E%3Crect x='11' y='11.2' width='8' height='34.8' rx='4'/%3E%3Crect x='22' y='0' width='8' height='46' rx='4'/%3E%3Crect x='33' y='17.6' width='8' height='28.4' rx='4'/%3E%3Crect x='44' y='6.4' width='8' height='39.6' rx='4'/%3E%3C/svg%3E");
+
   --r: 3px;
   --bar-h: 54px;
   --palsta: 540px;   /* sisällön leveys – myös yläpalkki noudattaa tätä */
@@ -199,13 +203,20 @@ h1, h2, p, ol, ul { margin: 0; }
   font-weight: 800;
   letter-spacing: -.035em;
 }
+/* Sanamerkin edessä sama viiden palkin aaltomuoto kuin kuvakkeessa. Tässä
+   se on yksivärinen ja seuraa elävää väriä, kuten aiempi pallo: sivulla
+   elää yksi väri kerrallaan ja se on soivan biisin vaikeustaso. Kuvake saa
+   näyttää koko asteikon, koska se on yksin eikä kilpaile mistään.
+
+   Muotti eikä kuva, jotta väri tulee CSS:stä ja vaihtuu pehmeästi. */
 .wordmark::before {
   content: "";
-  width: 6px;
-  height: 6px;
+  width: 13px;
+  height: 11.5px;
   margin-right: var(--s3);
-  border-radius: 50%;
   background: var(--live);
+  -webkit-mask: var(--merkki) center / contain no-repeat;
+  mask: var(--merkki) center / contain no-repeat;
   transition: background .4s ease;
 }
 .wordmark em { font-style: normal; font-weight: 400; }

@@ -1463,87 +1463,181 @@
    * Piirretään 1080 x 1080: neliö toistuu viestisovelluksissa ennustettavasti
    * eikä rajaudu esikatselussa. */
   const KUVA = 1080;
+  const NAYTA = '"Bricolage Grotesque", system-ui, sans-serif';
 
+  const TIER_VARIT = ["", "#5ecf9a", "#bcd14a", "#f5b32e", "#ff8a4c", "#ff5f6d"];
+
+  /* Päivän biisit ja vapaa peli saavat eri kuvan, ja ero on tarkoituksellinen.
+   * Päivän biisit ovat kaikille samat, joten nimet paljastava kuva pilaisi
+   * päivän siltä jolle sen lähettää: siellä pelkät neliöt. Vapaan pelin biisit
+   * arvotaan jokaiselle erikseen, joten siellä ei ole mitään pilattavaa ja
+   * kannet saa näyttää. */
   async function tulosKuva() {
     // Oma fontti pitää olla ladattu ennen piirtoa, muuten canvas käyttää
     // varafonttia eikä kuva näytä sivustolta.
     if (document.fonts && document.fonts.ready) {
       try { await document.fonts.ready; } catch { /* varafontilla mennään */ }
     }
-    const c = document.createElement("canvas");
-    c.width = KUVA; c.height = KUVA;
-    const g = c.getContext("2d");
-    const nayta = '"Bricolage Grotesque", system-ui, sans-serif';
-    const reuna = 92;
+    return state.mode === "daily" ? neliokuva() : listakuva(await lataaKannet());
+  }
 
+  /* Kannet erikseen CORS-tilassa. Sivulla olevat img-elementit on ladattu
+   * ilman sitä, ja tavallisena ladattu kuva saastuttaisi canvasin niin ettei
+   * siitä saisi enää blobia. Applen kuvapalvelin lähettää
+   * access-control-allow-origin: *, joten tämä toimii.
+   *
+   * Yksikään kansi ei saa jäädä odottamaan ikuisesti: jos lataus ei valmistu
+   * kolmessa sekunnissa, piirretään tilalle tyhjä laatikko. */
+  function lataaKannet() {
+    return Promise.all(state.results.map((r) => new Promise((valmis) => {
+      const s = r.song || state.byId.get(String(r.id));
+      if (!s || !s.art) return valmis(null);
+      const kuva = new Image();
+      kuva.crossOrigin = "anonymous";
+      const aika = setTimeout(() => valmis(null), 3000);
+      kuva.onload = () => { clearTimeout(aika); valmis(kuva); };
+      kuva.onerror = () => { clearTimeout(aika); valmis(null); };
+      kuva.src = s.art;
+    })));
+  }
+
+  function pohja(g, leveys, korkeus) {
     g.fillStyle = "#0a0908";
-    g.fillRect(0, 0, KUVA, KUVA);
+    g.fillRect(0, 0, leveys, korkeus);
+    g.textBaseline = "alphabetic";
+  }
 
-    // Sanamerkki: sama ladonta kuin sivulla, paino vaihtuu kesken sanan.
+  // Sanamerkki, pelimuoto ja pisteluku ovat molemmissa kuvissa samat.
+  function otsikko(g, reuna, muoto) {
     let y = reuna + 44;
     g.fillStyle = "#5ecf9a";
     g.beginPath(); g.arc(reuna + 9, y - 14, 9, 0, Math.PI * 2); g.fill();
-    g.textBaseline = "alphabetic";
-    g.font = `800 52px ${nayta}`;
+    g.font = `800 52px ${NAYTA}`;
     g.fillStyle = "#f2ebdf";
     const x0 = reuna + 34;
     g.fillText("Hitti", x0, y);
-    const leveys = g.measureText("Hitti").width;
-    g.font = `400 52px ${nayta}`;
-    g.fillText("Spotti", x0 + leveys, y);
+    // Leveys on mitattava lihavalla fontilla, ei vaihdon jälkeen: kevyemmällä
+    // mitattuna "Spotti" alkoi liian vasemmalta ja sanat menivät päällekkäin.
+    const lev = g.measureText("Hitti").width;
+    g.font = `400 52px ${NAYTA}`;
+    g.fillText("Spotti", x0 + lev, y);
 
-    // Pelimuoto ja päiväys
     y += 62;
-    g.font = `400 34px ${nayta}`;
+    g.font = `400 34px ${NAYTA}`;
     g.fillStyle = "#8a8073";
-    g.fillText(state.mode === "daily"
-      ? `Päivän biisit · ${dateLine(keyToDate(state.dayKey || todayKey()))}`
-      : "Vapaa peli", reuna, y);
+    g.fillText(muoto, reuna, y);
 
-    // Pisteluku
     y += 176;
-    g.font = `800 152px ${nayta}`;
+    g.font = `800 152px ${NAYTA}`;
     g.fillStyle = "#f2ebdf";
     const pisteet = fmt(state.score);
     g.fillText(pisteet, reuna, y);
     const pl = g.measureText(pisteet).width;
-    g.font = `700 44px ${nayta}`;
+    g.font = `700 44px ${NAYTA}`;
     g.fillStyle = "#8a8073";
     g.fillText("pistettä", reuna + pl + 20, y);
+    return y;
+  }
 
-    // Neliörivit: yksi rivi biisiä kohti, viisi ruutua eli viisi pätkän
-    // pituutta. Täytetty = käytetty yritys, vihreä = osuma.
-    y += 74;
-    const koko = 62, vali = 16;
-    state.results.forEach((r) => {
-      STEPS.forEach((_, i) => {
-        const x = reuna + i * (koko + vali);
-        const osuma = i === r.step && r.solved;
-        const kaytetty = i < r.step || (i === r.step && !r.solved);
-        ruutu(g, x, y, koko, osuma ? "#5ecf9a" : kaytetty ? "#3a332c" : null);
-      });
-      y += koko + vali;
-    });
+  function alaosa(g, reuna, leveys, korkeus, teksti) {
+    g.font = `700 38px ${NAYTA}`;
+    g.fillStyle = "#8a8073";
+    g.fillText(teksti, reuna, korkeus - reuna - 66);
+    g.font = `700 40px ${NAYTA}`;
+    g.fillStyle = "#5ecf9a";
+    g.fillText("hittispotti.fi", reuna, korkeus - reuna);
+  }
 
-    /* Yhteenvetorivi. Ilman tätä neliöiden ja osoitteen väliin jäi kuollut
-     * alue, ja lukijan pitäisi laskea vihreät ruudut itse. Putki tulee samaan
-     * riviin jos sellainen on: se on päivän biisien luku, ei vapaan pelin. */
+  function yhteenveto() {
     const s = { ...defaultStats(), ...store.get("stats", {}) };
     const eilen = new Date(); eilen.setDate(eilen.getDate() - 1);
     const putki = (s.lastDaily === todayKey() || s.lastDaily === dayKey(eilen)) ? s.streak : 0;
     const osumat = state.results.filter((r) => r.solved).length;
     const osat = [`${osumat}/${state.results.length} tunnistettu`];
     if (state.mode === "daily" && putki > 1) osat.push(`putki ${putki} päivää`);
-    y += 46;
-    g.font = `700 38px ${nayta}`;
-    g.fillStyle = "#8a8073";
-    g.fillText(osat.join("  ·  "), reuna, y);
+    return osat.join("  ·  ");
+  }
 
-    // Osoite alalaitaan
-    g.font = `700 40px ${nayta}`;
-    g.fillStyle = "#5ecf9a";
-    g.fillText("hittispotti.fi", reuna, KUVA - reuna);
+  // Päivän biisit: neliöt eivät paljasta mitään.
+  function neliokuva() {
+    const c = document.createElement("canvas");
+    c.width = KUVA; c.height = KUVA;
+    const g = c.getContext("2d");
+    const reuna = 92;
+    pohja(g, KUVA, KUVA);
+    let y = otsikko(g, reuna, `Päivän biisit · ${dateLine(keyToDate(state.dayKey || todayKey()))}`);
+
+    // Yksi rivi biisiä kohti, viisi ruutua eli viisi pätkän pituutta.
+    y += 74;
+    const koko = 62, vali = 16;
+    state.results.forEach((r) => {
+      STEPS.forEach((_, i) => {
+        const osuma = i === r.step && r.solved;
+        const kaytetty = i < r.step || (i === r.step && !r.solved);
+        ruutu(g, reuna + i * (koko + vali), y, koko, osuma ? "#5ecf9a" : kaytetty ? "#3a332c" : null);
+      });
+      y += koko + vali;
+    });
+    alaosa(g, reuna, KUVA, KUVA, yhteenveto());
     return c;
+  }
+
+  /* Vapaa peli: kannet ja nimet mukaan. Korkeus 1440 eli 3:4. Kokeilin ensin
+   * 1350:tä, mutta viidennen biisin vaikeustasorivi osui yhteenvetotekstiin. */
+  const KUVA_LISTA = 1440;
+
+  function listakuva(kannet) {
+    const c = document.createElement("canvas");
+    c.width = KUVA; c.height = KUVA_LISTA;
+    const g = c.getContext("2d");
+    const reuna = 92;
+    pohja(g, KUVA, KUVA_LISTA);
+    let y = otsikko(g, reuna, "Vapaa peli");
+
+    y += 46;
+    const kansi = 122, rivi = 148, tekstiX = reuna + kansi + 30;
+    state.results.forEach((r, i) => {
+      const s = r.song || state.byId.get(String(r.id)) || {};
+      // Kansi, tai tyhjä laatikko jos sitä ei saatu ladattua.
+      if (kannet[i]) g.drawImage(kannet[i], reuna, y, kansi, kansi);
+      else { g.fillStyle = "#14120f"; g.fillRect(reuna, y, kansi, kansi); }
+
+      const pisteet = r.solved ? "+" + fmt(r.points) : "0";
+      g.font = `700 40px ${NAYTA}`;
+      const pLev = g.measureText(pisteet).width;
+      g.textAlign = "right";
+      g.fillStyle = r.solved ? "#f2ebdf" : "#5b544a";
+      g.fillText(pisteet, KUVA - reuna, y + 48);
+      g.textAlign = "left";
+
+      const tilaa = KUVA - reuna - tekstiX - pLev - 30;
+      g.font = `700 42px ${NAYTA}`;
+      g.fillStyle = "#f2ebdf";
+      g.fillText(katkaise(g, s.title || "?", tilaa), tekstiX, y + 46);
+
+      g.font = `400 34px ${NAYTA}`;
+      g.fillStyle = "#8a8073";
+      g.fillText(katkaise(g, `${s.artist || "?"} · ${s.year || ""}`.trim(), tilaa), tekstiX, y + 92);
+
+      // Vaikeustason pallo ja nimi, sama merkintätapa kuin tulosnäkymässä.
+      const vari = TIER_VARIT[s.tier] || "#8a8073";
+      g.fillStyle = vari;
+      g.beginPath(); g.arc(tekstiX + 8, y + 122, 8, 0, Math.PI * 2); g.fill();
+      g.font = `400 30px ${NAYTA}`;
+      g.fillStyle = "#857c6f";
+      g.fillText(TIER_NAMES[s.tier] || "", tekstiX + 28, y + 132);
+      y += rivi;
+    });
+    alaosa(g, reuna, KUVA, KUVA_LISTA, yhteenveto());
+    return c;
+  }
+
+  // Liian pitkä nimi katkaistaan kolmeen pisteeseen eikä valu kuvan yli.
+  function katkaise(g, teksti, tilaa) {
+    if (g.measureText(teksti).width <= tilaa) return teksti;
+    let t = teksti;
+    while (t.length > 1 && g.measureText(t + "…").width > tilaa) t = t.slice(0, -1);
+    return t + "…";
   }
 
   function ruutu(g, x, y, koko, tayte) {

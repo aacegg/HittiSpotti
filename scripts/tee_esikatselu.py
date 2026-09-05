@@ -37,6 +37,35 @@ ROOT = Path(__file__).resolve().parent.parent
 # Nämä eivät kuulu esikatseluun lainkaan.
 POIS = {"CNAME", "sitemap.xml"}
 
+# Projektin oma README kertoisi väärää tarinaa: tämä repo ei ole peli vaan
+# sen esikatselu, ja kaikki täällä on koneen kirjoittamaa.
+LUEMINUT = """# HittiSpotin esikatselu
+
+Tämä repo on **kone­tuotettu**. Älä muokkaa tiedostoja käsin: seuraava ajo
+ylikirjoittaa ne. Kaikki muutokset tehdään varsinaiseen projektiin ja tuodaan
+tänne komennolla:
+
+    python3 scripts/tee_esikatselu.py --kohde <tämän repon polku>
+
+## Mikä tämä on
+
+Paikka, jossa muutoksen näkee ennen kuin se menee hittispotti.fi:hin.
+
+## Miten tämä eroaa oikeasta sivustosta
+
+- **Ei CNAME-tiedostoa.** Se sisältäisi "hittispotti.fi", ja kaksi sivustoa
+  samalla osoitteella voi kaataa oikean sivun.
+- **Ei tilastoja.** Palvelimen osoite on tyhjä, joten täällä pelatut kierrokset
+  eivät kirjaudu mihinkään. Se on tarkoituksellista: ulkoasua testatessa
+  klikkaillaan läpi biisejä joita ei edes yritetä arvata, ja ne vääristäisivät
+  vaikeustasojen kalibrointia aina saman päivän viideltä biisiltä.
+- **Ei hakukoneille.** robots.txt kieltää kaiken ja sivulla on noindex.
+- **Näyttää erilaiselta.** Välilehden otsikko alkaa sanalla ESIKATSELU ja
+  yläreunassa on keltamusta raita.
+
+Peli itse on tässä identtinen oikean kanssa.
+"""
+
 RAITA = """
 <style id="esikatselu-raita">
   /* Ohut raita kertoo yhdellä silmäyksellä että tämä ei ole oikea sivusto.
@@ -112,6 +141,8 @@ def main() -> int:
         elif rivi == "robots.txt":
             maali.write_text("# Esikatselu, ei hakukoneille.\n"
                              "User-agent: *\nDisallow: /\n", encoding="utf-8")
+        elif rivi == "README.md":
+            maali.write_text(LUEMINUT, encoding="utf-8")
         else:
             shutil.copy2(lahde, maali)
         kopioitu += 1

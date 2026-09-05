@@ -698,8 +698,37 @@
     return Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : AANI_OLETUS;
   };
 
+  /* iPhonen äänettömyyskytkin.
+   *
+   * Safari antaa Web Audiolle oletuksena ääni-istunnon tyypin "ambient", ja
+   * ambient vaimennetaan aina kun puhelin on äänettömällä. Sama kytkin, joka
+   * vaimentaa soittoäänen, vaimensi siis koko pelin, eikä pelaaja saanut
+   * siitä mitään ilmoitusta: peli vain oli hiljaa. Tavallinen <audio>-elementti
+   * saa eri tyypin ja soi äänettömälläkin, mutta peli ei voi käyttää sitä,
+   * koska pätkän pitää katketa 0,1 sekunnin tarkkuudella ja häipyä pehmeästi.
+   *
+   * "playback" tarkoittaa varsinaista mediatoistoa, jota kytkin ei koske.
+   * Hinta on se, ettei ääni enää sekoitu muiden sovellusten kanssa: pätkän
+   * soidessa pelaajan oma musiikki pysähtyy eikä käynnisty itsestään takaisin.
+   * Musiikkivisassa se on oikea vaihtokauppa, koska biisiä ei kuitenkaan voi
+   * arvata oman musiikin päältä.
+   *
+   * WebKit sulki asiaa koskevan vikailmoituksen (bugs.webkit.org 237322)
+   * merkinnällä "configuration changed": sivun kuuluu itse kertoa millaista
+   * ääntä se tuottaa. Toimii iOS 17:stä lähtien; muissa selaimissa
+   * ominaisuutta ei ole, jolloin tarkistus ohittaa tämän. */
+  function asetaAaniIstunto() {
+    try {
+      if ("audioSession" in navigator) navigator.audioSession.type = "playback";
+    } catch { /* Vain ääni jää äänettömällä kuulumatta, peli toimii silti. */ }
+  }
+
   function ensureAudio() {
     if (!audio.ctx) {
+      /* Ennen kontekstin luontia: tyyppi ratkaisee millaisena istunto
+       * avataan. Kutsutaan joka kerta, koska konteksti voidaan rakentaa
+       * uudestaan keskeytyksen jälkeen (ks. reviveAudio). */
+      asetaAaniIstunto();
       const Ctx = window.AudioContext || window.webkitAudioContext;
       audio.ctx = new Ctx();
     }

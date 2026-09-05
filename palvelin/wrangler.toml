@@ -1,0 +1,14 @@
+name = "hittispotti-tilastot"
+main = "index.js"
+compatibility_date = "2026-09-04"
+
+# database_id täytetään kun tietokanta on luotu:
+#   npx wrangler d1 create hittispotti
+# komento tulostaa id:n, joka liitetään tähän.
+[[d1_databases]]
+binding = "DB"
+database_name = "hittispotti"
+database_id = "TÄYTÄ_TÄHÄN"
+
+# AVAIN on koosteen lukusalasana, eikä se kuulu tähän tiedostoon.
+# Aseta se erikseen:  npx wrangler secret put AVAIN

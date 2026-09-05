@@ -14,6 +14,7 @@ songs.json ei jo kertoisi.
 """
 import json
 import sys
+from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -182,6 +183,7 @@ textarea {
       <option value="yes">vain arvioidut</option>
       <option value="changed">vain muutetut</option>
       <option value="new">vain uudet biisit</option>
+      <option value="filler">vain täytebiisit</option>
     </select>
     <input type="search" id="f-text" placeholder="artisti tai biisi" spellcheck="false">
     <span class="spacer"></span>
@@ -270,7 +272,7 @@ function decades() {
 function filtered() {
   const t = $("#f-tier").value, dec = $("#f-decade").value, done = $("#f-done").value;
   const q = $("#f-text").value.trim().toLowerCase();
-  return SONGS.filter((s) => {
+  const ulos = SONGS.filter((s) => {
     if (t && String(s.tier) !== t) return false;
     if (dec && (!s.year || Math.floor(s.year / 10) * 10 !== +dec)) return false;
     const arvio = rate.get(s.id);
@@ -278,9 +280,18 @@ function filtered() {
     if (done === "yes" && !arvio) return false;
     if (done === "changed" && (!arvio || arvio === s.tier)) return false;
     if (done === "new" && !s.uusi) return false;
+    if (done === "filler" && s.peli !== false) return false;
     if (q && !(s.artist + " " + s.title).toLowerCase().includes(q)) return false;
     return true;
   });
+  /* Täytteitä on satoja, eikä niitä jaksa käydä läpi tiedostojärjestyksessä.
+     Vahvin merkki siitä että täyte kuuluisi peliin on se, että artistilla on
+     jo paljon pelattavia biisejä: hänet on jo todettu pelin arvoiseksi, ja
+     täytteet haettiin aikanaan artistin suosituimmista puuttuvista. Siksi
+     tässä näkymässä kärjessä ovat ne, joiden artistilla on eniten pelattavaa,
+     ja saman artistin sisällä alkuperäinen hakujärjestys säilyy. */
+  if (done === "filler") ulos.sort((a, b) => (b.paino - a.paino) || 0);
+  return ulos;
 }
 
 function render() {
@@ -424,12 +435,16 @@ def main() -> int:
     songs = json.loads(SONGS.read_text(encoding="utf-8"))
     tunnetut = set(json.loads(TILA.read_text(encoding="utf-8"))) if TILA.exists() else {s["id"] for s in songs}
     uusia = sum(1 for s in songs if s["id"] not in tunnetut)
+    # Montako pelattavaa biisiä artistilla jo on. Täytenäkymä järjestää tämän
+    # mukaan: paljon pelattavia = artisti on jo todettu pelin arvoiseksi.
+    pelattavia = Counter(s["artist"] for s in songs if s.get("peli") is not False)
     slim = [{
         "id": s["id"], "artist": s["artist"], "title": s["title"],
         "year": s.get("year"), "tier": s["tier"],
         "preview": s["preview"], "art": s.get("art", ""),
         "peli": s.get("peli", True),
         "uusi": s["id"] not in tunnetut,
+        "paino": pelattavia.get(s["artist"], 0),
     } for s in songs]
     data = json.dumps(slim, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     OUT.write_text(TEMPLATE.replace("__DATA__", data), encoding="utf-8")

@@ -4,6 +4,7 @@
     python3 scripts/biisilista.py                  # biisilista.txt
     python3 scripts/biisilista.py --tiedosto x.txt
     python3 scripts/biisilista.py --muoto csv      # taulukkolaskentaan
+    python3 scripts/biisilista.py --muoto ehdokkaat  # täytteet peliin nostoa varten
 
 songs.json on koneen luettavaksi tehty: yhdellä rivillä on esikuunteluosoite,
 kansikuva ja tunniste, eikä siitä näe silmällä mitä katalogissa on. Tämä
@@ -96,6 +97,51 @@ def kirjoita_teksti(pelattavat, taytteet, kaikki):
     return "\n".join(out) + "\n"
 
 
+def kirjoita_ehdokkaat(kaikki, pelattavat, taytteet):
+    """Täytebiisit siinä järjestyksessä kuin niitä kannattaa harkita peliin.
+
+    Täytteet haettiin aikanaan artistikohtaisesti "suosituimmat puuttuvat",
+    joten ne eivät ole satunnaisia: ne ovat jo mukana olevien artistien
+    tunnetuimpia biisejä, jotka vain sattuivat jäämään pois. Vahvin merkki
+    siitä että täyte kuuluisi peliin on se, kuinka monta pelattavaa biisiä
+    artistilla jo on: hänet on jo todettu pelin arvoiseksi.
+
+    Tämä on järjestys, ei tuomio. Lopullinen ratkaisu tehdään kuuntelemalla
+    arviointityökalussa (suodatin "vain täytebiisit").
+    """
+    paino = Counter(s["artist"] for s in pelattavat)
+    # Monesko täyte tämä on omalta artistiltaan. Tiedostojärjestys artistin
+    # sisällä on sama kuin haun osumajärjestys, eli ensimmäinen on artistin
+    # suosituin puuttuva biisi.
+    laskuri: Counter = Counter()
+    sija = {}
+    for s in taytteet:
+        laskuri[s["artist"]] += 1
+        sija[s["id"]] = laskuri[s["artist"]]
+
+    jarj = sorted(taytteet, key=lambda s: (-paino.get(s["artist"], 0),
+                                           sija[s["id"]], s["artist"].casefold()))
+    out = ["TÄYTEBIISIT PELIIN NOSTAMISEN EHDOKKAINA",
+           f"Luotu {date.today().strftime('%-d.%-m.%Y')} tiedostosta songs.json", "",
+           f"Täytteitä yhteensä {len(taytteet)}.",
+           "Järjestys: artistilla eniten pelattavia ensin, ja saman artistin",
+           "sisällä hänen suosituin puuttuva biisinsä ensin.", "",
+           "Sarake vasemmalla kertoo montako pelattavaa biisiä artistilla jo on.",
+           "Nollan kohdalla artisti ei ole pelissä lainkaan; ne ovat listan",
+           "lopussa, koska niiden lisääminen olisi uusi artisti eikä täydennys.",
+           "", "=" * 62, ""]
+    edellinen = None
+    for s in jarj:
+        n = paino.get(s["artist"], 0)
+        if n != edellinen:
+            otsikko = (f"--- artistilla {n} pelattavaa " if n
+                       else "--- artisti ei ole pelissä lainkaan ")
+            out += ["", otsikko + "-" * max(0, 40 - len(otsikko))]
+            edellinen = n
+        out.append(f"  [{n:>2}] {s['artist']} – {s['title']} ({s.get('year') or '?'})")
+    return "\n".join(out) + "\n"
+
+
 def kirjoita_csv(kaikki, kohde):
     with kohde.open("w", encoding="utf-8", newline="") as f:
         w = csv.writer(f)
@@ -111,16 +157,20 @@ def kirjoita_csv(kaikki, kohde):
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--tiedosto", default=None, help="kohdetiedosto")
-    ap.add_argument("--muoto", choices=("txt", "csv"), default="txt")
+    ap.add_argument("--muoto", choices=("txt", "csv", "ehdokkaat"), default="txt")
     a = ap.parse_args()
 
     kaikki = json.loads(SONGS.read_text(encoding="utf-8"))
     pelattavat = [s for s in kaikki if s.get("peli") is not False]
     taytteet = [s for s in kaikki if s.get("peli") is False]
 
-    kohde = Path(a.tiedosto) if a.tiedosto else ROOT / f"biisilista.{a.muoto}"
+    oletusnimi = ("taytebiisit-ehdokkaat.txt" if a.muoto == "ehdokkaat"
+                  else f"biisilista.{a.muoto}")
+    kohde = Path(a.tiedosto) if a.tiedosto else ROOT / oletusnimi
     if a.muoto == "csv":
         kirjoita_csv(kaikki, kohde)
+    elif a.muoto == "ehdokkaat":
+        kohde.write_text(kirjoita_ehdokkaat(kaikki, pelattavat, taytteet), encoding="utf-8")
     else:
         kohde.write_text(kirjoita_teksti(pelattavat, taytteet, kaikki), encoding="utf-8")
 

@@ -12,7 +12,9 @@ sijaan perustuvan säännön sijaan, mikä on tarpeen aina kun soittolista ei ol
 suosituimmuusjärjestyksessä. "nimeksi" korvaa artistin nimen: Apple kreditoi
 osan artisteista eri nimellä kuin millä heidät tunnetaan. "vuodeksi" korvaa
 julkaisuvuoden niissä tapauksissa joissa alkuperäistä levytystä ei ole Applen
-katalogissa lainkaan ja vanhinkin löytyvä päivä on kokoelmalta.
+katalogissa lainkaan ja vanhinkin löytyvä päivä on kokoelmalta. "id" ohittaa
+haun kokonaan ja ottaa nimetyn Applen äänitteen; sitä tarvitaan vain silloin
+kun biisistä ei ole olemassa merkitsemätöntä versiota (ks. kommentti main():ssä).
 
 Nimillä hakeminen on epävarmempaa kuin artistin katalogin selaaminen, joten
 skripti vaatii että sekä artisti että kappaleen nimi täsmäävät, ja tulostaa
@@ -208,7 +210,28 @@ def main() -> int:
         if key in have_titles:
             already.append(f"{artist} – {title}")
             continue
-        hit = pick(search(f"{first_artist(artist)} {title}"), artist, title)
+        # Rivikohtainen "id" ohittaa haun ja versiosuodattimen kokonaan.
+        #
+        # Tarpeen silloin kun biisistä ei ole olemassa merkitsemätöntä
+        # versiota lainkaan. Finnish Hockey Mafian Taivas varjele! on
+        # Applessa vain muodoissa [Radio Edit], [Extended Mix] ja [Remix],
+        # joten "radio edit" ohituslistalla hylkäsi kaikki kolme. Sääntö on
+        # silti oikea: se estää väärän version valinnan sadassa muussa
+        # tapauksessa. Poikkeus merkitään siis käsin ja näkyviin, ei
+        # löysäämällä sääntöä kaikilta.
+        #
+        # Tunniste otetaan Applen lookup-rajapinnasta, joten se on aina
+        # täsmälleen se äänite joka tarkistettiin.
+        hit = None
+        if w.get("id"):
+            osumat = api("lookup", id=w["id"])
+            hit = next((r for r in osumat
+                        if r.get("kind") == "song" and r.get("previewUrl")), None)
+            if hit is None:
+                print(f"   ! tunnistetta {w['id']} ei löytynyt tai siinä ei ole "
+                      f"esikuuntelua: {artist} – {title}", file=sys.stderr)
+        if hit is None:
+            hit = pick(search(f"{first_artist(artist)} {title}"), artist, title)
         if hit is None:                      # toinen yritys pelkällä nimellä
             hit = pick(search(title), artist, title)
         if hit is None:                      # kolmas: artistin koko tuotanto

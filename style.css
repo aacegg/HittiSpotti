@@ -76,6 +76,11 @@
   --palsta: 540px;   /* sisällön leveys – myös yläpalkki noudattaa tätä */
   --palkki: 300px;   /* sivupalkin leveys, sama luku kuin .drawerissa */
   --kisko: 260px;    /* oikean kiskon leveys leveällä näytöllä */
+  /* Arvauslokille varattava tila leveällä näytöllä: loki on .screenin
+     ulkopuolella, joten se ei osallistu keskitykseen. Kolme riviä (16 px
+     marginaali + 3 x 37 px) pitää tavallisen kierroksen arvaukset näkyvissä
+     ilman vieritystä. */
+  --loki: 128px;
 
   /* Väliasteikko. Kaikki marginaalit, täytteet ja gapit tulevat täältä.
      Aiemmin käytössä oli 21 eri arvoa (1,2,4,5,6,7,8,9,10,11,12,13,14,16,
@@ -1578,6 +1583,33 @@ body.sheet-open { overflow: hidden; }
   .screen { min-height: 0; }
   .stage { padding: var(--s7) 0; }
   .play-btn { width: 184px; height: 184px; }
+}
+
+/* Työpöydällä keskipalsta jäi kiinni yläreunaan: mitattuna 1600 x 900:ssa
+   sisältö loppui 627 pikselissä ja alle jäi 273 px tyhjää, kun vasen palkki
+   ja oikea kisko ovat molemmat ruudun korkuisia. Sommitelma näytti
+   valuneen ylös.
+
+   Keskitetään ryhmänä, ei venyttämällä: .stage ei enää ime väljyyttä
+   itseensä (se oli aiemman korjauksen syy – väli kasvoi tasorivin ja
+   soittimen väliin), vaan .screen saa korkeuden ja koko ryhmä asettuu sen
+   keskelle. Myös paljastus keskitetään samaan laatikkoon, jottei se
+   loikkaa yläreunaan siinä kohtaa kun soitin väistyy.
+
+   Arvausloki on .screenin ulkopuolella eikä osallistu keskitykseen, joten
+   soitin ei liiku arvausten karttuessa. Sen tila varataan erikseen
+   (--loki), jottei loki jää heti näkymän alapuolelle.
+
+   Haku on poikkeus: silloin muu sisältö on piilossa ja kenttä kuuluu
+   ylös, joten .view-game.is-searching saa jäädä voimaan (sen valitsin on
+   tarkempi kuin .view-game .screen). */
+@media (min-width: 1200px) {
+  .view-game .screen,
+  .view-game.is-revealed .screen {
+    min-height: calc(100dvh - var(--bar-h) - var(--s4) - var(--s6) - var(--loki));
+    justify-content: center;
+  }
+  .view-game .stage { flex: 0 0 auto; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -35,6 +35,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SONGS = ROOT / "songs.json"
+# Löytymättömät kerätään tänne ajosta toiseen, ks. main().
+PUUTTUVAT = ROOT / "puuttuvat-biisit.txt"
 API = "https://itunes.apple.com/search"
 
 # Samat suodattimet kuin hae_artistilta.py:ssä: pätkän pitää vastata sitä
@@ -285,6 +287,21 @@ def main() -> int:
         print("\nEi löytynyt Applen katalogista:")
         for m in missing:
             print("  " + m)
+        # Talteen tiedostoon, ei vain tulosteeseen.
+         # 
+         # Nämä olivat aiemmin vain ajon tulosteessa, joka katosi heti kun
+         # terminaali suljettiin. Kun myöhemmin kysyttiin mitä kaikkea ei ole
+         # löytynyt, vastaus piti kaivaa istunnon lokista. Lista on kuitenkin
+         # juuri se, jonka perusteella biisejä etsitään käsin tai jätetään
+         # pois, joten sen kuuluu säilyä.
+         # 
+         # Liitetään perään eikä ylikirjoiteta: sama tiedosto kerää kaikki ajot.
+        PUUTTUVAT.parent.mkdir(parents=True, exist_ok=True)
+        with PUUTTUVAT.open("a", encoding="utf-8") as f:
+            for m in missing:
+                # Sijanumero on ajokohtainen eikä tarkoita mitään myöhemmin.
+                f.write(re.sub(r"^\s*\d+\.\s*", "", m) + "\n")
+        print(f"  (kirjattu tiedostoon {PUUTTUVAT.name})")
     if added and not a.kuiva:
         SONGS.write_text(json.dumps(songs + added, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(f"\nKatalogissa nyt {len(songs) + len(added)} biisiä.")

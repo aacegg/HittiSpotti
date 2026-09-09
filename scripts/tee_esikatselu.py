@@ -21,6 +21,11 @@ siitä seuraisi kolme ongelmaa, jotka tämä hoitaa.
 3. Sekaannus. Kaksi samannäköistä sivustoa on helppo sekoittaa toisiinsa.
    Esikatselussa on siksi oma otsikko välilehdessä ja ohut väriraita yläreunassa.
 
+4. Kävijälaskuri. Sama huomaamaton vuoto kuin tilastoissa, eri paikassa:
+   esikatselun käynnit kirjautuivat oikean sivuston laskuriin omana
+   polkunaan. Mitattuna viikossa 12 käyntiä 638:sta, eli 2 % luvuista oli
+   omaa testaamista. Laskuri poistetaan kokonaan.
+
 Lisäksi hakukoneet suljetaan pois (robots.txt, noindex, sitemap pois).
 
 Peliin itseensä ei kosketa: kaikki muutokset tehdään kopioon, ei työhakemistoon.
@@ -88,7 +93,8 @@ def tiedostot() -> list[str]:
     return [r for r in ulos.splitlines() if r]
 
 
-def muunna_index(teksti: str) -> str:
+def muunna_index(teksti: str) -> tuple[str, bool]:
+    """Palauttaa muunnetun sivun ja tiedon siitä lähtikö kävijälaskuri."""
     teksti = teksti.replace(
         "<title>HittiSpotti",
         "<title>ESIKATSELU · HittiSpotti", 1)
@@ -99,8 +105,18 @@ def muunna_index(teksti: str) -> str:
         '<meta name="color-scheme" content="dark">\n'
         '  <meta name="robots" content="noindex, nofollow">', 1)
     teksti = re.sub(r'\s*<link rel="canonical"[^>]*>', "", teksti)
-    return teksti.replace("</body>", RAITA + "</body>", 1) \
+    # Kävijälaskuri pois. Se osoittaa oikean sivuston tiliin, joten
+    # esikatselussa klikkailu näkyisi siellä käynteinä. Kommentti poistetaan
+    # samalla, ettei jää selittämään tyhjää.
+    teksti, n = re.subn(
+        r'\n\s*<!-- Kävijälaskenta:.*?-->\s*'
+        r'<script data-goatcounter=.*?</script>',
+        "", teksti, flags=re.S)
+    teksti = teksti.replace("</body>", RAITA + "</body>", 1) \
         if "</body>" in teksti else teksti + RAITA
+    # Varmistus itse lopputuloksesta eikä korvausten määrästä: jos merkintä
+    # joskus kirjoitetaan toisin, tämä huomaa sen silti.
+    return teksti, "goatcounter" not in teksti
 
 
 def muunna_app(teksti: str) -> tuple[str, bool]:
@@ -124,7 +140,7 @@ def main() -> int:
     kohde.mkdir(parents=True, exist_ok=True)
 
     kopioitu, ohitettu = 0, []
-    palvelin_ok = False
+    palvelin_ok = laskuri_ok = False
 
     for rivi in tiedostot():
         if rivi in POIS or rivi.startswith(("scripts/", "palvelin/")):
@@ -134,7 +150,8 @@ def main() -> int:
         maali.parent.mkdir(parents=True, exist_ok=True)
 
         if rivi == "index.html":
-            maali.write_text(muunna_index(lahde.read_text(encoding="utf-8")), encoding="utf-8")
+            uusi, laskuri_ok = muunna_index(lahde.read_text(encoding="utf-8"))
+            maali.write_text(uusi, encoding="utf-8")
         elif rivi == "app.js":
             uusi, palvelin_ok = muunna_app(lahde.read_text(encoding="utf-8"))
             maali.write_text(uusi, encoding="utf-8")
@@ -146,6 +163,12 @@ def main() -> int:
         else:
             shutil.copy2(lahde, maali)
         kopioitu += 1
+
+    if not laskuri_ok:
+        print("VAROITUS: kävijälaskuria ei saatu poistettua index.html:stä.\n"
+              "          Esikatselun käynnit kirjautuisivat oikean sivuston\n"
+              "          laskuriin. Tarkista goatcounter-skripti ennen julkaisua.",
+              file=sys.stderr)
 
     if not palvelin_ok:
         print("VAROITUS: palvelimen osoitetta ei löytynyt app.js:stä.\n"
@@ -162,9 +185,10 @@ def main() -> int:
     print(f"Esikatselu kirjoitettu: {kohde}")
     print(f"  tiedostoja {kopioitu}, ohitettu {len(ohitettu)}")
     print(f"  palvelin tyhjennetty: {'kyllä' if palvelin_ok else 'EI'}")
+    print(f"  kävijälaskuri poistettu: {'kyllä' if laskuri_ok else 'EI'}")
     print("\nSeuraavaksi kohdehakemistossa:")
     print("  git add -A && git commit -m 'Esikatselu' && git push")
-    return 0 if palvelin_ok else 1
+    return 0 if (palvelin_ok and laskuri_ok) else 1
 
 
 if __name__ == "__main__":

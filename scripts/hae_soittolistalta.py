@@ -29,6 +29,7 @@ import re
 import sys
 import time
 import unicodedata
+import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -101,11 +102,23 @@ def api(path: str, **params) -> list:
         try:
             with urllib.request.urlopen(req, timeout=25) as resp:
                 return json.load(resp).get("results", [])
+        except urllib.error.HTTPError as e:
+            # 4xx on pysyvä: pyyntö on väärä, ei palvelin kiireinen. Uusiminen
+            # vain hidastaa. Mitattu: yksi Spotifyn tunniste Applen id-kentässä
+            # maksoi 15 sekuntia turhaa odotusta per biisi.
+            if 400 <= e.code < 500 and e.code != 429:
+                print(f"   ! {e}", file=sys.stderr)
+                return []
+            odota(attempt, e)
         except Exception as e:  # noqa: BLE001
-            wait = 2 ** attempt
-            print(f"   ! {e}, yritetään {wait}s päästä", file=sys.stderr)
-            time.sleep(wait)
+            odota(attempt, e)
     return []
+
+
+def odota(attempt: int, e: Exception) -> None:
+    wait = 2 ** attempt
+    print(f"   ! {e}, yritetään {wait}s päästä", file=sys.stderr)
+    time.sleep(wait)
 
 
 def search(term: str, limit: int = 12) -> list:
@@ -201,6 +214,20 @@ def main() -> int:
 
     rules = parse_tiers(a.taso)
     wanted = json.loads(Path(a.lista).read_text(encoding="utf-8"))
+
+    # "id" on Applen numeerinen tunniste. Spotifyn tunniste on 22 merkkiä
+    # kirjaimia ja numeroita, ja se näyttää syötteessä aivan samalta. Jos
+    # listan nouto jättää sen mukaan, joka rivi menee Applen lookupiin
+    # väärällä tunnisteella: ei virhettä, vain 400 ja hiljainen ohitus.
+    # Tarkistetaan ennen ensimmäistäkään kyselyä, koska virhe koskee koko ajoa.
+    vaarat = [f'{w.get("artist")} – {w.get("title")}: {w["id"]}'
+              for w in wanted if w.get("id") and not str(w["id"]).isdigit()]
+    if vaarat:
+        print("Applen tunniste ei ole numeerinen. Onko kentässä Spotifyn "
+              f"tunniste?\n  " + "\n  ".join(vaarat[:5])
+              + (f"\n  ... ja {len(vaarat) - 5} muuta" if len(vaarat) > 5 else ""),
+              file=sys.stderr)
+        return 1
     songs = json.loads(SONGS.read_text(encoding="utf-8"))
     have_ids = {s.get("id") for s in songs}
     have_titles = {norm(s["artist"]) + "|" + base_title(s["title"]) for s in songs}

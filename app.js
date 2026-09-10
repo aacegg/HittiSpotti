@@ -2469,4 +2469,70 @@
       navigator.serviceWorker.register("sw.js").catch(() => { /* ei pakollinen */ });
     });
   }
+
+  /* Auki jäänyt välilehti näytti eri biisit kuin muut.
+   *
+   * Peli lupaa että päivän viisi biisiä ovat kaikilla samat. Lupaus pettää
+   * kahdella tavalla, ja molemmat koskevat välilehteä jota ei ole ladattu
+   * uudelleen. Vuorokausi voi vaihtua auki olevassa välilehdessä, jolloin
+   * se laskee uuden päivän mutta vanhasta muistissa olevasta tilasta. Ja
+   * katalogi voi vaihtua julkaisussa, jolloin pakan sekoitus menee uusiksi.
+   *
+   * Jälkimmäinen sattui oikeasti: kaksi pelaajaa samassa huoneessa sai eri
+   * biisit, koska toinen oli päivittänyt sivun ja toinen ei. Se on pelin
+   * ydinlupauksen kannalta pahin mahdollinen vika, koska yhdessä pelaaminen
+   * on koko päivän sarjan idea.
+   *
+   * Molemmat korjaantuvat lataamalla sivu uudelleen. Päivän sarja
+   * tallennetaan joka toiminnon jälkeen, joten lataus ei hävitä siitä
+   * mitään. Vapaa sarja ei tallennu, joten sen aikana lataus jää odottamaan
+   * eikä vie kesken olevaa peliä.
+   */
+  const AVATTU_PAIVA = todayKey();
+  /* Onko jokin service worker jo ohjannut tätä sivua.
+   *
+   * Tämä ei voi olla latauksessa luettu vakio. Ensimmäisellä käynnillä
+   * ohjausta ei vielä ole kun skripti ajetaan, joten vakio jäisi pysyvästi
+   * epätodeksi ja versiovahti olisi poissa päältä koko välilehden iän.
+   * Mitattu: testi jäi versioon 103 vaikka 104 oli jo palvelimella. Siksi
+   * lippua päivitetään: ensimmäinen ohjauksen vaihto on asennus eikä
+   * vanhentuminen, seuraavat ovat uusi versio. */
+  let onOhjattu = !!(navigator.serviceWorker && navigator.serviceWorker.controller);
+  let latausOdottaa = false;
+
+  function lataaUudelleen() {
+    // Kesken olevaa vapaata sarjaa ei viedä alta. Lataus tehdään heti kun se
+    // on ohi; tarkistus toistuu minuutin välein.
+    if (freeStarted()) { latausOdottaa = true; return; }
+    location.reload();
+  }
+
+  function tarkistaTuoreus() {
+    if (document.hidden) return;
+    if (todayKey() !== AVATTU_PAIVA || latausOdottaa) { lataaUudelleen(); return; }
+    /* Uusi versio: pyydetään selainta tarkistamaan sw.js. Jos uusi asentuu,
+     * se ottaa ohjat heti (skipWaiting) ja controllerchange laukeaa. Pyyntö
+     * on ehdollinen ja sw.js on pari kilotavua, joten tämä ei maksa mitään. */
+    if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) {
+      navigator.serviceWorker.getRegistration()
+        .then((r) => r && r.update())
+        .catch(() => { /* verkotta ei tarkisteta, peli jatkuu */ });
+    }
+  }
+
+  document.addEventListener("visibilitychange", tarkistaTuoreus);
+  window.addEventListener("pageshow", tarkistaTuoreus);
+  /* Näkyvissä oleva välilehti ei laukaise visibilitychangea lainkaan, joten
+   * vuorokauden vaihtuminen on tarkistettava myös kellosta. Pelkkä
+   * paikallinen vertailu, ei verkkoa. */
+  setInterval(tarkistaTuoreus, 60000);
+
+  if (navigator.serviceWorker) {
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      // Ensimmäisellä käynnillä ohjaus siirtyy kerran ilman että mikään
+      // vanheni. Vain aidosti vaihtunut versio saa ladata sivun uudelleen.
+      if (onOhjattu) lataaUudelleen();
+      else onOhjattu = true;
+    });
+  }
 })();

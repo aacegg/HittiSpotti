@@ -218,14 +218,37 @@ const SONGS = __DATA__;
 const NAMES = {1:"Helppo",2:"Keskitaso",3:"Vaikea",4:"Mestari",5:"Mahdoton"};
 /* Oma avain, joka ei ala "hittispotti:" – peli tallentaa samalle sivustolle ja
    sen tilastojen nollaus pyyhkii kaikki sillä alkavat avaimet. */
-const KEY = "hittispotti-arviointi:tila";
+const KEY = "hittispotti-arviointi:tila2";
+/* Avain vaihtui, koska vanha tallennus oli virheellinen ja sen perintö on
+   vaarallista. Vanha versio kirjoitti muistiin koko "gone"-joukon, johon
+   kuuluivat myös katalogin täytebiisit. Kun täyte myöhemmin nostettiin
+   peliin, se jäi silti muistiin poistettuna, ja seuraava vienti ilmoitti
+   sen taas poistettavaksi. Mitattu seuraus: 76 biisiä, jotka oli juuri
+   nostettu peliin, putosivat takaisin täytteiksi ilman että kukaan painoi
+   mitään. Vanhasta avaimesta luetaan siksi vain arviot. */
+const VANHA_KEY = "hittispotti-arviointi:tila";
 
-let saved = { arviot: {}, poista: [] };
-try { saved = Object.assign(saved, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch {}
+let saved = { arviot: {}, poista: [], palauta: [] };
+try {
+  const uusi = JSON.parse(localStorage.getItem(KEY) || "null");
+  if (uusi) saved = Object.assign(saved, uusi);
+  else {
+    const vanha = JSON.parse(localStorage.getItem(VANHA_KEY) || "{}");
+    if (vanha.arviot) saved.arviot = vanha.arviot;   // poista jätetään lukematta
+  }
+} catch {}
 const rate = new Map(Object.entries(saved.arviot).map(([k, v]) => [Number(k), v]));
-// Katalogissa jo pelistä poistetut ovat valmiiksi merkittyinä, ettei samaa
-// biisiä tarvitse arvioida uudestaan toisella koneella tai muistin tyhjennyttyä.
-const gone = new Set([...saved.poista, ...SONGS.filter((s) => s.peli === false).map((s) => s.id)]);
+
+/* Kolme joukkoa, ei yhtä. Katalogin täytteet ovat tosiasia, omat merkinnät
+   ovat mielipide, ja ne on pidettävä erillään: muuten tosiasia tallentuu
+   mielipiteenä ja jää elämään senkin jälkeen kun se ei enää pidä paikkaansa. */
+const TAYTTEET = new Set(SONGS.filter((s) => s.peli === false).map((s) => s.id));
+const omatPois = new Set(saved.poista);        // itse merkityt poistettavaksi
+const omatTakaisin = new Set(saved.palauta);   // itse palautetut täytteet
+
+// Näyttöä varten johdettu joukko. Kaikki lukijat käyttävät tätä.
+const gone = new Set(
+  [...TAYTTEET, ...omatPois].filter((id) => !omatTakaisin.has(id)));
 
 const $ = (s) => document.querySelector(s);
 const list = $("#list");
@@ -233,8 +256,11 @@ let shown = [];
 let at = 0;
 
 function save() {
+  // Vain omat merkinnät talteen. Katalogin täytteet luetaan joka kerta
+  // uudelleen SONGS:sta, joten ne eivät voi vanhentua muistiin.
   localStorage.setItem(KEY, JSON.stringify({
-    arviot: Object.fromEntries(rate), poista: [...gone],
+    arviot: Object.fromEntries(rate),
+    poista: [...omatPois], palauta: [...omatTakaisin],
   }));
   progress();
 }
@@ -353,7 +379,15 @@ list.addEventListener("click", (e) => {
   const d = e.target.closest("[data-del]");
   if (d) {
     const id = +d.dataset.del;
-    gone.has(id) ? gone.delete(id) : gone.add(id);
+    if (gone.has(id)) {
+      gone.delete(id);
+      omatPois.delete(id);
+      if (TAYTTEET.has(id)) omatTakaisin.add(id);
+    } else {
+      gone.add(id);
+      omatTakaisin.delete(id);
+      if (!TAYTTEET.has(id)) omatPois.add(id);
+    }
     d.textContent = gone.has(id) ? "palauta" : "poista";
     d.closest("li").classList.toggle("is-gone", gone.has(id));
     save();
@@ -399,12 +433,16 @@ $("#export").addEventListener("click", () => {
     if (s.tier !== t) out.arviot.push({ id, taso: t, nimi: `${s.artist} – ${s.title}` });
     else out.samat.push(id);
   }
-  for (const id of gone) {
+  // Vietävä on ero katalogiin, ja se lasketaan omista merkinnöistä eikä
+  // johdetusta gone-joukosta. Muuten katalogin oma tila päätyisi viennissä
+  // muutokseksi, jota kukaan ei ole pyytänyt.
+  for (const id of omatPois) {
     const s = SONGS.find((x) => x.id === id);
     if (s && s.peli !== false) out.poista.push(id);
   }
-  for (const s of SONGS) {
-    if (s.peli === false && !gone.has(s.id)) out.palauta.push(s.id);
+  for (const id of omatTakaisin) {
+    const s = SONGS.find((x) => x.id === id);
+    if (s && s.peli === false) out.palauta.push(id);
   }
   for (const k of ["arviot", "samat", "poista", "palauta"]) if (!out[k].length) delete out[k];
 

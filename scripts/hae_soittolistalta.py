@@ -82,9 +82,27 @@ def norm(s: str) -> str:
 
 
 def base_title(title: str) -> str:
-    """'Beibi (feat. X)' -> 'beibi', jotta sama biisi ei tule kahdesti."""
+    """'Beibi (feat. X)' -> 'beibi', jotta sama biisi ei tule kahdesti.
+
+    Tyhjä tulos on vaarallinen, koska tyhjä täsmää toiseen tyhjään: kaksi
+    aivan eri biisiä näyttäisi samalta. Näin kävi oikeasti. Areksen biisin
+    nimi on "Ɐ", ja koska normalisointi poistaa muut kuin ascii-merkit,
+    siitä jäi tyhjä. Vuositarkistus täsmäsi sen venäläiseen kappaleeseen,
+    jonka nimi normalisoitui myös tyhjäksi, ja olisi muuttanut vuoden
+    2025:stä 2008:aan. Sama uhkaa nimiä jotka alkavat sulkeella, kuten
+    22-Pistepirkon "(Just a) Little Bit More".
+
+    Siksi karsitusta nimestä luovutaan jos siitä ei jää mitään: koko nimi
+    on huonompi avain kuin pelkistetty, mutta ääretöntä parempi kuin
+    tyhjä."""
     t = re.split(r"\s*[\(\[]", title)[0]
     t = re.split(r"\s+(feat\.?|ft\.?|with)\s+", t, flags=re.I)[0]
+    if not norm(t):
+        # Koko nimi ei aina auta: "Ɐ" ja "Во Власти Ветров" katoavat
+        # molemmat, koska normalisointi poistaa muut kuin ascii-merkit.
+        # Silloin otetaan raaka nimi pienellä ja ilman välilyöntejä. Se ei
+        # ole kaunis avain, mutta se erottaa nämä kaksi toisistaan.
+        return norm(title) or re.sub(r"\s+", "", title).casefold()
     return norm(t)
 
 

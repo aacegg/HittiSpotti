@@ -22510,41 +22510,37 @@
   "id": 1442557791,
   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/71/fd/35/71fd3504-7465-4601-0d9c-149264409670/mzaf_12130080861945302669.plus.aac.p.m4a",
   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/90/60/db/9060db6d-26c8-bd3f-50bc-b54c4f1fe0f9/00731453158924.rgb.jpg/300x300bb.jpg",
-  "itunes": "Mascara – Erittäin Hyvä (Ellei Täydellinen) (1997)",
-  "peli": false
+  "itunes": "Mascara – Erittäin Hyvä (Ellei Täydellinen) (1997)"
  },
  {
   "artist": "Leevi and the Leavings",
   "title": "Tikapuut Taivaaseen",
   "year": 1991,
-  "tier": 3,
+  "tier": 4,
   "id": 1443152881,
   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/af/1a/05/af1a057c-e60a-72ce-3044-f5a8bbd2957a/mzaf_7237091335301550773.plus.aac.p.m4a",
   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/7f/00/88/7f00886c-b731-01c3-6868-20c8ae8bdc7f/06417734231176.rgb.jpg/300x300bb.jpg",
-  "itunes": "Leevi and the Leavings – Tikapuut Taivaaseen (1991)",
-  "peli": false
+  "itunes": "Leevi and the Leavings – Tikapuut Taivaaseen (1991)"
  },
  {
   "artist": "Suurlähettiläät",
   "title": "Kun Tänään Lähden",
   "year": 1993,
-  "tier": 3,
+  "tier": 2,
   "id": 724259920,
   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/c9/ac/c3/c9acc31f-e93f-6896-dcf2-530349d69ab3/mzaf_544536564525749095.plus.aac.p.m4a",
   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music4/v4/67/bb/14/67bb1418-1e37-ecef-75a0-ad1741d84715/00724386363350.jpg/300x300bb.jpg",
-  "itunes": "Suurlähettiläät – Kun Tänään Lähden (1993)",
-  "peli": false
+  "itunes": "Suurlähettiläät – Kun Tänään Lähden (1993)"
  },
  {
   "artist": "Petri Nygård",
   "title": "Kotibileet (feat. Emel, Ozzy & Aajee)",
   "year": 2009,
-  "tier": 3,
+  "tier": 2,
   "id": 475230726,
   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/70/44/6d/70446dc3-4adc-f49b-72b1-9133ee8c5331/mzaf_7023336754801960796.plus.aac.p.m4a",
   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/42/ed/b9/mzi.pjattgmz.jpg/300x300bb.jpg",
-  "itunes": "Petri Nygård – Kotibileet (feat. Emel, Ozzy & Aajee) (2011)",
-  "peli": false
+  "itunes": "Petri Nygård – Kotibileet (feat. Emel, Ozzy & Aajee) (2011)"
  },
  {
   "artist": "Cheek",
@@ -22554,74 +22550,67 @@
   "id": 1442581059,
   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/10/c8/76/10c87637-98e4-0683-0b2e-c412725e9479/mzaf_2107435480783572575.plus.aac.p.m4a",
   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/3d/b5/40/3db5407f-2254-b1b8-1fbb-9fb4847fd41d/06430016680448.rgb.jpg/300x300bb.jpg",
-  "itunes": "Cheek – Kaikki Hyvin (feat. Lord Est) (2009)",
-  "peli": false
+  "itunes": "Cheek – Kaikki Hyvin (feat. Lord Est) (2009)"
  },
  {
   "artist": "Timo Rautiainen & Trio Niskalaukaus",
   "title": "Lumessakahlaajat",
   "year": 2002,
-  "tier": 3,
+  "tier": 5,
   "id": 1670002024,
   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/18/4e/64/184e6461-0707-1ac3-2feb-256f9e02ca25/mzaf_14998224437121542471.plus.aac.p.m4a",
   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/40/40/68/40406887-faf0-775b-c895-87a3a5a44178/5400863126001_cover.jpg/300x300bb.jpg",
-  "itunes": "Timo Rautiainen & Trio Niskalaukaus – Lumessakahlaajat (2004)",
-  "peli": false
+  "itunes": "Timo Rautiainen & Trio Niskalaukaus – Lumessakahlaajat (2004)"
  },
  {
   "artist": "Apulanta",
   "title": "Jumala",
   "year": 2002,
-  "tier": 3,
+  "tier": 1,
   "id": 638656099,
   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/0a/b0/43/0ab04339-d1c6-c8d3-c83e-11935a4b548f/mzaf_4594947188393661812.plus.aac.p.m4a",
   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/82/46/10/824610dd-b857-b697-a274-97df11fff5da/cover.jpg/300x300bb.jpg",
-  "itunes": "Apulanta – Jumala (2002)",
-  "peli": false
+  "itunes": "Apulanta – Jumala (2002)"
  },
  {
   "artist": "Ruoska",
   "title": "Mies Yli Laidan",
   "year": 2006,
-  "tier": 3,
+  "tier": 4,
   "id": 713512468,
   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/e0/e7/c0/e0e7c04e-5c3f-0916-fdf3-fc8ee9c5893e/mzaf_4898361227184957304.plus.aac.p.m4a",
   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/f2/f1/ca/f2f1cad6-37f9-05ee-b9f0-7345b593f182/00094636832951.jpg/300x300bb.jpg",
-  "itunes": "Ruoska – Mies Yli Laidan (2006)",
-  "peli": false
+  "itunes": "Ruoska – Mies Yli Laidan (2006)"
  },
  {
   "artist": "Apulanta",
   "title": "Vasten mun kasvojani",
   "year": 2004,
-  "tier": 3,
+  "tier": 4,
   "id": 935314654,
   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/fd/59/1e/fd591eec-d8a4-5f54-9050-550dc467aef6/mzaf_5896617731079598898.plus.aac.p.m4a",
   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music3/v4/3f/77/80/3f778030-baff-0f75-4da1-2c361f6944a9/cover.jpg/300x300bb.jpg",
-  "itunes": "Apulanta – Vasten mun kasvojani (2004)",
-  "peli": false
+  "itunes": "Apulanta – Vasten mun kasvojani (2004)"
  },
  {
   "artist": "Stella",
   "title": "Häävalssi",
   "year": 2006,
-  "tier": 3,
+  "tier": 5,
   "id": 1442768436,
   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/a7/1b/16/a71b16df-602b-3e84-fece-b7f7f48a7128/mzaf_13606986756708216321.plus.aac.p.m4a",
   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/d9/e4/d4/d9e4d4d1-cddf-9bd4-68bb-6b05eb98196b/00602527710112.rgb.jpg/300x300bb.jpg",
-  "itunes": "Stella – Häävalssi (2006)",
-  "peli": false
+  "itunes": "Stella – Häävalssi (2006)"
  },
  {
   "artist": "Viikate",
   "title": "Pohjoista Viljaa",
   "year": 2004,
-  "tier": 3,
+  "tier": 5,
   "id": 1536715125,
   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/aa/2d/90/aa2d90f6-c28d-72f8-f7c2-34d0036231f7/mzaf_9504321632154640926.plus.aac.p.m4a",
   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/0e/7c/cf/0e7ccf5c-cca9-b555-1576-a926bc2fc0b9/20UMGIM94040.rgb.jpg/300x300bb.jpg",
-  "itunes": "Viikate – Pohjoista Viljaa (2004)",
-  "peli": false
+  "itunes": "Viikate – Pohjoista Viljaa (2004)"
  },
  {
   "artist": "Vesterinen Yhtyeineen",
@@ -22631,29 +22620,26 @@
   "id": 1442651072,
   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/ce/a5/a9/cea5a928-ae59-5bbc-7ffc-ce4f4c36a6dc/mzaf_17900773336545121844.plus.aac.p.m4a",
   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/2d/e5/b3/2de5b3c6-45ef-e27f-f96b-2503f71600fd/00602527121703.rgb.jpg/300x300bb.jpg",
-  "itunes": "Vesterinen Yhtyeineen – Kukaan Ei Koskaan (2009)",
-  "peli": false
+  "itunes": "Vesterinen Yhtyeineen – Kukaan Ei Koskaan (2009)"
  },
  {
   "artist": "Apulanta",
   "title": "Ravistettava Ennen Käyttöä",
   "year": 2008,
-  "tier": 3,
+  "tier": 2,
   "id": 294249138,
   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/70/75/20/707520bb-238e-351e-5a5e-0c95a2fd7659/mzaf_1957926491905121848.plus.aac.p.m4a",
   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/1d/08/21/mzi.rmyhtulo.jpg/300x300bb.jpg",
-  "itunes": "Apulanta – Ravistettava Ennen Käyttöä (2008)",
-  "peli": false
+  "itunes": "Apulanta – Ravistettava Ennen Käyttöä (2008)"
  },
  {
   "artist": "Viikate",
   "title": "Viina, Terva & Hauta",
   "year": 2009,
-  "tier": 3,
+  "tier": 4,
   "id": 1443720097,
   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/8d/a5/5e/8da55ea7-b03a-9b50-89a5-ed5e0d13ed55/mzaf_16679921754121711140.plus.aac.p.m4a",
   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/43/47/da/4347daa2-fdd1-8fec-c1fe-8198c6e5515b/00602527114941.rgb.jpg/300x300bb.jpg",
-  "itunes": "Viikate – Viina, Terva & Hauta (2009)",
-  "peli": false
+  "itunes": "Viikate – Viina, Terva & Hauta (2009)"
  }
 ]

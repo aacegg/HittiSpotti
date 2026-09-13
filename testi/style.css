@@ -1778,15 +1778,18 @@ body.sheet-open { overflow: hidden; }
  * Sama muoto kuin pelin tasonapeilla (.tchip): pyöreä reunus, hiusviiva,
  * väri vasta valittuna. Viisi nappia yhdellä rivillä vie saman tilan kuin
  * yksi valikkorivi, kun viisi omaa riviä olisi vienyt puolet valikosta. */
+/* Napit kiertyvät useammalle riville, koska teksti ratkaisee leveyden.
+   Yhdelle riville mahtuisivat vain lyhenteet, ja pelkkä "00" ei kerro
+   kenellekään mistä vuosikymmenestä on kyse. */
 .kaudet {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: var(--s2);
-  padding: var(--s2) 0 var(--s3) var(--s5);
+  padding: var(--s2) var(--s5) var(--s3) var(--s5);
 }
 .kchip {
-  flex: 1 1 0;
   min-height: 40px;
-  padding: var(--s2) 0;
+  padding: var(--s2) var(--s4);
   border: 1px solid var(--line);
   border-radius: 999px;
   background: transparent;

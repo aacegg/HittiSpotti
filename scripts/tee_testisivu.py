@@ -35,7 +35,7 @@ ROOT = Path(__file__).resolve().parent.parent
 ULOS = ROOT / "testi"
 # Oma versiotunnus, jottei juuren service worker tarjoa vanhaa testisivua
 # välimuististaan. Kasvata kun testisivu päivitetään.
-VERSIO = "t3"
+VERSIO = "t4"
 
 
 def banneri(versio):

@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="dark">
+<title>HittiSpotti – kumpi äänite?</title>
+<style>
+:root {
+  --bg: #0a0908; --lift: #14120f; --line: #2a2521; --text: #f2ebdf;
+  --dim: #948a7c; --faint: #6d6559; --live: #5ecf9a; --vaihto: #f5b32e;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.kuori { max-width: 760px; margin: 0 auto; padding-inline: 18px; padding-block: 0 60px; }
+header { padding-block: 36px 22px; border-bottom: 1px solid var(--line); }
+h1 { margin: 0; font-size: 26px; letter-spacing: -.01em; }
+header p { margin: 12px 0 0; color: var(--dim); max-width: 58ch; }
+.edistys { margin-top: 18px; font: 600 13px/1 ui-monospace, monospace; color: var(--faint); }
+
+.pari { padding-block: 26px; border-bottom: 1px solid var(--line); }
+.pari h2 { margin: 0; font-size: 18px; }
+.pari .artisti { color: var(--dim); font-size: 14px; }
+.ero { margin-top: 6px; font: 600 12px/1 ui-monospace, monospace; color: var(--vaihto); }
+
+.puolet { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+@media (max-width: 620px) { .puolet { grid-template-columns: 1fr; } }
+
+.puoli {
+  padding: 14px; background: var(--lift); border: 1px solid var(--line);
+  border-radius: 4px; display: flex; flex-direction: column; gap: 10px;
+}
+.puoli.valittu { border-color: var(--live); }
+.rooli { font: 600 10.5px/1 ui-monospace, monospace; letter-spacing: .12em;
+         text-transform: uppercase; color: var(--faint); }
+.puoli.valittu .rooli { color: var(--live); }
+.meta { font: 400 13px/1.5 ui-monospace, monospace; color: var(--dim); }
+.meta b { color: var(--text); font-size: 17px; }
+.levy { font-size: 12.5px; color: var(--faint); word-break: break-word; }
+
+.napit { display: flex; gap: 8px; margin-top: auto; }
+button {
+  flex: 1; padding: 10px; border-radius: 4px; border: 1px solid var(--line);
+  background: transparent; color: var(--text); font: 600 13px/1 inherit;
+  cursor: pointer;
+}
+button:hover { border-color: var(--dim); }
+button.soi { border-color: var(--vaihto); color: var(--vaihto); }
+.valitse.on { background: var(--live); border-color: var(--live); color: #07120c; }
+:focus-visible { outline: 2px solid var(--vaihto); outline-offset: 2px; }
+
+.vienti { margin-top: 30px; display: flex; gap: 10px; flex-wrap: wrap; }
+.vienti button { flex: 0 1 auto; padding-inline: 18px; }
+textarea {
+  width: 100%; margin-top: 14px; min-height: 150px; padding: 12px;
+  background: var(--lift); color: var(--text); border: 1px solid var(--line);
+  border-radius: 4px; font: 12px/1.5 ui-monospace, monospace;
+}
+</style>
+</head>
+<body>
+<div class="kuori">
+<header>
+  <h1>Kumpi äänite kuuluu peliin?</h1>
+  <p>
+    Näissä biiseissä katalogissa oleva äänite on eri pituinen kuin vanhempi
+    julkaisu, eli kyse on eri levytyksestä eikä samasta äänitteestä eri
+    levyllä. Kuuntele molemmat ja valitse se jonka suomalainen tunnistaa.
+    Se on usein alkuperäinen, muttei aina.
+  </p>
+  <p class="edistys" id="edistys"></p>
+</header>
+<div id="lista"></div>
+
+<div class="vienti">
+  <button id="vie">Näytä valinnat</button>
+  <button id="tyhjenna">Tyhjennä</button>
+</div>
+<textarea id="tuloste" readonly hidden></textarea>
+</div>
+
+<script>
+const PARIT = [{"id": 299232478, "artisti": "Reijo Taipale", "nimi": "Tähdet Meren Yllä", "peli": false, "nyt": {"id": 299232478, "vuosi": 1993, "kesto": 184, "levy": "Onnen Maa", "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/de/f3/b0/def3b080-8c8d-e600-6718-2a9c5fda3e29/mzaf_10406656280812160750.plus.aac.p.m4a", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/2a/39/67/mzi.dccewdef.jpg/300x300bb.jpg"}, "vaihto": {"id": 257180026, "vuosi": 1970, "kesto": 190, "levy": "20 Suosikkia / Onnen Maa", "artisti": "Reijo Taipale", "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/57/79/12/577912ee-ce91-3be0-f8ed-eb44c468d30c/mzaf_2640146725675817031.plus.aac.p.m4a", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/64/9a/bc/mzi.szaegskw.jpg/300x300bb.jpg"}}, {"id": 40556688, "artisti": "Jukka Kuoppamäki", "nimi": "Paljon Sanomatta Jää", "peli": false, "nyt": {"id": 40556688, "vuosi": 1997, "kesto": 234, "levy": "20 Suosikkia", "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/13/d2/28/13d2280a-8ec8-73fb-6746-4a488fcc783d/mzaf_5056999257523940905.plus.aac.p.m4a", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/y2004/m12/d30/h18/s06.dajsalei.jpg/300x300bb.jpg"}, "vaihto": {"id": 1178935973, "vuosi": 1976, "kesto": 222, "levy": "Sininen ja valkoinen", "artisti": "Jukka Kuoppamäki", "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/22/f1/46/22f14656-7e64-afe9-8487-4fa6b91273c7/mzaf_9148674387548703232.plus.aac.p.m4a", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music71/v4/80/80/10/80801091-7bc6-9e62-933f-34e28d870696/cover.jpg/300x300bb.jpg"}}, {"id": 269274126, "artisti": "Kirka", "nimi": "Pääsi Rinnallein Painuu (Put Your Head on My Shoulder)", "peli": false, "nyt": {"id": 269274126, "vuosi": 1990, "kesto": 217, "levy": "Kirka: 40 Unohtumatonta Laulua", "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/2e/de/d6/2eded612-1094-5c7b-c3cd-94a340bd1fd7/mzaf_10509181869790865656.plus.aac.p.m4a", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/94/35/5e/94355eee-d7a6-dda5-d5da-6a03448b4000/828768034620.jpg/300x300bb.jpg"}, "vaihto": {"id": 215637592, "vuosi": 1969, "kesto": 153, "levy": "30 Suosikkia: Tähtisarja", "artisti": "Kirka", "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/8a/db/6e/8adb6e05-eccc-33d8-c9a6-83ce7067bf5a/mzaf_8303723280686894187.plus.aac.p.m4a", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/f0/19/14/mzi.eewzoifc.jpg/300x300bb.jpg"}}, {"id": 1169045884, "artisti": "Tauski & Virpi", "nimi": "Haavemaa", "peli": false, "nyt": {"id": 1169045884, "vuosi": 2010, "kesto": 228, "levy": "Hitit", "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/9d/76/6f/9d766f94-fc56-2067-0b99-bbdbfb054ba7/mzaf_18208840941411045801.plus.aac.p.m4a", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music71/v4/2d/aa/a9/2daaa9bd-1646-3357-733e-48a879ebb80b/cover.jpg/300x300bb.jpg"}, "vaihto": {"id": 655738072, "vuosi": 1990, "kesto": 246, "levy": "Charlotta", "artisti": "Tauski & Helena Miller", "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/86/83/f5/8683f583-acd3-ff5a-4376-00c0075ec6aa/mzaf_11990938124121594518.plus.aac.p.m4a", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/3f/e2/13/3fe213e0-1be3-b9d8-f4a7-eb48e4891925/825646699353.jpg/300x300bb.jpg"}}, {"id": 713803274, "artisti": "Neljä Ruusua", "nimi": "Sun Täytyy Mennä", "peli": false, "nyt": {"id": 713803274, "vuosi": 2000, "kesto": 236, "levy": "Popmuseo", "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/2b/8b/fb/2b8bfbc0-a19b-87c9-34bb-9d0ebca7b9d5/mzaf_7957762902850975542.plus.aac.p.m4a", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/ab/a3/19/aba3194b-48f4-8638-8971-c9c14476cdd6/00724352834655.jpg/300x300bb.jpg"}, "vaihto": {"id": 723824549, "vuosi": 1992, "kesto": 231, "levy": "Haloo", "artisti": "Nelja Ruusua", "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/69/f7/fd/69f7fd41-14c6-dc63-6b68-ab9d991b91c4/mzaf_8148350185698005221.plus.aac.p.m4a", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music4/v4/8e/6b/5a/8e6b5ae1-4f79-0552-ef47-c4e0b851c150/00077779897650.jpg/300x300bb.jpg"}}, {"id": 965192597, "artisti": "Pelle Miljoona", "nimi": "Tähtivaeltaja", "peli": false, "nyt": {"id": 965192597, "vuosi": 2003, "kesto": 197, "levy": "Tähtivaeltaja", "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/d5/81/96/d5819661-8959-d212-297d-af4d04f06ba2/mzaf_8327801589528977260.plus.aac.p.m4a", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music3/v4/73/c7/8e/73c78e37-981e-e0bc-090a-e844931f9096/cover.jpg/300x300bb.jpg"}, "vaihto": {"id": 1442570182, "vuosi": 1995, "kesto": 202, "levy": "Landella", "artisti": "Pelle Miljoona & Rockers", "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/dc/f5/65/dcf56526-56f5-0a4c-2db4-5e6b06d310b5/mzaf_13629542787664892622.plus.aac.p.m4a", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/c3/f6/02/c3f6022d-3b64-05c1-c6c5-103d2beaadd3/06417734230698.rgb.jpg/300x300bb.jpg"}}, {"id": 843154828, "artisti": "Reijo Taipale", "nimi": "Niittykukkaset", "peli": false, "nyt": {"id": 843154828, "vuosi": 1989, "kesto": 206, "levy": "Virran Rannalla", "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/07/a9/91/07a99194-064b-d257-af97-d73c4572e148/mzaf_14455281597896815426.plus.aac.p.m4a", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/30/98/89/309889f5-440f-8c36-9fa8-a9ef0f3cb926/886444289139.jpg/300x300bb.jpg"}, "vaihto": {"id": 1092263371, "vuosi": 1981, "kesto": 190, "levy": "Olen saanut elää", "artisti": "Reijo Taipale", "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/04/af/81/04af8160-4e87-d0ac-7be0-c08bc3c9cd27/mzaf_8461481281949537468.plus.aac.p.m4a", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music69/v4/e1/f7/8b/e1f78be9-8846-4811-f1f7-86fd8b7a39ef/886445743470.jpg/300x300bb.jpg"}}, {"id": 1779195928, "artisti": "william & Isac Elliot", "nimi": "Anteeks", "peli": false, "nyt": {"id": 1779195928, "vuosi": 2024, "kesto": 193, "levy": "Anteeks - Single", "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b7/2d/15/b72d1504-fb5f-a78a-a5f0-23906c2b20d1/mzaf_12311917859204323311.plus.aac.p.m4a", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/87/89/b7/8789b768-1f7b-1d0c-905f-65cde1165a50/5021732548450.jpg/300x300bb.jpg"}, "vaihto": {"id": 1476870188, "vuosi": 2019, "kesto": 109, "levy": "sorrynotsorry - EP", "artisti": "william", "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/af/56/23/af5623b2-5db6-8955-df1a-d4aa5792f5a6/mzaf_15466997619635688445.plus.aac.p.m4a", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/59/29/c7/5929c719-a82e-faa8-f421-4516d5224e6b/886447909737.jpg/300x300bb.jpg"}}, {"id": 1669930667, "artisti": "Tarja Turunen", "nimi": "Walking In The Air", "peli": false, "nyt": {"id": 1669930667, "vuosi": 2010, "kesto": 229, "levy": "Henkäys Ikuisuudesta (Jouluinen Platinapainos)", "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/b5/9f/a5/b59fa59b-f818-83f2-485c-952b7642e7a2/mzaf_11810765666737725784.plus.aac.p.m4a", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/3f/d4/a7/3fd4a769-bee7-00a5-2052-7810751eba35/5400863123956_cover.jpg/300x300bb.jpg"}, "vaihto": {"id": 1669928610, "vuosi": 2006, "kesto": 276, "levy": "Henkäys Ikuisuudesta", "artisti": "Tarja Turunen", "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/5a/a9/84/5aa9847e-383a-f899-add1-5ce6c3a876c3/mzaf_14865095397810766539.plus.aac.p.m4a", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/f5/2b/75/f52b75e1-7493-5aaf-ee15-6e7a6dc27410/5400863124892_cover.jpg/300x300bb.jpg"}}];
+const KEY = "hittispotti-vertailu:v1";
+let valinnat = {};
+try { valinnat = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { valinnat = {}; }
+
+const mmss = (s) => Math.floor(s / 60) + "." + String(s % 60).padStart(2, "0");
+const pako = (s) => String(s == null ? "" : s).replace(/[&<>"]/g,
+  (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+let soiva = null;
+function soita(url, nappi) {
+  if (soiva) { soiva.audio.pause(); soiva.nappi.classList.remove("soi"); }
+  if (soiva && soiva.nappi === nappi) { soiva = null; return; }
+  const audio = new Audio(url);
+  audio.play().catch(() => {});
+  nappi.classList.add("soi");
+  audio.addEventListener("ended", () => nappi.classList.remove("soi"));
+  soiva = { audio, nappi };
+}
+
+function puoli(p, mika) {
+  const d = p[mika];
+  const on = valinnat[p.id] === mika;
+  return `<div class="puoli ${on ? "valittu" : ""}" data-id="${p.id}" data-mika="${mika}">
+    <span class="rooli">${mika === "nyt" ? "pelissä nyt" : "vanhempi"}</span>
+    <p class="meta"><b>${d.vuosi}</b> · ${mmss(d.kesto)}</p>
+    <p class="levy">${pako(d.levy)}</p>
+    <div class="napit">
+      <button type="button" class="kuuntele" data-url="${pako(d.preview)}">Kuuntele</button>
+      <button type="button" class="valitse ${on ? "on" : ""}">${on ? "Valittu" : "Valitse"}</button>
+    </div>
+  </div>`;
+}
+
+function piirra() {
+  document.getElementById("lista").innerHTML = PARIT.map((p) => `
+    <section class="pari">
+      <h2>${pako(p.nimi)}</h2>
+      <p class="artisti">${pako(p.artisti)}</p>
+      <p class="ero">${p.nyt.vuosi - p.vaihto.vuosi} vuoden ero · kestoero
+         ${(p.vaihto.kesto - p.nyt.kesto > 0 ? "+" : "")}${p.vaihto.kesto - p.nyt.kesto} s</p>
+      <div class="puolet">${puoli(p, "nyt")}${puoli(p, "vaihto")}</div>
+    </section>`).join("");
+  const n = Object.keys(valinnat).length;
+  document.getElementById("edistys").textContent = `${n} / ${PARIT.length} valittu`;
+}
+
+document.addEventListener("click", (e) => {
+  const kuuntele = e.target.closest(".kuuntele");
+  if (kuuntele) { soita(kuuntele.dataset.url, kuuntele); return; }
+  const valitse = e.target.closest(".valitse");
+  if (!valitse) return;
+  const puoli = valitse.closest(".puoli");
+  const id = Number(puoli.dataset.id);
+  valinnat[id] = valinnat[id] === puoli.dataset.mika ? undefined : puoli.dataset.mika;
+  if (!valinnat[id]) delete valinnat[id];
+  try { localStorage.setItem(KEY, JSON.stringify(valinnat)); } catch (err) {}
+  piirra();
+});
+
+document.getElementById("vie").addEventListener("click", () => {
+  const ulos = PARIT.filter((p) => valinnat[p.id]).map((p) => ({
+    id: p.id, biisi: p.artisti + " – " + p.nimi,
+    valinta: valinnat[p.id],
+    uusi_id: valinnat[p.id] === "vaihto" ? p.vaihto.id : p.nyt.id,
+    uusi_vuosi: valinnat[p.id] === "vaihto" ? p.vaihto.vuosi : p.nyt.vuosi,
+  }));
+  const t = document.getElementById("tuloste");
+  t.hidden = false;
+  t.value = JSON.stringify(ulos, null, 1);
+  t.select();
+});
+
+document.getElementById("tyhjenna").addEventListener("click", () => {
+  if (!confirm("Tyhjennetäänkö kaikki valinnat?")) return;
+  valinnat = {};
+  try { localStorage.removeItem(KEY); } catch (err) {}
+  document.getElementById("tuloste").hidden = true;
+  piirra();
+});
+
+piirra();
+</script>
+</body>
+</html>

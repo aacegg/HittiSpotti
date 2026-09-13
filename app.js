@@ -16,6 +16,22 @@
   const DAILY_COUNT = 5;
   const TIER_CYCLE = [1, 2, 3, 4, 5];          // yksi biisi jokaiselta tasolta, helpoimmasta vaikeimpaan
   const TIER_NAMES = { 1: "Helppo", 2: "Keskitaso", 3: "Vaikea", 4: "Mestari", 5: "Mahdoton" };
+
+  /* Vapaan pelin vuosikymmenet.
+   *
+   * 50- ja 60-luku eivät ole omia kausiaan. Sarja ottaa yhden biisin joka
+   * vaikeustasolta, eikä sitä voi koota vajaasta vuosikymmenestä: 50-luvulla
+   * on nolla biisiä tasoilla 1 ja 2, ja koko vuosikymmenessä seitsemän
+   * biisiä. Ne kulkevat siksi 70- ja 80-luvun mukana, jolloin ohuinkin taso
+   * saa 36 biisiä. */
+  const KAUDET = [
+    { avain: "vanha", nimi: "1950–80-luku", alku: 1950, loppu: 1989 },
+    { avain: "1990", nimi: "1990-luku", alku: 1990, loppu: 1999 },
+    { avain: "2000", nimi: "2000-luku", alku: 2000, loppu: 2009 },
+    { avain: "2010", nimi: "2010-luku", alku: 2010, loppu: 2019 },
+    { avain: "2020", nimi: "2020-luku", alku: 2020, loppu: 2099 },
+  ];
+  const kausi = (avain) => KAUDET.find((k) => k.avain === avain) || null;
   const STORE = "hittispotti:";
   const STORE_OLD = "songspot-suomi:";         // aiempi nimi, tiedot siirretään kerran
   const RING = 2 * Math.PI * 54;               // soittopainikkeen kehän pituus (r = 54)
@@ -45,6 +61,9 @@
     pool: [],            // näistä peli jakaa biisit
     byId: new Map(),
     mode: "daily",        // "daily" | "free"
+    /* Vapaan pelin vuosikymmenrajaus, null kun koko katalogi kelpaa. Ei oma
+     * pelimuotonsa vaan suodatin, koska kaikki muu toimii samoin. */
+    kausi: null,
     dayKey: null,         // minkä päivän sarja on auki – ei kellosta, ks. startDaily
     rounds: [],           // biisikohtaiset tilat, päivän pelissä viisi
     at: 0,                // mikä niistä on auki
@@ -333,7 +352,10 @@
      * biisit ei: se on oletus, ja saman sanan toistaminen otsikon vieressä
      * näyttäisi vahingolta. Poikkeus on se joka pitää huomata. */
     if (state.mode === "free") {
-      el.barTag.innerHTML = `<b>Vapaa peli</b> · ${valmis}/${state.rounds.length}`;
+      // Kausi on se joka pitää muistaa kesken sarjan: se kertoo miksi
+      // biisit ovat sitä mitä ovat. Ilman kautta nimi on "Vapaa peli".
+      const k = kausi(state.kausi);
+      el.barTag.innerHTML = `<b>${k ? k.nimi : "Vapaa peli"}</b> · ${valmis}/${state.rounds.length}`;
     } else {
       el.barTag.textContent = `${valmis}/${state.rounds.length} valmis`;
     }
@@ -441,7 +463,20 @@
     el.freeReset.hidden = !(state.mode === "free" && state.view === "game");
     document.querySelectorAll("[data-go]").forEach((b) => {
       const isMode = b.dataset.go === "daily" || b.dataset.go === "free";
-      if (isMode) b.classList.toggle("is-active", state.view === "game" && state.mode === b.dataset.go);
+      if (isMode) {
+        // "Vapaa peli" ei ole valittuna kun kausi on: silloin valinta näkyy
+        // kausinapissa, eikä kahta aktiivista riviä pidä olla yhtä aikaa.
+        const kaudella = b.dataset.go === "free" && state.kausi;
+        b.classList.toggle("is-active",
+          state.view === "game" && state.mode === b.dataset.go && !kaudella);
+      }
+    });
+    document.querySelectorAll("[data-kausi]").forEach((b) => {
+      const paalla = state.view === "game" && state.mode === "free"
+        && state.kausi === b.dataset.kausi;
+      b.classList.toggle("is-on", paalla);
+      // Väri on ainoa muu merkki valinnasta, joten se ei riitä yksin.
+      b.setAttribute("aria-pressed", String(paalla));
     });
     refreshDrawerStats();
   }
@@ -1124,12 +1159,13 @@
    * sama rakenne kuin päivän pelissä, mutta sarjoja voi pelata niin monta
    * kuin haluaa. Sarja päättyy tuloksiin ja seuraava alkaa puhtaalta
    * pöydältä, joten pisteet eivät kasaannu loputtomiin. */
-  function startFree() {
+  function startFree(kausiAvain) {
     /* state.used elää saman sivulatauksen ajan, joten peräkkäisissä sarjoissa
      * ei tule samoja biisejä uudestaan. Sivun päivitys nollaa sen: muistia ei
      * talleteta, koska satunnaisuus riittää eikä toistoa käytännössä ehdi
      * huomata yhden istunnon aikana. */
     state.mode = "free";
+    state.kausi = kausiAvain || null;
     state.results = [];
     state.score = 0;
     state.rounds = TIER_CYCLE.map((t) => newRound(pickFreeSong(t)));
@@ -1140,11 +1176,22 @@
   }
 
   function pickFreeSong(tier) {
-    let pool = state.pool.filter((s) => s.tier === tier && !state.used.has(s.id));
+    /* Vuosikymmenrajaus on osa tason poimintaa, ei erillinen suodatin
+     * jälkikäteen: muuten "taso käyty läpi" -nollaus laskisi väärin ja
+     * nollaisi koko tason vaikka kauden sisällä olisi vielä biisejä. */
+    const k = kausi(state.kausi);
+    let kuuluu = (s) => s.tier === tier
+      && (!k || (s.year && s.year >= k.alku && s.year <= k.loppu));
+    /* Jos kaudelta ei löydy tätä tasoa lainkaan, rajaus jätetään väliin
+     * tämän biisin kohdalla. Nykyisellä katalogilla jokaisessa kaudessa on
+     * kymmeniä biisejä joka tasolta, mutta tyhjä joukko kaatuisi, ja peli
+     * ilman yhtä vuosikymmentä on parempi kuin peli joka ei käynnisty. */
+    if (k && !state.pool.some(kuuluu)) kuuluu = (s) => s.tier === tier;
+    let pool = state.pool.filter((s) => kuuluu(s) && !state.used.has(s.id));
     if (!pool.length) {
       // Taso käyty läpi: aloitetaan se alusta muita tasoja nollaamatta.
-      state.pool.forEach((s) => { if (s.tier === tier) state.used.delete(s.id); });
-      pool = state.pool.filter((s) => s.tier === tier);
+      state.pool.forEach((s) => { if (kuuluu(s)) state.used.delete(s.id); });
+      pool = state.pool.filter(kuuluu);
     }
     const song = pool[Math.floor(Math.random() * pool.length)];
     state.used.add(song.id);
@@ -1187,10 +1234,16 @@
      * välillä oli tämä rivi himmeällä pikkutekstillä, eikä testaaja huomannut
      * vaihtaneensa muotoa. Nyt nimi on otsikkokokoinen ja päivämäärä jää sen
      * alle pieneksi. Vapaan pelin värin hoitaa CSS body[data-mode]:n kautta. */
-    el.modeLabel.textContent = state.mode === "daily" ? "Päivän biisit" : "Vapaa peli";
+    /* Vuosikymmen on otsikossa eikä pikkutekstissä. Sama syy kuin
+     * pelimuodolla aikanaan: jos ainoa ero näkyy himmeänä alarivinä, pelaaja
+     * ei huomaa mitä on valinnut, ja ihmettelee miksi kaikki biisit ovat
+     * vanhoja. */
+    const k = kausi(state.kausi);
+    el.modeLabel.textContent = state.mode === "daily" ? "Päivän biisit"
+      : k ? k.nimi : "Vapaa peli";
     el.modeSub.textContent = state.mode === "daily"
       ? dateLine(keyToDate(state.dayKey || todayKey()))
-      : "";
+      : k ? "vapaa peli" : "";
     el.scoreLabel.textContent = `${fmt(state.score)} p`;
     // Koko sivun elävä väri on soivan biisin vaikeustaso.
     el.body.dataset.tier = String(r.song.tier);
@@ -1638,7 +1691,8 @@
       lines.push(`🎵 HittiSpotti · ${todayPretty()}`);
       lines.push(`${fmt(state.score)} / ${fmt(POINTS[0] * DAILY_COUNT)} pistettä`);
     } else {
-      lines.push("🎵 HittiSpotti · vapaa sarja");
+      const k = kausi(state.kausi);
+      lines.push(`🎵 HittiSpotti · ${k ? k.nimi.toLowerCase() : "vapaa sarja"}`);
       lines.push(`${fmt(state.score)} / ${fmt(POINTS[0] * state.results.length)} pistettä`);
     }
     lines.push("");
@@ -1653,9 +1707,10 @@
   function renderResults() {
     const daily = state.mode === "daily";
     const solved = state.results.filter((r) => r.solved).length;
+    const k = kausi(state.kausi);
     el.resultsTitle.textContent = daily
       ? `Päivän biisit, ${dateLine(keyToDate(state.dayKey || todayKey()))}`
-      : "Vapaa peli";
+      : k ? k.nimi : "Vapaa peli";
     el.resultsScore.textContent = fmt(state.score);
     const yhteenveto = resultSummary(solved, daily ? DAILY_COUNT : state.results.length);
     el.resultsSub.textContent = daily ? `${yhteenveto} Uusi sarja huomenna.` : yhteenveto;
@@ -1844,7 +1899,8 @@
     const g = c.getContext("2d");
     const reuna = 92;
     pohja(g, KUVA, KUVA_LISTA);
-    let y = otsikko(g, reuna, "Vapaa peli");
+    const k = kausi(state.kausi);
+    let y = otsikko(g, reuna, k ? k.nimi : "Vapaa peli");
 
     y += 46;
     const kansi = 122, rivi = 148, tekstiX = reuna + kansi + 30;
@@ -2273,7 +2329,9 @@
       if (freeStarted() && !confirm("Sarja alkaa alusta ja pisteet nollautuvat. Jatketaanko?")) return;
       closeDrawer();
       stopPlayback();
-      startFree();
+      // Sama kausi kuin ennenkin: "alusta" tarkoittaa uutta sarjaa, ei
+      // paluuta koko katalogiin.
+      startFree(state.kausi);
       toast("Uusi sarja.");
       return;
     }
@@ -2285,9 +2343,11 @@
      * kohdasta samoilla pisteillä. Vapaata sarjaa ei tallenneta lainkaan, eli
      * vain se katoaa. Väärä varoitus on pahempi kuin puuttuva: se opettaa
      * ohittamaan varoitukset lukematta, jolloin oikeakaan ei enää pysäytä. */
-    if (target === "daily" || target === "free") {
+    // Kausivalinta on vapaata peliä, joten sitä koskevat samat varoitukset.
+    const kausiValinta = target.startsWith("kausi:") ? target.slice(6) : null;
+    if (target === "daily" || target === "free" || kausiValinta) {
       // Vapaa peli vapaan pelin päälle aloittaa uuden sarjan, ei vaihda muotoa.
-      const uusiVapaa = target === "free" && state.mode === "free";
+      const uusiVapaa = target !== "daily" && state.mode === "free";
       if (freeStarted() && !confirm(uusiVapaa
         ? "Sarja alkaa alusta ja pisteet nollautuvat. Jatketaanko?"
         : "Kesken oleva vapaa sarja menetetään. Vaihdetaanko?")) return;
@@ -2296,6 +2356,7 @@
     stopPlayback();
     lahetaArvio();
     if (target === "daily") startDaily();
+    else if (kausiValinta) startFree(kausiValinta);
     else if (target === "free") startFree();
     else if (target === "stats") show("stats");
     else if (target === "help") show("help");
@@ -2327,6 +2388,8 @@
     });
 
     document.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => go(b.dataset.go)));
+    document.querySelectorAll("[data-kausi]").forEach((b) =>
+      b.addEventListener("click", () => go("kausi:" + b.dataset.kausi)));
 
     el.playBtn.addEventListener("click", () => {
       if (audio.playing) { stopPlayback(); return; }
@@ -2401,7 +2464,8 @@
     el.shareNative.addEventListener("click", jaaKuva);
     el.shareCopyImg.addEventListener("click", kopioiKuva);
     el.shareCopyLink.addEventListener("click", kopioiLinkki);
-    el.againBtn.addEventListener("click", () => go("free"));
+    el.againBtn.addEventListener("click", () =>
+      go(state.kausi ? "kausi:" + state.kausi : "free"));
     el.resetBtn.addEventListener("click", resetStats);
 
     document.addEventListener("keydown", (e) => {

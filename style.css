@@ -1772,3 +1772,38 @@ body.sheet-open { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+/* Vuosikymmenvalinta valikossa.
+ *
+ * Sama muoto kuin pelin tasonapeilla (.tchip): pyöreä reunus, hiusviiva,
+ * väri vasta valittuna. Viisi nappia yhdellä rivillä vie saman tilan kuin
+ * yksi valikkorivi, kun viisi omaa riviä olisi vienyt puolet valikosta. */
+.kaudet {
+  display: flex;
+  gap: var(--s2);
+  padding: var(--s2) 0 var(--s3) var(--s5);
+}
+.kchip {
+  flex: 1 1 0;
+  min-height: 40px;
+  padding: var(--s2) 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--dim);
+  font: inherit;
+  font-size: var(--f2);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .01em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color .15s ease, border-color .15s ease;
+}
+.kchip:hover { color: var(--text); }
+.kchip:focus-visible { outline: 2px solid var(--live); outline-offset: 2px; }
+/* Valittu kausi käyttää elävää väriä samoin kuin muutkin valinnat. */
+.kchip.is-on {
+  border-color: var(--live);
+  color: var(--live);
+  font-weight: 600;
+}

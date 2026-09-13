@@ -149,10 +149,22 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--korjaa", action="store_true", help="kirjoita vuodet joissa kesto täsmää")
     ap.add_argument("--raja", type=int, default=0)
+    ap.add_argument("--mukaan", choices=("peli", "taytteet", "kaikki"), default="peli",
+                    help="ketkä tarkistetaan: arvattavat (oletus), täytteet vai molemmat")
     a = ap.parse_args()
 
     songs = json.loads(SONGS.read_text(encoding="utf-8"))
-    pelattavat = [s for s in songs if s.get("peli") is not False]
+    # Täytebiisin vuosi on yhtä väärä kuin arvattavan, ja se paljastuu
+    # vasta kun täyte nostetaan peliin. Neljä Ruusua - Sun Täytyy Mennä
+    # oli katalogissa vuonna 2000 eli kokoelman päivällä, vaikka äänite on
+    # vuodelta 1992. Ensimmäinen ajo ei löytänyt sitä, koska se katsoi
+    # vain arvattavia.
+    if a.mukaan == "peli":
+        pelattavat = [s for s in songs if s.get("peli") is not False]
+    elif a.mukaan == "taytteet":
+        pelattavat = [s for s in songs if s.get("peli") is False]
+    else:
+        pelattavat = list(songs)
     if a.raja:
         pelattavat = pelattavat[:a.raja]
 

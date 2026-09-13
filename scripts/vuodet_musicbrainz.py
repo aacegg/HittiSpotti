@@ -170,9 +170,17 @@ def main() -> int:
 
     tila = json.loads(VALIMUISTI.read_text(encoding="utf-8")) if VALIMUISTI.exists() else {}
     kestot = tila.get("kestot") or {}
-    if len(kestot) < len(pelattavat):
-        print("Haetaan omat kestot Applelta...", file=sys.stderr)
-        kestot = {str(k): v for k, v in omat_kestot([s["id"] for s in pelattavat]).items()}
+    # Puuttuvat haetaan tunnisteittain, ei määrää vertaamalla. Aiemmin
+    # ehtona oli len(kestot) < len(pelattavat), mikä meni pieleen heti kun
+    # joukko vaihtui: välimuistissa oli 1486 arvattavan kestot, täytteitä
+    # on 695, eikä 1486 < 695, joten yhtään täytteen kestoa ei haettu.
+    # Silloin kesto puuttuu jokaiselta, mikään ei voi täsmätä, ja koko
+    # tarkistuksen luotettavin osa jää käyttämättä.
+    puuttuvat = [s["id"] for s in pelattavat if str(s["id"]) not in kestot]
+    if puuttuvat:
+        print(f"Haetaan {len(puuttuvat)} puuttuvaa kestoa Applelta...", file=sys.stderr)
+        # Päivitetään, ei korvata: muiden joukkojen kestot säilyvät.
+        kestot.update({str(k): v for k, v in omat_kestot(puuttuvat).items()})
         tila["kestot"] = kestot
         VALIMUISTI.write_text(json.dumps(tila), encoding="utf-8")
 

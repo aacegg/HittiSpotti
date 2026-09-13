@@ -22462,5 +22462,93 @@
   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/a4/d4/5b/a4d45b3e-1ce3-23b6-6017-6776eec367a4/mzaf_8092922874026840222.plus.aac.p.m4a",
   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/4e/89/bc/4e89bcbe-fa88-c9e4-03d3-b8ca0be7f0c0/6430068441653.png/300x300bb.jpg",
   "itunes": "Gettomasa – Vastustamaton (2022)"
+ },
+ {
+  "artist": "Epelit",
+  "title": "Mysteeri",
+  "year": 2016,
+  "tier": 3,
+  "id": 1494545525,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/16/a7/d0/16a7d082-da00-3df7-3fc9-9467691e2f3e/mzaf_4039380550852637774.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/43/29/a5/4329a513-03b0-a8e1-5bd3-324d99c0461d/886445832099.jpg/300x300bb.jpg",
+  "itunes": "Epelit – Mysteeri (2016)",
+  "peli": false
+ },
+ {
+  "artist": "Epelit",
+  "title": "Lamput Sammuu (feat. Mäkki)",
+  "year": 2016,
+  "tier": 3,
+  "id": 1494412555,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/26/91/e0/2691e0ec-db58-ac09-c6b2-e2904ea5bfc1/mzaf_17094461321968449655.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/e3/f4/bc/e3f4bce7-524b-8412-9c84-70b6d20ef4d1/886445715866.jpg/300x300bb.jpg",
+  "itunes": "Epelit – Lamput Sammuu (feat. Mäkki) (2016)",
+  "peli": false
+ },
+ {
+  "artist": "Averagekidluke",
+  "title": "MEININKI (feat. Ares, Jore & Zpoppa, Turisti & WILLEM)",
+  "year": 2025,
+  "tier": 3,
+  "id": 1819359606,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/7b/5c/6d/7b5c6d7d-1db0-8535-01bb-0f4c01e723a5/mzaf_8729251666618692396.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/fd/9c/54/fd9c5475-4c1f-6293-84b6-b723b482e75e/5021732838346.jpg/300x300bb.jpg",
+  "itunes": "Averagekidluke – MEININKI (feat. Ares, Jore & Zpoppa, Turisti & WILLEM) (2025)",
+  "peli": false
+ },
+ {
+  "artist": "Isac Elliot",
+  "title": "Weak (feat. Cledos, william, Jore & Zpoppa & Willem)",
+  "year": 2024,
+  "tier": 3,
+  "id": 1742537638,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/7c/9f/69/7c9f6903-51df-4d42-ccfb-20a84285d40f/mzaf_14565850861006013780.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/dd/93/c8/dd93c8be-8017-2f9d-48c3-046052b91253/24UMGIM45679.rgb.jpg/300x300bb.jpg",
+  "itunes": "Isac Elliot – Weak (feat. Cledos, william, Jore & Zpoppa & Willem) (2024)",
+  "peli": false
+ },
+ {
+  "artist": "Isac Elliot",
+  "title": "Mannerheim (feat. Turisti)",
+  "year": 2025,
+  "tier": 3,
+  "id": 1875333897,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/1e/61/e7/1e61e742-8c73-ef21-b3ee-0b3ec8e98d22/mzaf_17055861972814668723.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/10/57/a8/1057a862-fead-b700-68c8-109865a1ef00/5026854661155.jpg/300x300bb.jpg",
+  "itunes": "Isac Elliot – Mannerheim (feat. Turisti) (2025)",
+  "peli": false
+ },
+ {
+  "artist": "Turisti",
+  "title": "Gunshit",
+  "year": 2022,
+  "tier": 3,
+  "id": 1869062649,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e3/bc/f5/e3bcf596-9e7b-7245-779a-31c6cf3bb762/mzaf_4206299391733380674.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/5f/ba/ce/5fbace2b-c6a0-dab1-17a4-777d3fe7e601/196429011021.jpg/300x300bb.jpg",
+  "itunes": "Turisti – Gunshit (2022)",
+  "peli": false
+ },
+ {
+  "artist": "Turisti",
+  "title": "Yks Kaks",
+  "year": 2024,
+  "tier": 3,
+  "id": 1735511476,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/39/ed/eb/39edeb1f-359f-0f66-f01f-ba69c28fa3ba/mzaf_7094630104688994842.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/02/ce/26/02ce2608-1afc-5b13-6044-d2f755d040ba/5021732257598.jpg/300x300bb.jpg",
+  "itunes": "Turisti – Yks Kaks (2024)",
+  "peli": false
+ },
+ {
+  "artist": "Melo",
+  "title": "Emperor Longsleeve",
+  "year": 2023,
+  "tier": 3,
+  "id": 1869020666,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/6c/fa/80/6cfa8075-d330-1490-e3ce-df537849b4c5/mzaf_6125249955073815328.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/85/cc/25/85cc25b0-92c4-8fee-97a5-cc82999dbcc5/615625649451.jpg/300x300bb.jpg",
+  "itunes": "Melo – Emperor Longsleeve (2023)",
+  "peli": false
  }
 ]

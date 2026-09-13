@@ -125,13 +125,23 @@ def tutki(s, oma):
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--raja", type=int, default=0, help="tarkista vain N ensimmäistä")
+    ap.add_argument("--mukaan", choices=("peli", "taytteet", "kaikki"), default="peli",
+                    help="ketkä tarkistetaan: arvattavat (oletus), täytteet vai molemmat")
     a = ap.parse_args()
 
     songs = json.loads(SONGS.read_text(encoding="utf-8"))
-    pelattavat = [s for s in songs if s.get("peli") is not False]
+    # Sama laajennus kuin vuodet_musicbrainz.py:ssä. Täytebiisiin on yhtä
+    # helppo valita väärä äänite, ja se paljastuu vasta pelissä.
+    if a.mukaan == "peli":
+        pelattavat = [s for s in songs if s.get("peli") is not False]
+    elif a.mukaan == "taytteet":
+        pelattavat = [s for s in songs if s.get("peli") is False]
+    else:
+        pelattavat = list(songs)
     if a.raja:
         pelattavat = pelattavat[:a.raja]
-    print(f"Tarkistetaan {len(pelattavat)} arvattavaa biisiä.", file=sys.stderr)
+    JOUKKO = {"peli": "arvattavaa", "taytteet": "täytebiisiä", "kaikki": "katalogin"}
+    print(f"Tarkistetaan {len(pelattavat)} {JOUKKO[a.mukaan]} biisiä.", file=sys.stderr)
 
     omat = omat_tiedot([s["id"] for s in pelattavat])
     print(f"Omat kestot haettu: {len(omat)}/{len(pelattavat)}", file=sys.stderr)

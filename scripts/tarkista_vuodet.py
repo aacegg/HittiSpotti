@@ -27,8 +27,16 @@ vuoden 2002 uudelleenlevytyksenä (5.50), vaikka alkuperäinen vuodelta
 1980 on 5.10. Haku oli hylännyt alkuperäisen, koska sen nimessä lukee
 "Remastered".
 
-Täytebiisejä ei tarkisteta: niitä ei koskaan arvata, joten niiden vuotta
-ei näytetä kenellekään.
+Täytebiisit tarkistetaan --mukaan-valitsimella. Niiden vuosi ei näy
+kenellekään ennen kuin biisi nostetaan peliin, mutta silloin se näkyy
+heti, joten tarkistus kannattaa tehdä ennen nostoa eikä sen jälkeen.
+
+Apple rajoittaa liikennettä rajusti. Viidellä rinnakkaisella haulla
+mitattiin 695 biisin ajossa 279 kertaa 403 ja 118 kertaa 429, eikä se
+näy tuloksessa virheenä vaan puuttuvina löydöksinä: tyhjä haku on
+erottamaton siitä ettei vanhempaa versiota ole. --rinnakkain 1-2 on
+hitaampi mutta rehellinen. Välitulokset tallennetaan levylle, joten
+keskeytetyn ajon voi jatkaa.
 
 Ei vaadi ulkoisia riippuvuuksia (vain Python 3:n vakiokirjasto).
 """
@@ -41,6 +49,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SONGS = ROOT / "songs.json"
+# Välitulokset, jotta pitkän ajon voi jatkaa keskeytyksen jälkeen.
+VALIMUISTI = ROOT / ".aanitteet-tarkistus.json"
 sys.path.insert(0, str(ROOT / "scripts"))
 from hae_soittolistalta import (api, base_title, first_artist, has_word,  # noqa: E402
                                 is_live, norm, SKIP_TITLE)
@@ -127,6 +137,14 @@ def main() -> int:
     ap.add_argument("--raja", type=int, default=0, help="tarkista vain N ensimmäistä")
     ap.add_argument("--mukaan", choices=("peli", "taytteet", "kaikki"), default="peli",
                     help="ketkä tarkistetaan: arvattavat (oletus), täytteet vai molemmat")
+    # Apple rajoittaa liikennettä rajusti. Viidellä rinnakkaisella haulla
+    # mitattiin 695 biisin ajossa 279 kertaa 403 ja 118 kertaa 429, ja
+    # tyhjäksi jäänyt haku näyttää samalta kuin "ei vanhempaa versiota":
+    # tulos ei näytä vialliselta, se on vain vaiti. Pienempi luku on
+    # hitaampi mutta kertoo totuuden.
+    ap.add_argument("--rinnakkain", type=int, default=5,
+                    help="montako hakua yhtä aikaa (oletus 5, hitaampi ja "
+                         "luotettavampi 1-2)")
     a = ap.parse_args()
 
     songs = json.loads(SONGS.read_text(encoding="utf-8"))
@@ -140,20 +158,34 @@ def main() -> int:
         pelattavat = list(songs)
     if a.raja:
         pelattavat = pelattavat[:a.raja]
-    JOUKKO = {"peli": "arvattavaa", "taytteet": "täytebiisiä", "kaikki": "katalogin"}
-    print(f"Tarkistetaan {len(pelattavat)} {JOUKKO[a.mukaan]} biisiä.", file=sys.stderr)
+    JOUKKO = {"peli": "arvattavaa biisiä", "taytteet": "täytebiisiä",
+              "kaikki": "katalogin biisiä"}
+    print(f"Tarkistetaan {len(pelattavat)} {JOUKKO[a.mukaan]}.", file=sys.stderr)
 
     omat = omat_tiedot([s["id"] for s in pelattavat])
     print(f"Omat kestot haettu: {len(omat)}/{len(pelattavat)}", file=sys.stderr)
 
-    osumat = []
-    with ThreadPoolExecutor(max_workers=5) as ex:
+    # Hitaalla rinnakkaisuudella koko katalogi kestää tunteja, ja ilman
+    # välimuistia keskeytys hukkaa kaiken. Tulos tallennetaan biiseittäin,
+    # joten keskeytetyn ajon voi jatkaa siitä mihin se jäi.
+    tila = json.loads(VALIMUISTI.read_text(encoding="utf-8")) if VALIMUISTI.exists() else {}
+    jaljella = [s for s in pelattavat if str(s["id"]) not in tila]
+    print(f"{len(pelattavat) - len(jaljella)} valmiina, {len(jaljella)} jäljellä",
+          file=sys.stderr)
+
+    def talleta():
+        VALIMUISTI.write_text(json.dumps(tila), encoding="utf-8")
+
+    with ThreadPoolExecutor(max_workers=max(1, a.rinnakkain)) as ex:
         for i, (s, t) in enumerate(
-                zip(pelattavat, ex.map(lambda s: tutki(s, omat.get(s["id"])), pelattavat)), 1):
-            if t:
-                osumat.append((s, t))
-            if i % 200 == 0:
-                print(f"  {i}/{len(pelattavat)} · osumia {len(osumat)}", file=sys.stderr)
+                zip(jaljella, ex.map(lambda s: tutki(s, omat.get(s["id"])), jaljella)), 1):
+            tila[str(s["id"])] = t
+            if i % 25 == 0:
+                talleta()
+                print(f"  {i}/{len(jaljella)}", file=sys.stderr)
+    talleta()
+
+    osumat = [(s, tila[str(s["id"])]) for s in pelattavat if tila.get(str(s["id"]))]
 
     print(f"\nMAHDOLLISESTI VÄÄRÄ ÄÄNITE: {len(osumat)}")
     print("Vanhempi julkaisu on selvästi eri pituinen, eli eri äänite.")

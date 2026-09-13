@@ -5,3 +5,4 @@ __pycache__/
 puuttuvat-biisit.txt
 .claude/settings.local.json
 .vuodet-musicbrainz.json
+.aanitteet-tarkistus.json

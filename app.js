@@ -40,7 +40,7 @@
    * välimuistissa tyylimuutosten yli, mutta uusi katalogi on eri osoite ja
    * tulee varmasti perille – vanha versio antaisi pelaajalle eri päivän
    * biisit kuin muille. */
-  const KATALOGI = "songs.json?k=13";
+  const KATALOGI = "songs.json?k=14";
 
   /* Tuoteversio, eri asia kuin osoitteiden ?v=-numero.
    *

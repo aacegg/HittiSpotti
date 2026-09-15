@@ -399,7 +399,11 @@ a.navitem { color: inherit; text-decoration: none; }
   border-top: 0;
   box-shadow: inset 1px 0 0 var(--line);
 }
-.navitem-sub[hidden] { display: none; }
+/* Sääntö on yleinen eikä vain navitem-subille, koska .navitem asettaa
+   display: block, joka voittaa selaimen oman [hidden]-säännön. Ilman tätä
+   jokainen piilotettu valikkorivi näkyisi silti. Se oli korjattu erikseen
+   vain "Aloita peli alusta" -riville, ja sama ansa odotti seuraavaa. */
+.navitem[hidden] { display: none; }
 .navitem-sub .navitem-name { font-size: var(--f3); font-weight: 500; color: var(--muted); }
 .navitem-sub .navitem-note { margin-top: 0; }
 .navitem-sub:hover .navitem-name { color: var(--live); }
@@ -1557,6 +1561,38 @@ body.sheet-open { overflow: hidden; }
 .sheet-actions { display: flex; flex-wrap: wrap; gap: var(--s3); }
 .sheet-actions .btn { flex: 1 1 calc(50% - var(--s3)); padding: var(--s4) var(--s4); }
 .sheet-actions .btn-accent { flex-basis: 100%; }
+
+/* Asennusohjeen askeleet. Numero on oma pyöreä merkkinsä eikä listan
+   oletusnumero, koska ohjetta luetaan puhelin kädessä ja silmä etsii
+   järjestystä ensin. Askel on rivi, jonka sisällä kuvake saa jäädä tekstin
+   perään samalle riville: ohje käskee etsiä juuri sen kuvakkeen, joten sen
+   pitää olla lauseessa eikä sen alla. */
+.ohje { list-style: none; counter-reset: askel; margin: 0; padding: 0; }
+.ohje[hidden] { display: none; }
+.ohje li {
+  counter-increment: askel;
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s3) 0;
+  font-size: var(--f2);
+  line-height: 1.45;
+}
+.ohje li + li { border-top: 1px solid var(--line); }
+.ohje li::before {
+  content: counter(askel);
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--live);
+  color: var(--bg);
+  font-size: var(--f1);
+  font-weight: 700;
+}
+.ohje-kuva { flex: none; width: 1.5rem; height: 1.5rem; color: var(--live); }
 
 @media (min-width: 560px) {
   .sheet {

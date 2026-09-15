@@ -132,6 +132,13 @@
     retryBtn: $("#retry-btn"),
     feedbackLink: $("#feedback-link"),
     suggestLink: $("#suggest-link"),
+    installBtn: $("#install-btn"),
+    installNote: $("#install-note"),
+    installSheet: $("#install-sheet"),
+    installScrim: $("#install-scrim"),
+    installClose: $("#install-close"),
+    installIntro: $("#install-intro"),
+    installSteps: $("#install-steps"),
     modeLabel: $("#mode-label"),
     modeSub: $("#mode-sub"),
     scoreLabel: $("#score-label"),
@@ -318,9 +325,13 @@
   function show(name) {
     state.view = name;
     // Jakoruutu kuuluu tuloksiin. Muualle siirryttäessä se jäisi leijumaan.
+    // Sama koskee asennusohjetta, joka avautuu valikosta: ilman tätä se jäisi
+    // ruudulle ja body pysyisi lukossa, kun valikosta siirtyy näkymään.
     if (el.body.classList.contains("sheet-open")) {
       el.shareSheet.hidden = true;
       el.shareScrim.hidden = true;
+      el.installSheet.hidden = true;
+      el.installScrim.hidden = true;
       el.body.classList.remove("sheet-open");
     }
     /* Ääni kuuluu vain peliin. openRound pysäyttää soiton kierrosten välillä
@@ -447,6 +458,10 @@
   const freeStarted = () => state.mode === "free" && sarjaAloitettu();
 
   function refreshDrawer() {
+    /* Tila voi muuttua kesken istunnon: Chrome tarjoaa asennuksen vasta
+     * hetken päästä, ja asennuksen jälkeen rivi saa kadota ilman uudelleen
+     * latausta. Valikon avaus on luonteva hetki tarkistaa se. */
+    paivitaAsennusnappi();
     const done = store.get("daily:" + todayKey(), null);
     el.navDailyNote.textContent = done
       ? `pelattu tänään, ${fmt(done.score)} p`
@@ -2016,6 +2031,92 @@
     }
   }
 
+  /* ---------- Kotivalikkoon lisääminen ----------
+   *
+   * Kaksi täysin eri polkua, koska selaimet eivät ole tästä samaa mieltä.
+   *
+   * Androidin ja työpöydän Chrome antaa beforeinstallprompt-tapahtuman. Se
+   * otetaan talteen ja käytetään vasta kun pelaaja painaa nappia, joten
+   * asennusta ei tuputeta kesken pelin. Tapahtuman saa käyttää vain kerran.
+   *
+   * iOS:llä vastaavaa rajapintaa ei ole lainkaan, eikä sitä voi kiertää.
+   * Siellä ainoa rehellinen keino on näyttää polku Safarin jakovalikkoon.
+   * Siksi nappi ei lupaa asentavansa itse vaan sanoo mitä se tekee.
+   */
+  let asennusEle = null;
+
+  function onkoAsennettu() {
+    /* Kolme mittaria, koska yksikään ei kata kaikkia alustoja: standalone on
+     * Applen oma, display-mode on standardi ja referrer paljastaa Androidin
+     * sovelluskuoren. */
+    return window.matchMedia("(display-mode: standalone)").matches
+      || window.navigator.standalone === true
+      || document.referrer.startsWith("android-app://");
+  }
+
+  function onkoIOS() {
+    const u = navigator.userAgent;
+    // iPadOS esittäytyy Macintoshina, joten se erottuu vain kosketuksesta.
+    return /iPad|iPhone|iPod/.test(u)
+      || (/Macintosh/.test(u) && navigator.maxTouchPoints > 1);
+  }
+
+  /* Chrome, Firefox ja Edge iOS:llä käyttävät samaa moottoria, mutta niistä
+   * kotivalikkoon lisääminen ei onnistu. Ohjeen pitää osata sanoa sekin. */
+  const onkoIOSSafari = () =>
+    onkoIOS() && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(navigator.userAgent);
+
+  function paivitaAsennusnappi() {
+    if (!el.installBtn) return;
+    el.installBtn.hidden = onkoAsennettu() || !(asennusEle || onkoIOS());
+  }
+
+  async function asennaTaiOhjeista() {
+    if (!asennusEle) { avaaAsennusohje(); return; }
+    /* Tapahtuma kuluu käytössä, joten se nollataan ennen kutsua. Jos pelaaja
+     * perui, nappi katoaa: Chrome ei anna samaa tapahtumaa uudelleen, ja
+     * nappi joka ei enää tee mitään on pahempi kuin puuttuva nappi. */
+    const ele = asennusEle;
+    asennusEle = null;
+    ele.prompt();
+    const valinta = await ele.userChoice.catch(() => ({ outcome: "dismissed" }));
+    if (valinta.outcome !== "accepted") toast("Voit lisätä pelin myöhemmin selaimen valikosta.");
+    paivitaAsennusnappi();
+  }
+
+  function avaaAsennusohje() {
+    const safari = onkoIOSSafari();
+    el.installSteps.hidden = !safari;
+    el.installIntro.textContent = safari
+      ? "Peli aukeaa omana sovelluksenaan ilman selaimen palkkeja, ja toimii myös ilman verkkoa."
+      : "Kotivalikkoon lisääminen onnistuu iPhonella ja iPadilla vain Safarissa. Avaa hittispotti.fi Safarissa ja kokeile uudelleen.";
+    el.installScrim.hidden = false;
+    el.installSheet.hidden = false;
+    el.body.classList.add("sheet-open");
+    el.installClose.focus({ preventScroll: true });
+  }
+
+  function suljeAsennusohje() {
+    el.installSheet.hidden = true;
+    el.installScrim.hidden = true;
+    el.body.classList.remove("sheet-open");
+    el.installBtn.focus({ preventScroll: true });
+  }
+
+  /* Kuuntelijat sidotaan heti moduulin latauessa eikä vasta käynnistyksessä:
+   * beforeinstallprompt voi laueta ennen kuin peli on saanut katalogin
+   * ladattua, ja myöhässä rekisteröity kuuntelija ei näkisi sitä lainkaan. */
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();  // estää Chromen oman kehotepalkin
+    asennusEle = e;
+    paivitaAsennusnappi();
+  });
+  window.addEventListener("appinstalled", () => {
+    asennusEle = null;
+    paivitaAsennusnappi();
+    toast("Peli lisättiin aloitusnäyttöön.");
+  });
+
   async function avaaJako() {
     el.sharePreview.hidden = true;
     if (!kuvaLupaus) valmisteleKuva();
@@ -2464,6 +2565,9 @@
     el.shareNative.addEventListener("click", jaaKuva);
     el.shareCopyImg.addEventListener("click", kopioiKuva);
     el.shareCopyLink.addEventListener("click", kopioiLinkki);
+    el.installBtn.addEventListener("click", asennaTaiOhjeista);
+    el.installClose.addEventListener("click", suljeAsennusohje);
+    el.installScrim.addEventListener("click", suljeAsennusohje);
     el.againBtn.addEventListener("click", () =>
       go(state.kausi ? "kausi:" + state.kausi : "free"));
     el.resetBtn.addEventListener("click", resetStats);

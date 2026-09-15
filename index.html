@@ -27,17 +27,17 @@
        kuvakkeesta kiinni omassa välimuistissaan sitkeämmin kuin mistään
        muusta, eikä pelkkä uusi tiedostosisältö samassa osoitteessa riitä
        vaihtamaan sitä. -->
-  <link rel="icon" href="favicon.svg?v=107" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg?v=108" type="image/svg+xml">
   <!-- iOS ei tue SVG:tä kotinäytön kuvakkeena: SVG:llä se otti sivusta
        ruudunkaappauksen kuvakkeen sijaan. 180 px on iPhonen koko. -->
-  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=107">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=107">
-  <link rel="manifest" href="manifest.webmanifest?v=107">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=108">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=108">
+  <link rel="manifest" href="manifest.webmanifest?v=108">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HittiSpotti">
   <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=107">
+  <link rel="stylesheet" href="style.css?v=108">
 
   <script type="application/ld+json">
   {
@@ -112,6 +112,15 @@
       <a class="navitem" id="suggest-link" href="#">
         <span class="navitem-name">Ehdota biisiä</span>
       </a>
+
+      <!-- Näkyy vain jos asennus on oikeasti mahdollinen: Androidilla vasta kun
+           selain on tarjonnut beforeinstallprompt-tapahtuman, iOS:llä kun ollaan
+           Safarissa eikä peliä ole jo lisätty. Muualla rivi pysyy piilossa, eli
+           kukaan ei näe nappia joka ei tee mitään. -->
+      <button type="button" class="navitem" id="install-btn" hidden>
+        <span class="navitem-name">Lisää aloitusnäyttöön</span>
+        <span class="navitem-note" id="install-note">aukeaa omana sovelluksenaan</span>
+      </button>
     </nav>
 
     <!-- Valikon alle jäi ruudusta yli puolet tyhjäksi (mitattuna 429 px
@@ -433,9 +442,34 @@
     <pre id="share-preview" class="share" hidden></pre>
   </aside>
 
+  <!-- iOS-ohje. Safarissa ei ole rajapintaa jolla asennuksen voisi käynnistää
+       koodista, toisin kuin Androidin Chromessa: Apple on jättänyt sen pois.
+       Siksi ainoa rehellinen vaihtoehto on näyttää polku. Jakokuvake piirretään
+       vektorina eikä emojina, koska se on sama kuva jota ohje käskee etsimään,
+       eikä se saa olla fontin armoilla. -->
+  <div class="sheet-scrim" id="install-scrim" hidden></div>
+  <aside class="sheet" id="install-sheet" hidden role="dialog" aria-modal="true" aria-labelledby="install-sheet-title">
+    <div class="sheet-head">
+      <h2 class="sheet-title" id="install-sheet-title">Lisää aloitusnäyttöön</h2>
+      <button type="button" class="iconbtn" id="install-close" aria-label="Sulje ohje">✕</button>
+    </div>
+    <p class="sheet-note" id="install-intro">Peli aukeaa omana sovelluksenaan, ilman selaimen palkkeja, ja toimii myös ilman verkkoa.</p>
+    <ol class="ohje" id="install-steps">
+      <li>
+        <span>Paina Safarin alapalkin <strong>jakokuvaketta</strong></span>
+        <svg class="ohje-kuva" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12 3v12M12 3l-3.2 3.2M12 3l3.2 3.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6.5 10.5H5.2A1.2 1.2 0 0 0 4 11.7v7.1A1.2 1.2 0 0 0 5.2 20h13.6a1.2 1.2 0 0 0 1.2-1.2v-7.1a1.2 1.2 0 0 0-1.2-1.2h-1.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </li>
+      <li>Vieritä alas ja valitse <strong>Lisää Koti-valikkoon</strong></li>
+      <li>Paina <strong>Lisää</strong> oikeasta yläkulmasta</li>
+    </ol>
+  </aside>
+
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=107"></script>
+  <script src="app.js?v=108"></script>
 
   <!-- Kävijälaskenta: ei evästeitä, ei henkilötietoja, ei seurantaa yli
        sivustorajojen – siksi tämä ei vaadi suostumusikkunaa. Ladataan

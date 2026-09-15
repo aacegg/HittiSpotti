@@ -40,7 +40,7 @@
    * välimuistissa tyylimuutosten yli, mutta uusi katalogi on eri osoite ja
    * tulee varmasti perille – vanha versio antaisi pelaajalle eri päivän
    * biisit kuin muille. */
-  const KATALOGI = "songs.json?k=t5";
+  const KATALOGI = "songs.json?k=t6";
 
   /* Tuoteversio, eri asia kuin osoitteiden ?v=-numero.
    *
@@ -133,7 +133,6 @@
     feedbackLink: $("#feedback-link"),
     suggestLink: $("#suggest-link"),
     installBtn: $("#install-btn"),
-    installNote: $("#install-note"),
     installSheet: $("#install-sheet"),
     installScrim: $("#install-scrim"),
     installClose: $("#install-close"),

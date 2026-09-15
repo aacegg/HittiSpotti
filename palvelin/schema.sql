@@ -26,3 +26,29 @@ CREATE TABLE IF NOT EXISTS biisi (
 );
 
 CREATE INDEX IF NOT EXISTS biisi_kierroksia ON biisi (kierroksia DESC);
+
+-- Päivän sarjojen koosteet, yksi rivi päivää kohti. Sama periaate kuin
+-- yllä: ei tapahtumarivejä, joten mikään ei yhdistä pelaajan suorituksia
+-- toisiinsa eikä taulu kasva pelaajamäärän mukana, vaan 365 riviä vuodessa.
+--
+-- Määritelmä on kokonaisuudessaan tiedostossa migraatio-paiva.sql, joka
+-- ajetaan olemassa olevaan tietokantaan. Tässä sama, jotta tyhjästä
+-- luotu kanta saa kaiken yhdellä ajolla.
+CREATE TABLE IF NOT EXISTS paiva (
+  paiva  TEXT PRIMARY KEY,
+  n      INTEGER NOT NULL DEFAULT 0,
+  summa  INTEGER NOT NULL DEFAULT 0,
+  k0  INTEGER NOT NULL DEFAULT 0,
+  k1  INTEGER NOT NULL DEFAULT 0,
+  k2  INTEGER NOT NULL DEFAULT 0,
+  k3  INTEGER NOT NULL DEFAULT 0,
+  k4  INTEGER NOT NULL DEFAULT 0,
+  k5  INTEGER NOT NULL DEFAULT 0,
+  k6  INTEGER NOT NULL DEFAULT 0,
+  k7  INTEGER NOT NULL DEFAULT 0,
+  k8  INTEGER NOT NULL DEFAULT 0,
+  k9  INTEGER NOT NULL DEFAULT 0,
+  k10 INTEGER NOT NULL DEFAULT 0,
+  k11 INTEGER NOT NULL DEFAULT 0,
+  k12 INTEGER NOT NULL DEFAULT 0
+);

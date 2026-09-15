@@ -39,6 +39,24 @@ function arvioKelpaa(k) {
     && Number.isInteger(k.arvio) && k.arvio >= 1 && k.arvio <= 5;
 }
 
+/* Päivän sarjan tulos. Viisi biisiä ja paras askel on 1200 pistettä, joten
+ * 6000 on maksimi eikä bonuksia ole. Osoite on julkinen, joten yläraja on
+ * ainoa este sille ettei joku syötä miljoonaa ja pilaa keskiarvoa.
+ *
+ * Päivä on pelaajan oma, koska pakka johdetaan selaimen päivämäärästä.
+ * Kelpuutetaan kahden vuorokauden haarukka palvelimen päivästä: se kattaa
+ * kaikki aikavyöhykkeet mutta estää rivien kylvämisen mielivaltaisille
+ * päiville. */
+const MAKSIMI = 6000;
+const KORI = 500;
+
+function paivaKelpaa(k) {
+  if (!k || !Number.isInteger(k.pisteet) || k.pisteet < 0 || k.pisteet > MAKSIMI) return false;
+  if (typeof k.paiva !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(k.paiva)) return false;
+  const ero = Math.abs(Date.parse(k.paiva + "T00:00:00Z") - Date.now());
+  return Number.isFinite(ero) && ero < 2 * 86400 * 1000;
+}
+
 function vastaus(body, status, origin, tyyppi = "application/json") {
   const h = { "content-type": tyyppi + "; charset=utf-8" };
   if (origin) {
@@ -159,6 +177,71 @@ export default {
       });
       await env.DB.batch(lauseet);
       return vastaus('{"ok":true}', 200, origin);
+    }
+
+    /* ---- Päivän sarjan tuloksen vastaanotto ----
+     *
+     * Lähetetään vain kun päivän sarja on pelattu loppuun. Kesken jääneet
+     * eivät kuulu vertailulukuun: "muut saivat keskimäärin 612" tarkoittaa
+     * niitä jotka pelasivat saman sarjan alusta loppuun. */
+    if (req.method === "POST" && url.pathname === "/paiva") {
+      const teksti = await req.text();
+      if (teksti.length > 200) return vastaus('{"virhe":"liian iso"}', 413, origin);
+      let k;
+      try { k = JSON.parse(teksti); } catch { return vastaus('{"virhe":"ei JSONia"}', 400, origin); }
+      if (!paivaKelpaa(k)) return vastaus('{"virhe":"kelpaamaton tulos"}', 400, origin);
+
+      /* Korin nimi rakennetaan vasta tarkistuksen jälkeen ja vain luvusta
+       * joka on todistetusti 0..6000, joten SQL:ään ei pääse mitään
+       * pelaajan syöttämää. Math.min kattaa tasan 6000:n, joka jakautuisi
+       * muuten koriin 12 vasta pyöristyksen armosta. */
+      const kori = "k" + Math.min(Math.floor(k.pisteet / KORI), MAKSIMI / KORI);
+      await env.DB.prepare(`
+        INSERT INTO paiva (paiva, n, summa, ${kori}) VALUES (?1, 1, ?2, 1)
+        ON CONFLICT(paiva) DO UPDATE SET
+          n = paiva.n + 1,
+          summa = paiva.summa + excluded.summa,
+          ${kori} = paiva.${kori} + 1
+      `).bind(k.paiva, k.pisteet).run();
+      return vastaus('{"ok":true}', 200, origin);
+    }
+
+    /* ---- Päivän koosteen luku ----
+     *
+     * Palauttaa raa'at luvut ja peli laskee niistä keskiarvon, mediaanin ja
+     * persentiilin. Sama periaate kuin /koonti-reitillä: kun palvelin ei
+     * päätä esitystapaa, sitä voi muuttaa julkaisematta Workeria.
+     */
+    if (req.method === "GET" && url.pathname === "/paiva") {
+      const p = url.searchParams.get("p") || "";
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(p)) {
+        return vastaus('{"virhe":"kelpaamaton päivä"}', 400, origin);
+      }
+
+      const avain = new Request(url.origin + "/paiva?p=" + p
+        + "&o=" + encodeURIComponent(origin || "-"));
+      const valimuisti = caches.default;
+      const osuma = await valimuisti.match(avain);
+      if (osuma) return osuma;
+
+      const rivi = await env.DB.prepare(
+        `SELECT n, summa, k0,k1,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12
+         FROM paiva WHERE paiva = ?1`
+      ).bind(p).first();
+
+      const ulos = rivi
+        ? { n: rivi.n, summa: rivi.summa,
+            k: Array.from({ length: 13 }, (_, i) => rivi["k" + i]) }
+        : { n: 0, summa: 0, k: Array(13).fill(0) };
+
+      const vast = vastaus(JSON.stringify(ulos), 200, origin);
+      /* Lyhyempi kuin biisikoosteen viisi minuuttia, koska kuluvan päivän
+       * luku kasvaa koko ajan. Minuutin viive on silti tarkoituksellinen:
+       * pelaajan oma tulos ei ehdi mukaan omaan vertailuunsa, mikä on juuri
+       * se mitä sana "muut" lupaa. */
+      vast.headers.set("cache-control", "public, max-age=60");
+      ctx.waitUntil(valimuisti.put(avain, vast.clone()));
+      return vast;
     }
 
     // ---- Arvioiden vastaanotto ----

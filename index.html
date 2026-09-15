@@ -102,14 +102,19 @@
 
       <hr class="drawer-rule">
 
-      <button type="button" class="navitem" data-go="stats"><span class="navitem-name">Tilastot</span></button>
-      <button type="button" class="navitem" data-go="help"><span class="navitem-name">Ohjeet</span></button>
+      <!-- Viivan alapuoli on apuriveille, ja ne ovat pienempiä kuin pelimuodot.
+           Ennen kaikki yksitoista riviä olivat samankokoisia, jolloin valikko
+           luki yhtenä pitkänä listana eikä mikään kertonut mistä peli alkaa.
+           Koko tekee hierarkian; otsikkoa ei lisätä, koska vika oli juuri
+           liiassa tavarassa. -->
+      <button type="button" class="navitem navitem-apu" data-go="stats"><span class="navitem-name">Tilastot</span></button>
+      <button type="button" class="navitem navitem-apu" data-go="help"><span class="navitem-name">Ohjeet</span></button>
       <!-- Palaute kerättiin tähän asti käsin WhatsAppilla. Tämä kerää sen
            siellä missä se syntyy, myös niiltä joita ei tunne. -->
-      <a class="navitem" id="feedback-link" href="#">
+      <a class="navitem navitem-apu" id="feedback-link" href="#">
         <span class="navitem-name">Anna palautetta</span>
       </a>
-      <a class="navitem" id="suggest-link" href="#">
+      <a class="navitem navitem-apu" id="suggest-link" href="#">
         <span class="navitem-name">Ehdota biisiä</span>
       </a>
 
@@ -117,9 +122,8 @@
            selain on tarjonnut beforeinstallprompt-tapahtuman, iOS:llä kun ollaan
            Safarissa eikä peliä ole jo lisätty. Muualla rivi pysyy piilossa, eli
            kukaan ei näe nappia joka ei tee mitään. -->
-      <button type="button" class="navitem" id="install-btn" hidden>
+      <button type="button" class="navitem navitem-apu" id="install-btn" hidden>
         <span class="navitem-name">Lisää aloitusnäyttöön</span>
-        <span class="navitem-note" id="install-note">aukeaa omana sovelluksenaan</span>
       </button>
     </nav>
 

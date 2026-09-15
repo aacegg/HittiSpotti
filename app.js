@@ -133,7 +133,6 @@
     feedbackLink: $("#feedback-link"),
     suggestLink: $("#suggest-link"),
     installBtn: $("#install-btn"),
-    installNote: $("#install-note"),
     installSheet: $("#install-sheet"),
     installScrim: $("#install-scrim"),
     installClose: $("#install-close"),

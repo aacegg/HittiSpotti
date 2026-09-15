@@ -529,6 +529,35 @@ a.navitem { color: inherit; text-decoration: none; }
 .dstats-grid dt { font-size: var(--f1); color: var(--dim); }
 
 .drawer-foot { margin-top: auto; padding-top: var(--s6); font-size: var(--f1); line-height: 1.6; color: var(--dim); }
+
+/* Somerivi valikon alalaidassa. Se ottaa margin-top: auton itselleen, eli se
+   on nyt se lohko joka työntyy pohjaan, ja pikkuteksti seuraa heti perässä.
+   Ilman tätä alalaidassa olisi kaksi erikseen pohjaan hakeutuvaa lohkoa.
+
+   Kuvakkeet ovat himmeitä levossa: ne eivät kilpaile pelimuotojen kanssa,
+   mutta kosketuskohde on silti täydet 44 px. Negatiivinen vasen marginaali
+   vetää ensimmäisen kuvakkeen optisesti samaan reunaan tekstien kanssa,
+   koska kosketuskohde on leveämpi kuin itse merkki. */
+.somet {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  margin-top: auto;
+  padding-top: var(--s6);
+}
+.somet a {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  color: var(--dim);
+  transition: color .12s ease;
+}
+.somet a:first-child { margin-left: -11px; }
+.somet a:hover, .somet a:focus-visible { color: var(--live); }
+.somet a:active { color: var(--live); transform: scale(.92); }
+.somet svg { width: 22px; height: 22px; }
+.somet + .drawer-foot { margin-top: 0; padding-top: var(--s3); }
 /* Versio omalle rivilleen ja hiljaisemmaksi kuin sitä edeltävä lause: se on
    tunniste jota etsitään, ei tietoa jota luetaan. */
 .drawer-versio { display: block; margin-top: var(--s2); font-variant-numeric: tabular-nums; }

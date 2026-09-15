@@ -89,11 +89,18 @@ def main() -> int:
         return 1
 
     loppu = date.today().isoformat()
-    ulos = {"sivusto": SIVUSTO, "alku": ALKU, "loppu": loppu, "virheet": {}}
+    # Paljas päivämäärä tulkitaan keskiyön aikaleimaksi, joten end=tänään
+    # katkaisee kuluvan päivän kokonaan pois ja start=end on nollan
+    # mittainen ikkuna. Mitattu: end="2026-09-15" antoi tälle päivälle 141
+    # käyntiä, kun oikea luku oli 1790. Siksi molemmat päät kirjoitetaan
+    # aina täytenä RFC 3339 -aikaleimana.
+    alku_ts = ALKU if "T" in ALKU else ALKU + "T00:00:00Z"
+    loppu_ts = loppu + "T23:59:59Z"
+    ulos = {"sivusto": SIVUSTO, "alku": alku_ts, "loppu": loppu_ts, "virheet": {}}
 
-    print(f"Haetaan {SIVUSTO}.goatcounter.com, {ALKU} - {loppu}", file=sys.stderr)
+    print(f"Haetaan {SIVUSTO}.goatcounter.com, {alku_ts} - {loppu_ts}", file=sys.stderr)
 
-    d, virhe = hae("stats/total", token, start=ALKU, end=loppu)
+    d, virhe = hae("stats/total", token, start=alku_ts, end=loppu_ts)
     if virhe:
         print(f"stats/total epäonnistui: {virhe}", file=sys.stderr)
         if "oikeuksia" in virhe:
@@ -104,7 +111,7 @@ def main() -> int:
 
     # daily=true antaa jokaiselle polulle päiväkohtaisen sarjan. Se on
     # ainoa aikasarja mitä pelistä on olemassa.
-    d, virhe = hae("stats/hits", token, start=ALKU, end=loppu, daily="true", limit=100)
+    d, virhe = hae("stats/hits", token, start=alku_ts, end=loppu_ts, daily="true", limit=100)
     ulos["hits"] = d
     if virhe:
         ulos["virheet"]["hits"] = virhe
@@ -113,7 +120,7 @@ def main() -> int:
 
     ulos["sivut"] = {}
     for sivu in SIVUT:
-        d, virhe = hae("stats/" + sivu, token, start=ALKU, end=loppu, limit=50)
+        d, virhe = hae("stats/" + sivu, token, start=alku_ts, end=loppu_ts, limit=50)
         if virhe:
             ulos["virheet"][sivu] = virhe
             print(f"  {sivu}: {virhe}", file=sys.stderr)

@@ -196,14 +196,52 @@ export default {
        * pelaajan syöttämää. Math.min kattaa tasan 6000:n, joka jakautuisi
        * muuten koriin 12 vasta pyöristyksen armosta. */
       const kori = "k" + Math.min(Math.floor(k.pisteet / KORI), MAKSIMI / KORI);
-      await env.DB.prepare(`
+      /* RETURNING antaa luvut samasta kirjoituksesta, joten järjestysluku on
+       * tarkka. Erillinen luku ei kelpaisi: /paiva on välimuistissa minuutin,
+       * ja "olit päivän 7. pelaaja" on väite joka ei saa olla vanha.
+       *
+       * Palautetaan koko kooste, jolloin tulossivu ei tarvitse toista
+       * pyyntöä lainkaan. Luvut ovat kasvatuksen JÄLKEISET eli sisältävät
+       * pelaajan oman tuloksen; peli vähentää sen itse, jotta sana "muut"
+       * pitää kirjaimellisesti paikkansa. */
+      const UPSERT = `
         INSERT INTO paiva (paiva, n, summa, ${kori}) VALUES (?1, 1, ?2, 1)
         ON CONFLICT(paiva) DO UPDATE SET
           n = paiva.n + 1,
           summa = paiva.summa + excluded.summa,
-          ${kori} = paiva.${kori} + 1
-      `).bind(k.paiva, k.pisteet).run();
-      return vastaus('{"ok":true}', 200, origin);
+          ${kori} = paiva.${kori} + 1`;
+      const SARAKKEET = "n, summa, k0,k1,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12";
+
+      /* Varapolku. RETURNING on SQLiten ominaisuus eikä sitä ole voitu
+       * kokeilla oikeaa D1:tä vastaan, ja jos se ei toimisi, koko tuloksen
+       * tallennus kaatuisi. Siksi kirjoitus ja luku erikseen jos yhdistetty
+       * lause ei mene läpi.
+       *
+       * Erillisessä luvussa on teoriassa kilpa-ajo: toinen pelaaja voi ehtiä
+       * väliin ja järjestysluku kasvaa yhdellä liikaa. Millisekunnin ikkuna
+       * ja noin yksi pelaaja minuutissa tekee siitä äärimmäisen harvinaisen,
+       * ja väärä väite "olit 8." kahdeksannen sijaan on vaaraton. */
+      let rivi;
+      try {
+        rivi = await env.DB.prepare(UPSERT + `\n RETURNING ${SARAKKEET}`)
+          .bind(k.paiva, k.pisteet).first();
+      } catch {
+        rivi = null;
+      }
+      if (!rivi) {
+        await env.DB.prepare(UPSERT).bind(k.paiva, k.pisteet).run();
+        rivi = await env.DB.prepare(
+          `SELECT ${SARAKKEET} FROM paiva WHERE paiva = ?1`).bind(k.paiva).first();
+      }
+      if (!rivi) return vastaus('{"ok":true}', 200, origin);
+
+      return vastaus(JSON.stringify({
+        ok: true,
+        sija: rivi.n,
+        n: rivi.n,
+        summa: rivi.summa,
+        k: Array.from({ length: 13 }, (_, i) => rivi["k" + i]),
+      }), 200, origin);
     }
 
     /* ---- Päivän koosteen luku ----

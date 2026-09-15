@@ -16,9 +16,18 @@ kolme eristetään:
     PALVELIN   tyhjäksi                             ei arvioita palvelimelle
     goatcounter poistetaan                          ei kävijälaskuriin
 
-Service worker jätetään rekisteröimättä. Juuren service worker on
-laajuudeltaan koko sivusto, joten toinen rekisteröinti tämän alla olisi
-vain sekaannus, eikä testisivun kuulu jäädä kenenkään välimuistiin.
+Testisivu saa omat manifestin ja service workerin, molemmat rajattuna
+/testi/-polkuun. Aiemmin ne riisuttiin pois, mutta ne ovat nimenomaan ne
+kaksi ehtoa jotka Chrome vaatii ennen kuin se tarjoaa asennusta. Ilman
+niitä "Lisää aloitusnäyttöön" ei olisi testattavissa lainkaan.
+
+Rinnakkaisuus on turvallista, koska service workerin laajuudessa tarkin
+voittaa: /testi/sw.js ottaa vastuun tämän kansion sivuista ja juuren sw.js
+jatkaa kaikesta muusta. Testin service worker hakee aina verkosta, joten
+testisivu ei voi jäädä jumiin välimuistiin.
+
+Sovellus asentuu omalla nimellään ("HittiSpotti testi"), joten sen erottaa
+oikeasta eikä se korvaa sitä aloitusnäytöllä.
 
 Katalogi kopioidaan mukaan: haaran songs.json voi olla eri kuin livenä
 oleva, ja juuri vuosiluvut ratkaisevat vuosikymmenpelin.
@@ -35,7 +44,75 @@ ROOT = Path(__file__).resolve().parent.parent
 ULOS = ROOT / "testi"
 # Oma versiotunnus, jottei juuren service worker tarjoa vanhaa testisivua
 # välimuististaan. Kasvata kun testisivu päivitetään.
-VERSIO = "t4"
+VERSIO = "t5"
+
+# Testisovelluksen oma manifesti. Kuvakkeet haetaan juuresta (../), mutta
+# start_url ja scope osoittavat tähän kansioon, joten asennettu testi avaa
+# testisivun eikä oikeaa peliä.
+MANIFESTI = {
+    "name": "HittiSpotti testi",
+    "short_name": "HS testi",
+    "description": "Testiversio. Tulokset eivät tallennu oikeisiin tilastoihin.",
+    "lang": "fi",
+    "start_url": "./",
+    "scope": "./",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#0a0908",
+    "theme_color": "#3a2f10",
+    "icons": [
+        {"src": "../icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+        {"src": "../icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+        {"src": "../icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"},
+    ],
+}
+
+# Verkko ensin eikä välimuisti ensin: testisivun pitää aina näyttää uusin
+# versio, muuten testaaja katsoo eilistä koodia. Fetch-käsittelijä on silti
+# pakko olla olemassa, koska Chrome ei tarjoa asennusta ilman sitä.
+SW = """/* Testisivun service worker. Laajuus on /testi/, joten tämä ei koske
+ * oikeaa peliä: service workerin laajuudessa tarkin voittaa.
+ *
+ * Tehtävä on yksi: tehdä testisivusta asennuskelpoinen. Chrome vaatii
+ * manifestin JA service workerin jolla on fetch-käsittelijä ennen kuin se
+ * laukaisee beforeinstallprompt-tapahtuman.
+ *
+ * Välimuistia ei käytetä kuin verkon kaatuessa, jottei testisivu voi jäädä
+ * jumiin vanhaan versioon.
+ *
+ * Poistaminen: selaimen kehitystyökaluista Application -> Service Workers
+ * -> Unregister, tai koko sivuston tiedot tyhjentämällä.
+ */
+const VERSIO = "%%VERSIO%%";
+
+self.addEventListener("install", () => self.skipWaiting());
+
+self.addEventListener("activate", (e) => e.waitUntil((async () => {
+  const nimet = await caches.keys();
+  await Promise.all(nimet
+    .filter((n) => n.startsWith("hittispotti-testi-") && n !== VERSIO)
+    .map((n) => caches.delete(n)));
+  await self.clients.claim();
+})()));
+
+self.addEventListener("fetch", (e) => {
+  if (e.request.method !== "GET") return;
+  e.respondWith((async () => {
+    try {
+      const vastaus = await fetch(e.request);
+      if (vastaus.ok) {
+        const c = await caches.open(VERSIO);
+        c.put(e.request, vastaus.clone());
+      }
+      return vastaus;
+    } catch (err) {
+      const osuma = await caches.match(e.request);
+      if (osuma) return osuma;
+      throw err;
+    }
+  })());
+});
+"""
 
 
 def banneri(versio):
@@ -56,9 +133,13 @@ def main() -> int:
     html = re.sub(r"\?v=\d+", f"?v={VERSIO}", html)
     # Kävijälaskuri pois: testiklikit eivät ole kävijöitä.
     html = re.sub(r"\n[^\n]*data-goatcounter[^\n]*\n[^\n]*</script>\n", "\n", html)
-    # Fontit, kuvakkeet ja manifest juuresta: sama origin, ei kopioita.
-    # Manifest pois kokonaan, jottei testisivua voi asentaa sovelluksena.
-    html = re.sub(r'\n[^\n]*rel="manifest"[^\n]*\n', "\n", html)
+    # Fontit ja kuvakkeet juuresta: sama origin, ei kopioita. Manifest sen
+    # sijaan on testisivun oma, jotta asennus osoittaa tänne eikä oikeaan
+    # peliin, ja jotta asennettu sovellus erottuu nimeltään.
+    html = re.sub(r'\n([^\n]*)rel="manifest"[^\n]*\n',
+                  f'\n\\1rel="manifest" href="manifest.webmanifest?v={VERSIO}">\n', html)
+    # Applen oma otsikko kotivalikon kuvakkeelle: sama erottelu kuin nimessä.
+    html = html.replace('content="HittiSpotti">', 'content="HittiSpotti testi">')
     html = html.replace('href="fonts/', 'href="../fonts/')
     html = html.replace('href="favicon.svg', 'href="../favicon.svg')
     html = html.replace('href="icon-180.png', 'href="../icon-180.png')
@@ -81,9 +162,9 @@ def main() -> int:
                     f'const KATALOGI = "songs.json?k={VERSIO}";')
     js = re.sub(r'const KATALOGI = "songs\.json\?k=\d+";',
                 f'const KATALOGI = "songs.json?k={VERSIO}";', js)
-    # Service worker pois: juuren SW kattaa jo koko sivuston.
-    js = js.replace('navigator.serviceWorker.register("sw.js")',
-                    'Promise.resolve()')
+    # Service worker jätetään paikalleen. Rekisteröinti tapahtuu sivun
+    # osoitteeseen nähden, eli /testi/sw.js laajuudella /testi/, joten se ei
+    # kosketa oikeaa peliä. Ilman sitä Chrome ei tarjoaisi asennusta.
     (ULOS / "app.js").write_text(js, encoding="utf-8")
 
     # ---- style.css ----
@@ -103,6 +184,12 @@ def main() -> int:
 .testibanneri a { color: inherit; }
 """
     (ULOS / "style.css").write_text(css, encoding="utf-8")
+
+    # ---- manifest.webmanifest ja sw.js ----
+    (ULOS / "manifest.webmanifest").write_text(
+        json.dumps(MANIFESTI, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (ULOS / "sw.js").write_text(
+        SW.replace("%%VERSIO%%", f"hittispotti-testi-{VERSIO}"), encoding="utf-8")
 
     # ---- songs.json ----
     shutil.copyfile(ROOT / "songs.json", ULOS / "songs.json")

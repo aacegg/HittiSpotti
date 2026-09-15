@@ -49,17 +49,79 @@ function vastaus(body, status, origin, tyyppi = "application/json") {
 }
 
 export default {
-  async fetch(req, env) {
+  async fetch(req, env, ctx) {
     const url = new URL(req.url);
     const origin = SALLITUT.includes(req.headers.get("origin")) ? req.headers.get("origin") : null;
 
     if (req.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: origin ? {
         "access-control-allow-origin": origin,
-        "access-control-allow-methods": "POST, OPTIONS",
+        "access-control-allow-methods": "GET, POST, OPTIONS",
         "access-control-allow-headers": "content-type",
         "access-control-max-age": "86400",
       } : {} });
+    }
+
+    /* ---- Koosteen julkinen luku ----
+     *
+     * Peli näyttää paljastuksessa miten muut pärjäsivät samalla biisillä.
+     * Luvut ovat samat jotka on jo kerätty: montako kierrosta, montako
+     * osumaa ja miten osumat jakautuivat pätkän pituuden mukaan.
+     *
+     * Tämä ei paljasta pelaajista mitään. Taulussa ei ole tapahtumarivejä
+     * eikä tunnisteita, joten koosteesta ei voi päätellä ketään yksittäistä.
+     *
+     * Vastaus ei sisällä kynnystä pienelle otokselle: palvelin kertoo mitä
+     * tietää, ja peli päättää milloin luku on tarpeeksi suuri näytettäväksi.
+     * Näin kynnystä voi muuttaa julkaisematta Workeria uudelleen.
+     */
+    if (req.method === "GET" && url.pathname === "/koonti") {
+      const idt = [...new Set((url.searchParams.get("id") || "").split(",")
+        .map((s) => parseInt(s, 10))
+        .filter((n) => Number.isInteger(n) && n > 0 && n < 1e13))];
+      if (!idt.length || idt.length > 10) {
+        return vastaus('{"virhe":"väärä määrä"}', 400, origin);
+      }
+
+      /* Järjestetty tunnistelista tekee avaimesta vakaan: päivän sarja on
+       * kaikille sama, joten kaikkien pelaajien pyyntö on sama pyyntö ja
+       * osuu reunavälimuistiin. D1:tä kosketaan kerran viidessä minuutissa
+       * eikä kerran pelaajaa kohti.
+       *
+       * Origin on osa avainta eikä pelkkä Vary-otsake. Vastauksen CORS-otsake
+       * riippuu pyytäjästä, ja vastaus() jättää Varyn pois silloin kun origin
+       * ei ole sallittu. Jos ensimmäinen pyyntö tulisi ilman originia, ilman
+       * Varya tallentunut vastaus tarjoiltaisiin myös pelille, jolloin siitä
+       * puuttuisi CORS-otsake ja selain estäisi sen. Avaimessa ne pysyvät
+       * erillään ilman että Varyn varaan tarvitsee luottaa. */
+      idt.sort((a, b) => a - b);
+      const avain = new Request(url.origin + "/koonti?id=" + idt.join(",")
+        + "&o=" + encodeURIComponent(origin || "-"));
+      const valimuisti = caches.default;
+      const osuma = await valimuisti.match(avain);
+      if (osuma) return osuma;
+
+      const paikat = idt.map((_, i) => "?" + (i + 1)).join(",");
+      const { results } = await env.DB.prepare(
+        `SELECT id, kierroksia, osumia, a0, a1, a2, a3, a4
+         FROM biisi WHERE id IN (${paikat})`
+      ).bind(...idt).all();
+
+      /* Lyhyet nimet: vastaus lähtee jokaiselle pelaajalle, joten turha
+       * tavu maksaa moninkertaisesti. n on kierrosten määrä, o osumat ja
+       * a niiden jakauma pätkän pituuden mukaan. */
+      const ulos = results.map((r) => ({
+        id: r.id, n: r.kierroksia, o: r.osumia,
+        a: [r.a0, r.a1, r.a2, r.a3, r.a4],
+      }));
+
+      const vast = vastaus(JSON.stringify(ulos), 200, origin);
+      /* Viisi minuuttia riittää: luvut muuttuvat hitaasti eikä kukaan
+       * huomaa jos osuusprosentti on minuutin vanha. Vary: Origin on jo
+       * vastaus()-apurin asettama, joten sallitut originit eivät sekoitu. */
+      vast.headers.set("cache-control", "public, max-age=300");
+      ctx.waitUntil(valimuisti.put(avain, vast.clone()));
+      return vast;
     }
 
     // ---- Kierrosten vastaanotto ----

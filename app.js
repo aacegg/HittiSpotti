@@ -2275,7 +2275,11 @@
    * jälkeen. Niinpä aamun ensimmäinen näkee keskiarvon myöhemmin päivällä
    * vain avaamalla sivun uudestaan, ilman että mitään kyselee taustalla.
    */
-  const VERTAILU_RAJA = 20;   // alle tämän luvut ovat liian pieniä kertomaan mitään
+  /* Monesko pelaaja näkee ensimmäisenä keskiarvon. Sitä ennen näytetään
+   * järjestysluku. Kymmenen on pieni otos, mutta vertailu kymmeneen on
+   * pelaajalle kiinnostavampi kuin pelkkä järjestysluku, ja päivän biisit
+   * ovat kaikille samat joten luku on silti vertailukelpoinen. */
+  const VERTAILU_RAJA = 11;
   const KORI = 500;           // sama koriväli kuin palvelimella
 
   function vertailuKey(key) { return "paivavertailu:" + key; }
@@ -2314,11 +2318,11 @@
    * "muut" pitää kirjaimellisesti paikkansa eikä vain suunnilleen. */
   function vertailuTeksti(d, omat, sija) {
     if (!d || !d.n) return "";
-    const muita = d.n - 1;
-    if (muita < VERTAILU_RAJA - 1) {
+    if (d.n < VERTAILU_RAJA) {
       if (sija === 1) return "Olit päivän ensimmäinen pelaaja!";
       return sija ? `Olit päivän ${sija}. pelaaja.` : "";
     }
+    const muita = d.n - 1;
     const ka = Math.round((d.summa - omat) / muita);
     /* Korit ovat 500 pisteen levyisiä, joten oman korin sisällä olevia ei
      * lasketa kummallekaan puolelle. Alaspäin pyöristäminen on rehellisempi
@@ -2326,8 +2330,12 @@
     const omaKori = Math.min(Math.floor(omat / KORI), d.k.length - 1);
     const alle = d.k.slice(0, omaKori).reduce((a, b) => a + b, 0);
     const osuus = Math.round((100 * alle) / muita);
+    /* Ei sanaa "tänään". Sarja joka aloitetaan ennen keskiyötä ja pelataan
+     * loppuun sen jälkeen kuuluu edelliselle päivälle, ja silloin "tänään"
+     * olisi väärin. Päivä lukee joka tapauksessa tulossivun otsikossa, joten
+     * sitä ei tarvitse toistaa tässä. */
     const alku = sija === 1 ? "Olit päivän ensimmäinen pelaaja! " : "";
-    return `${alku}Muiden keskiarvo tänään ${fmt(ka)} p. Olit parempi kuin ${osuus} %.`;
+    return `${alku}Muut saivat keskimäärin ${fmt(ka)} p. Olit parempi kuin ${osuus} %.`;
   }
 
   /* Haetaan aina kun tulossivu avataan. Kutsu voi mennä päällekkäin, jos

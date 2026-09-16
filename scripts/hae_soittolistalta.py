@@ -124,7 +124,13 @@ def api(path: str, **params) -> list:
             # 4xx on pysyvä: pyyntö on väärä, ei palvelin kiireinen. Uusiminen
             # vain hidastaa. Mitattu: yksi Spotifyn tunniste Applen id-kentässä
             # maksoi 15 sekuntia turhaa odotusta per biisi.
-            if 400 <= e.code < 500 and e.code != 429:
+            #
+            # 403 ja 429 ovat poikkeus: ne ovat Applen kuristusta eivätkä
+            # virheellinen pyyntö. Tyhjän palauttaminen niistä on vaarallista,
+            # koska kuristuksen vastaus näyttää täsmälleen samalta kuin
+            # "ei osumia": biisi raportoitaisiin puuttuvaksi vaikka se on
+            # olemassa. Niin kävi kerran jo CMX:lle, koiralle ja Melolle.
+            if 400 <= e.code < 500 and e.code not in (403, 429):
                 print(f"   ! {e}", file=sys.stderr)
                 return []
             odota(attempt, e)
@@ -159,6 +165,34 @@ biisiltä.
 _tuotannot: dict = {}
 
 
+# Kappalehaku katkeaa noin sataan riippumatta limit-parametrista.
+KATKEAA = 100
+
+
+def levyjen_biisit(artist_id) -> list:
+    """Artistin levyt yksitellen läpi, jotta mikään raita ei jää pois.
+
+    Tarpeen siksi että lookup?entity=song antaa enintään noin sata
+    kappaletta vaikka limitiksi pyytäisi kaksisataa. Tuotteliaan artistin
+    syvät raidat jäävät siis näkymättä, ja koska vastaus on kelvollinen
+    JSON eikä virhe, puuttuminen näyttää siltä että biisiä ei ole.
+
+    Mitattu: Costin Movie (Safari - EP, 2021) raportoitiin puuttuvaksi.
+    Se on Applella, mutta artistin kappalehaku katkesi sataan eikä siinä
+    ollut EP:n raitoja lainkaan. Levyt läpi käymällä se löytyi heti.
+
+    Tämä on hidas (yksi pyyntö levyä kohti), joten sitä käytetään vain kun
+    kappalehaku näyttää katkenneen."""
+    ulos = []
+    for lv in api("lookup", id=artist_id, entity="album", limit=200):
+        if not lv.get("collectionId"):
+            continue
+        ulos += [t for t in api("lookup", id=lv["collectionId"], entity="song", limit=60)
+                 if t.get("kind") == "song"]
+        time.sleep(0.3)
+    return ulos
+
+
 def artist_songs(artist: str) -> list:
     nimi = first_artist(artist)
     if nimi in _tuotannot:
@@ -170,8 +204,11 @@ def artist_songs(artist: str) -> list:
         if norm(a.get("artistName", "")) != norm(nimi):
             continue
         tulos = api("lookup", id=a["artistId"], entity="song", limit=200)
-        kaikki += [t for t in tulos if t.get("kind") == "song"]
+        biisit = [t for t in tulos if t.get("kind") == "song"]
+        kaikki += biisit
         time.sleep(0.3)
+        if len(biisit) >= KATKEAA:
+            kaikki += levyjen_biisit(a["artistId"])
     _tuotannot[nimi] = kaikki
     return kaikki
 

@@ -132,6 +132,7 @@
     retryBtn: $("#retry-btn"),
     feedbackLink: $("#feedback-link"),
     suggestLink: $("#suggest-link"),
+    resultsVertailu: $("#results-vertailu"),
     installBtn: $("#install-btn"),
     installSheet: $("#install-sheet"),
     installScrim: $("#install-scrim"),
@@ -1720,6 +1721,11 @@
 
   function renderResults() {
     const daily = state.mode === "daily";
+    /* Vertailu piiloon heti ja haku käyntiin. Vanha teksti kuuluu edelliseen
+     * sarjaan, eikä se saa jäädä näkyviin vapaan pelin tuloksiin eikä
+     * eilisen lukuihin sillä aikaa kun uudet haetaan. */
+    if (el.resultsVertailu) el.resultsVertailu.hidden = true;
+    paivitaVertailu();
     const solved = state.results.filter((r) => r.solved).length;
     const k = kausi(state.kausi);
     el.resultsTitle.textContent = daily
@@ -2250,6 +2256,101 @@
 
   const dataLupa = () => store.get("datalupa", true) !== false;
 
+  /* ---------- Vertailu muihin pelaajiin ----------
+   *
+   * Tulossivulla näkyy miten muut pärjäsivät saman päivän sarjassa. Luvut
+   * ovat päiväkohtaisia: jokainen päivä on palvelimella oma rivinsä, ja
+   * vertailu vaihtuu täsmälleen silloin kun biisitkin, koska molemmat
+   * johdetaan samasta päivämäärästä.
+   *
+   * Kolme vaihetta, koska aamun ensimmäisillä ei ole vielä ketään johon
+   * verrata. Ilman keskimmäistä pelaajat 2-19 jäisivät ilman mitään, eli
+   * heidän näkymänsä olisi köyhempi kuin ensimmäisen.
+   *
+   *   1.      "Olit päivän ensimmäinen pelaaja!"
+   *   2.-19.  "Olit päivän 7. pelaaja"
+   *   20.->   keskiarvo ja oma sijoitus
+   *
+   * Luvut haetaan aina kun tulossivu avataan, myös sivun uudelleenlatauksen
+   * jälkeen. Niinpä aamun ensimmäinen näkee keskiarvon myöhemmin päivällä
+   * vain avaamalla sivun uudestaan, ilman että mitään kyselee taustalla.
+   */
+  const VERTAILU_RAJA = 20;   // alle tämän luvut ovat liian pieniä kertomaan mitään
+  const KORI = 500;           // sama koriväli kuin palvelimella
+
+  function vertailuKey(key) { return "paivavertailu:" + key; }
+
+  /* Lähetetään vain kerran päivää kohti ja vain jos pelaaja sallii sen.
+   * Vastaus sisältää järjestysluvun ja koko koosteen, joten tulossivu saa
+   * kaiken tarvitsemansa yhdellä pyynnöllä. */
+  async function lahetaPaiva(key, pisteet) {
+    if (!PALVELIN || !dataLupa()) return null;
+    try {
+      const v = await fetch(PALVELIN + "/paiva", {
+        method: "POST",
+        body: JSON.stringify({ paiva: key, pisteet }),
+        headers: { "content-type": "text/plain" },
+      });
+      if (!v.ok) return null;
+      const d = await v.json();
+      /* Järjestysluku talteen: se on tosiasia siitä hetkestä, eikä sitä voi
+       * laskea jälkikäteen. Ilman tallennusta se katoaisi uudelleen-
+       * latauksessa, vaikka "olit päivän ensimmäinen" on juuri se asia joka
+       * kannattaa säilyttää. */
+      if (Number.isInteger(d.sija)) store.set(vertailuKey(key), { sija: d.sija });
+      return d;
+    } catch { return null; }
+  }
+
+  async function haePaiva(key) {
+    if (!PALVELIN || !dataLupa()) return null;
+    try {
+      const v = await fetch(PALVELIN + "/paiva?p=" + encodeURIComponent(key));
+      return v.ok ? await v.json() : null;
+    } catch { return null; }
+  }
+
+  /* Muiden keskiarvo, ei kaikkien. Oma tulos vähennetään pois, jolloin sana
+   * "muut" pitää kirjaimellisesti paikkansa eikä vain suunnilleen. */
+  function vertailuTeksti(d, omat, sija) {
+    if (!d || !d.n) return "";
+    const muita = d.n - 1;
+    if (muita < VERTAILU_RAJA - 1) {
+      if (sija === 1) return "Olit päivän ensimmäinen pelaaja!";
+      return sija ? `Olit päivän ${sija}. pelaaja.` : "";
+    }
+    const ka = Math.round((d.summa - omat) / muita);
+    /* Korit ovat 500 pisteen levyisiä, joten oman korin sisällä olevia ei
+     * lasketa kummallekaan puolelle. Alaspäin pyöristäminen on rehellisempi
+     * kuin puolittaminen: "parempi kuin 78 %" ei saa olla liioiteltu. */
+    const omaKori = Math.min(Math.floor(omat / KORI), d.k.length - 1);
+    const alle = d.k.slice(0, omaKori).reduce((a, b) => a + b, 0);
+    const osuus = Math.round((100 * alle) / muita);
+    const alku = sija === 1 ? "Olit päivän ensimmäinen pelaaja! " : "";
+    return `${alku}Muiden keskiarvo tänään ${fmt(ka)} p. Olit parempi kuin ${osuus} %.`;
+  }
+
+  /* Haetaan aina kun tulossivu avataan. Kutsu voi mennä päällekkäin, jos
+   * pelaaja pomppii näkymien välillä, joten viimeisenä alkanut voittaa:
+   * vanhemman vastaus ei saa kirjoittaa uudempaa yli. */
+  let vertailuVuoro = 0;
+  async function paivitaVertailu() {
+    const el2 = el.resultsVertailu;
+    if (!el2) return;
+    if (state.mode !== "daily" || !PALVELIN || !dataLupa()) { el2.hidden = true; return; }
+    const key = state.dayKey || todayKey();
+    const oma = store.get("daily:" + key, null);
+    if (!oma) { el2.hidden = true; return; }
+
+    const vuoro = ++vertailuVuoro;
+    const d = await haePaiva(key);
+    if (vuoro !== vertailuVuoro) return;
+    const sija = (store.get(vertailuKey(key), null) || {}).sija;
+    const teksti = vertailuTeksti(d, oma.score, sija);
+    el2.textContent = teksti;
+    el2.hidden = !teksti;
+  }
+
   function lahetaKierros(k) {
     if (!PALVELIN || !dataLupa()) return;
     const runko = JSON.stringify({
@@ -2350,6 +2451,15 @@
     });
     if (already) return;   // sama päivä kirjataan tilastoihin vain kerran
     track("paiva-valmis");
+    /* Tulos palvelimelle vertailua varten, saman kerran-päivässä-vartion
+     * takana kuin muutkin kirjaukset. Vastaus päivittää tulossivun heti,
+     * joten ensimmäinen näkymä ei odota erillistä hakua. */
+    lahetaPaiva(key, state.score).then((d) => {
+      if (!d || state.view !== "results") return;
+      const teksti = vertailuTeksti(d, state.score, d.sija);
+      el.resultsVertailu.textContent = teksti;
+      el.resultsVertailu.hidden = !teksti;
+    });
     const stats = { ...defaultStats(), ...store.get("stats", {}) };
     stats.dailyPlayed += 1;
     stats.dailyTotal += state.score;

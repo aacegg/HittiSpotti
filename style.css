@@ -1479,6 +1479,22 @@ button.tchip:hover { color: var(--text); }
 .results-sub { margin: var(--s4) 0 0; font-size: var(--f4); line-height: 1.45; color: var(--text); }
 .results-sub:empty { display: none; }
 
+/* Vertailu muihin. Elävä väri erottaa sen yhteenvedosta: yhteenveto kertoo
+   mitä sinä teit, tämä mitä muut tekivät, ja ne ovat eri asioita vaikka
+   ovat peräkkäin.
+
+   Ei omaa laatikkoa eikä reunaa. Rivi ilmestyy sekunnin viiveellä palvelimen
+   vastattua, ja laatikko tekisi siitä nytkähdyksen keskellä sivua jota
+   pelaaja jo lukee. Pelkkä tekstirivi varaa vähemmän ja ilmestyy
+   huomaamattomammin. */
+.results-vertailu {
+  margin: var(--s3) 0 0;
+  font-size: var(--f2);
+  line-height: 1.45;
+  color: var(--live);
+}
+.results-vertailu[hidden], .results-vertailu:empty { display: none; }
+
 .results { list-style: none; padding: 0; margin: var(--s5) 0 0; }
 .results li {
   display: grid;

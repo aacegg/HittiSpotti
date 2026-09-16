@@ -25,7 +25,21 @@ CREATE TABLE IF NOT EXISTS biisi (
   arvio5     INTEGER NOT NULL DEFAULT 0    -- Mahdoton
 );
 
-CREATE INDEX IF NOT EXISTS biisi_kierroksia ON biisi (kierroksia DESC);
+-- Tässä oli ennen indeksi (kierroksia DESC). Se poistettiin, koska se
+-- kaksinkertaisti jokaisen pelatun kierroksen hinnan.
+--
+-- D1 laskee rows_written-lukuun myös indeksiriveihin tehdyt kirjoitukset.
+-- Jokainen kierros päivittää kierroksia-saraketta, joten indeksin kanssa
+-- yksi kierros kirjoitti kaksi riviä: taulurivin ja indeksirivin. Ilmaisen
+-- tason raja on 100 000 riviä vuorokaudessa, ja se tuli vastaan kun
+-- pelaajamäärä kasvoi.
+--
+-- Indeksiä käytti tasan yksi kysely: /tilastot-reitin ORDER BY kierroksia
+-- DESC. Se lajittelee alle 2300 riviä muutaman kerran kuussa ajettuna,
+-- mihin indeksiä ei tarvita.
+--
+-- Jos indeksi on jo luotu, poista se kerran:
+--   DROP INDEX IF EXISTS biisi_kierroksia;
 
 -- Päivän sarjojen koosteet, yksi rivi päivää kohti. Sama periaate kuin
 -- yllä: ei tapahtumarivejä, joten mikään ei yhdistä pelaajan suorituksia

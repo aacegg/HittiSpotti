@@ -1,0 +1,13 @@
+-- Poistaa indeksin joka kaksinkertaisti kirjoitukset. Aja kerran:
+--   npx wrangler d1 execute hittispotti --remote --file=palvelin/migraatio-poista-indeksi.sql
+-- tai liitä D1-konsoliin selaimessa.
+--
+-- D1:n rows_written sisältää myös indeksirivit. Indeksi oli sarakkeella
+-- kierroksia, jota jokainen pelattu kierros päivittää, joten yksi kierros
+-- maksoi kaksi riviä. Ilmaisen tason raja on 100 000 riviä vuorokaudessa.
+--
+-- Indeksiä käytti vain /tilastot-reitin ORDER BY kierroksia DESC, joka
+-- lajittelee alle 2300 riviä. Se toimii ilman indeksiä yhtä hyvin.
+--
+-- Poisto ei kadota dataa: indeksi on vain hakurakenne, ei sisältöä.
+DROP INDEX IF EXISTS biisi_kierroksia;

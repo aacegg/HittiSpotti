@@ -23,9 +23,17 @@ Sivu avautuu suoraan päivän peliin. Vasemman yläkulman valikosta vaihdetaan v
 
 Pätkä alkaa esikuuntelun alusta. Peli etsii puretusta äänestä ensimmäisen kohdan, jossa ääntä oikeasti kuuluu, joten mahdollinen hiljaisuus ohitetaan. Aloituskohta lasketaan kerran biisiä kohti, joten kaikki viisi askelta alkavat samasta kohdasta ja pidempi pätkä on aina sama kuin lyhyempi, vain jatkettuna.
 
-Esikuuntelu ei kuitenkaan ole kappaleen alusta. Mittasin kahdentoista biisin iTunes-esikuuntelut: jokaisessa ääni on jo ensimmäisen 50 millisekunnin aikana muutaman desibelin päässä kappaleen mediaanitasosta, eikä yhdessäkään ole introa tai häivytystä. Apple leikkaa esikuuntelun keskeltä kappaletta, tyypillisesti kertosäkeen kohdalta, eikä rajapinnassa ole parametria aloituskohdan siirtämiseen. Sama koskee Deezeriä, ja Spotify on poistanut esikuuntelut uusilta sovelluksilta.
+Esikuuntelu ei kuitenkaan ole kappaleen alusta. Mittasin kahdentoista biisin iTunes-esikuuntelut: jokaisessa ääni on jo ensimmäisen 50 millisekunnin aikana muutaman desibelin päässä kappaleen mediaanitasosta, eikä yhdessäkään ole introa tai häivytystä. Apple leikkaa esikuuntelun keskeltä kappaletta, tyypillisesti kertosäkeen kohdalta, eikä rajapinnassa ole parametria aloituskohdan siirtämiseen. Spotify on poistanut esikuuntelut uusilta sovelluksilta.
+
+**Deezer tarkistettu erikseen, ja se käyttäytyy samoin.** Tämä kappale luki ennen pelkkänä sivulauseena ("sama koskee Deezeriä") ilman mittausta, ja juuri siksi asiaa lähdettiin tutkimaan uudelleen. Nyt se on mitattu, joten sitä ei tarvitse tutkia kolmatta kertaa.
+
+Deezerin esikuuntelu on 30 sekuntia ja kattavuus on hyvä: 70 satunnaisesta katalogin arvattavasta biisistä 80 prosenttia löytyi. Alkukohta on silti sama kuin Applella. **Deezer häivyttää jokaisen pätkän alun**, mikä saa amplitudimittauksen näyttämään intron kaltaiselta, ja tähän ansaan meni ensimmäinen kymmenen biisin mittaus. Ratkaiseva ero on se, kuinka nopeasti taso palaa: 56 biisin otoksessa 47 alkoi yli 6 dB mediaanin alapuolelta, mutta niistä 43 oli täydessä voimassa jo 300 millisekunnin kohdalla. Vain 3 biisiä 56:sta oli sekunnin kohdalla vielä hiljaa.
+
+Mittaus ei erota introa hiljaisesta kohdasta keskellä kappaletta, joten lopputulos varmistettiin kuuntelemalla: kymmenen tunnetun suomalaisen biisin Apple- ja Deezer-pätkät vierekkäin, ja molemmat tulevat keskeltä kappaletta.
 
 Oikea kappaleen alku vaatisi siis toisen äänilähteen, esimerkiksi YouTube-soittimen tai itse isännöidyt näytteet. Molemmissa on hintansa: YouTuben kautta lyhin luotettava pätkä on noin sekunti, mikä murtaisi pelin 0,1 sekunnin idean, ja omien näytteiden julkaisu vaatii oikeudet musiikkiin.
+
+Pelaajat kysyvät tätä toistuvasti, joten vastaus on myös pelin UKK:ssa omana kohtanaan.
 
 ## Pelaaminen paikallisesti
 

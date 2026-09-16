@@ -44,7 +44,7 @@ ROOT = Path(__file__).resolve().parent.parent
 ULOS = ROOT / "testi"
 # Oma versiotunnus, jottei juuren service worker tarjoa vanhaa testisivua
 # välimuististaan. Kasvata kun testisivu päivitetään.
-VERSIO = "t7"
+VERSIO = "t8"
 
 # Testisovelluksen oma manifesti. Kuvakkeet haetaan juuresta (../), mutta
 # start_url ja scope osoittavat tähän kansioon, joten asennettu testi avaa

@@ -11,7 +11,7 @@
  * Poistaminen: selaimen kehitystyökaluista Application -> Service Workers
  * -> Unregister, tai koko sivuston tiedot tyhjentämällä.
  */
-const VERSIO = "hittispotti-testi-t7";
+const VERSIO = "hittispotti-testi-t8";
 
 self.addEventListener("install", () => self.skipWaiting());
 

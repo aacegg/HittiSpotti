@@ -35,12 +35,30 @@
   const STORE = "hittispotti:";
   const STORE_OLD = "songspot-suomi:";         // aiempi nimi, tiedot siirretään kerran
   const RING = 2 * Math.PI * 54;               // soittopainikkeen kehän pituus (r = 54)
-  /* Katalogilla on oma versionumeronsa, jota nostetaan vain kun songs.json
-   * muuttuu. Näin selain ja service worker saavat pitää 780 kt:n tiedoston
+  /* Katalogilla on oma versionumeronsa, jota nostetaan vain kun biisilista
+   * muuttuu. Näin selain ja service worker saavat pitää katalogin
    * välimuistissa tyylimuutosten yli, mutta uusi katalogi on eri osoite ja
    * tulee varmasti perille – vanha versio antaisi pelaajalle eri päivän
    * biisit kuin muille. */
-  const KATALOGI = "songs.json?k=15";
+  const KATALOGI_K = 16;
+
+  /* Katalogi on kahdessa osassa, ks. scripts/tee_aanet.py.
+   *
+   * katalogi.json on kevyt: artisti, nimi, vuosi, taso ja tunniste. Siitä
+   * rakentuvat ehdotuslista ja päivän arvonta, eli kaikki mitä sivun
+   * avaaminen vaatii. 206 kt.
+   *
+   * Esikuunteluosoitteet ja kansikuvat ovat kansiossa aanet/, jaettuna
+   * paloihin tunnisteen perusteella. Ne olivat ennen samassa tiedostossa ja
+   * veivät siitä 77 %, vaikka niistä tarvitaan kerrallaan viisi biisiä.
+   * Yhtenä erillisenä tiedostona ne olisivat 450 kt eikä mitään olisi
+   * säästetty, vain siirretty myöhemmäksi; paloina viiden biisin sarja
+   * hakee enintään viisi noin 7 kt:n tiedostoa.
+   *
+   * Palojen määrän on oltava sama kuin scripts/tee_aanet.py:n PALOJA. */
+  const KATALOGI = `katalogi.json?k=${KATALOGI_K}`;
+  const AANI_PALOJA = 64;
+  const aaniOsoite = (n) => `aanet/${String(n).padStart(2, "0")}.json?k=${KATALOGI_K}`;
 
   /* Tuoteversio, eri asia kuin osoitteiden ?v=-numero.
    *
@@ -574,9 +592,13 @@
   // ---------- Katalogi ----------
   async function loadCatalog() {
     const res = await fetch(KATALOGI);
-    if (!res.ok) throw new Error("songs.json ei latautunut (" + res.status + ")");
+    if (!res.ok) throw new Error("katalogi.json ei latautunut (" + res.status + ")");
     const all = await res.json();
-    state.songs = all.filter((s) => s.preview && s.id);
+    /* Ennen tässä suodatettiin esikuunteluosoitteen perusteella. Kevyessä
+     * katalogissa ei ole sitä kenttää: rakennusskripti jättää esikuuntelua
+     * vailla olevan biisin pois kokonaan, joten suodatus on tehty jo
+     * julkaisussa ja tähän jää vain se mitä ehdotuslista tarvitsee. */
+    state.songs = all.filter((s) => s.id && s.artist && s.title);
     /* Osa biiseistä on mukana vain hakulistan täytteenä: ne eivät koskaan
      * tule arvattavaksi, mutta tekevät ehdotuslistasta niin tiheän, ettei
      * oikeaa vastausta voi päätellä pelkästään siitä mitä listalla on. */
@@ -593,6 +615,52 @@
       state.byId.set(String(s.id), s);
     });
     if (state.pool.length < DAILY_COUNT) throw new Error("Katalogissa on liian vähän biisejä.");
+  }
+
+  /* Äänipalat: esikuunteluosoitteet ja kansikuvat, haettuna vasta kun tiedämme
+   * mitkä biisit ovat vuorossa.
+   *
+   * Pala haetaan kerran istuntoa kohti ja luvat pidetään muistissa, jotta
+   * kaksi samanaikaista pyyntöä samaan palaan eivät tee kahta hakua. Koko
+   * palan sisältö sulautetaan biisiolioihin, ei vain pyydetyt: se on jo
+   * ladattu, ja seuraava sarja voi osua samaan palaan.
+   *
+   * Epäonnistuminen ei kaada peliä. Ilman esikuunteluosoitetta fetchBuffer
+   * hakee sen Applelta tunnisteella (refreshPreviewUrl), ja kansikuvan puute
+   * vain jättää kuvan pois paljastuksesta. Siksi tämä ei koskaan heitä. */
+  const aaniPalat = new Map();
+
+  function haePala(n) {
+    if (!aaniPalat.has(n)) {
+      aaniPalat.set(n, fetch(aaniOsoite(n))
+        .then((r) => (r.ok ? r.json() : Promise.reject(new Error("aanet " + r.status))))
+        .catch((err) => {
+          console.warn("äänipala " + n, err);
+          aaniPalat.delete(n);   // yritetään uudestaan seuraavalla sarjalla
+          return null;
+        }));
+    }
+    return aaniPalat.get(n);
+  }
+
+  async function varmistaAanet(songs) {
+    const puuttuu = (songs || []).filter((s) => s && s.id && !s.preview);
+    if (!puuttuu.length) return;
+    const numerot = [...new Set(puuttuu.map((s) => s.id % AANI_PALOJA))];
+    const data = await Promise.all(numerot.map(haePala));
+    for (const pala of data) {
+      if (!pala) continue;
+      for (const [id, arvo] of Object.entries(pala)) {
+        const song = state.byId.get(id);
+        if (!song || !Array.isArray(arvo)) continue;
+        /* Vain puuttuvan päälle. Sama pala sulautetaan uudestaan aina kun
+         * siitä pyydetään uutta biisiä, ja refreshPreviewUrl on voinut sillä
+         * välin hakea tuoreemman osoitteen vanhentuneen tilalle. Ilman tätä
+         * ehtoa palan vanha osoite palaisi takaisin. */
+        if (!song.preview) song.preview = arvo[0] || "";
+        if (!song.art) song.art = arvo[1] || "";
+      }
+    }
   }
 
   /* Päivän biisejä ei arvota päivä kerrallaan vaan pakka sekoitetaan kerran:
@@ -651,7 +719,7 @@
     return order;
   }
 
-  /* Tason biisit vakaassa lähtöjärjestyksessä, ettei songs.json:in
+  /* Tason biisit vakaassa lähtöjärjestyksessä, ettei katalogin
    * rivijärjestys vaikuta. Välimuistissa, koska sekä pakkojen rakentaminen
    * että törmäysten korjaus tarvitsevat tätä toistuvasti. */
   const tierLists = new Map();
@@ -1106,7 +1174,7 @@
   }
 
   // ---------- Peli ----------
-  function startDaily() {
+  async function startDaily() {
     /* Avain otetaan kerran tässä ja kulkee state.dayKey:ssä loppuun asti.
      * Jos se luettaisiin kellosta uudestaan tallennettaessa, 23.58 aloitettu
      * ja 00.03 päättynyt peli kirjautuisi huomisen päivälle tämän päivän
@@ -1118,6 +1186,9 @@
     if (done) {
       state.results = done.results.map((r) => ({ ...r, song: state.byId.get(String(r.id)) }));
       state.score = done.score;
+      /* Myös valmis päivä tarvitsee palat: tuloslistalla ja jakokuvassa ovat
+       * kansikuvat, eikä tähän haaraan tulla soittimen kautta. */
+      await varmistaAanet(state.results.map((r) => r.song));
       renderResults();
       show("results");
       return;
@@ -1128,6 +1199,7 @@
     state.rounds = jatkuu || dailySongs(key).map(newRound);
     state.results = [];
     state.score = state.rounds.reduce((sum, r) => sum + r.points, 0);
+    await varmistaAanet(state.rounds.map((r) => r.song));
     // Poikkeustapaus: kaikki palautetut kierrokset ovat valmiita, mutta
     // lopputulos jäi kirjaamatta (selain kaatui juuri viimeisen jälkeen).
     if (state.rounds.every((r) => r.finished)) { collectResults(); saveDaily(); renderResults(); show("results"); return; }
@@ -1174,7 +1246,7 @@
    * sama rakenne kuin päivän pelissä, mutta sarjoja voi pelata niin monta
    * kuin haluaa. Sarja päättyy tuloksiin ja seuraava alkaa puhtaalta
    * pöydältä, joten pisteet eivät kasaannu loputtomiin. */
-  function startFree(kausiAvain) {
+  async function startFree(kausiAvain) {
     /* state.used elää saman sivulatauksen ajan, joten peräkkäisissä sarjoissa
      * ei tule samoja biisejä uudestaan. Sivun päivitys nollaa sen: muistia ei
      * talleteta, koska satunnaisuus riittää eikä toistoa käytännössä ehdi
@@ -1185,6 +1257,7 @@
     state.score = 0;
     state.rounds = TIER_CYCLE.map((t) => newRound(pickFreeSong(t)));
     state.at = 0;
+    await varmistaAanet(state.rounds.map((r) => r.song));
     show("game");
     openRound();
     state.rounds.forEach((r) => prefetch(r.song));
@@ -2561,7 +2634,7 @@
   }
 
   // ---------- Navigointi ----------
-  function go(target) {
+  async function go(target) {
     // Vapaan pelin nollaus: uusi sarja kesken pelin. Varmistetaan vain, jos
     // jotain oikeasti menetetään.
     if (target === "refree") {
@@ -2570,7 +2643,7 @@
       stopPlayback();
       // Sama kausi kuin ennenkin: "alusta" tarkoittaa uutta sarjaa, ei
       // paluuta koko katalogiin.
-      startFree(state.kausi);
+      await startFree(state.kausi);
       toast("Uusi sarja.");
       return;
     }
@@ -2594,9 +2667,9 @@
     closeDrawer();
     stopPlayback();
     lahetaArvio();
-    if (target === "daily") startDaily();
-    else if (kausiValinta) startFree(kausiValinta);
-    else if (target === "free") startFree();
+    if (target === "daily") await startDaily();
+    else if (kausiValinta) await startFree(kausiValinta);
+    else if (target === "free") await startFree();
     else if (target === "stats") show("stats");
     else if (target === "help") show("help");
     else if (target === "back") show(state.rounds.length ? "game" : "results");
@@ -2733,7 +2806,7 @@
    * on englantia eikä kerro mitä tehdä, joten se jää konsoliin. */
   function loadErrorText(err) {
     if (location.protocol === "file:") {
-      return "Selain ei salli songs.json-tiedoston lukemista suoraan levyltä. "
+      return "Selain ei salli katalogi.json-tiedoston lukemista suoraan levyltä. "
            + "Käynnistä paikallinen palvelin, esimerkiksi python3 -m http.server, ja avaa http://localhost:8000.";
     }
     if (!navigator.onLine) return "Ei verkkoyhteyttä. Biisit haetaan uudestaan kun yhteys palaa.";
@@ -2748,7 +2821,7 @@
     try {
       await loadCatalog();
       refreshDrawer();
-      startDaily();          // sivu avautuu suoraan päivän peliin
+      await startDaily();    // sivu avautuu suoraan päivän peliin
     } catch (err) {
       console.error(err);
       el.loadingText.textContent = loadErrorText(err);

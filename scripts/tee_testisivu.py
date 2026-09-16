@@ -29,8 +29,9 @@ testisivu ei voi jäädä jumiin välimuistiin.
 Sovellus asentuu omalla nimellään ("HittiSpotti testi"), joten sen erottaa
 oikeasta eikä se korvaa sitä aloitusnäytöllä.
 
-Katalogi kopioidaan mukaan: haaran songs.json voi olla eri kuin livenä
-oleva, ja juuri vuosiluvut ratkaisevat vuosikymmenpelin.
+Katalogi ja äänipalat kopioidaan mukaan: haaran katalogi.json voi olla eri
+kuin livenä oleva, ja juuri vuosiluvut ratkaisevat vuosikymmenpelin. Aja
+scripts/tee_aanet.py ensin, jos songs.json on muuttunut.
 
 Kansion voi poistaa kun testaus on ohi:  git rm -r testi
 """
@@ -158,10 +159,13 @@ def main() -> int:
     js = js.replace('const STORE_OLD = "songspot-suomi:";',
                     'const STORE_OLD = "hittispotti-testi-ei-vanhaa:";')
     js = re.sub(r'const PALVELIN = "[^"]*";', 'const PALVELIN = "";', js)
-    js = js.replace('const KATALOGI = "songs.json?k=12";',
-                    f'const KATALOGI = "songs.json?k={VERSIO}";')
-    js = re.sub(r'const KATALOGI = "songs\.json\?k=\d+";',
-                f'const KATALOGI = "songs.json?k={VERSIO}";', js)
+    # Katalogin versio testisivun omaksi, jottei juuren välimuistissa oleva
+    # katalogi ja äänipalat sekoitu tähän. KATALOGI_K on luku app.js:ssä,
+    # joten se korvataan merkkijonolla joka kelpaa osoitteen osaksi.
+    js, n = re.subn(r"const KATALOGI_K = \d+;",
+                    f'const KATALOGI_K = "{VERSIO}";', js)
+    if n != 1:
+        print("VAROITUS: KATALOGI_K-vakiota ei löytynyt app.js:stä.", file=sys.stderr)
     # Service worker jätetään paikalleen. Rekisteröinti tapahtuu sivun
     # osoitteeseen nähden, eli /testi/sw.js laajuudella /testi/, joten se ei
     # kosketa oikeaa peliä. Ilman sitä Chrome ei tarjoaisi asennusta.
@@ -191,15 +195,24 @@ def main() -> int:
     (ULOS / "sw.js").write_text(
         SW.replace("%%VERSIO%%", f"hittispotti-testi-{VERSIO}"), encoding="utf-8")
 
-    # ---- songs.json ----
-    shutil.copyfile(ROOT / "songs.json", ULOS / "songs.json")
-    songs = json.loads((ULOS / "songs.json").read_text(encoding="utf-8"))
+    # ---- katalogi.json ja aanet/ ----
+    # Peli hakee molemmat omasta kansiostaan (suhteelliset osoitteet), joten
+    # ne kopioidaan tänne. Haaran katalogi voi olla eri kuin livenä oleva.
+    shutil.copyfile(ROOT / "katalogi.json", ULOS / "katalogi.json")
+    if (ULOS / "aanet").exists():
+        shutil.rmtree(ULOS / "aanet")
+    shutil.copytree(ROOT / "aanet", ULOS / "aanet")
+    songs = json.loads((ULOS / "katalogi.json").read_text(encoding="utf-8"))
     pelattavat = sum(1 for s in songs if s.get("peli") is not False)
+    palat = sorted((ULOS / "aanet").glob("*.json"))
 
     print(f"testi/ rakennettu, versio {VERSIO}")
     print(f"  {len(songs)} riviä, {pelattavat} arvattavaa")
+    print(f"  aanet/ {len(palat)} palaa, {sum(f.stat().st_size for f in palat)} tavua")
     for f in sorted(ULOS.iterdir()):
-        print(f"  {f.name:14} {f.stat().st_size:>9} tavua")
+        if f.is_dir():
+            continue
+        print(f"  {f.name:16} {f.stat().st_size:>9} tavua")
     print("\nJulkaise:  git add testi && git commit && git push origin HEAD:main")
     print("Poista:    git rm -r testi")
     return 0

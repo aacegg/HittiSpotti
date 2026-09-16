@@ -37,7 +37,7 @@ Pelaajat kysyvät tätä toistuvasti, joten vastaus on myös pelin UKK:ssa omana
 
 ## Pelaaminen paikallisesti
 
-Selain ei anna sivun lukea `songs.json`-tiedostoa suoraan levyltä, joten käynnistä kevyt paikallinen palvelin projektin juuressa:
+Selain ei anna sivun lukea katalogitiedostoja suoraan levyltä, joten käynnistä kevyt paikallinen palvelin projektin juuressa:
 
 ```bash
 python3 -m http.server 8000
@@ -100,6 +100,25 @@ Kaikki biisit ovat tiedostossa [`songs.json`](songs.json). Yksi biisi näyttää
 - `tier` on vaikeustaso 1–5, joka näkyy pelissä nimillä **1** Helppo, **2** Keskitaso, **3** Vaikea, **4** Mestari ja **5** Mahdoton. Ykkönen on biisi, jonka kaikki tuntevat, vitonen harvinaisempi helmi. Päivän biisit -pelissä arvotaan yksi biisi jokaiselta tasolta, ja ne soitetaan järjestyksessä helpoimmasta vaikeimpaan.
 - `id`, `preview`, `art` ja `itunes` tulevat iTunesista. Niitä ei tarvitse kirjoittaa käsin.
 
+### Mitä peli oikeasti lataa
+
+`songs.json` on ylläpidon lähdetiedosto eikä peli lue sitä. Se on suljettu pois julkaistavalta sivustolta (`_config.yml`), koska sitä ei tarvita siellä. Pelin lataamat tiedostot rakennetaan siitä:
+
+```bash
+python3 scripts/tee_aanet.py
+```
+
+| Tiedosto | Sisältö | Koko | Milloin haetaan |
+| --- | --- | --- | --- |
+| `katalogi.json` | artisti, nimi, vuosi, taso, tunniste | 206 kt (pakattuna 53 kt) | heti sivun avautuessa |
+| `aanet/00.json` … `63.json` | esikuunteluosoite ja kansikuva, avaimena tunniste | 7 kt kukin (pakattuna 2 kt) | vasta kun tiedetään mitkä biisit ovat vuorossa |
+
+Ennen tätä jakoa peli latasi koko `songs.json`-tiedoston, 1 047 kt eli pakattuna 249 kt, ennen kuin sivu edes aukesi. Siitä 77 % oli esikuunteluosoitteita ja kansikuvia, joita tarvitaan kerrallaan viisi biisiä. Nyt päivän sarja lataa 53 kt + enintään viisi palaa eli noin 69 kt: **73 % vähemmän.**
+
+Palat on jaettu tunnisteen jäännöksen mukaan (`id % 64`). Jako on mielivaltainen ja juuri siksi oikea: se ei kerro biisistä mitään, joten palan sisällöstä ei voi päätellä kumpi sen biiseistä on tänään vuorossa. Täytebiisit (`peli: false`) eivät saa palaa lainkaan, koska ne eivät koskaan tule arvattavaksi.
+
+Tämä on latausaikaa koskeva muutos, ei suojaus. `katalogi.json` kertoo yhä koko biisilistan, ja päivän arvonta lasketaan siitä selaimessa, joten kuka tahansa voi laskea saman. Repo on julkinen, joten `songs.json` on luettavissa GitHubista vaikka sivusto ei sitä tarjoakaan.
+
 ### Uusien biisien lisääminen
 
 1. Lisää `songs.json`-tiedostoon rivi, jossa on vain `artist`, `title`, `year` ja `tier`.
@@ -111,8 +130,15 @@ Kaikki biisit ovat tiedostossa [`songs.json`](songs.json). Yksi biisi näyttää
 
    Skripti käyttää vain Pythonin vakiokirjastoa. Se ohittaa biisit, joilla on jo esikuuntelu, ja listaa lopuksi ne, joille ei löytynyt osumaa iTunesin Suomen katalogista. Lipulla `--all` kaikki haetaan uudestaan.
 3. Tarkista `itunes`-kentästä, että osuma on oikea kappale (ei live- tai karaokeversio). Korjaa tarvittaessa artistin tai biisin nimeä ja aja skripti uudelleen.
+4. Rakenna julkaistavat tiedostot ja kasvata `app.js`:n `KATALOGI_K`-numeroa:
 
-Jos jokin esikuuntelun URL vanhenee, peli hakee sen pelin aikana automaattisesti uudestaan `id`-kentän avulla.
+   ```bash
+   python3 scripts/tee_aanet.py
+   ```
+
+   Sama numero versioi sekä katalogin että palat, joten vanha versio ei jää välimuistiin. Ilman sitä osa pelaajista saisi eri päivän biisit kuin muut.
+
+Jos jokin esikuuntelun URL vanhenee, peli hakee sen pelin aikana automaattisesti uudestaan `id`-kentän avulla. Sama varareitti hoitaa senkin, jos äänipalan haku epäonnistuu.
 
 ## Muutosten julkaisu
 
@@ -124,10 +150,16 @@ GitHub Pages käskee selainta pitämään tiedostot välimuistissa kymmenen minu
 index.html                sivun rakenne ja tekstit
 style.css                 ulkoasu
 app.js                    pelilogiikka, ääni (Web Audio API), ehdotukset, tilastot
+sw.js                     service worker: nopea avaus ja offline-varasivu
 favicon.svg               kuvake
-songs.json                biisikatalogi
+songs.json                biisikatalogin lähde, ei julkaista
+katalogi.json             kevyt katalogi, tämän peli lataa   (tee_aanet.py)
+aanet/NN.json             esikuuntelut ja kansikuvat paloina (tee_aanet.py)
 scripts/resolve_songs.py  esikuuntelujen haku katalogiin
+scripts/tee_aanet.py      katalogin jako julkaistaviin osiin
 ```
+
+`katalogi.json` ja `aanet/` ovat koneen kirjoittamia. Älä muokkaa niitä käsin: seuraava `tee_aanet.py`-ajo ylikirjoittaa ne. Kaikki muutokset tehdään `songs.json`-tiedostoon.
 
 ## Ideoita jatkoon
 

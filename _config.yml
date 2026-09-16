@@ -7,14 +7,21 @@
 # sai sen ladattua. Mitään salaista niissä ei ole, mutta ne eivät kuulu
 # pelaajille eivätkä hakukoneille.
 #
-# Huomaa: tämä ei suojaa peliä itseään. app.js, style.css ja songs.json
+# songs.json on listalla siksi, ettei peli enää lue sitä. Se on ylläpidon
+# lähdetiedosto, josta scripts/tee_aanet.py rakentaa julkaistavat
+# katalogi.json- ja aanet/-tiedostot. Sivuston ei siis tarvitse tarjota
+# 1 047 kt:n tiedostoa jota kukaan ei hae.
+#
+# Huomaa: tämä ei suojaa peliä itseään eikä ole tarkoitettukaan siihen.
+# Repo on julkinen, joten songs.json on yhä kenen tahansa luettavissa
+# raw.githubusercontent.comista, ja app.js, style.css ja katalogi.json
 # menevät jokaiselle kävijälle joka tapauksessa, koska peli ei toimi ilman
 # niitä. Staattisella sivustolla lähdekoodi ja sivusto ovat sama asia.
 # arviointi.html on tässä poikkeus eikä sitä suljeta pois. Se on ylläpitäjän
 # työkalu, jolla vaikeustasot kuunnellaan ja valitaan, ja se on tehtävä
 # puhelimella: tasoa ei voi arvioida lukematta, se pitää kuulla. Siihen ei ole
 # linkkiä mistään ja se on noindex-merkitty, joten sen löytää vain osoitteen
-# tietämällä. Se ei myöskään näytä mitään mitä julkinen songs.json ei jo
+# tietämällä. Se ei myöskään näytä mitään mitä julkinen katalogi ei jo
 # kertoisi, joten julkaisemisesta ei seuraa uutta paljastusta.
 exclude:
   - README.md
@@ -22,3 +29,4 @@ exclude:
   - ehdotukset.json
   - scripts/
   - katalogi.html
+  - songs.json

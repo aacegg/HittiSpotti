@@ -7,22 +7,27 @@
  * Välimuistin nimessä on versio. Kun se vaihtuu, vanha poistetaan kokonaan,
  * joten jumiin jäänyttä välimuistia ei pääse syntymään.
  */
-const VERSIO = "hittispotti-v111";
+const VERSIO = "hittispotti-v112";
 
 /* Sovelluksen juuri. Vain tähän osoitettu navigointi kelpaa offline-varasivuksi. */
 const JUURI = new URL("./", self.location).pathname;
 
-/* Sivupohja esiladataan asennuksessa. songs.json ei ole mukana: peli hakee
- * sen joka tapauksessa heti, ja esilataus tarkoittaisi saman 780 kt:n
- * lataamista kahdesti. Se päätyy välimuistiin ensimmäisellä haulla. */
+/* Sivupohja esiladataan asennuksessa. Katalogi ei ole mukana: peli hakee
+ * sen joka tapauksessa heti, ja esilataus tarkoittaisi saman tiedoston
+ * lataamista kahdesti. Se päätyy välimuistiin ensimmäisellä haulla.
+ *
+ * Sama koskee aanet/-kansion äänipaloja, ja niillä se on koko idea: palat
+ * haetaan vasta kun tiedetään mitkä biisit ovat vuorossa, eikä kukaan lataa
+ * niitä kaikkia. Ne ovat versioituja (?k=), joten alla oleva välimuisti
+ * ensin -sääntö kelpaa niille sellaisenaan. */
 const POHJA = [
   "./",
-  "./style.css?v=111",
-  "./app.js?v=111",
-  "./favicon.svg?v=111",
-  "./icon-180.png?v=111",
-  "./icon-192.png?v=111",
-  "./manifest.webmanifest?v=111",
+  "./style.css?v=112",
+  "./app.js?v=112",
+  "./favicon.svg?v=112",
+  "./icon-180.png?v=112",
+  "./icon-192.png?v=112",
+  "./manifest.webmanifest?v=112",
   "./fonts/bricolage-latin.woff2",
   "./fonts/bricolage-latin-ext.woff2",
 ];

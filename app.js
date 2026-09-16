@@ -2359,8 +2359,29 @@
     el2.hidden = !teksti;
   }
 
+  /* Vapaan pelin kierroksista lähetetään vain osa.
+   *
+   * Tietokannan ilmaisella tasolla saa kirjoittaa 100 000 riviä
+   * vuorokaudessa. Kävijämäärä kasvoi kahdessa päivässä parista kymmenestä
+   * tuhansiin, ja raja tuli täyteen kesken illan: mitattu vauhti oli noin
+   * 18 prosenttiyksikköä tunnissa.
+   *
+   * Vapaa peli on noin neljä viidesosaa kaikista kierroksista, koska sitä
+   * voi pelata putkeen niin monta sarjaa kuin jaksaa. Päivän sarjan saa
+   * kukin kerran. Karsinta osuu siis sinne missä kierroksia on eniten.
+   *
+   * Päivän sarja lähetetään aina, koska se on myös laadukkaampaa aineistoa:
+   * kaikki saavat saman biisin, yhden yrityksen, ja se lasketaan putkeen.
+   * Vapaasta pelistä riittää joka kolmas, koska biisin vaikeus on osuus
+   * eikä summa; otanta hidastaa kertymistä muttei vinouta sitä.
+   *
+   * Kolmasosa on arvio eikä laki. Jos raja tulee silti vastaan, pienennä;
+   * jos tilaa jää, kasvata. */
+  const VAPAA_OTANTA = 3;
+
   function lahetaKierros(k) {
     if (!PALVELIN || !dataLupa()) return;
+    if (k.tila === "free" && Math.floor(Math.random() * VAPAA_OTANTA) !== 0) return;
     const runko = JSON.stringify({
       id: k.id, taso: k.taso, askel: k.askel, osui: k.osui, tila: k.tila,
     });

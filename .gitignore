@@ -6,3 +6,6 @@ puuttuvat-biisit.txt
 .claude/settings.local.json
 .vuodet-musicbrainz.json
 .aanitteet-tarkistus.json
+
+# Äänitasojen mittausvälimuisti: johdettavissa esikuunteluista.
+.aanitasot.json

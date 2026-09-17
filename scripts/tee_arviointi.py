@@ -13,6 +13,7 @@ hakukoneita päästetä indeksoimaan sitä. Se ei näytä mitään, mitä julkin
 songs.json ei jo kertoisi.
 """
 import json
+import math
 import sys
 from collections import Counter
 from pathlib import Path
@@ -23,6 +24,9 @@ OUT = ROOT / "arviointi.html"
 # Muistaa mitkä biisit olivat mukana viime generoinnilla, jotta uudet
 # erottuvat työkalussa eikä niitä tarvitse etsiä käsin.
 TILA = ROOT / ".arviointi-tunnetut.json"
+# Mitatut äänitasot, ks. scripts/mittaa_aanet.py. Vapaaehtoinen: ilman
+# sitä työkalu toimii ennallaan, vain desibelimerkinnät puuttuvat.
+AANET = ROOT / ".aanitasot.json"
 
 TIER_NAMES = {1: "Helppo", 2: "Keskitaso", 3: "Vaikea", 4: "Mestari", 5: "Mahdoton"}
 
@@ -84,8 +88,29 @@ li.is-at { background: var(--lift); box-shadow: inset 3px 0 0 var(--text); }
 li.is-gone { opacity: .35; }
 li.is-gone .name { text-decoration: line-through; }
 
+.soittimet { display: flex; flex-direction: column; gap: 4px; }
 .play { width: 34px; height: 34px; padding: 0; border-radius: 50%; display: grid; place-items: center; }
 .play.is-on { background: var(--t1); border-color: var(--t1); color: #101010; }
+/* Lataus erottuu soitosta. Ilman tätä 0,1 sekunnin pätkällä ei näe eroa
+   siihen että pätkä jo soi ja meni ohi: hitaalla yhteydellä nappi olisi
+   vain hetken päällä eikä kuuluisi mitään. */
+.play.on-lataa { background: var(--soft); border-color: var(--line); color: var(--muted); animation: syke 1s ease-in-out infinite; }
+@keyframes syke { 50% { opacity: .45; } }
+/* Lyhyt pätkä on se mitä pelaaja oikeasti kuulee ensin, joten se on oma
+   nappinsa eikä piilotettu asetus. Pienempi kuin 15 s nappi, koska se on
+   tarkistus eikä se jolla biisi tunnistetaan. */
+.play.lyhyt { height: 26px; font-size: 11px; font-weight: 700; letter-spacing: -.02em; }
+
+/* Mitattu äänitaso. Vain poikkeamat näytetään, jottei rivi täyty luvuista
+   joilla ei tee mitään. */
+.aani {
+  margin-left: 8px; padding: 1px 6px; border-radius: 999px;
+  background: var(--soft); color: var(--muted);
+  font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  vertical-align: 1px; white-space: nowrap;
+}
+.aani.on-varo { background: #3a2f10; color: #f5b32e; }
+.aani.on-vaara { background: #3a1416; color: #ff5f6d; }
 img { width: 44px; height: 44px; border-radius: 3px; object-fit: cover; background: var(--soft); }
 .name { font-weight: 600; letter-spacing: -.01em; }
 .uusi {
@@ -152,7 +177,9 @@ textarea {
     padding: 12px;
     scroll-margin-top: 150px;
   }
-  li > .play { grid-area: play; width: 44px; height: 44px; }
+  li > .soittimet { grid-area: play; }
+  li > .soittimet .play { width: 44px; height: 44px; }
+  li > .soittimet .play.lyhyt { height: 32px; font-size: 12px; }
   li > img { display: none; }        /* kansi vie tilaa jota nimi tarvitsee */
   li > div:not(.bar) { grid-area: teksti; min-width: 0; }
   li > .bar { grid-area: tasot; gap: 6px; }
@@ -184,6 +211,7 @@ textarea {
       <option value="changed">vain muutetut</option>
       <option value="new">vain uudet biisit</option>
       <option value="filler">vain täytebiisit</option>
+      <option value="hiljaiset">vain hiljaiset (alle -10 dB)</option>
     </select>
     <input type="search" id="f-text" placeholder="artisti tai biisi" spellcheck="false">
     <span class="spacer"></span>
@@ -195,6 +223,7 @@ textarea {
 <p class="hint">
   <kbd>1</kbd>–<kbd>5</kbd> antaa tason ja siirtyy seuraavaan &nbsp;·&nbsp;
   <kbd>välilyönti</kbd> soittaa 15 s &nbsp;·&nbsp;
+  <kbd>enter</kbd> soittaa saman 0,1 s pätkän jonka pelaaja saa ensin &nbsp;·&nbsp;
   <kbd>X</kbd> merkitsee poistettavaksi &nbsp;·&nbsp;
   <kbd>↑</kbd><kbd>↓</kbd> liikkuu &nbsp;·&nbsp;
   <kbd>0</kbd> poistaa oman arvion.
@@ -271,22 +300,120 @@ function progress() {
   $("#bar").style.width = (done / SONGS.length * 100) + "%";
 }
 
-/* Yksi soitin koko sivulle: uusi painallus katkaisee edellisen, eikä
-   kahta pätkää voi soida päällekkäin. */
-const audio = new Audio();
-audio.preload = "none";
-let timer = 0, playingId = null;
+/* Soitin, joka aloittaa samasta kohdasta kuin peli.
+ *
+ * Tämä oli ennen pelkkä <audio>, joka aloitti sekunnista 0 ja soitti 15 s.
+ * Peli hyppää hiljaisuuden yli ja soittaa ensin 0,1 sekuntia, joten arvioija
+ * kuuli eri asian kuin pelaaja. Mitattu seuraus: Finlandia Op.26:ssa on
+ * 6,06 sekuntia tasan nollia ja sen jälkeen hidas nousu. 15 sekunnin pätkänä
+ * se kuulosti tavalliselta biisiltä ja sai tason 2, mutta pelin 0,1 sekunnin
+ * pätkä siitä on käytännössä äänetön.
+ *
+ * Aloituskohta lasketaan tismalleen samalla koodilla kuin app.js:ssä. Jos
+ * pelin findAudioStart muuttuu, tämä on muutettava myös.
+ *
+ * Purkuun tarvitaan Web Audio, koska <audio> ei kerro näytteitä. Jos selain
+ * ei pysty purkamaan AAC:tä, palataan <audio>-elementtiin ja aloituskohta
+ * asetetaan currentTimellä: karkeampi mutta parempi kuin ei mitään. Sama
+ * varareitti on pelissä. */
+let ctx = null;
+const puskurit = new Map();
+const alut = new Map();
 
-function play(song, btn) {
+function findAudioStart(buffer) {
+  const data = buffer.getChannelData(0);
+  const sr = buffer.sampleRate;
+  let peak = 0;
+  for (let i = 0; i < data.length; i++) {
+    const v = Math.abs(data[i]);
+    if (v > peak) peak = v;
+  }
+  if (peak < 0.005) return 0;
+  const threshold = Math.max(peak * 0.02, 0.004);
+  const win = Math.max(1, Math.round(sr * 0.01));
+  for (let i = 0; i + win <= data.length; i += win) {
+    let sum = 0;
+    for (let j = i; j < i + win; j++) sum += data[j] * data[j];
+    if (Math.sqrt(sum / win) >= threshold) return Math.max(0, i / sr - 0.03);
+  }
+  return 0;
+}
+
+async function puskuri(song) {
+  if (puskurit.has(song.id)) return puskurit.get(song.id);
+  const res = await fetch(song.preview);
+  const buf = await ctx.decodeAudioData(await res.arrayBuffer());
+  puskurit.set(song.id, buf);
+  alut.set(song.id, findAudioStart(buf));
+  return buf;
+}
+
+/* Aloituskohta: mieluiten selaimessa puretusta äänestä, muuten etukäteen
+   mitattu. Molemmat on laskettu samalla säännöllä (app.js:n findAudioStart),
+   joten ne eivät voi olla eri mieltä kuin pyöristyksen verran. */
+const aloitus = (song) => alut.has(song.id) ? alut.get(song.id) : (song.alku || 0);
+
+const vara = new Audio();
+vara.preload = "none";
+let lahde = null, timer = 0, playingId = null;
+
+function seis() {
   clearTimeout(timer);
-  document.querySelectorAll(".play.is-on").forEach((b) => b.classList.remove("is-on"));
-  if (playingId === song.id) { audio.pause(); playingId = null; return; }
-  audio.src = song.preview;
-  audio.currentTime = 0;
-  audio.play().catch(() => {});
-  playingId = song.id;
-  btn.classList.add("is-on");
-  timer = setTimeout(() => { audio.pause(); btn.classList.remove("is-on"); playingId = null; }, 15000);
+  if (lahde) { try { lahde.stop(); } catch {} lahde = null; }
+  vara.pause();
+  document.querySelectorAll(".play.is-on").forEach((b) => b.classList.remove("is-on", "on-lataa"));
+  playingId = null;
+}
+
+async function play(song, btn, sekunnit) {
+  const sama = playingId === song.id + ":" + sekunnit;
+  seis();
+  if (sama) return;
+  playingId = song.id + ":" + sekunnit;
+  if (btn) { btn.classList.add("is-on"); btn.classList.add("on-lataa"); }
+  ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+  if (ctx.state === "suspended") ctx.resume();
+  try {
+    const buf = await puskuri(song);
+    if (playingId !== song.id + ":" + sekunnit) return;   // ehdittiin painaa muuta
+    if (btn) btn.classList.remove("on-lataa");
+    const alku = aloitus(song);
+    /* Lyhyeen pätkään tarvitaan häivytys, muuten katkaisu naksahtaa.
+       Sama 8 ms kuin pelissä, ja 0,1 sekunnissa se on jo kuultava osa
+       pätkää - juuri siksi tämä on se mitä pelaaja oikeasti saa. */
+    const fade = Math.min(0.008, sekunnit / 4);
+    const g = ctx.createGain();
+    const nyt = ctx.currentTime + 0.02;
+    g.gain.setValueAtTime(0, nyt);
+    g.gain.linearRampToValueAtTime(1, nyt + fade);
+    g.gain.setValueAtTime(1, nyt + sekunnit - fade);
+    g.gain.linearRampToValueAtTime(0, nyt + sekunnit);
+    g.connect(ctx.destination);
+    lahde = ctx.createBufferSource();
+    lahde.buffer = buf;
+    lahde.connect(g);
+    lahde.start(nyt, alku);
+    lahde.stop(nyt + sekunnit + 0.05);
+  } catch (e) {
+    /* Purku ei onnistunut: <audio>-varareitti.
+     *
+     * Aloituskohta otetaan silloin mittausdatasta eikä nollasta. Se on koko
+     * muutoksen ydin: jos varareitti aloittaisi alusta, työkalu palaisi juuri
+     * siihen harhaan josta tässä yritetään eroon, ja hiljaisella biisillä
+     * kuulisi taas pelkkää tyhjää. Pelissä sama varareitti aloittaa nollasta,
+     * koska siellä ei ole mitattua lukua käytettävissä.
+     *
+     * currentTime ennen kuin metadata on ladattu ei aina pure, joten se
+     * asetetaan myös loadedmetadata-tapahtumassa. */
+    if (btn) btn.classList.remove("on-lataa");
+    const alku = aloitus(song);
+    vara.src = song.preview;
+    const aseta = () => { try { vara.currentTime = alku; } catch {} };
+    vara.addEventListener("loadedmetadata", aseta, { once: true });
+    aseta();
+    vara.play().catch(() => {});
+  }
+  timer = setTimeout(seis, sekunnit * 1000 + 120);
 }
 
 function decades() {
@@ -307,9 +434,12 @@ function filtered() {
     if (done === "changed" && (!arvio || arvio === s.tier)) return false;
     if (done === "new" && !s.uusi) return false;
     if (done === "filler" && s.peli !== false) return false;
+    if (done === "hiljaiset" && !(s.db !== null && s.db !== undefined && s.db <= -10)) return false;
     if (q && !(s.artist + " " + s.title).toLowerCase().includes(q)) return false;
     return true;
   });
+  // Hiljaisimmat ensin: ne ovat ne joille pitää tehdä jotain.
+  if (done === "hiljaiset") ulos.sort((a, b) => a.db - b.db);
   /* Täytteitä on satoja, eikä niitä jaksa käydä läpi tiedostojärjestyksessä.
      Vahvin merkki siitä että täyte kuuluisi peliin on se, että artistilla on
      jo paljon pelattavia biisejä: hänet on jo todettu pelin arvoiseksi, ja
@@ -331,10 +461,13 @@ function render() {
       return `<button class="t${cls}" data-t="${t}" data-id="${s.id}" title="${NAMES[t]}">${t}</button>`;
     }).join("");
     return `<li data-id="${s.id}" class="${i === at ? "is-at" : ""}${gone.has(s.id) ? " is-gone" : ""}">
-      <button class="play" data-play="${s.id}" aria-label="Soita">&#9654;</button>
+      <div class="soittimet">
+        <button class="play lyhyt" data-play="${s.id}" data-sek="0.1" title="Sama 0,1 s pätkä jonka pelaaja saa ensin">0,1</button>
+        <button class="play" data-play="${s.id}" data-sek="15" aria-label="Soita 15 s">&#9654;</button>
+      </div>
       <img src="${s.art || ""}" alt="" loading="lazy">
       <div>
-        <div class="name">${esc(s.title)}${s.uusi ? '<span class="uusi">uusi</span>' : ""}</div>
+        <div class="name">${esc(s.title)}${s.uusi ? '<span class="uusi">uusi</span>' : ""}${aaniMerkki(s)}</div>
         <div class="sub">${esc(s.artist)} · ${s.year || "?"} · nyt <b>${NAMES[s.tier]}</b>${
           arvio && arvio !== s.tier ? ` → <b style="color:var(--t${arvio})">${NAMES[arvio]}</b>` : ""}</div>
       </div>
@@ -348,6 +481,31 @@ function render() {
 }
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+/* Äänitaso 0,1 sekunnin pätkästä, desibeleinä katalogin mediaaniin.
+ *
+ * Mitattu etukäteen scripts/mittaa_aanet.py:llä, koska 2280 esikuuntelun
+ * lataaminen puhelimella olisi kaksi gigatavua. Luku on rivillä siksi, että
+ * ongelman näkee listaa selatessa eikä vasta kuuntelemalla jokaisen.
+ *
+ * Rajat: alle -20 dB on käytännössä äänetön pelin lyhimmällä pätkällä,
+ * -10 dB kuuluu mutta jää selvästi muita hiljaisemmaksi. Alle -6 dB ei ole
+ * merkintää, koska normaalikin vaihtelu on sen luokkaa. */
+function aaniMerkki(s) {
+  if (s.db === null || s.db === undefined) return "";
+  const luku = Math.round(s.db);
+  let cls = "";
+  if (luku <= -20) cls = " on-vaara";
+  else if (luku <= -10) cls = " on-varo";
+  else if (luku > -6) return s.hiljaisuus >= 1 ? hiljaisuusMerkki(s) : "";
+  return `<span class="aani${cls}" title="0,1 s pätkä ${luku} dB katalogin mediaanista">${luku} dB</span>`
+       + (s.hiljaisuus >= 1 ? hiljaisuusMerkki(s) : "");
+}
+
+function hiljaisuusMerkki(s) {
+  return `<span class="aani on-varo" title="Esikuuntelun alussa tasan hiljaisuutta; peli hyppää sen yli">`
+       + `${s.hiljaisuus.toFixed(1)} s tyhjää</span>`;
+}
 
 function focusRow(i, scroll = true) {
   if (!shown.length) return;
@@ -373,7 +531,7 @@ list.addEventListener("click", (e) => {
   const li = e.target.closest("li[data-id]");
   if (li) focusRow([...list.children].indexOf(li), false);
   const p = e.target.closest("[data-play]");
-  if (p) { play(SONGS.find((s) => s.id === +p.dataset.play), p); return; }
+  if (p) { play(SONGS.find((s) => s.id === +p.dataset.play), p, +p.dataset.sek); return; }
   const t = e.target.closest(".t");
   if (t) { setTier(+t.dataset.id, +t.dataset.t); return; }
   const d = e.target.closest("[data-del]");
@@ -404,7 +562,10 @@ document.addEventListener("keydown", (e) => {
     if (e.key !== "0") focusRow(at + 1);
   } else if (e.key === " ") {
     e.preventDefault();
-    play(s, list.children[at].querySelector(".play"));
+    play(s, list.children[at].querySelector('[data-sek="15"]'), 15);
+  } else if (e.key === "Enter") {
+    e.preventDefault();
+    play(s, list.children[at].querySelector('[data-sek="0.1"]'), 0.1);
   } else if (e.key.toLowerCase() === "x") {
     e.preventDefault();
     list.children[at].querySelector("[data-del]").click();
@@ -476,6 +637,24 @@ def main() -> int:
     # Montako pelattavaa biisiä artistilla jo on. Täytenäkymä järjestää tämän
     # mukaan: paljon pelattavia = artisti on jo todettu pelin arvoiseksi.
     pelattavia = Counter(s["artist"] for s in songs if s.get("peli") is not False)
+
+    # Mitatut äänitasot, jos scripts/mittaa_aanet.py on ajettu. Vertailukohta
+    # on pelattavien biisien mediaani: "hiljainen" tarkoittaa hiljaista
+    # suhteessa siihen mitä pelaaja muuten kuulee, ei absoluuttista arvoa.
+    tasot = {}
+    if AANET.exists():
+        tasot = {int(k): v for k, v in json.loads(AANET.read_text(encoding="utf-8")).items()
+                 if "virhe" not in v}
+    arvot = sorted(tasot[s["id"]]["p01"] for s in songs
+                   if s.get("peli") is not False and s["id"] in tasot and tasot[s["id"]]["p01"] > 0)
+    mediaani = arvot[len(arvot) // 2] if arvot else 0
+
+    def desibelit(sid):
+        m = tasot.get(sid)
+        if not m or not mediaani or not m["p01"]:
+            return None
+        return round(20 * math.log10(m["p01"] / mediaani), 1)
+
     slim = [{
         "id": s["id"], "artist": s["artist"], "title": s["title"],
         "year": s.get("year"), "tier": s["tier"],
@@ -483,6 +662,9 @@ def main() -> int:
         "peli": s.get("peli", True),
         "uusi": s["id"] not in tunnetut,
         "paino": pelattavia.get(s["artist"], 0),
+        "db": desibelit(s["id"]),
+        "alku": (tasot.get(s["id"]) or {}).get("alku", 0),
+        "hiljaisuus": (tasot.get(s["id"]) or {}).get("hiljaisuus", 0),
     } for s in songs]
     data = json.dumps(slim, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     OUT.write_text(TEMPLATE.replace("__DATA__", data), encoding="utf-8")

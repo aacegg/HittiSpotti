@@ -24078,5 +24078,60 @@
   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/e3/88/36/e3883623-36d0-38f8-f7be-5d9525829a35/mzaf_4139155325556376832.plus.aac.p.m4a",
   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/d2/dc/2f/d2dc2f14-65c0-f392-f07f-726963700be2/artwork.jpg/300x300bb.jpg",
   "itunes": "AikaPoliisi – Herkkukauppa (Bam Tsiki Tsiki) (2021)"
+ },
+ {
+  "artist": "Tupe. & Vepu",
+  "title": "Elli",
+  "year": 2024,
+  "tier": 4,
+  "id": 1730567013,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/12/a8/7c/12a87cdd-4fa5-c214-b177-3fa7226b4e54/mzaf_17039701517242509134.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/5d/b9/11/5db91125-ce97-3b3b-776f-d175f320c0ee/5054197993183.jpg/300x300bb.jpg",
+  "itunes": "Tupe. & Vepu – Elli (2024)",
+  "peli": false
+ },
+ {
+  "artist": "Tupe.",
+  "title": "MTV3",
+  "year": 2023,
+  "tier": 4,
+  "id": 1671836256,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/7d/5b/34/7d5b349a-796c-381c-de39-e20f712b1f92/mzaf_18304793819504817246.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/bf/1c/99/bf1c99af-70e0-1cdd-046b-53f6a2e3cc8e/5054197574511.jpg/300x300bb.jpg",
+  "itunes": "Tupe. – MTV3 (2023)",
+  "peli": false
+ },
+ {
+  "artist": "Asla Jo",
+  "title": "Pussailen tyttöjen kaa",
+  "year": 2025,
+  "tier": 4,
+  "id": 1809169749,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b3/12/3f/b3123f6d-1748-00e9-2b7c-dcf326b03bcf/mzaf_8066174504859023615.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/8c/85/af/8c85af00-f749-17a0-44db-2983618fc0e7/5021732780300.jpg/300x300bb.jpg",
+  "itunes": "Asla Jo – Pussailen tyttöjen kaa (2025)",
+  "peli": false
+ },
+ {
+  "artist": "Vet Pillows",
+  "title": "Rakkauden kesä",
+  "year": 2026,
+  "tier": 4,
+  "id": 6777824613,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/7f/f8/aa/7ff8aae2-15ac-e75a-5143-293d9532290b/mzaf_246695386931095916.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/71/3d/1e/713d1e1b-c932-5582-157f-b6a13d72ad36/artwork.jpg/300x300bb.jpg",
+  "itunes": "Vet Pillows – Rakkauden kesä (2026)",
+  "peli": false
+ },
+ {
+  "artist": "Lyyti",
+  "title": "Mihin voi soittaa?",
+  "year": 2021,
+  "tier": 4,
+  "id": 1565790455,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/9e/8e/4a/9e8e4a3c-f013-b86a-df7e-fb9994b275b1/mzaf_1376600878901627720.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/88/6a/25/886a2538-4cd7-eeb7-5ff7-136cd7543a84/7321170298282.png/300x300bb.jpg",
+  "itunes": "Lyyti – Mihin voi soittaa? (2021)",
+  "peli": false
  }
 ]

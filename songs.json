@@ -24133,5 +24133,38 @@
   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/88/6a/25/886a2538-4cd7-eeb7-5ff7-136cd7543a84/7321170298282.png/300x300bb.jpg",
   "itunes": "Lyyti – Mihin voi soittaa? (2021)",
   "peli": false
+ },
+ {
+  "artist": "Eppu Normaali",
+  "title": "Voi Kuinka Me Sinua Kaivataan",
+  "year": 1985,
+  "tier": 4,
+  "id": 723786873,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/16/91/9b/16919b2d-f5ed-9e07-6b67-579b4c5dd816/mzaf_3869714325598544504.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music4/v4/5b/04/35/5b0435c8-b7be-9ac5-cf51-c1cfe91293b8/00094633541153.jpg/300x300bb.jpg",
+  "itunes": "Eppu Normaali – Voi Kuinka Me Sinua Kaivataan (1985)",
+  "peli": false
+ },
+ {
+  "artist": "Eppu Normaali",
+  "title": "Sydän Tyhjää Lyö",
+  "year": 1990,
+  "tier": 4,
+  "id": 1442607789,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/07/1c/5d/071c5d42-fa92-ecb0-97bd-03fc48aa458f/mzaf_1635373832179334034.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/a1/21/20/a1212002-aa21-db77-049e-7354c76215b1/00602537704248.rgb.jpg/300x300bb.jpg",
+  "itunes": "Eppu Normaali – Sydän Tyhjää Lyö (1990)",
+  "peli": false
+ },
+ {
+  "artist": "Tehosekoitin",
+  "title": "Mun Tähteni",
+  "year": 1996,
+  "tier": 4,
+  "id": 270713393,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/d7/4c/b8/d74cb875-4237-06b1-8a82-ad5f8d29610c/mzaf_2356957626863283345.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/4b/2c/13/mzi.gpegaihd.jpg/300x300bb.jpg",
+  "itunes": "Tehosekoitin – Mun Tähteni (1996)",
+  "peli": false
  }
 ]

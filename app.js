@@ -791,7 +791,50 @@
     return deck(tier, Math.floor(day / n))[((day % n) + n) % n];
   }
 
+  /* Lukitut päivät.
+   *
+   * Pakka on pelkkä katalogin funktio: yhdenkin biisin lisääminen,
+   * poistaminen tai tason vaihtaminen sekoittaa sen tason järjestyksen
+   * kokonaan, eikä vaikutus rajoitu tulevaisuuteen vaan koskee myös
+   * kuluvaa päivää. Se on oikea käytös, koska se pitää sarjan samana
+   * kaikilla ilman palvelinta.
+   *
+   * Päivän biiseistä kuvataan kuitenkin videot etukäteen, ja niiden
+   * julkaisupäivät ovat lyötyjä lukkoon pelin ulkopuolella. Katalogin
+   * päivitys kesken kuvatun jakson tekisi videoista vääriä. Siksi
+   * julkaisemattomat mutta jo kuvatut päivät kiinnitetään tähän
+   * id-luettelona: järjestys on tasojärjestys 1-5, eli sama kuin
+   * TIER_CYCLE antaisi.
+   *
+   * Pelkkä biisin kiinnittäminen ei riitä. Taso ohjaa koko sivun väriä ja
+   * tasopalkin nimeä, joten lukitun päivän biisin taso ei saa muuttua
+   * samassa julkaisussa. Yksi pelidatasta johdettu tasomuutos pidätettiin
+   * tämän takia: Matti ja Teppo - Vauhti kiihtyy (id 1522651576) pysyy
+   * tasolla 2, vaikka data sanoo 1. Se on 18.9. kakkospaikalla. Muutos
+   * kuuluu tehdä kun tämä taulukko poistetaan.
+   *
+   * Tämä ei ole pysyvä rakenne. Kun viimeinen alla oleva päivä on mennyt,
+   * taulukko ei enää tee mitään ja sen voi poistaa sellaisenaan. Tuntematon
+   * tai peliin kuulumaton id ohitetaan ja päivä lasketaan normaalisti,
+   * joten väärä rivi ei voi rikkoa päivää vaan korkeintaan jättää
+   * lukituksen tekemättä. */
+  const LUKITUT = {
+    "2026-09-17": [209285022, 1392974769, 723817717, 1442626023, 1580370681],
+    "2026-09-18": [307823569, 1522651576, 1166823835, 1178935690, 654974316],
+    "2026-09-19": [329146131, 1565598460, 1041903663, 1798232918, 713547026],
+    "2026-09-20": [716186675, 267022867, 1516626959, 847881102, 1442640791],
+  };
+
+  function lukittu(key) {
+    const idt = LUKITUT[key];
+    if (!idt) return null;
+    const biisit = idt.map((id) => state.pool.find((s) => s.id === id));
+    return biisit.every(Boolean) ? biisit : null;
+  }
+
   function dailySongs(key) {
+    const kiinni = lukittu(key);
+    if (kiinni) return kiinni;
     const day = dayIndex(key);
     const picked = [];
     for (const tier of TIER_CYCLE) {

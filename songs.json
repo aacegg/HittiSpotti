@@ -24166,5 +24166,38 @@
   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/4b/2c/13/mzi.gpegaihd.jpg/300x300bb.jpg",
   "itunes": "Tehosekoitin – Mun Tähteni (1996)",
   "peli": false
+ },
+ {
+  "artist": "Isac Elliot",
+  "title": "Kompastun (feat. Costi)",
+  "year": 2023,
+  "tier": 4,
+  "id": 1687637373,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/75/51/d9/7551d96a-43ba-2420-b748-293651c2c5d2/mzaf_8623271630208849455.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/76/35/9e/76359e1f-3340-d1e2-8c4f-8523ca949328/23UMGIM54040.rgb.jpg/300x300bb.jpg",
+  "itunes": "Isac Elliot – Kompastun (feat. Costi) (2023)",
+  "peli": false
+ },
+ {
+  "artist": "Costi",
+  "title": "Piranha (feat. Averagekidluke)",
+  "year": 2025,
+  "tier": 4,
+  "id": 1802263146,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/01/9e/39/019e39de-8fbf-679c-0b62-1b694f779179/mzaf_14792038572368913195.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/46/64/6a/46646add-1d82-625c-ec03-e83eb781c5e6/5034644548968.jpg/300x300bb.jpg",
+  "itunes": "Costi – Piranha (feat. Averagekidluke) (2025)",
+  "peli": false
+ },
+ {
+  "artist": "Costi",
+  "title": "Robben",
+  "year": 2021,
+  "tier": 4,
+  "id": 1802738303,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/7a/f7/26/7af7264c-6fca-b4d6-f355-e8da3499ed68/mzaf_17578744634327696306.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/c4/e5/76/c4e57670-aa9b-fb15-388a-f2331dae2ae1/6430068442223.png/300x300bb.jpg",
+  "itunes": "Costi – Robben (2021)",
+  "peli": false
  }
 ]

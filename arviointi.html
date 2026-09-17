@@ -35,6 +35,20 @@ input[type=search] { min-width: 190px; cursor: text; }
 button:hover { border-color: var(--muted); }
 .spacer { flex: 1; }
 
+/* Äänenvoimakkuus. Oma rivinsä, koska suodatinrivi on jo täynnä ja tätä
+   säädetään kesken kuuntelun eikä sen pidä hypätä paikasta toiseen. */
+#aani-rivi { margin-top: 7px; gap: 10px; }
+#aani-rivi label { color: var(--muted); font-size: 12.5px; white-space: nowrap; }
+#aani { flex: 1; min-width: 120px; padding: 0; accent-color: var(--t1); cursor: pointer; }
+#aani-arvo {
+  color: var(--muted); font-size: 12.5px; font-variant-numeric: tabular-nums;
+  min-width: 48px; text-align: right;
+}
+/* Yli sata prosenttia on vahvistusta: kova biisi särkyy. Väri kertoo sen,
+   jottei luule kuulevansa sitä mitä pelaaja kuulee. */
+#aani-rivi.on-yli #aani { accent-color: var(--t3); }
+#aani-rivi.on-yli #aani-arvo { color: var(--t3); }
+
 .progress { height: 3px; background: var(--soft); margin: 10px -16px -10px; }
 .progress i { display: block; height: 100%; background: var(--t1); width: 0; transition: width .2s; }
 
@@ -185,6 +199,12 @@ textarea {
     <span class="spacer"></span>
     <button id="export">Vie arviot</button>
   </div>
+  <div class="bar" id="aani-rivi">
+    <label for="aani">Äänenvoimakkuus</label>
+    <input type="range" id="aani" min="0" max="400" step="5" value="100"
+           aria-label="Äänenvoimakkuus">
+    <output id="aani-arvo">100 %</output>
+  </div>
   <div class="progress"><i id="bar"></i></div>
 </header>
 
@@ -288,6 +308,24 @@ let ctx = null;
 const puskurit = new Map();
 const alut = new Map();
 
+/* Äänenvoimakkuus. Erillinen master-gain, jonka läpi jokainen pätkä menee.
+ *
+ * Tarpeen koska katalogin hiljaisin biisi on 30 dB mediaanin alapuolella:
+ * puhelimen oma säädin on jo täysillä eikä sitä kuule. Yli sadan prosentin
+ * arvot ovat siksi sallittuja.
+ *
+ * Nämä eivät ole sama asia: säädin muuttaa sitä mitä SINÄ kuulet, ei sitä
+ * mitä pelaaja kuulee. Rivin desibeliluku kertoo pelaajan tilanteen ja se
+ * ei liiku säätimen mukana. Yli sadassa prosentissa kova biisi särkyy,
+ * mikä on hinta siitä että hiljaisen ylipäätään erottaa. */
+const AANI_KEY = "hittispotti-arviointi:aani";
+let master = null;
+let aani = 1;
+try {
+  const t = parseFloat(localStorage.getItem(AANI_KEY));
+  if (t > 0 && t <= 4) aani = t;
+} catch { /* yksityinen ikkuna: oletus kelpaa */ }
+
 function findAudioStart(buffer) {
   const data = buffer.getChannelData(0);
   const sr = buffer.sampleRate;
@@ -320,6 +358,31 @@ async function puskuri(song) {
    mitattu. Molemmat on laskettu samalla säännöllä (app.js:n findAudioStart),
    joten ne eivät voi olla eri mieltä kuin pyöristyksen verran. */
 const aloitus = (song) => alut.has(song.id) ? alut.get(song.id) : (song.alku || 0);
+
+function masterGain() {
+  if (!master || master.context !== ctx) {
+    master = ctx.createGain();
+    master.connect(ctx.destination);
+  }
+  master.gain.value = aani;
+  return master;
+}
+
+function asetaAani(arvo) {
+  aani = Math.max(0, Math.min(4, arvo));
+  if (master) {
+    // Liu'utetaan lyhyesti: hyppy kesken pätkän naksahtaisi.
+    master.gain.cancelScheduledValues(ctx.currentTime);
+    master.gain.setTargetAtTime(aani, ctx.currentTime, 0.015);
+  }
+  // <audio> ei osaa yli sataa prosenttia, joten varareitti leikkaantuu siihen.
+  vara.volume = Math.min(1, aani);
+  const n = Math.round(aani * 100);
+  $("#aani-arvo").textContent = n + " %";
+  $("#aani").setAttribute("aria-valuetext", n + " prosenttia");
+  $("#aani-rivi").classList.toggle("on-yli", aani > 1);
+  try { localStorage.setItem(AANI_KEY, String(aani)); } catch { /* ei pakollinen */ }
+}
 
 const vara = new Audio();
 vara.preload = "none";
@@ -356,7 +419,7 @@ async function play(song, btn, sekunnit) {
     g.gain.linearRampToValueAtTime(1, nyt + fade);
     g.gain.setValueAtTime(1, nyt + sekunnit - fade);
     g.gain.linearRampToValueAtTime(0, nyt + sekunnit);
-    g.connect(ctx.destination);
+    g.connect(masterGain());
     lahde = ctx.createBufferSource();
     lahde.buffer = buf;
     lahde.connect(g);
@@ -544,6 +607,10 @@ document.addEventListener("keydown", (e) => {
 
 ["f-tier", "f-decade", "f-done", "f-text"].forEach((id) =>
   $("#" + id).addEventListener("input", () => { at = 0; render(); }));
+
+$("#aani").value = String(Math.round(aani * 100));
+$("#aani").addEventListener("input", (e) => asetaAani(+e.target.value / 100));
+asetaAani(aani);   // näyttää tallennetun arvon ja asettaa varasoittimen
 
 /* Vienti antaa vain sen, mikä poikkeaa katalogin nykytilasta: jo sovelletut
    arviot ja poistot jäävät pois, jotta liitettävä pala pysyy pienenä ja

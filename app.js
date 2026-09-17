@@ -753,6 +753,7 @@
     const valmis = deckCache.get(avain);
     if (valmis) return valmis;
     const order = tierOrder(tierList(tier), tier, cycle).slice();
+    karanteeni(order, cycle);
     deckCache.set(avain, order);
     if (tier === TIER_CYCLE[0]) return order;   // ylin taso ei väisty
     const n = order.length;
@@ -830,6 +831,48 @@
     if (!idt) return null;
     const biisit = idt.map((id) => state.pool.find((s) => s.id === id));
     return biisit.every(Boolean) ? biisit : null;
+  }
+
+  /* Lukituksen karanteeni.
+   *
+   * Lukitus vaihtaa päivän biisit mutta ei kerro pakalle mitään, joten
+   * lukittu biisi on yhä omalla paikallaan uudessa pakassa. Ilman tätä se
+   * voi palata heti kun lukitus loppuu: mitattuna Apulannan Valot
+   * pimeyksien reunoilla olisi tullut uudestaan neljän päivän päästä.
+   * Pelin oma lupaus on, ettei biisi palaa ennen kuin koko taso on käyty
+   * läpi, eli aikaisintaan satojen päivien päästä.
+   *
+   * Siksi lukitut biisit siirretään pakan sisällä pois ikkunasta, joka
+   * ulottuu KARANTEENI_PV päivää viimeisen lukitun päivän yli. Siirto on
+   * vaihto kuten artistitörmäyksissäkin eikä ohitus, joten jokainen biisi
+   * jaetaan yhä täsmälleen kerran kierroksessa. Jos vaihtoparia ei löydy,
+   * biisi jää paikalleen: lopputulos on silloin sama kuin ilman
+   * karanteenia eikä päivä voi jäädä tyhjäksi.
+   *
+   * Ajetaan ennen artistitörmäysten korjausta, jotta se ehtii siivota
+   * vaihdon mahdollisesti tuomat törmäykset. Poistetaan yhdessä
+   * LUKITUT-taulukon kanssa. */
+  const KARANTEENI_PV = 120;
+  const KARANTEENI_IDT = new Set(Object.values(LUKITUT).flat());
+  const KARANTEENI_ALKU = Math.min(...Object.keys(LUKITUT).map(dayIndex));
+  const KARANTEENI_LOPPU = Math.max(...Object.keys(LUKITUT).map(dayIndex)) + KARANTEENI_PV;
+
+  function karanteeni(order, cycle) {
+    if (!KARANTEENI_IDT.size) return;
+    const n = order.length;
+    for (let pos = 0; pos < n; pos++) {
+      const day = cycle * n + pos;
+      if (day > KARANTEENI_LOPPU) break;   // paikat ovat päiväjärjestyksessä
+      if (day < KARANTEENI_ALKU) continue; // menneet päivät jätetään rauhaan
+      if (!KARANTEENI_IDT.has(order[pos].id)) continue;
+      for (let askel = 1; askel < n; askel++) {
+        const j = (pos + askel) % n;
+        if (cycle * n + j <= KARANTEENI_LOPPU) continue;
+        if (KARANTEENI_IDT.has(order[j].id)) continue;
+        [order[pos], order[j]] = [order[j], order[pos]];
+        break;
+      }
+    }
   }
 
   function dailySongs(key) {

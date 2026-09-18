@@ -93,16 +93,25 @@
     const tallessa = store.get("kaudet", []);
     if (!Array.isArray(tallessa)) return;
     state.kaudet = KAUDET.filter((k) => tallessa.includes(k.avain)).map((k) => k.avain);
+    /* Tallennettu valinta ei ole "odottava muutos" vaan lähtötilanne.
+     * Ilman tätä palaavalle pelaajalle, joka jätti eilen 50-80-luvun pois,
+     * olisi kehote valikossa heti avattaessa vaikka hän ei ole koskenut
+     * mihinkään. */
+    state.sarjanKaudet = valitutKaudet().map((k) => k.avain);
   }
 
-  /* Odottaako valinta aloitusta: ollaan vapaassa sarjassa ja nappeja on
-   * painettu sen jälkeen kun sarja koottiin.
+  /* Odottaako valinta aloitusta: nappeja on painettu sen jälkeen kun
+   * sarjanKaudet viimeksi asetettiin.
+   *
+   * Ei rajattu vapaaseen sarjaan. Nappeja painellaan myös päivän pelin
+   * päällä, ja silloin ei tapahdu vielä vähempää kuin kesken vapaan sarjan:
+   * päivän biisit eivät voi vaihtua vuosikymmenestä, joten ilman kehotetta
+   * ainoa muuttuva asia on napin oma väri.
    *
    * Vertailu tehdään valitutKaudet():n läpi, jotta tyhjä ja täysi valinta
    * ovat sama asia myös tässä. Muuten viidennen napin painaminen kesken
    * koko katalogin sarjan olisi "muutos", vaikka biisijoukko on sama. */
   function kaudetOdottavat() {
-    if (state.mode !== "free" || state.view !== "game") return false;
     return valitutKaudet().map((k) => k.avain).join() !== state.sarjanKaudet.join();
   }
   const STORE = "hittispotti:";
@@ -231,6 +240,7 @@
     navFreeNote: $("#nav-free-note"),
     freeReset: $("#free-reset"),
     kaudetAloita: $("#kaudet-aloita"),
+    kaudetAloitaNimi: $("#kaudet-aloita .navitem-name"),
     bar: document.querySelector(".bar"),
     barTag: $("#bar-tag"),
     loadingText: $("#loading-text"),
@@ -593,15 +603,30 @@
        testissä huomaamatta. Kehote on lisäksi aina valikossa nappien alla,
        kun taas "Aloita peli alusta" siirtyy leveällä ruudulla oikeaan
        kiskoon, eli ruudun toiselle laidalle kuin napit joita painettiin. */
-    const kaudetKesken = kaudetOdottavat();
+    const vapaassaSarjassa = state.mode === "free" && state.view === "game";
+    const rajaus = kausiNimi();
+    /* Tyhjä valinta päivän pelin päällä ei tarvitse kehotetta: "Vapaa peli"
+       -rivi suoraan yläpuolella tekee jo täsmälleen sen mitä kehote
+       tekisi, ja sen alateksti lukee "viisi satunnaista biisiä". Kesken
+       vapaan sarjan kehote tarvitaan silloinkin, koska rajauksen
+       poistaminen on sekin muutos joka odottaa aloitusta. */
+    const kaudetKesken = kaudetOdottavat() && (vapaassaSarjassa || Boolean(rajaus));
     el.kaudetAloita.hidden = !kaudetKesken;
-    el.freeReset.hidden = !(state.mode === "free" && state.view === "game") || kaudetKesken;
+    el.kaudetAloitaNimi.textContent = vapaassaSarjassa
+      ? (rajaus ? "Aloita uusi sarja valituilla" : "Aloita uusi sarja kaikilla vuosikymmenillä")
+      : "Aloita vapaa peli valituilla";
+    el.freeReset.hidden = !vapaassaSarjassa || kaudetKesken;
     /* "Vapaa peli" on valittuna aina kun vapaa sarja on käynnissä, myös
        rajattuna. Aiemmin rajaus vei korostuksen kausinapille, koska nappi
        oli itsessään pelin aloitus. Nyt napit ovat suodatin ja rivi on
        aloitus, joten ne kertovat kahta eri asiaa eivätkä kilpaile. */
     document.querySelectorAll("[data-go]").forEach((b) => {
-      const isMode = b.dataset.go === "daily" || b.dataset.go === "free";
+      /* Apurivit rajataan pois vaikka niillä olisi sama kohde. Kehotteen
+         kohde on "free", mutta se on toiminto eikä pelimuoto: is-active
+         tarkoittaa "tässä sinä olet", ja kehotteeseen osuessaan se
+         väittäisi sivun olevan rivillä joka kertoo mitä tehdä seuraavaksi. */
+      const isMode = (b.dataset.go === "daily" || b.dataset.go === "free")
+        && !b.classList.contains("navitem-sub");
       if (isMode) {
         b.classList.toggle("is-active",
           state.view === "game" && state.mode === b.dataset.go);
@@ -620,7 +645,6 @@
     /* Alateksti on ainoa paikka joka kertoo ennen aloitusta mitä napeista
        seuraa. Ilman sitä valinta näkyisi vasta pelin otsikossa, eli vasta
        kun sarja on jo alkanut ja edellinen menetetty. */
-    const rajaus = kausiNimi();
     el.navFreeNote.textContent = rajaus
       ? `viisi satunnaista biisiä · ${rajaus.toLowerCase()}`
       : "viisi satunnaista biisiä";

@@ -108,9 +108,16 @@
            alkaessa: napin painaminen kesken sarjan ei voi vaihtaa jo
            arvottuja biisejä. Ilman tätä riviä mikään ei kerro sitä, ja
            testissä kävi juuri niin että nappeja painettiin ja ihmeteltiin
-           miksi biisit eivät vaihdu. -->
-      <button type="button" class="navitem navitem-sub navitem-kehote" id="kaudet-aloita" data-go="refree" hidden>
-        <span class="navitem-name">Aloita uusi sarja valituilla</span>
+           miksi biisit eivät vaihdu. Sama koskee päivän peliä: sielläkään
+           napin painaminen ei voi vaihtaa biisejä, koska päivän viisi ovat
+           kaikille samat.
+
+           Kohde on "free" eikä "refree", jotta tämä toimii kummastakin
+           tilanteesta: päivän pelistä se aloittaa vapaan pelin, ja kesken
+           vapaan sarjan se kysyy ensin menetettävistä pisteistä. Teksti
+           vaihtuu tilanteen mukaan, ks. refreshDrawer. -->
+      <button type="button" class="navitem navitem-sub navitem-kehote" id="kaudet-aloita" data-go="free" hidden>
+        <span class="navitem-name">Aloita vapaa peli valituilla</span>
       </button>
 
       <!-- Yksi teksti, ei nimeä ja selitettä. Rivillä luki ennen "Uusi sarja"

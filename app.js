@@ -208,7 +208,18 @@
    * 50-80-luku on nimeltä eikä "yhden vuosikymmenen", koska se on se jota
    * oikeasti pyydettiin, ja esimerkki opettaa ominaisuuden kerralla. */
   const UUTTA = {
-    id: "2026-09-19",
+    /* Tunnus vaihdettu b-kirjaimella, vaikka sisältö on sama.
+     *
+     * Ensimmäisessä julkaisussa tiedote merkittiin nähdyksi näytettäessä, ja
+     * service workerin vaihtuminen latasi sivun sekuntia myöhemmin. Jokainen
+     * sinä aikana käynyt on siis merkitty nähneeksi lukematta yhtään riviä.
+     * Vanhalla tunnuksella he eivät näkisi tätä enää koskaan.
+     *
+     * Vaihto näyttää tiedotteen toistamiseen niille harvoille jotka ehtivät
+     * sen oikeasti lukea, eli niille joilla ei ollut service workeria
+     * lainkaan. Se on pienempi haitta kuin se että ominaisuus jää kertomatta
+     * niille joilta se vietiin alta. */
+    id: "2026-09-19b",
     kohdat: [
       "<b>Valitse useampi vuosikymmen kerralla</b> vapaassa pelissä, tai jätä vaikka 50-80-luku pois",
       "<b>143 uutta biisiä</b>, nyt yhteensä 1 690",
@@ -2459,13 +2470,13 @@
 
   function naytaUutta(palaava) {
     if (!UUTTA || store.get("uutta:nahty", null) === UUTTA.id) return;
-    /* Merkitään nähdyksi myös silloin kun sitä ei näytetä. Uusi pelaaja ei
-     * saa törmätä tähän myöhemminkään: tiedote kertoo mikä muuttui, ja
-     * hänelle ei muuttunut mikään. */
-    store.set("uutta:nahty", UUTTA.id);
-    if (!palaava) return;
-    // Jos katalogin lataus kaatui, ruudulla on virheilmoitus. Tiedote sen
-    // päällä olisi väärä asia väärään aikaan.
+    /* Uusi pelaaja: ei näytetä, ja merkitään heti nähdyksi jottei se tule
+     * vastaan myöhemminkään. Tiedote kertoo mikä muuttui, ja hänelle ei
+     * muuttunut mikään. */
+    if (!palaava) { store.set("uutta:nahty", UUTTA.id); return; }
+    /* Jos katalogin lataus kaatui, ruudulla on virheilmoitus. Tiedote sen
+     * päällä olisi väärä asia väärään aikaan. Ei merkitä nähdyksi:
+     * yritetään uudestaan seuraavalla kerralla. */
     if (state.view !== "game" && state.view !== "results") return;
     el.uuttaLista.innerHTML = UUTTA.kohdat.map((k) => `<li>${k}</li>`).join("");
     el.uuttaScrim.hidden = false;
@@ -2474,7 +2485,20 @@
     el.uuttaSheet.focus({ preventScroll: true });
   }
 
+  /* Nähdyksi vasta suljettaessa, ei näytettäessä.
+   *
+   * Näytettäessä merkitseminen hävisi ensimmäisessä julkaisussa kokonaan:
+   * sivupyyntö on verkko ensin, joten palaava pelaaja sai uuden app.js:n
+   * heti, ja tiedote ehti näkyä. Sivua ohjasi silti vielä vanha service
+   * worker, ja kun uusi otti ohjat, controllerchange latasi sivun
+   * uudestaan. Merkintä oli jo tehty, joten tiedote välähti ruudulla
+   * sekunnin ja katosi lopullisesti.
+   *
+   * Nyt mikä tahansa uudelleenlataus vain näyttää sen uudestaan. Jos
+   * pelaaja sulkee välilehden lukematta, hän saa sen vielä kerran, ja se on
+   * parempi suunta kuin kokonaan näkemättä jääminen. */
   function suljeUutta() {
+    if (UUTTA) store.set("uutta:nahty", UUTTA.id);
     el.uuttaSheet.hidden = true;
     el.uuttaScrim.hidden = true;
     el.body.classList.remove("sheet-open");
@@ -3210,9 +3234,18 @@
   let latausOdottaa = false;
 
   function lataaUudelleen() {
-    // Kesken olevaa vapaata sarjaa ei viedä alta. Lataus tehdään heti kun se
-    // on ohi; tarkistus toistuu minuutin välein.
-    if (freeStarted()) { latausOdottaa = true; return; }
+    /* Kesken olevaa vapaata sarjaa ei viedä alta. Lataus tehdään heti kun se
+     * on ohi; tarkistus toistuu minuutin välein.
+     *
+     * Sama koskee auki olevaa ruutua. Verkko ensin -navigoinnin takia uusi
+     * versio on sivulla jo ennen kuin uusi service worker ottaa ohjat, eli
+     * Mitä uutta ehti näkyä sekunnin ennen kuin controllerchange latasi
+     * sivun alta pois. Luettavana oleva teksti ei saa kadota kesken
+     * lauseen, ja lataus odottaa siihen asti kun ruutu suljetaan. */
+    if (freeStarted() || el.body.classList.contains("sheet-open")) {
+      latausOdottaa = true;
+      return;
+    }
     location.reload();
   }
 

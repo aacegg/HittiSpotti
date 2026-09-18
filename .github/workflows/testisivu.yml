@@ -1,0 +1,141 @@
+# Julkaisee kehityshaaran omaan testiosoitteeseensa.
+#
+# Erillinen Worker, erillinen osoite, erillinen kaikki. Tämä ei voi koskea
+# tuotantoon: liipaisin on rajattu claude/-haaroihin, eli mainiin
+# työntäminen ei aja tätä, ja julkaise.yml puolestaan ajetaan vain
+# mainista. Nimi tarkistetaan vielä ennen julkaisua, ks. alempana.
+#
+# Testisivu ei saa sotkea oikean pelin lukuja. Siksi siitä riisutaan kaksi
+# asiaa, molemmat siinä kopiossa joka julkaistaan eikä haarassa:
+#
+#   - kävijälaskuri, jottei testiklikkailu näy GoatCounterissa
+#   - tilastopalvelimen osoite, jottei testipelaaminen mene siihen
+#     pelidataan josta vaikeustasot johdetaan
+#
+# Käyttää samoja salaisuuksia kuin julkaise.yml.
+name: Testisivu
+
+on:
+  push:
+    branches: ["claude/**"]
+  workflow_dispatch:
+
+concurrency:
+  group: testisivu
+  cancel-in-progress: true
+
+jobs:
+  testisivu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Kokoa julkaistava hakemisto
+        # Sama kokoaminen kuin julkaise.yml:ssä: git archive eli allowlist,
+        # koska wrangler julkaisee työhakemiston eikä gitin sisältöä.
+        run: |
+          mkdir dist
+          git archive HEAD | tar -x -C dist
+          python3 - <<'PY'
+          import shutil, sys
+          from pathlib import Path
+          import re
+
+          teksti = Path("_config.yml").read_text(encoding="utf-8")
+          poista = re.findall(r"^\s*-\s+(\S+)\s*$", teksti, flags=re.M)
+          poista.append("CNAME")
+
+          for nimi in poista:
+              kohde = Path("dist") / nimi.rstrip("/")
+              if kohde.is_dir():
+                  shutil.rmtree(kohde)
+              elif kohde.exists():
+                  kohde.unlink()
+
+          for kohde in sorted(Path("dist").rglob("*"), key=lambda p: -len(p.parts)):
+              if kohde.name.startswith((".", "_")):
+                  shutil.rmtree(kohde) if kohde.is_dir() else kohde.unlink()
+
+          tiedostot = [p for p in Path("dist").rglob("*") if p.is_file()]
+          print(f"dist/: {len(tiedostot)} tiedostoa")
+          iso = [p for p in tiedostot if p.stat().st_size > 25 * 1024 * 1024]
+          if iso:
+              print("Yli 25 MiB, Cloudflare hylkäisi:", *iso, sep="\n  ")
+              sys.exit(1)
+          PY
+
+      - name: Irrota testisivu tilastoinnista
+        env:
+          SHA: ${{ github.sha }}
+        run: |
+          python3 - <<'PY'
+          import os, re, sys
+          from pathlib import Path
+
+          index = Path("dist/index.html")
+          teksti = index.read_text(encoding="utf-8")
+
+          # Kävijälaskuri pois. Skripti on kahdella rivillä, joten haku
+          # ulottuu rivin yli.
+          teksti, n = re.subn(
+              r"\s*<script data-goatcounter=.*?</script>", "", teksti, flags=re.S)
+          if n != 1:
+              sys.exit(f"goatcounter-skriptiä ei löytynyt kertaalleen vaan {n} kertaa")
+          index.write_text(teksti, encoding="utf-8")
+
+          # Tilastopalvelimen osoite tyhjäksi. Peli on kirjoitettu tätä
+          # varten: jokainen lähetys ja haku on ehdon "!PALVELIN" takana,
+          # koska osoite oli tyhjä siihen asti kunnes palvelin julkaistiin.
+          app = Path("dist/app.js")
+          teksti = app.read_text(encoding="utf-8")
+          teksti, n = re.subn(
+              r'const PALVELIN = "[^"]*";', 'const PALVELIN = "";', teksti)
+          if n != 1:
+              sys.exit(f"PALVELIN-vakiota ei löytynyt kertaalleen vaan {n} kertaa")
+          app.write_text(teksti, encoding="utf-8")
+
+          # Oma versioleima commitista. Ilman tätä testisivun service worker
+          # tarjoaisi edellisen ajon tiedostot, koska versionumero ei muutu
+          # haaran sisällä ja se on juuri se avain jolla välimuisti erotellaan.
+          leima = "t" + os.environ["SHA"][:7]
+          for nimi in ("index.html", "sw.js"):
+              p = Path("dist") / nimi
+              t = p.read_text(encoding="utf-8")
+              t = re.sub(r"v=(\d+)", lambda m: f"v={m.group(1)}{leima}", t)
+              t = re.sub(r"hittispotti-v(\d+)", lambda m: f"hittispotti-v{m.group(1)}{leima}", t)
+              p.write_text(t, encoding="utf-8")
+          print("versioleima:", leima)
+
+          # Hakukoneet pois. _headers-tiedostot kirjoitetaan vasta nyt,
+          # koska kokoamisvaihe poistaa alaviivalla alkavat.
+          Path("dist/_headers").write_text("/*\n  X-Robots-Tag: noindex, nofollow\n", encoding="utf-8")
+          Path("dist/robots.txt").write_text("User-agent: *\nDisallow: /\n", encoding="utf-8")
+          PY
+
+      - name: Tee testiasetukset
+        # Nimi vaihdetaan tuotantoasetuksista eikä ylläpidetä toista
+        # tiedostoa, jotta assets-asetukset eivät pääse eroamaan. Tulos
+        # tarkistetaan: jos nimi ei vaihtunut, julkaisu menisi tuotannon
+        # päälle, ja silloin on parempi kaatua.
+        run: |
+          python3 - <<'PY'
+          import re, sys
+          from pathlib import Path
+
+          teksti = Path("wrangler.jsonc").read_text(encoding="utf-8")
+          teksti, n = re.subn(r'"name":\s*"hittispotti"', '"name": "hittispotti-testi"', teksti)
+          if n != 1:
+              sys.exit(f"nimeä ei vaihdettu kertaalleen vaan {n} kertaa")
+          if '"name": "hittispotti-testi"' not in teksti:
+              sys.exit("nimi ei ole hittispotti-testi, ei julkaista")
+          Path("wrangler.testi.jsonc").write_text(teksti, encoding="utf-8")
+          print("julkaistaan Workeriin hittispotti-testi")
+          PY
+
+      - name: Julkaise testisivu
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4"
+          command: deploy --config wrangler.testi.jsonc

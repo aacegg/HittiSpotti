@@ -859,7 +859,16 @@ body[data-mode="free"] .bar-tag b { color: var(--live); }
 body[data-mode="free"] #results-title { color: var(--vapaa); }
 .bar-tag b { font-weight: 600; }
 
+/* Pistelukema on yksi kappale, ei kaksi sanaa.
+   Ilman näitä se on flex-lapsi jonka saa kutistaa pisimmän sanansa
+   levyiseksi, eli "850 p" katkesi riville "850" ja riville "p". Sen huomasi
+   vasta kun vapaalle pelille tuli pisin mahdollinen nimi "1950–80-, 1990- ja
+   2000-luku": lyhyemmillä otsikoilla tilaa oli aina riittävästi. Pisteet
+   eivät kutistu eivätkä katkea, ja kutistuminen osuu otsikkoon, joka saa
+   kiertyä toiselle riville (.mode on flex-wrap: wrap). */
 .meta-score {
+  flex: none;
+  white-space: nowrap;
   font-family: var(--display);
   font-size: var(--f4);
   font-weight: 700;

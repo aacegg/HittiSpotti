@@ -192,14 +192,17 @@
    * id on avain jolla nähdyksi merkitseminen tehdään. Vaihda se aina kun
    * kirjoitat uuden tiedotteen, muuten vanhan nähneet eivät näe uutta.
    *
-   * Tärkein kohta on viimeisenä. Vuosikymmenten monivalintaa ei löydä itse:
-   * napit näyttävät ulospäin täsmälleen samalta kuin ennenkin. */
+   * Tärkein kohta on ensimmäisenä. Tiedote silmäillään ylhäältä alas ja
+   * suljetaan, eikä viimeistä riviä lue kaikki. Ensimmäisenä on siksi se
+   * jota ei löydä itse: vuosikymmenten monivalinta, koska napit näyttävät
+   * ulospäin täsmälleen samalta kuin ennenkin. Biisimäärän huomaa
+   * pelaamalla, vaikeustasot huomaa pelaamalla, tämän ei. */
   const UUTTA = {
     id: "2026-09-19",
     kohdat: [
+      "Vapaassa pelissä voit nyt valita <b>monta vuosikymmentä</b> kerralla, tai jättää yhden pois",
       "<b>143 uutta biisiä</b>, nyt yhteensä 1 690",
       "<b>175 biisin</b> vaikeustaso korjattu pelidatan perusteella",
-      "Vapaassa pelissä voit nyt valita <b>monta vuosikymmentä</b> kerralla, tai jättää yhden pois",
     ],
   };
 
@@ -2458,7 +2461,7 @@
     el.uuttaScrim.hidden = false;
     el.uuttaSheet.hidden = false;
     el.body.classList.add("sheet-open");
-    el.uuttaOk.focus({ preventScroll: true });
+    el.uuttaSheet.focus({ preventScroll: true });
   }
 
   function suljeUutta() {

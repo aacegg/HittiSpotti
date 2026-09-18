@@ -538,7 +538,11 @@
        uutta. Sisältö tulee skriptistä, jotta tiedotteen kirjoittaminen ei
        vaadi merkkauksen koskemista. -->
   <div class="sheet-scrim" id="uutta-scrim" hidden></div>
-  <aside class="sheet" id="uutta-sheet" hidden role="dialog" aria-modal="true" aria-labelledby="uutta-title">
+  <!-- tabindex="-1": kohdistus siirretään ruutuun itseensä eikä nappiin.
+       Nappiin siirrettynä se piirsi kohdistusrenkaan heti avattaessa, mikä
+       näytti siltä että jotain on valittuna. Ruudulla rengasta ei piirretä,
+       mutta ruudunlukija siirtyy silti tähän eikä jää taustalle. -->
+  <aside class="sheet sheet-keski" id="uutta-sheet" hidden tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="uutta-title">
     <div class="sheet-head">
       <h2 class="sheet-title" id="uutta-title">Mitä uutta</h2>
       <button type="button" class="iconbtn" id="uutta-close" aria-label="Sulje">✕</button>

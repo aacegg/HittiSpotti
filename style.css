@@ -1607,6 +1607,31 @@ body.sheet-open { overflow: hidden; }
   background: var(--bg-lift);
 }
 .sheet[hidden] { display: none; }
+/* Ruutu saa kohdistuksen avattaessa, jotta ruudunlukija siirtyy siihen eikä
+   jää taustalle. Rengasta ei silti piirretä: ruutu on laatikko eikä
+   painettava asia, ja reunaa kiertävä rengas näytti virheeltä. Sisällä
+   olevat napit pitävät omat :focus-visible-renkaansa. */
+.sheet:focus { outline: none; }
+
+/* Keskelle ruutua, ei alalaitaan.
+   Jakoruutu ja asennusohje nousevat alhaalta, koska ne ovat vastauksia
+   painallukseen ja jatkavat siitä mihin peukalo jäi. Tiedote ei ole vastaus
+   mihinkään: se tulee itsestään sivun auetessa, eikä silloin ole mitään
+   kohtaa jonka vierestä sen pitäisi nousta. Leveys on rajattu, koska
+   tietokoneen ruudulla koko leveydelle venytetty laatikko olisi pelkkä
+   palkki eikä luettava kappale. */
+.sheet-keski {
+  top: 50%;
+  bottom: auto;
+  left: 50%;
+  right: auto;
+  transform: translate(-50%, -50%);
+  width: min(420px, calc(100vw - var(--s5) * 2));
+  max-height: min(86dvh, 620px);
+  padding: var(--s5);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
 
 .sheet-head {
   display: flex;

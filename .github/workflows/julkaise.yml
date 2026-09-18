@@ -1,0 +1,68 @@
+# Julkaisee hittispotti.fi:n Cloudflarelle kun mainiin tulee uutta.
+#
+# Julkaisutapa pysyy samana kuin GitHub Pagesilla: mainiin työntäminen on
+# julkaisu, eikä mitään muuta komentoa tarvita.
+#
+# Miksi tämä eikä wrangler deploy omalta koneelta: wrangler lataa
+# TYÖHAKEMISTON, ei gitin sisältöä. Pages julkaisi vain sen mikä oli
+# haarassa, joten gitignoratut työtiedostot eivät voineet vuotaa.
+# Käsin ajettuna ne voisivat. actions/checkout antaa puhtaan puun, jossa
+# niitä ei ole olemassa.
+#
+# Vaatii kaksi salaisuutta repon asetuksissa (Settings -> Secrets and
+# variables -> Actions):
+#   CLOUDFLARE_API_TOKEN   malli "Edit Cloudflare Workers"
+#   CLOUDFLARE_ACCOUNT_ID
+name: Julkaise
+
+on:
+  # HUOM: push-liipaisin on tarkoituksella pois päältä siihen asti että
+  # siirto tehdään. Sivusto on yhä GitHub Pagesilla, eikä salaisuuksia ole
+  # vielä asetettu, joten jokainen mainiin työnnetty commit aiheuttaisi
+  # epäonnistuneen ajon ja sähköpostin. Vaihdon hetkellä tämän tilalle:
+  #
+  #   push:
+  #     branches: [main]
+  #
+  # Siihen asti julkaisu ajetaan käsin Actions-välilehdeltä, jolloin sen voi
+  # myös testata ennen kuin verkkotunnus siirretään.
+  workflow_dispatch:
+
+# Kaksi yhtäaikaista julkaisua kirjoittaisi toistensa päälle
+# sattumanvaraisessa järjestyksessä. Uusin voittaa, vanha keskeytetään.
+concurrency:
+  group: julkaise
+  cancel-in-progress: true
+
+jobs:
+  julkaise:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tarkista ettei julkaisuun mene mitään uutta
+        # Pelin pitää tarjota täsmälleen ne tiedostot jotka se tarjosi
+        # GitHub Pagesilla. Jos .assetsignore ja git eroavat, se kertoo
+        # tässä eikä vasta tuotannossa.
+        run: |
+          python3 - <<'PY'
+          import subprocess, sys
+          from pathlib import Path
+          seurattu = set(subprocess.run(["git", "ls-files"], capture_output=True,
+                                        text=True, check=True).stdout.split())
+          levylla = {str(p) for p in Path(".").rglob("*")
+                     if p.is_file() and ".git/" not in str(p) + "/"}
+          ylimaaraiset = sorted(levylla - seurattu)
+          if ylimaaraiset:
+              print("Puussa on tiedostoja joita git ei seuraa:")
+              for p in ylimaaraiset:
+                  print("   ", p)
+              sys.exit(1)
+          print(f"{len(seurattu)} seurattua tiedostoa, ei ylimääräisiä.")
+          PY
+
+      - name: Julkaise Cloudflarelle
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

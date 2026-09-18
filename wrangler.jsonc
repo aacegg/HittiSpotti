@@ -1,0 +1,38 @@
+{
+  // HittiSpotin julkaisu Cloudflarelle.
+  //
+  // Miksi Workers eikä Pages: Cloudflaren oma ohje sanoo "Start new projects
+  // with Workers", ja staattisille tiedostoille Workersin ehto on
+  // "Requests to static assets are free and unlimited". Ne eivät myöskään
+  // kuluta ilmaisversion 100 000 päivittäistä pyyntöä, joka koskee vain
+  // Worker-skriptejä. Tilastoworker on oma erillinen Workerinsa ja se
+  // kuluttaa sitä kiintiötä edelleen.
+  //
+  // Tämä korvaa GitHub Pagesin, jonka 100 GB kuukausittainen pehmeä
+  // kaistaraja tuli vastaan: mitattuna ensimmäinen käynti painaa noin
+  // 251 kt, ja 30 000 päivittäisellä kävijällä se on 64-150 GB kuukaudessa
+  // riippuen siitä kuinka moni on uusi. Jokainen ?v=- tai ?k=-numeron nosto
+  // lisäksi pakottaa jokaisen palaavan kävijän lataamaan kaiken uudestaan.
+  //
+  // Skriptiä ei ole, vain tiedostot. Siksi "main" puuttuu tarkoituksella.
+  "name": "hittispotti",
+  "compatibility_date": "2026-09-18",
+  // Osoite <name>.<tilin aliverkkotunnus>.workers.dev. Oletus on jo true,
+  // mutta se kirjoitetaan näkyviin, koska siirron testivaihe nojaa siihen:
+  // peli kokeillaan tässä osoitteessa ennen kuin hittispotti.fi liikkuu
+  // mihinkään. Kun oma verkkotunnus on kytketty, tämän voi halutessaan
+  // kääntää falseksi, jolloin workers.dev-osoite lakkaa vastaamasta.
+  "workers_dev": true,
+  "assets": {
+    // Repon juuri sellaisenaan, ilman erillistä käännösvaihetta. Mitä ei
+    // julkaista, on lueteltu .assetsignore-tiedostossa.
+    "directory": ".",
+    // 404.html tarjotaan tuntemattomille osoitteille. EI
+    // "single-page-application": se palauttaisi index.htmlin kaikkeen, ja
+    // silloin kirjoitusvirhe osoitteessa näyttäisi pelin 200-koodilla.
+    // Service worker tallentaa navigointivastauksen avaimella "./" vain kun
+    // vastaus on ok ja polku on juuri, joten väärä 200 ei riko välimuistia,
+    // mutta hakukoneille ja kävijälle se olisi silti väärä vastaus.
+    "not_found_handling": "404-page"
+  }
+}

@@ -16,16 +16,13 @@
 name: Julkaise
 
 on:
-  # HUOM: push-liipaisin on tarkoituksella pois päältä siihen asti että
-  # siirto tehdään. Sivusto on yhä GitHub Pagesilla, eikä salaisuuksia ole
-  # vielä asetettu, joten jokainen mainiin työnnetty commit aiheuttaisi
-  # epäonnistuneen ajon ja sähköpostin. Vaihdon hetkellä tämän tilalle:
-  #
-  #   push:
-  #     branches: [main]
-  #
-  # Siihen asti julkaisu ajetaan käsin Actions-välilehdeltä, jolloin sen voi
-  # myös testata ennen kuin verkkotunnus siirretään.
+  # Mainiin työntäminen on julkaisu, kuten se oli GitHub Pagesillakin.
+  # Liipaisin oli siirron ajan pelkkä workflow_dispatch, koska salaisuuksia
+  # ei ollut vielä asetettu ja jokainen push olisi tuottanut punaisen ajon.
+  push:
+    branches: [main]
+  # Käsiajo jää rinnalle: sillä voi uusia epäonnistuneen ajon ilman että
+  # tarvitsee keksiä uusi commit.
   workflow_dispatch:
 
 # Kaksi yhtäaikaista julkaisua kirjoittaisi toistensa päälle

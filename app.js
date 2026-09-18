@@ -181,6 +181,28 @@
    * täsmälleen mikä rakenne hänellä oli. */
   const TUOTEVERSIO = "1.0";
 
+  /* Mitä uutta -tiedote.
+   *
+   * null tarkoittaa ettei tiedotetta ole, eikä silloin näytetä mitään.
+   * Tämä on tahallaan käsin kirjoitettava eikä automaattinen: jos ilmoitus
+   * ilmestyisi joka julkaisussa, sen lukeminen loppuisi ensimmäisen parin
+   * jälkeen ja jäljelle jäisi pelkkä este pelaajan ja soittonapin välissä.
+   * Kirjoitetaan siis vain silloin kun pelaajalle on oikeasti asiaa.
+   *
+   * id on avain jolla nähdyksi merkitseminen tehdään. Vaihda se aina kun
+   * kirjoitat uuden tiedotteen, muuten vanhan nähneet eivät näe uutta.
+   *
+   * Tärkein kohta on viimeisenä. Vuosikymmenten monivalintaa ei löydä itse:
+   * napit näyttävät ulospäin täsmälleen samalta kuin ennenkin. */
+  const UUTTA = {
+    id: "2026-09-19",
+    kohdat: [
+      "<b>143 uutta biisiä</b>, nyt yhteensä 1 690",
+      "<b>175 biisin</b> vaikeustaso korjattu pelidatan perusteella",
+      "Vapaassa pelissä voit nyt valita <b>monta vuosikymmentä</b> kerralla, tai jättää yhden pois",
+    ],
+  };
+
   // ---------- Tila ----------
   const state = {
     songs: [],           // kaikki – näistä haetaan ja arvataan
@@ -272,6 +294,11 @@
     installSheet: $("#install-sheet"),
     installScrim: $("#install-scrim"),
     installClose: $("#install-close"),
+    uuttaSheet: $("#uutta-sheet"),
+    uuttaScrim: $("#uutta-scrim"),
+    uuttaClose: $("#uutta-close"),
+    uuttaLista: $("#uutta-lista"),
+    uuttaOk: $("#uutta-ok"),
     installIntro: $("#install-intro"),
     installSteps: $("#install-steps"),
     modeLabel: $("#mode-label"),
@@ -467,6 +494,8 @@
       el.shareScrim.hidden = true;
       el.installSheet.hidden = true;
       el.installScrim.hidden = true;
+      el.uuttaSheet.hidden = true;
+      el.uuttaScrim.hidden = true;
       el.body.classList.remove("sheet-open");
     }
     /* Ääni kuuluu vain peliin. openRound pysäyttää soiton kierrosten välillä
@@ -2413,6 +2442,44 @@
     el.installBtn.focus({ preventScroll: true });
   }
 
+  /* ---------- Mitä uutta ---------- */
+
+  function naytaUutta(palaava) {
+    if (!UUTTA || store.get("uutta:nahty", null) === UUTTA.id) return;
+    /* Merkitään nähdyksi myös silloin kun sitä ei näytetä. Uusi pelaaja ei
+     * saa törmätä tähän myöhemminkään: tiedote kertoo mikä muuttui, ja
+     * hänelle ei muuttunut mikään. */
+    store.set("uutta:nahty", UUTTA.id);
+    if (!palaava) return;
+    // Jos katalogin lataus kaatui, ruudulla on virheilmoitus. Tiedote sen
+    // päällä olisi väärä asia väärään aikaan.
+    if (state.view !== "game" && state.view !== "results") return;
+    el.uuttaLista.innerHTML = UUTTA.kohdat.map((k) => `<li>${k}</li>`).join("");
+    el.uuttaScrim.hidden = false;
+    el.uuttaSheet.hidden = false;
+    el.body.classList.add("sheet-open");
+    el.uuttaOk.focus({ preventScroll: true });
+  }
+
+  function suljeUutta() {
+    el.uuttaSheet.hidden = true;
+    el.uuttaScrim.hidden = true;
+    el.body.classList.remove("sheet-open");
+  }
+
+  /* Sulkee sen ruudun joka sattuu olemaan auki.
+   *
+   * Escape kutsui ennen suoraan suljeJakoa, mikä oli oikein niin kauan kuin
+   * ruutuja oli yksi. Asennusohjeen kanssa se jo riisui sheet-open-luokan
+   * mutta jätti itse ohjeen ruudulle ilman taustahimmennystä. Kolmannen
+   * ruudun kanssa arvailu loppuu tähän. */
+  function suljeRuutu() {
+    if (!el.shareSheet.hidden) suljeJako();
+    else if (!el.installSheet.hidden) suljeAsennusohje();
+    else if (!el.uuttaSheet.hidden) suljeUutta();
+    else el.body.classList.remove("sheet-open");
+  }
+
   /* Kuuntelijat sidotaan heti moduulin latauessa eikä vasta käynnistyksessä:
    * beforeinstallprompt voi laueta ennen kuin peli on saanut katalogin
    * ladattua, ja myöhässä rekisteröity kuuntelija ei näkisi sitä lainkaan. */
@@ -2931,8 +2998,8 @@
     el.scrim.addEventListener("click", closeDrawer);
     document.addEventListener("keydown", (e) => {
       if (e.key !== "Escape") return;
-      // Jakoruutu on päällimmäisenä, joten se sulkeutuu ensin.
-      if (el.body.classList.contains("sheet-open")) suljeJako();
+      // Ruutu on päällimmäisenä, joten se sulkeutuu ensin.
+      if (el.body.classList.contains("sheet-open")) suljeRuutu();
       else if (el.body.classList.contains("drawer-open")) closeDrawer();
     });
 
@@ -3019,6 +3086,9 @@
     el.installBtn.addEventListener("click", asennaTaiOhjeista);
     el.installClose.addEventListener("click", suljeAsennusohje);
     el.installScrim.addEventListener("click", suljeAsennusohje);
+    el.uuttaClose.addEventListener("click", suljeUutta);
+    el.uuttaScrim.addEventListener("click", suljeUutta);
+    el.uuttaOk.addEventListener("click", suljeUutta);
     // Rajaus elää tilassa, joten "uusi sarja" saa sen mukaansa itsestään.
     el.againBtn.addEventListener("click", () => go("free"));
     el.resetBtn.addEventListener("click", resetStats);
@@ -3073,10 +3143,16 @@
 
   async function init() {
     migrateStore();
+    /* Onko tämä selain käynyt täällä ennen. Luettava tässä, ennen kuin peli
+     * ehtii kirjoittaa mitään omaa: myöhemmin jokainen selain näyttäisi
+     * palaavalta. migrateStore on ajettu, joten vanhan nimen alla olleet
+     * tiedot lasketaan mukaan. */
+    const palaava = store.keys().length > 0;
     pruneProgress();
     lataaKaudet();
     bind();
     await loadAndStart();
+    naytaUutta(palaava);
   }
 
   init();

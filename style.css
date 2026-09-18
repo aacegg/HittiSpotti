@@ -1651,6 +1651,38 @@ body.sheet-open { overflow: hidden; }
    järjestystä ensin. Askel on rivi, jonka sisällä kuvake saa jäädä tekstin
    perään samalle riville: ohje käskee etsiä juuri sen kuvakkeen, joten sen
    pitää olla lauseessa eikä sen alla. */
+/* Mitä uutta -lista.
+   Sama rivirakenne kuin asennusohjeessa, mutta numeroinnin tilalla on
+   piste: kohdat eivät ole vaiheita vaan luettelo, eikä niitä tehdä
+   järjestyksessä. Väri on elävä, jotta rivit erottuvat silmäillen; tämä
+   luetaan kerran ja nopeasti. */
+.uutta { list-style: none; margin: 0 0 var(--s5); padding: 0; }
+/* Luettelomerkki on irti tekstivirrasta, ei flex-lapsi sen rinnalla.
+   Flexinä jokaisesta lihavoinnista tuli oma palstansa, eli "143 uutta
+   biisiä" ja ", nyt yhteensä 1 690" latautuivat eri sarakkeisiin ja pisin
+   kohta hajosi kolmeen. Tekstin pitää saada rivittyä yhtenä kappaleena. */
+.uutta li {
+  position: relative;
+  padding: var(--s3) 0 var(--s3) var(--s5);
+  font-size: var(--f3);
+  line-height: 1.45;
+  color: var(--muted);
+}
+.uutta li + li { border-top: 1px solid var(--line); }
+.uutta li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  /* Ensimmäisen rivin keskelle: yläreunan täyte plus puolet rivikorkeudesta,
+     miinus puolet pallosta. */
+  top: calc(var(--s3) + .72em - 3.5px);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--live);
+}
+.uutta b { color: var(--text); font-weight: 700; }
+
 .ohje { list-style: none; counter-reset: askel; margin: 0; padding: 0; }
 .ohje[hidden] { display: none; }
 .ohje li {

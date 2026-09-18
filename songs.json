@@ -24265,5 +24265,38 @@
   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/ea/bd/ec/eabdecb9-7c6f-4d26-b99d-cf0cad44ae41/190295362706.jpg/300x300bb.jpg",
   "itunes": "Lauri Tähkä – Blaablaa (En kuule sanaakaan) [Vain elämää kausi 10] (2019)",
   "peli": false
+ },
+ {
+  "artist": "VG+ & Seksikäs-Suklaa",
+  "title": "Bandida",
+  "year": 2016,
+  "tier": 4,
+  "id": 1444597112,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/91/29/8f/91298fd5-98ca-3977-5836-b6ea9a6881a7/mzaf_17082895047952549949.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/a8/f3/34/a8f33400-8698-e4a4-e931-2116818e04b1/06430012739041.rgb.jpg/300x300bb.jpg",
+  "itunes": "VG+ & Seksikäs-Suklaa – Bandida (2016)",
+  "peli": false
+ },
+ {
+  "artist": "Seksikäs-Suklaa & Dosdela",
+  "title": "Niiku97",
+  "year": 2016,
+  "tier": 4,
+  "id": 1444409725,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/ad/c4/c2/adc4c2bd-edfb-ef8f-c03d-29bf4488b3f9/mzaf_5037238912767984097.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/52/88/28/5288288c-9ac0-d442-584b-8f8cbab4f882/00602547936691.rgb.jpg/300x300bb.jpg",
+  "itunes": "Seksikäs-Suklaa & Dosdela – Niiku97 (2016)",
+  "peli": false
+ },
+ {
+  "artist": "Seksikäs-Suklaa & Dosdela",
+  "title": "Denssi",
+  "year": 2018,
+  "tier": 4,
+  "id": 1492371821,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/1c/fc/d1/1cfcd1d4-3a12-9a86-7e2a-02ce8ad7d08b/mzaf_6542691703232538017.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/05/bf/cf/05bfcfc2-2559-418b-4fe6-f6f471d54213/886447094297.jpg/300x300bb.jpg",
+  "itunes": "Seksikäs-Suklaa & Dosdela – Denssi (2018)",
+  "peli": false
  }
 ]

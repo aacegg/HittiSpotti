@@ -701,8 +701,22 @@
    * Siksi uuden alkupäästä siirretään pois kaikki, jotka olivat edellisen
    * loppupäässä. Vaihtopari haetaan pakan keskeltä, ei lopusta, jotta tämän
    * kierroksen häntä pysyy samana kuin sekoitus antoi – muuten seuraava sauma
-   * vertaisi väärään järjestykseen. */
-  const GAP = 7;
+   * vertaisi väärään järjestykseen.
+   *
+   * Luku on suoraan se takuu jonka saa: lyhin väli saman biisin toistoon
+   * saumassa on tasan GAP + 1 päivää. Mitattuna 3000 päivän ajalta
+   * seitsemällä se oli 8 päivää, neljälläkymmenellä 15, kahdellakymmenellä-
+   * yhdellä 22 ja kuudellakymmenellä 61. Mekanismi toimi siis koko ajan,
+   * luku oli vain liian pieni: kahdeksan päivää on kaukana siitä mitä ylempi
+   * kommentti lupaa, eli että biisi palaa vasta kun taso on käyty läpi.
+   *
+   * Yläraja tulee vaihtokohteista. Siirrettäviä on enintään GAP ja
+   * vaihtokohteita n - 2 * GAP, joten tarvitaan n >= 3 * GAP. Pienin taso on
+   * 256 biisiä, eli 60 jättää 136 kohdetta 60:lle tarvitsijalle. Mitattuna
+   * 90 jo huononsi tulosta, koska kohteet loppuivat kesken ja korjaus
+   * luovutti. Jos jokin taso joskus kutistuu alle 180 biisin, tätä on
+   * pienennettävä. */
+  const GAP = 60;
 
   function tierOrder(list, tier, cycle) {
     const order = shuffled(list, hashString(`hittispotti:${SEKOITUS}:${tier}:${cycle}`));

@@ -1,0 +1,59 @@
+# Mitä EI julkaista Cloudflarelle. Sama tehtävä kuin _config.yml:n
+# exclude-listalla oli GitHub Pagesilla.
+#
+# Muoto on .gitignoren muoto ja tiedoston on oltava assets-hakemiston
+# juuressa, eli tässä repon juuressa.
+#
+# Tärkeä ero Jekylliin: Jekyll jätti julkaisematta kaiken jonka nimi alkaa
+# pisteellä tai alaviivalla ilman että sitä tarvitsi sanoa. Wrangler ei tee
+# niin, vaan lataa kaiken mitä ei ole tässä. Siksi myös .git ja
+# välimuistitiedostot on lueteltava erikseen. Ilman .git-riviä koko
+# versiohistoria päätyisi julkaistuksi.
+
+# Versiohistoria ja työkalujen omat hakemistot.
+.git/
+.github/
+.claude/
+__pycache__/
+
+# Gitignoratut työtiedostot.
+#
+# Wrangler lataa TYÖHAKEMISTON, ei gitin sisältöä. GitHub Pages julkaisi
+# vain sen mikä oli haarassa, joten gitignoratut tiedostot eivät voineet
+# vuotaa. Cloudflarella ne voivat. Mitattuna puuttuvat-biisit.txt, joka on
+# gitignoratussa listassa ja sisältää ylläpidon muistiinpanoja hakematta
+# jääneistä biiseistä, olisi mennyt julki.
+#
+# Oikea suoja on julkaista puhtaasta checkoutista (.github/workflows/
+# julkaise.yml tekee niin), jolloin näitä tiedostoja ei ole edes olemassa.
+# Tämä lista on toinen lukko sen varalta että joku ajaa wrangler deployn
+# käsin omalta koneeltaan.
+puuttuvat-biisit.txt
+
+# Ylläpidon välimuistit. Nämä ovat johdettavissa muusta aineistosta eivätkä
+# kuulu gittiin, mutta ne ovat työhakemistossa.
+.aanitasot.json
+.aanitteet-tarkistus.json
+.arviointi-tunnetut.json
+.vuodet-musicbrainz.json
+.gitignore
+
+# Julkaisun oma konfiguraatio.
+wrangler.jsonc
+.assetsignore
+
+# GitHub Pagesin jäänteet. CNAME oli Pagesin tapa kertoa oma verkkotunnus
+# ja _config.yml ohjasi Jekylliä. Cloudflarella verkkotunnus asetetaan
+# projektin asetuksista eikä Jekylliä ole.
+CNAME
+_config.yml
+
+# Nämä olivat _config.yml:n exclude-listalla, eli ne eivät vastanneet
+# osoitteessa hittispotti.fi ennenkään. Lista on pidetty tismalleen samana,
+# jottei siirto muuta sitä mitä sivusto tarjoaa.
+README.md
+palvelin/
+ehdotukset.json
+scripts/
+katalogi.html
+songs.json

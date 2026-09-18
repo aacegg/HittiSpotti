@@ -25,6 +25,9 @@
 # kertoisi, joten julkaisemisesta ei seuraa uutta paljastusta.
 exclude:
   - README.md
+  # Cloudflare-siirron konfiguraatio. Ei kuulu pelaajille, ja tämä pitää
+  # Pagesin tarjoaman tiedostojoukon ennallaan siirtoon asti.
+  - wrangler.jsonc
   - palvelin/
   - ehdotukset.json
   - scripts/

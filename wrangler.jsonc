@@ -17,6 +17,12 @@
   // Skriptiä ei ole, vain tiedostot. Siksi "main" puuttuu tarkoituksella.
   "name": "hittispotti",
   "compatibility_date": "2026-09-18",
+  // Osoite <name>.<tilin aliverkkotunnus>.workers.dev. Oletus on jo true,
+  // mutta se kirjoitetaan näkyviin, koska siirron testivaihe nojaa siihen:
+  // peli kokeillaan tässä osoitteessa ennen kuin hittispotti.fi liikkuu
+  // mihinkään. Kun oma verkkotunnus on kytketty, tämän voi halutessaan
+  // kääntää falseksi, jolloin workers.dev-osoite lakkaa vastaamasta.
+  "workers_dev": true,
   "assets": {
     // Repon juuri sellaisenaan, ilman erillistä käännösvaihetta. Mitä ei
     // julkaista, on lueteltu .assetsignore-tiedostossa.

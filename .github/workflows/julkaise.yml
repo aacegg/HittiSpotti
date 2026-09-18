@@ -11,7 +11,7 @@
 #
 # Vaatii kaksi salaisuutta repon asetuksissa (Settings -> Secrets and
 # variables -> Actions):
-#   CLOUDFLARE_API_TOKEN   oikeudet: Workers Scripts: Edit
+#   CLOUDFLARE_API_TOKEN   malli "Edit Cloudflare Workers"
 #   CLOUDFLARE_ACCOUNT_ID
 name: Julkaise
 

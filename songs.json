@@ -24210,5 +24210,60 @@
   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/17/ee/41/17ee4182-9ae5-0525-b73a-b7eda59fbc05/5054197411847.jpg/300x300bb.jpg",
   "itunes": "Ahti – Yksinkertasta (feat. Costi) (2022)",
   "peli": false
+ },
+ {
+  "artist": "Lost Society",
+  "title": "Awake",
+  "year": 2022,
+  "tier": 4,
+  "id": 1620149057,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/09/08/82/090882a9-6efe-5c27-1243-5a5392be2656/mzaf_2751142357610244224.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/f4/6e/e3/f46ee340-d991-b472-0a0f-86af7bbe636d/cover.jpg/300x300bb.jpg",
+  "itunes": "Lost Society – Awake (2022)",
+  "peli": false
+ },
+ {
+  "artist": "Lost Society",
+  "title": "No Absolution",
+  "year": 2019,
+  "tier": 4,
+  "id": 1635982077,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/ab/3f/2b/ab3f2bb5-ec40-7fca-6502-9d3ebf1fdcb3/mzaf_4465665592425995020.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/9d/31/9b/9d319b0d-83c1-6a0c-1fd0-a36626f95c3a/cover.jpg/300x300bb.jpg",
+  "itunes": "Lost Society – No Absolution (2019)",
+  "peli": false
+ },
+ {
+  "artist": "KULLERVO",
+  "title": "62100",
+  "year": 2021,
+  "tier": 4,
+  "id": 1772924815,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/9e/fa/83/9efa83d6-2312-c1b8-95cd-596a09003b4e/mzaf_2917847142014496167.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/48/9f/86/489f86ef-5267-f27b-cd5c-ac6f00d8206e/5021732517647.jpg/300x300bb.jpg",
+  "itunes": "KULLERVO – 62100 (2021)",
+  "peli": false
+ },
+ {
+  "artist": "Good Boys",
+  "title": "Pössis",
+  "year": 2023,
+  "tier": 4,
+  "id": 1687051509,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/57/4f/d1/574fd105-953b-d526-966a-0c3aa93c405f/mzaf_17588425415361538640.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/e7/47/3b/e7473bd1-6aa3-fa30-8c8b-c7c03412567a/cover.jpg/300x300bb.jpg",
+  "itunes": "Good Boys – Pössis (2023)",
+  "peli": false
+ },
+ {
+  "artist": "Lauri Tähkä",
+  "title": "Blaablaa (En kuule sanaakaan) [Vain elämää kausi 10]",
+  "year": 2019,
+  "tier": 4,
+  "id": 1477848250,
+  "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/1a/02/e4/1a02e4cc-ae01-f9ff-ec61-9dcc974818c6/mzaf_3167160426345107543.plus.aac.p.m4a",
+  "art": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/ea/bd/ec/eabdecb9-7c6f-4d26-b99d-cf0cad44ae41/190295362706.jpg/300x300bb.jpg",
+  "itunes": "Lauri Tähkä – Blaablaa (En kuule sanaakaan) [Vain elämää kausi 10] (2019)",
+  "peli": false
  }
 ]

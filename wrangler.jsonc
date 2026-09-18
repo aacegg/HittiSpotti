@@ -24,9 +24,18 @@
   // kääntää falseksi, jolloin workers.dev-osoite lakkaa vastaamasta.
   "workers_dev": true,
   "assets": {
-    // Repon juuri sellaisenaan, ilman erillistä käännösvaihetta. Mitä ei
-    // julkaista, on lueteltu .assetsignore-tiedostossa.
-    "directory": ".",
+    // Vain dist/, jonka työnkulku kokoaa gitin sisällöstä. EI repon juuri.
+    //
+    // Juuri oli ensin, ja se kaatui kahdesti samaan asiaan: wrangler
+    // julkaisee TYÖHAKEMISTON eikä gitin sisältöä. Ensin siellä oli
+    // gitignorattu puuttuvat-biisit.txt, ja kun se oli suljettu pois,
+    // julkaisutoiminto asensi itsensä repon juureen ja wrangler yritti
+    // julkaista 2121 tiedostoa joista yksi oli 126 MiB:n workerd-binääri.
+    //
+    // Poissulkulista on aina askeleen jäljessä sitä mitä hakemistoon
+    // ilmestyy. dist/ kootaan git archivella, joten siellä on vain
+    // seurattuja tiedostoja eikä mikään uusi voi vuotaa sinne.
+    "directory": "./dist",
     // 404.html tarjotaan tuntemattomille osoitteille. EI
     // "single-page-application": se palauttaisi index.htmlin kaikkeen, ja
     // silloin kirjoitusvirhe osoitteessa näyttäisi pelin 200-koodilla.

@@ -40,25 +40,54 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Tarkista ettei julkaisuun mene mitään uutta
-        # Pelin pitää tarjota täsmälleen ne tiedostot jotka se tarjosi
-        # GitHub Pagesilla. Jos .assetsignore ja git eroavat, se kertoo
-        # tässä eikä vasta tuotannossa.
+      - name: Kokoa julkaistava hakemisto
+        # dist/ kootaan git archivella, eli siinä on TASAN ne tiedostot
+        # jotka git tuntee. Tämä on tahallaan allowlist eikä poissulkulista:
+        # wrangler julkaisee työhakemiston, ja poissulkulista on aina
+        # askeleen jäljessä sitä mitä hakemistoon ilmestyy. Mitattuna
+        # juuresta julkaistaessa mukaan lähti ensin gitignorattu
+        # puuttuvat-biisit.txt ja sen jälkeen julkaisutoiminnon oma
+        # node_modules, jossa on 126 MiB:n binääri.
+        #
+        # Poistettavat luetaan _config.yml:stä, jotta Pagesin ja
+        # Cloudflaren tarjoama tiedostojoukko pysyy samana yhdestä
+        # lähteestä eikä kahta listaa tarvitse pitää käsin synkassa.
         run: |
+          mkdir dist
+          git archive HEAD | tar -x -C dist
           python3 - <<'PY'
-          import subprocess, sys
+          import shutil, sys
           from pathlib import Path
-          seurattu = set(subprocess.run(["git", "ls-files"], capture_output=True,
-                                        text=True, check=True).stdout.split())
-          levylla = {str(p) for p in Path(".").rglob("*")
-                     if p.is_file() and ".git/" not in str(p) + "/"}
-          ylimaaraiset = sorted(levylla - seurattu)
-          if ylimaaraiset:
-              print("Puussa on tiedostoja joita git ei seuraa:")
-              for p in ylimaaraiset:
-                  print("   ", p)
+          import re
+
+          teksti = Path("_config.yml").read_text(encoding="utf-8")
+          poista = re.findall(r"^\s*-\s+(\S+)\s*$", teksti, flags=re.M)
+          # CNAME oli Pagesin tapa kertoa verkkotunnus. Cloudflarella se
+          # asetetaan Workerin asetuksista, joten tiedostoa ei tarjota.
+          poista.append("CNAME")
+
+          for nimi in poista:
+              kohde = Path("dist") / nimi.rstrip("/")
+              if kohde.is_dir():
+                  shutil.rmtree(kohde)
+              elif kohde.exists():
+                  kohde.unlink()
+
+          # Sama sääntö kuin Jekyllillä: pisteellä tai alaviivalla alkavaa
+          # ei julkaista. Tämä pitää Cloudflaren tarjoaman joukon samana
+          # kuin Pagesin ilman että tiedostoja tarvitsee luetella nimeltä.
+          # Kattaa _config.yml:n, .gitignoren, .githubin ja kaiken mitä
+          # repoon jatkossa lisätään samalla nimeämistavalla.
+          for kohde in sorted(Path("dist").rglob("*"), key=lambda p: -len(p.parts)):
+              if kohde.name.startswith((".", "_")):
+                  shutil.rmtree(kohde) if kohde.is_dir() else kohde.unlink()
+
+          tiedostot = [p for p in Path("dist").rglob("*") if p.is_file()]
+          print(f"dist/: {len(tiedostot)} tiedostoa")
+          iso = [p for p in tiedostot if p.stat().st_size > 25 * 1024 * 1024]
+          if iso:
+              print("Yli 25 MiB, Cloudflare hylkäisi:", *iso, sep="\n  ")
               sys.exit(1)
-          print(f"{len(seurattu)} seurattua tiedostoa, ei ylimääräisiä.")
           PY
 
       - name: Julkaise Cloudflarelle

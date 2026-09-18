@@ -196,11 +196,15 @@
    * suljetaan, eikä viimeistä riviä lue kaikki. Ensimmäisenä on siksi se
    * jota ei löydä itse: vuosikymmenten monivalinta, koska napit näyttävät
    * ulospäin täsmälleen samalta kuin ennenkin. Biisimäärän huomaa
-   * pelaamalla, vaikeustasot huomaa pelaamalla, tämän ei. */
+   * pelaamalla, vaikeustasot huomaa pelaamalla, tämän ei.
+   *
+   * Jokainen kohta alkaa lihavoinnilla ja jatkuu tarkennuksella. Kaava on
+   * sama kaikissa, jotta listan voi silmäillä lihavoinnit lukemalla. Keskellä
+   * lausetta ollessaan lihavointi katkesi vielä rivin vaihtuessakin. */
   const UUTTA = {
     id: "2026-09-19",
     kohdat: [
-      "Vapaassa pelissä voit nyt valita <b>monta vuosikymmentä</b> kerralla, tai jättää yhden pois",
+      "<b>Monta vuosikymmentä kerralla</b> vapaassa pelissä, tai yksi kokonaan pois",
       "<b>143 uutta biisiä</b>, nyt yhteensä 1 690",
       "<b>175 biisin</b> vaikeustaso korjattu pelidatan perusteella",
     ],

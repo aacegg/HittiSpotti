@@ -66,3 +66,10 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # Pakollinen. Ilman tätä toiminto asentaa oman oletuksensa
+          # wrangler 3.90.0, joka ei ymmärrä pelkkiä staattisia tiedostoja
+          # ilman Worker-skriptiä ja kaatuu virheeseen "Missing entry-point:
+          # ... or the `main` config field". Tässä sivustossa ei ole
+          # skriptiä lainkaan, joten main puuttuu tarkoituksella ja
+          # wranglerin on oltava 4.
+          wranglerVersion: "4"

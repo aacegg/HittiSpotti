@@ -198,13 +198,19 @@
    * ulospäin täsmälleen samalta kuin ennenkin. Biisimäärän huomaa
    * pelaamalla, vaikeustasot huomaa pelaamalla, tämän ei.
    *
-   * Jokainen kohta alkaa lihavoinnilla ja jatkuu tarkennuksella. Kaava on
-   * sama kaikissa, jotta listan voi silmäillä lihavoinnit lukemalla. Keskellä
-   * lausetta ollessaan lihavointi katkesi vielä rivin vaihtuessakin. */
+   * Jokainen kohta alkaa lihavoinnilla ja jatkuu tarkennuksella, jotta listan
+   * voi silmäillä lihavoinnit lukemalla. Lihavointi ei silti saa määrätä
+   * lauseen rakennetta: ensimmäisestä kohdasta tuli kerran "Monta
+   * vuosikymmentä kerralla vapaassa pelissä, tai yksi kokonaan pois", joka
+   * alkoi lihavoinnilla mutta ei kertonut kenellekään mitään. Lause ensin,
+   * lihavointi sen alkuun.
+   *
+   * 50-80-luku on nimeltä eikä "yhden vuosikymmenen", koska se on se jota
+   * oikeasti pyydettiin, ja esimerkki opettaa ominaisuuden kerralla. */
   const UUTTA = {
     id: "2026-09-19",
     kohdat: [
-      "<b>Monta vuosikymmentä kerralla</b> vapaassa pelissä, tai yksi kokonaan pois",
+      "<b>Valitse useampi vuosikymmen kerralla</b> vapaassa pelissä, tai jätä vaikka 50-80-luku pois",
       "<b>143 uutta biisiä</b>, nyt yhteensä 1 690",
       "<b>175 biisin</b> vaikeustaso korjattu pelidatan perusteella",
     ],

@@ -1001,6 +1001,27 @@ button.tchip:hover { color: var(--text); }
 
 .player { display: grid; justify-items: center; }
 
+/* Applen vaatima maininta esikuuntelun vieressä.
+ *
+ * Tämä on sopimusteksti eikä pelin sisältöä, joten se on niin vaimea kuin
+ * luettavuus sallii: se ei saa kilpailla soittimen kanssa katseesta eikä
+ * se saa olla piilotettu, koska piilotettu maininta ei täytä ehtoa.
+ * Kosketusalue on 44 pikseliä kuten paljastuksen linkissäkin, mutta
+ * negatiivinen alamarginaali estää sitä työntämästä arvauskenttää alas. */
+.apple-kredit {
+  display: block;
+  min-height: 44px;
+  margin: var(--s2) auto calc(var(--s2) - 12px);
+  padding-top: 10px;
+  color: var(--muted);
+  font-size: var(--f1);
+  text-align: center;
+  text-decoration: none;
+  opacity: .65;
+}
+.apple-kredit:hover,
+.apple-kredit:focus-visible { opacity: 1; text-decoration: underline; }
+
 /* Levy, ei nappi: sisäkkäiset hiusrenkaat ja väristä lähtevä hehku
    tekevät siitä esineen, jota tekee mieli painaa. */
 .play-btn {

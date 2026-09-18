@@ -420,6 +420,11 @@ a.navitem { color: inherit; text-decoration: none; }
 .navitem-sub .navitem-name { font-size: var(--f3); font-weight: 500; color: var(--muted); }
 .navitem-sub .navitem-note { margin-top: 0; }
 .navitem-sub:hover .navitem-name { color: var(--live); }
+/* Kehote: valinta odottaa aloitusta. Elävä väri eikä harmaa, koska tämä
+   rivi on ainoa asia joka kertoo että vuosikymmennapin painaminen ei vielä
+   vaihtanut biisejä. Harmaana se katoaisi muiden apurivien joukkoon, ja
+   juuri se jäi testissä huomaamatta. */
+.navitem-kehote .navitem-name { color: var(--live); font-weight: 600; }
 
 /* Apurivit: Tilastot, Ohjeet, palaute, ehdotus ja asennus. Sama sisältö kuin
    ennen, mutta pienempänä, jotta pelimuodot erottuvat ylhäältä.

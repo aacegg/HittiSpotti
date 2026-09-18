@@ -94,6 +94,17 @@
     if (!Array.isArray(tallessa)) return;
     state.kaudet = KAUDET.filter((k) => tallessa.includes(k.avain)).map((k) => k.avain);
   }
+
+  /* Odottaako valinta aloitusta: ollaan vapaassa sarjassa ja nappeja on
+   * painettu sen jälkeen kun sarja koottiin.
+   *
+   * Vertailu tehdään valitutKaudet():n läpi, jotta tyhjä ja täysi valinta
+   * ovat sama asia myös tässä. Muuten viidennen napin painaminen kesken
+   * koko katalogin sarjan olisi "muutos", vaikka biisijoukko on sama. */
+  function kaudetOdottavat() {
+    if (state.mode !== "free" || state.view !== "game") return false;
+    return valitutKaudet().map((k) => k.avain).join() !== state.sarjanKaudet.join();
+  }
   const STORE = "hittispotti:";
   const STORE_OLD = "songspot-suomi:";         // aiempi nimi, tiedot siirretään kerran
   const RING = 2 * Math.PI * 54;               // soittopainikkeen kehän pituus (r = 54)
@@ -152,6 +163,11 @@
      * ei voinut ilmaista, koska neljän jäljelle jäävän valitseminen vaatii
      * neljä valintaa yhtä aikaa. */
     kaudet: [],
+    /* Ne kaudet joilla käynnissä oleva sarja koottiin. Vertailukohta, jolla
+     * tiedetään onko valintaa muutettu sarjan alkamisen jälkeen. Sarjan
+     * viisi biisiä arvotaan kerralla sen alkaessa, joten muutos ei voi
+     * vaikuttaa jo arvottuihin, ja se pitää sanoa pelaajalle ääneen. */
+    sarjanKaudet: [],
     dayKey: null,         // minkä päivän sarja on auki – ei kellosta, ks. startDaily
     rounds: [],           // biisikohtaiset tilat, päivän pelissä viisi
     at: 0,                // mikä niistä on auki
@@ -214,6 +230,7 @@
     navDailyNote: $("#nav-daily-note"),
     navFreeNote: $("#nav-free-note"),
     freeReset: $("#free-reset"),
+    kaudetAloita: $("#kaudet-aloita"),
     bar: document.querySelector(".bar"),
     barTag: $("#bar-tag"),
     loadingText: $("#loading-text"),
@@ -567,8 +584,18 @@
       + `<span class="drawer-versio">HittiSpotti ${TUOTEVERSIO}</span>`;
     /* "Aloita peli alusta" koskee vain vapaata peliä, joten se näkyy vasta
        siellä. Rivillä ei ole enää selitettä: teksti kertoo jo mitä nappi
-       tekee, ja menetettävät pisteet lukevat varmistuksessa jonka se avaa. */
-    el.freeReset.hidden = !(state.mode === "free" && state.view === "game");
+       tekee, ja menetettävät pisteet lukevat varmistuksessa jonka se avaa.
+
+       Kun valinta odottaa aloitusta, tilalle tulee kehote. Ne tekisivät
+       saman asian, koska uusi sarja kootaan aina sen hetkisellä valinnalla,
+       joten kahta riviä ei pidä olla: "Aloita peli alusta" ei kertoisi
+       että se myös ottaa uudet vuosikymmenet käyttöön, ja juuri se jäi
+       testissä huomaamatta. Kehote on lisäksi aina valikossa nappien alla,
+       kun taas "Aloita peli alusta" siirtyy leveällä ruudulla oikeaan
+       kiskoon, eli ruudun toiselle laidalle kuin napit joita painettiin. */
+    const kaudetKesken = kaudetOdottavat();
+    el.kaudetAloita.hidden = !kaudetKesken;
+    el.freeReset.hidden = !(state.mode === "free" && state.view === "game") || kaudetKesken;
     /* "Vapaa peli" on valittuna aina kun vapaa sarja on käynnissä, myös
        rajattuna. Aiemmin rajaus vei korostuksen kausinapille, koska nappi
        oli itsessään pelin aloitus. Nyt napit ovat suodatin ja rivi on
@@ -1438,6 +1465,9 @@
      * talleteta, koska satunnaisuus riittää eikä toistoa käytännössä ehdi
      * huomata yhden istunnon aikana. */
     state.mode = "free";
+    // Vertailukohta talteen: tästä hetkestä eteenpäin napin painaminen on
+    // muutos, joka odottaa aloitusta.
+    state.sarjanKaudet = valitutKaudet().map((k) => k.avain);
     state.results = [];
     state.score = 0;
     state.rounds = TIER_CYCLE.map((t) => newRound(pickFreeSong(t)));

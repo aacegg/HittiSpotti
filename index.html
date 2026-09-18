@@ -100,6 +100,19 @@
         <button type="button" class="kchip" data-kausi="2020" aria-pressed="false" aria-label="2020-luku">2020-luku</button>
       </div>
 
+      <!-- Näkyy vain kun valinta eroaa siitä millä käynnissä oleva sarja
+           koottiin, ja korvaa silloin "Aloita peli alusta" -rivin, koska ne
+           tekisivät saman asian.
+
+           Tätä tarvitaan, koska sarjan viisi biisiä arvotaan kerralla sen
+           alkaessa: napin painaminen kesken sarjan ei voi vaihtaa jo
+           arvottuja biisejä. Ilman tätä riviä mikään ei kerro sitä, ja
+           testissä kävi juuri niin että nappeja painettiin ja ihmeteltiin
+           miksi biisit eivät vaihdu. -->
+      <button type="button" class="navitem navitem-sub navitem-kehote" id="kaudet-aloita" data-go="refree" hidden>
+        <span class="navitem-name">Aloita uusi sarja valituilla</span>
+      </button>
+
       <!-- Yksi teksti, ei nimeä ja selitettä. Rivillä luki ennen "Uusi sarja"
            ja sen perässä "aloita sarja alusta", eli sama asia kahdesti eri
            sanoin. Menetettävät pisteet kerrottiin myös tässä, mutta ne ovat

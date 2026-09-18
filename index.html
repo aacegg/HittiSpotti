@@ -74,7 +74,9 @@
 
       <button type="button" class="navitem" data-go="free">
         <span class="navitem-name">Vapaa peli</span>
-        <span class="navitem-note">viisi satunnaista biisiä</span>
+        <!-- Alateksti kertoo myös alla valitun vuosikymmenrajauksen, joten
+             se on skriptin kirjoitettavissa, ks. refreshDrawer. -->
+        <span class="navitem-note" id="nav-free-note">viisi satunnaista biisiä</span>
       </button>
 
       <!-- Vuosikymmen on vapaa peli rajattuna, ei oma pelimuotonsa, joten se
@@ -82,8 +84,15 @@
            valikosta; napit vievät yhden. 50- ja 60-luvulla ei ole biisejä
            kaikilla vaikeustasoilla, joten ne kulkevat 70- ja 80-luvun mukana:
            sarja ottaa yhden biisin joka tasolta, eikä sitä voi koota
-           vajaasta vuosikymmenestä. -->
-      <div class="kaudet" id="kaudet" role="group" aria-label="Vapaa peli vuosikymmenellä">
+           vajaasta vuosikymmenestä.
+
+           Napit eivät aloita sarjaa vaan rajaavat sitä: useamman voi painaa
+           pohjaan yhtä aikaa, ja sarjan aloittaa "Vapaa peli" yläpuolella.
+           Aiemmin yksi nappi aloitti heti yhden vuosikymmenen sarjan, mutta
+           silloin "kaikki paitsi vanhat" oli mahdoton pyyntö: se vaatii
+           neljän valitsemista yhtä aikaa. Mikään valittuna tarkoittaa samaa
+           kuin kaikki valittuna, eli koko katalogia. -->
+      <div class="kaudet" id="kaudet" role="group" aria-label="Vapaan pelin vuosikymmenet">
         <button type="button" class="kchip" data-kausi="vanha" aria-pressed="false" aria-label="1950-80-luku">50–80-luku</button>
         <button type="button" class="kchip" data-kausi="1990" aria-pressed="false" aria-label="1990-luku">90-luku</button>
         <button type="button" class="kchip" data-kausi="2000" aria-pressed="false" aria-label="2000-luku">2000-luku</button>
@@ -398,7 +407,7 @@
           <div class="faq-body">
             <p><strong>Päivän biisit</strong> on viiden biisin sarja, joka on sama kaikille pelaajille saman päivän aikana. Mukana on yksi biisi jokaiselta vaikeustasolta, ja ne tulevat helpoimmasta vaikeimpaan. Maksimi on 6 000 pistettä.</p>
             <p><strong>Vapaa peli</strong> on samanlainen viiden biisin sarja, mutta biisit arvotaan ja sarjoja voi pelata niin monta kuin haluaa. Valikon <strong>Uusi sarja</strong> aloittaa kesken olevan sarjan alusta.</p>
-            <p><strong>Vuosikymmen</strong> valitaan Vapaa peli -kohdan alta olevista napeista. Sarja toimii muuten samoin, mutta kaikki viisi biisiä ovat valitulta vuosikymmeneltä. Vanhin vaihtoehto kattaa 1950-luvulta 1980-luvun loppuun.</p>
+            <p><strong>Vuosikymmenet</strong> valitaan Vapaa peli -kohdan alta olevista napeista. Niitä voi painaa pohjaan useamman, jolloin biisit tulevat kaikilta valituilta vuosikymmeniltä. Näin voi myös jättää yhden pois: paina muut neljä pohjaan. Kun mitään ei ole valittu, mukana on koko katalogi. Sarja alkaa vasta kun painat Vapaa peli, joten valinnan voi tehdä rauhassa. Vanhin vaihtoehto kattaa 1950-luvulta 1980-luvun loppuun, ja valinta säilyy seuraavalle kerralle.</p>
           </div>
         </details>
 

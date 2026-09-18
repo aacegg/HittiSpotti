@@ -234,12 +234,25 @@ h1, h2, p, ol, ul { margin: 0; }
 }
 .wordmark em { font-style: normal; font-weight: 400; }
 
+/* Nimi kutistuu, edistyminen ei.
+   Vuosikymmenten monivalinta voi tuottaa pitkän nimen: pisin mahdollinen on
+   "1950–80-, 1990- ja 2000-luku", joka on 320 px:n puhelimella noin
+   kaksinkertainen siihen tilaan nähden mitä tagille jää. Nimi saa katketa
+   kolmeen pisteeseen, edistyminen ei: jos palkista näkee vain toisen,
+   "3/5" on se jota kesken sarjan katsotaan. Siksi ne ovat eri
+   elementeissä ja vain nimellä on min-width: 0. */
 .bar-tag {
   margin-left: auto;
+  display: flex;
+  align-items: baseline;
+  gap: .35em;
+  min-width: 0;
   font-size: var(--f2);
   color: var(--dim);
   font-variant-numeric: tabular-nums;
 }
+.bar-tag b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-tag span { flex: none; }
 
 .iconbtn {
   display: grid;
@@ -1875,7 +1888,12 @@ body.sheet-open { overflow: hidden; }
  *
  * Sama muoto kuin pelin tasonapeilla (.tchip): pyöreä reunus, hiusviiva,
  * väri vasta valittuna. Viisi nappia yhdellä rivillä vie saman tilan kuin
- * yksi valikkorivi, kun viisi omaa riviä olisi vienyt puolet valikosta. */
+ * yksi valikkorivi, kun viisi omaa riviä olisi vienyt puolet valikosta.
+ *
+ * Napit ovat päälle jääviä valintoja, eivät toisensa poissulkevia: useampi
+ * voi olla is-on yhtä aikaa. Muotoa ei tarvinnut siksi muuttaa, koska
+ * pyöreä reunus lukee yhtä hyvin monivalintana, mutta ruudunlukijalle ero
+ * on aria-pressedissä ja se oli jo paikallaan. */
 /* Napit kiertyvät useammalle riville, koska teksti ratkaisee leveyden.
    Yhdelle riville mahtuisivat vain lyhenteet, ja pelkkä "00" ei kerro
    kenellekään mistä vuosikymmenestä on kyse. */

@@ -23,15 +23,77 @@
    * vaikeustasolta, eikä sitä voi koota vajaasta vuosikymmenestä: 50-luvulla
    * on nolla biisiä tasoilla 1 ja 2, ja koko vuosikymmenessä seitsemän
    * biisiä. Ne kulkevat siksi 70- ja 80-luvun mukana, jolloin ohuinkin taso
-   * saa 36 biisiä. */
+   * saa 36 biisiä.
+   *
+   * Tyvi on nimi ilman "-luku"-päätettä. Sitä tarvitaan kun valintoja on
+   * monta: "1990-, 2000- ja 2010-luku" on suomea, "1990-luku, 2000-luku ja
+   * 2010-luku" on luettelo. */
   const KAUDET = [
-    { avain: "vanha", nimi: "1950–80-luku", alku: 1950, loppu: 1989 },
-    { avain: "1990", nimi: "1990-luku", alku: 1990, loppu: 1999 },
-    { avain: "2000", nimi: "2000-luku", alku: 2000, loppu: 2009 },
-    { avain: "2010", nimi: "2010-luku", alku: 2010, loppu: 2019 },
-    { avain: "2020", nimi: "2020-luku", alku: 2020, loppu: 2099 },
+    { avain: "vanha", tyvi: "1950–80", alku: 1950, loppu: 1989 },
+    { avain: "1990", tyvi: "1990", alku: 1990, loppu: 1999 },
+    { avain: "2000", tyvi: "2000", alku: 2000, loppu: 2009 },
+    { avain: "2010", tyvi: "2010", alku: 2010, loppu: 2019 },
+    { avain: "2020", tyvi: "2020", alku: 2020, loppu: 2099 },
   ];
-  const kausi = (avain) => KAUDET.find((k) => k.avain === avain) || null;
+  KAUDET.forEach((k) => { k.nimi = k.tyvi + "-luku"; });
+
+  /* Valitut kaudet aikajärjestyksessä, tai tyhjä lista kun rajausta ei ole.
+   *
+   * Täysi valinta palautetaan tyhjänä tahallaan: viisi valittua on sama
+   * biisijoukko kuin ei yhtään, ja jos ne olisivat eri asioita, peli
+   * näyttäisi otsikkona "1950–80-, 1990-, 2000-, 2010- ja 2020-luku"
+   * silloin kun tarkoitus on "kaikki". Näin viimeisen napin painaminen
+   * palaa siististi lähtötilaan. */
+  function valitutKaudet() {
+    if (!state.kaudet.length || state.kaudet.length === KAUDET.length) return [];
+    return KAUDET.filter((k) => state.kaudet.includes(k.avain));
+  }
+
+  /* Rajauksen nimi otsikoihin, tuloksiin ja jakotekstiin. Tyhjä merkkijono
+   * kun rajausta ei ole: kutsuja päättää itse sanooko se silloin "Vapaa
+   * peli" vai "vapaa sarja".
+   *
+   * Neljä viidestä sanotaan poissulkevasti. Se on lyhyempi kuin luettelo,
+   * ja ennen kaikkea se on se mitä pelaaja teki: hän jätti yhden pois. */
+  function kausiNimi() {
+    const valitut = valitutKaudet();
+    if (!valitut.length) return "";
+    if (valitut.length === 1) return valitut[0].nimi;
+    const poissa = KAUDET.filter((k) => !valitut.includes(k));
+    if (poissa.length === 1) return `Ei ${poissa[0].tyvi}-lukua`;
+    const tyvet = valitut.map((k) => k.tyvi);
+    return `${tyvet.slice(0, -1).map((t) => `${t}-`).join(", ")} ja ${tyvet[tyvet.length - 1]}-luku`;
+  }
+
+  /* Napin painallus kääntää yhden kauden päälle tai pois. Se ei aloita
+   * sarjaa: monivalinta ja "valinta aloittaa heti" eivät mahdu yhteen, koska
+   * kolmen vuosikymmenen valitseminen aloittaisi kolme sarjaa ja sulkisi
+   * valikon kahdesti välissä. Sarjan aloittaa "Vapaa peli" -rivi napiston
+   * yläpuolella, ja sen alateksti kertoo mitä valinnalla saa. */
+  function vaihdaKausi(avain) {
+    const i = state.kaudet.indexOf(avain);
+    if (i === -1) state.kaudet.push(avain);
+    else state.kaudet.splice(i, 1);
+    // Järjestys aikajärjestykseen, ei painallusjärjestykseen.
+    state.kaudet = KAUDET.filter((k) => state.kaudet.includes(k.avain)).map((k) => k.avain);
+    /* Valinta säilyy käyntien yli. Juuri sitä palaute pyysi: se joka ei
+     * halua vanhoja biisejä ei halua niitä myöskään huomenna, eikä valintaa
+     * pidä joutua tekemään uudestaan joka kerta. */
+    store.set("kaudet", state.kaudet);
+    refreshDrawer();
+  }
+
+  /* Tallennettu valinta käyttöön käynnistyksessä.
+   *
+   * Tuntemattomat avaimet suodatetaan pois eikä niistä valiteta: jos kausien
+   * jako joskus muuttuu, vanha valinta ei saa estää pelin käynnistymistä
+   * eikä jäädä vaikuttamaan näkymättömänä. Sama koskee mitä tahansa muuta
+   * roskaa jonka joku on voinut kirjoittaa avaimen alle käsin. */
+  function lataaKaudet() {
+    const tallessa = store.get("kaudet", []);
+    if (!Array.isArray(tallessa)) return;
+    state.kaudet = KAUDET.filter((k) => tallessa.includes(k.avain)).map((k) => k.avain);
+  }
   const STORE = "hittispotti:";
   const STORE_OLD = "songspot-suomi:";         // aiempi nimi, tiedot siirretään kerran
   const RING = 2 * Math.PI * 54;               // soittopainikkeen kehän pituus (r = 54)
@@ -79,9 +141,17 @@
     pool: [],            // näistä peli jakaa biisit
     byId: new Map(),
     mode: "daily",        // "daily" | "free"
-    /* Vapaan pelin vuosikymmenrajaus, null kun koko katalogi kelpaa. Ei oma
-     * pelimuotonsa vaan suodatin, koska kaikki muu toimii samoin. */
-    kausi: null,
+    /* Vapaan pelin vuosikymmenrajaus: lista KAUDET-avaimia. Tyhjä lista
+     * tarkoittaa koko katalogia, ja niin tarkoittaa myös täysi lista, koska
+     * ne ovat sama joukko biisejä.
+     *
+     * Ei oma pelimuotonsa vaan suodatin, koska kaikki muu toimii samoin.
+     * Monivalinta siksi, että pelaaja halusi jättää yhden vuosikymmenen pois
+     * eikä valita yhtä: "ei oo mitää hajua noist 50 luvun biiseeist ni ois
+     * iha kiva jos vois pelata ilman niitä". Yksi kerrallaan -valinnalla sitä
+     * ei voinut ilmaista, koska neljän jäljelle jäävän valitseminen vaatii
+     * neljä valintaa yhtä aikaa. */
+    kaudet: [],
     dayKey: null,         // minkä päivän sarja on auki – ei kellosta, ks. startDaily
     rounds: [],           // biisikohtaiset tilat, päivän pelissä viisi
     at: 0,                // mikä niistä on auki
@@ -142,6 +212,7 @@
     dsHit: $("#ds-hit"),
     dsLongest: $("#ds-longest"),
     navDailyNote: $("#nav-daily-note"),
+    navFreeNote: $("#nav-free-note"),
     freeReset: $("#free-reset"),
     bar: document.querySelector(".bar"),
     barTag: $("#bar-tag"),
@@ -381,10 +452,14 @@
      * biisit ei: se on oletus, ja saman sanan toistaminen otsikon vieressä
      * näyttäisi vahingolta. Poikkeus on se joka pitää huomata. */
     if (state.mode === "free") {
-      // Kausi on se joka pitää muistaa kesken sarjan: se kertoo miksi
-      // biisit ovat sitä mitä ovat. Ilman kautta nimi on "Vapaa peli".
-      const k = kausi(state.kausi);
-      el.barTag.innerHTML = `<b>${k ? k.nimi : "Vapaa peli"}</b> · ${valmis}/${state.rounds.length}`;
+      /* Kausi on se joka pitää muistaa kesken sarjan: se kertoo miksi biisit
+       * ovat sitä mitä ovat. Ilman rajausta nimi on "Vapaa peli".
+       *
+       * Nimi ja edistyminen ovat omissa elementeissään, koska monivalinta voi
+       * tuottaa pitkän nimen. Nimi saa katketa, edistyminen ei: jos palkkiin
+       * mahtuu vain toinen, "3/5" on se jota katsotaan kesken sarjan. */
+      el.barTag.innerHTML = `<b>${kausiNimi() || "Vapaa peli"}</b>`
+        + `<span>· ${valmis}/${state.rounds.length}</span>`;
     } else {
       el.barTag.textContent = `${valmis}/${state.rounds.length} valmis`;
     }
@@ -494,23 +569,34 @@
        siellä. Rivillä ei ole enää selitettä: teksti kertoo jo mitä nappi
        tekee, ja menetettävät pisteet lukevat varmistuksessa jonka se avaa. */
     el.freeReset.hidden = !(state.mode === "free" && state.view === "game");
+    /* "Vapaa peli" on valittuna aina kun vapaa sarja on käynnissä, myös
+       rajattuna. Aiemmin rajaus vei korostuksen kausinapille, koska nappi
+       oli itsessään pelin aloitus. Nyt napit ovat suodatin ja rivi on
+       aloitus, joten ne kertovat kahta eri asiaa eivätkä kilpaile. */
     document.querySelectorAll("[data-go]").forEach((b) => {
       const isMode = b.dataset.go === "daily" || b.dataset.go === "free";
       if (isMode) {
-        // "Vapaa peli" ei ole valittuna kun kausi on: silloin valinta näkyy
-        // kausinapissa, eikä kahta aktiivista riviä pidä olla yhtä aikaa.
-        const kaudella = b.dataset.go === "free" && state.kausi;
         b.classList.toggle("is-active",
-          state.view === "game" && state.mode === b.dataset.go && !kaudella);
+          state.view === "game" && state.mode === b.dataset.go);
       }
     });
+    /* Napit näyttävät valinnan aina, eivät vain kesken vapaan sarjan: se on
+       säilyvä asetus eikä käynnissä olevan sarjan ominaisuus. Muuten
+       eilen tehty rajaus olisi voimassa mutta näkyisi valikossa
+       valitsemattomana. */
     document.querySelectorAll("[data-kausi]").forEach((b) => {
-      const paalla = state.view === "game" && state.mode === "free"
-        && state.kausi === b.dataset.kausi;
+      const paalla = state.kaudet.includes(b.dataset.kausi);
       b.classList.toggle("is-on", paalla);
       // Väri on ainoa muu merkki valinnasta, joten se ei riitä yksin.
       b.setAttribute("aria-pressed", String(paalla));
     });
+    /* Alateksti on ainoa paikka joka kertoo ennen aloitusta mitä napeista
+       seuraa. Ilman sitä valinta näkyisi vasta pelin otsikossa, eli vasta
+       kun sarja on jo alkanut ja edellinen menetetty. */
+    const rajaus = kausiNimi();
+    el.navFreeNote.textContent = rajaus
+      ? `viisi satunnaista biisiä · ${rajaus.toLowerCase()}`
+      : "viisi satunnaista biisiä";
     refreshDrawerStats();
   }
 
@@ -1346,13 +1432,12 @@
    * sama rakenne kuin päivän pelissä, mutta sarjoja voi pelata niin monta
    * kuin haluaa. Sarja päättyy tuloksiin ja seuraava alkaa puhtaalta
    * pöydältä, joten pisteet eivät kasaannu loputtomiin. */
-  async function startFree(kausiAvain) {
+  async function startFree() {
     /* state.used elää saman sivulatauksen ajan, joten peräkkäisissä sarjoissa
      * ei tule samoja biisejä uudestaan. Sivun päivitys nollaa sen: muistia ei
      * talleteta, koska satunnaisuus riittää eikä toistoa käytännössä ehdi
      * huomata yhden istunnon aikana. */
     state.mode = "free";
-    state.kausi = kausiAvain || null;
     state.results = [];
     state.score = 0;
     state.rounds = TIER_CYCLE.map((t) => newRound(pickFreeSong(t)));
@@ -1367,14 +1452,17 @@
     /* Vuosikymmenrajaus on osa tason poimintaa, ei erillinen suodatin
      * jälkikäteen: muuten "taso käyty läpi" -nollaus laskisi väärin ja
      * nollaisi koko tason vaikka kauden sisällä olisi vielä biisejä. */
-    const k = kausi(state.kausi);
+    const valitut = valitutKaudet();
     let kuuluu = (s) => s.tier === tier
-      && (!k || (s.year && s.year >= k.alku && s.year <= k.loppu));
-    /* Jos kaudelta ei löydy tätä tasoa lainkaan, rajaus jätetään väliin
-     * tämän biisin kohdalla. Nykyisellä katalogilla jokaisessa kaudessa on
-     * kymmeniä biisejä joka tasolta, mutta tyhjä joukko kaatuisi, ja peli
-     * ilman yhtä vuosikymmentä on parempi kuin peli joka ei käynnisty. */
-    if (k && !state.pool.some(kuuluu)) kuuluu = (s) => s.tier === tier;
+      && (!valitut.length
+        || (s.year && valitut.some((k) => s.year >= k.alku && s.year <= k.loppu)));
+    /* Jos valinnasta ei löydy tätä tasoa lainkaan, rajaus jätetään väliin
+     * tämän biisin kohdalla. Nykyisellä katalogilla ohuinkin yksittäinen
+     * kausi antaa 22 biisiä joka tasolta, eikä monivalinta voi tehdä
+     * joukosta pienempää kuin sen ohuin osa, mutta tyhjä joukko kaatuisi,
+     * ja peli ilman yhtä vuosikymmentä on parempi kuin peli joka ei
+     * käynnisty. */
+    if (valitut.length && !state.pool.some(kuuluu)) kuuluu = (s) => s.tier === tier;
     let pool = state.pool.filter((s) => kuuluu(s) && !state.used.has(s.id));
     if (!pool.length) {
       // Taso käyty läpi: aloitetaan se alusta muita tasoja nollaamatta.
@@ -1426,12 +1514,12 @@
      * pelimuodolla aikanaan: jos ainoa ero näkyy himmeänä alarivinä, pelaaja
      * ei huomaa mitä on valinnut, ja ihmettelee miksi kaikki biisit ovat
      * vanhoja. */
-    const k = kausi(state.kausi);
+    const rajaus = kausiNimi();
     el.modeLabel.textContent = state.mode === "daily" ? "Päivän biisit"
-      : k ? k.nimi : "Vapaa peli";
+      : rajaus || "Vapaa peli";
     el.modeSub.textContent = state.mode === "daily"
       ? dateLine(keyToDate(state.dayKey || todayKey()))
-      : k ? "vapaa peli" : "";
+      : rajaus ? "vapaa peli" : "";
     el.scoreLabel.textContent = `${fmt(state.score)} p`;
     // Koko sivun elävä väri on soivan biisin vaikeustaso.
     el.body.dataset.tier = String(r.song.tier);
@@ -1879,8 +1967,8 @@
       lines.push(`🎵 HittiSpotti · ${todayPretty()}`);
       lines.push(`${fmt(state.score)} / ${fmt(POINTS[0] * DAILY_COUNT)} pistettä`);
     } else {
-      const k = kausi(state.kausi);
-      lines.push(`🎵 HittiSpotti · ${k ? k.nimi.toLowerCase() : "vapaa sarja"}`);
+      const rajaus = kausiNimi();
+      lines.push(`🎵 HittiSpotti · ${rajaus ? rajaus.toLowerCase() : "vapaa sarja"}`);
       lines.push(`${fmt(state.score)} / ${fmt(POINTS[0] * state.results.length)} pistettä`);
     }
     lines.push("");
@@ -1900,10 +1988,9 @@
     if (el.resultsVertailu) el.resultsVertailu.hidden = true;
     paivitaVertailu();
     const solved = state.results.filter((r) => r.solved).length;
-    const k = kausi(state.kausi);
     el.resultsTitle.textContent = daily
       ? `Päivän biisit, ${dateLine(keyToDate(state.dayKey || todayKey()))}`
-      : k ? k.nimi : "Vapaa peli";
+      : kausiNimi() || "Vapaa peli";
     el.resultsScore.textContent = fmt(state.score);
     const yhteenveto = resultSummary(solved, daily ? DAILY_COUNT : state.results.length);
     el.resultsSub.textContent = daily ? `${yhteenveto} Uusi sarja huomenna.` : yhteenveto;
@@ -2092,8 +2179,7 @@
     const g = c.getContext("2d");
     const reuna = 92;
     pohja(g, KUVA, KUVA_LISTA);
-    const k = kausi(state.kausi);
-    let y = otsikko(g, reuna, k ? k.nimi : "Vapaa peli");
+    let y = otsikko(g, reuna, kausiNimi() || "Vapaa peli");
 
     y += 46;
     const kansi = 122, rivi = 148, tekstiX = reuna + kansi + 30;
@@ -2741,9 +2827,9 @@
       if (freeStarted() && !confirm("Sarja alkaa alusta ja pisteet nollautuvat. Jatketaanko?")) return;
       closeDrawer();
       stopPlayback();
-      // Sama kausi kuin ennenkin: "alusta" tarkoittaa uutta sarjaa, ei
-      // paluuta koko katalogiin.
-      await startFree(state.kausi);
+      // Rajaus pysyy: "alusta" tarkoittaa uutta sarjaa, ei paluuta koko
+      // katalogiin.
+      await startFree();
       toast("Uusi sarja.");
       return;
     }
@@ -2755,9 +2841,11 @@
      * kohdasta samoilla pisteillä. Vapaata sarjaa ei tallenneta lainkaan, eli
      * vain se katoaa. Väärä varoitus on pahempi kuin puuttuva: se opettaa
      * ohittamaan varoitukset lukematta, jolloin oikeakaan ei enää pysäytä. */
-    // Kausivalinta on vapaata peliä, joten sitä koskevat samat varoitukset.
-    const kausiValinta = target.startsWith("kausi:") ? target.slice(6) : null;
-    if (target === "daily" || target === "free" || kausiValinta) {
+    /* Kausivalinnalla ei ole enää omaa kohdettaan. Napit eivät aloita mitään,
+     * joten niitä ei tarvitse varmistaa: rajauksen muuttaminen kesken sarjan
+     * ei tee sarjalle yhtään mitään ennen kuin "Vapaa peli" painetaan, ja
+     * silloin varmistus tulee tätä kautta niin kuin ennenkin. */
+    if (target === "daily" || target === "free") {
       // Vapaa peli vapaan pelin päälle aloittaa uuden sarjan, ei vaihda muotoa.
       const uusiVapaa = target !== "daily" && state.mode === "free";
       if (freeStarted() && !confirm(uusiVapaa
@@ -2768,7 +2856,6 @@
     stopPlayback();
     lahetaArvio();
     if (target === "daily") await startDaily();
-    else if (kausiValinta) await startFree(kausiValinta);
     else if (target === "free") await startFree();
     else if (target === "stats") show("stats");
     else if (target === "help") show("help");
@@ -2800,8 +2887,11 @@
     });
 
     document.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => go(b.dataset.go)));
+    /* Napit eivät kulje go():n kautta, koska ne eivät navigoi mihinkään:
+     * ne kääntävät suodattimen päälle tai pois ja jättävät valikon auki,
+     * jotta seuraavan vuosikymmenen voi valita samalla käynnillä. */
     document.querySelectorAll("[data-kausi]").forEach((b) =>
-      b.addEventListener("click", () => go("kausi:" + b.dataset.kausi)));
+      b.addEventListener("click", () => vaihdaKausi(b.dataset.kausi)));
 
     el.playBtn.addEventListener("click", () => {
       if (audio.playing) { stopPlayback(); return; }
@@ -2879,8 +2969,8 @@
     el.installBtn.addEventListener("click", asennaTaiOhjeista);
     el.installClose.addEventListener("click", suljeAsennusohje);
     el.installScrim.addEventListener("click", suljeAsennusohje);
-    el.againBtn.addEventListener("click", () =>
-      go(state.kausi ? "kausi:" + state.kausi : "free"));
+    // Rajaus elää tilassa, joten "uusi sarja" saa sen mukaansa itsestään.
+    el.againBtn.addEventListener("click", () => go("free"));
     el.resetBtn.addEventListener("click", resetStats);
 
     document.addEventListener("keydown", (e) => {
@@ -2934,6 +3024,7 @@
   async function init() {
     migrateStore();
     pruneProgress();
+    lataaKaudet();
     bind();
     await loadAndStart();
   }

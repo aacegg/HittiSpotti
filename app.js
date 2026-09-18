@@ -219,7 +219,10 @@
      * sen oikeasti lukea, eli niille joilla ei ollut service workeria
      * lainkaan. Se on pienempi haitta kuin se että ominaisuus jää kertomatta
      * niille joilta se vietiin alta. */
-    id: "2026-09-19b",
+    /* c-kierros: b poltti tiedotteen jokaiselta jonka tallennustila oli
+     * sillä hetkellä tyhjä, koska tyhjää pidettiin uutena pelaajana.
+     * Heidät tavoittaa vain uudella tunnuksella. */
+    id: "2026-09-19c",
     kohdat: [
       "<b>Valitse useampi vuosikymmen kerralla</b> vapaassa pelissä, tai jätä vaikka 50-80-luku pois",
       "<b>143 uutta biisiä</b>, nyt yhteensä 1 690",
@@ -2470,10 +2473,19 @@
 
   function naytaUutta(palaava) {
     if (!UUTTA || store.get("uutta:nahty", null) === UUTTA.id) return;
-    /* Uusi pelaaja: ei näytetä, ja merkitään heti nähdyksi jottei se tule
-     * vastaan myöhemminkään. Tiedote kertoo mikä muuttui, ja hänelle ei
-     * muuttunut mikään. */
-    if (!palaava) { store.set("uutta:nahty", UUTTA.id); return; }
+    /* Tyhjä tallennustila: ei näytetä, mutta EI myöskään merkitä nähdyksi.
+     *
+     * Aiemmin tässä merkittiin, jottei uusi pelaaja näkisi muutoslokia
+     * myöhemmin. Se oli väärä päätelmä: tyhjä tallennustila ei tarkoita
+     * uutta pelaajaa. Se tarkoittaa myös yksityistä ikkunaa ja selainta
+     * jonka tiedot on tyhjennetty, ja puhelinselaimet siivoavat
+     * sivustotietoja itsekseen. Yksi sellainen käynti poltti tiedotteen
+     * lopullisesti, ja pelaaja jäi ilman vaikka oli pelannut kuukausia.
+     *
+     * Hinta toiseen suuntaan on pieni: uusi pelaaja näkee tiedotteen
+     * toisella latauksellaan, koska äänenvoimakkuus tallentuu jo
+     * ensimmäisellä. Se kertoo hänelle lähinnä että peliä kehitetään. */
+    if (!palaava) return;
     /* Jos katalogin lataus kaatui, ruudulla on virheilmoitus. Tiedote sen
      * päällä olisi väärä asia väärään aikaan. Ei merkitä nähdyksi:
      * yritetään uudestaan seuraavalla kerralla. */

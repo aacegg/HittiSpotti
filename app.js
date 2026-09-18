@@ -65,12 +65,26 @@
     return `${tyvet.slice(0, -1).map((t) => `${t}-`).join(", ")} ja ${tyvet[tyvet.length - 1]}-luku`;
   }
 
-  /* Napin painallus kääntää yhden kauden päälle tai pois. Se ei aloita
-   * sarjaa: monivalinta ja "valinta aloittaa heti" eivät mahdu yhteen, koska
-   * kolmen vuosikymmenen valitseminen aloittaisi kolme sarjaa ja sulkisi
-   * valikon kahdesti välissä. Sarjan aloittaa "Vapaa peli" -rivi napiston
-   * yläpuolella, ja sen alateksti kertoo mitä valinnalla saa. */
+  /* Napin painallus kääntää yhden kauden päälle tai pois JA kokoaa sarjan
+   * uudestaan. Valinta on siis aina elävä: ensimmäinen painallus aloittaa
+   * sen vuosikymmenen sarjan, toinen lisää vuosikymmenen ja kokoaa sarjan
+   * uusiksi molemmilla.
+   *
+   * Tämä on sama käytös kuin ennen monivalintaa, ja se on tahallista.
+   * Välissä kokeiltiin mallia jossa napit vain valitsevat ja sarjan aloittaa
+   * erillinen rivi, mutta silloin painallus ei tehnyt mitään näkyvää ja
+   * aloitus piti osata etsiä. Elävässä valinnassa ei ole mitään opittavaa:
+   * painat nappia ja peli vaihtuu.
+   *
+   * Valikko jätetään auki. Se on koko monivalinnan ehto: jos painallus
+   * sulkisi valikon niin kuin ennen, toista vuosikymmentä ei pääsisi
+   * painamaan avaamatta valikkoa uudestaan. */
   function vaihdaKausi(avain) {
+    /* Varmistus vain ensimmäisestä painalluksesta. Sen jälkeen uusi sarja on
+     * jo tulossa eikä menetettäviä pisteitä enää ole, joten saman kysymyksen
+     * toistaminen joka napille olisi pelkkä este monivalinnan tiellä. */
+    if (!pakkaAjastin && freeStarted()
+      && !confirm("Sarja alkaa alusta ja pisteet nollautuvat. Jatketaanko?")) return;
     const i = state.kaudet.indexOf(avain);
     if (i === -1) state.kaudet.push(avain);
     else state.kaudet.splice(i, 1);
@@ -81,6 +95,38 @@
      * pidä joutua tekemään uudestaan joka kerta. */
     store.set("kaudet", state.kaudet);
     refreshDrawer();
+    kokoaSarjaPian();
+  }
+
+  /* Sarja kootaan vasta kun napit ovat hetken hiljaa.
+   *
+   * Ilman viivettä neljän vuosikymmenen valitseminen kokoaisi neljä sarjaa,
+   * ja koska jokainen sarja esilataa viiden biisin ääninäytteet (prefetch),
+   * se olisi 20 latausta joista 15 heitetään heti pois. Viive on niin lyhyt
+   * ettei sitä huomaa yhdellä painalluksella, mutta se sulattaa nopean
+   * naputtelun yhdeksi kokoamiseksi. */
+  const PAKKA_VIIVE = 350;
+  let pakkaAjastin = 0;
+
+  function kokoaSarjaPian() {
+    clearTimeout(pakkaAjastin);
+    pakkaAjastin = setTimeout(async () => {
+      pakkaAjastin = 0;
+      stopPlayback();
+      lahetaArvio();
+      await startFree();
+      /* Valikko on auki ja siellä vaihtui rivejä: pelimuodon korostus ja
+       * "Aloita peli alusta", joka kuuluu vain vapaaseen peliin. */
+      refreshDrawer();
+    }, PAKKA_VIIVE);
+  }
+
+  /* Kesken oleva kokoaminen perutaan kun pelaaja menee muualle. Muuten
+   * valikosta valittu Tilastot tai Päivän biisit vaihtuisi kolmannessa
+   * sekunnissa vapaaksi peliksi. */
+  function peruSarjanKokoaminen() {
+    clearTimeout(pakkaAjastin);
+    pakkaAjastin = 0;
   }
 
   /* Tallennettu valinta käyttöön käynnistyksessä.
@@ -93,26 +139,6 @@
     const tallessa = store.get("kaudet", []);
     if (!Array.isArray(tallessa)) return;
     state.kaudet = KAUDET.filter((k) => tallessa.includes(k.avain)).map((k) => k.avain);
-    /* Tallennettu valinta ei ole "odottava muutos" vaan lähtötilanne.
-     * Ilman tätä palaavalle pelaajalle, joka jätti eilen 50-80-luvun pois,
-     * olisi kehote valikossa heti avattaessa vaikka hän ei ole koskenut
-     * mihinkään. */
-    state.sarjanKaudet = valitutKaudet().map((k) => k.avain);
-  }
-
-  /* Odottaako valinta aloitusta: nappeja on painettu sen jälkeen kun
-   * sarjanKaudet viimeksi asetettiin.
-   *
-   * Ei rajattu vapaaseen sarjaan. Nappeja painellaan myös päivän pelin
-   * päällä, ja silloin ei tapahdu vielä vähempää kuin kesken vapaan sarjan:
-   * päivän biisit eivät voi vaihtua vuosikymmenestä, joten ilman kehotetta
-   * ainoa muuttuva asia on napin oma väri.
-   *
-   * Vertailu tehdään valitutKaudet():n läpi, jotta tyhjä ja täysi valinta
-   * ovat sama asia myös tässä. Muuten viidennen napin painaminen kesken
-   * koko katalogin sarjan olisi "muutos", vaikka biisijoukko on sama. */
-  function kaudetOdottavat() {
-    return valitutKaudet().map((k) => k.avain).join() !== state.sarjanKaudet.join();
   }
   const STORE = "hittispotti:";
   const STORE_OLD = "songspot-suomi:";         // aiempi nimi, tiedot siirretään kerran
@@ -172,11 +198,6 @@
      * ei voinut ilmaista, koska neljän jäljelle jäävän valitseminen vaatii
      * neljä valintaa yhtä aikaa. */
     kaudet: [],
-    /* Ne kaudet joilla käynnissä oleva sarja koottiin. Vertailukohta, jolla
-     * tiedetään onko valintaa muutettu sarjan alkamisen jälkeen. Sarjan
-     * viisi biisiä arvotaan kerralla sen alkaessa, joten muutos ei voi
-     * vaikuttaa jo arvottuihin, ja se pitää sanoa pelaajalle ääneen. */
-    sarjanKaudet: [],
     dayKey: null,         // minkä päivän sarja on auki – ei kellosta, ks. startDaily
     rounds: [],           // biisikohtaiset tilat, päivän pelissä viisi
     at: 0,                // mikä niistä on auki
@@ -239,8 +260,6 @@
     navDailyNote: $("#nav-daily-note"),
     navFreeNote: $("#nav-free-note"),
     freeReset: $("#free-reset"),
-    kaudetAloita: $("#kaudet-aloita"),
-    kaudetAloitaNimi: $("#kaudet-aloita .navitem-name"),
     bar: document.querySelector(".bar"),
     barTag: $("#bar-tag"),
     loadingText: $("#loading-text"),
@@ -594,39 +613,15 @@
       + `<span class="drawer-versio">HittiSpotti ${TUOTEVERSIO}</span>`;
     /* "Aloita peli alusta" koskee vain vapaata peliä, joten se näkyy vasta
        siellä. Rivillä ei ole enää selitettä: teksti kertoo jo mitä nappi
-       tekee, ja menetettävät pisteet lukevat varmistuksessa jonka se avaa.
-
-       Kun valinta odottaa aloitusta, tilalle tulee kehote. Ne tekisivät
-       saman asian, koska uusi sarja kootaan aina sen hetkisellä valinnalla,
-       joten kahta riviä ei pidä olla: "Aloita peli alusta" ei kertoisi
-       että se myös ottaa uudet vuosikymmenet käyttöön, ja juuri se jäi
-       testissä huomaamatta. Kehote on lisäksi aina valikossa nappien alla,
-       kun taas "Aloita peli alusta" siirtyy leveällä ruudulla oikeaan
-       kiskoon, eli ruudun toiselle laidalle kuin napit joita painettiin. */
-    const vapaassaSarjassa = state.mode === "free" && state.view === "game";
+       tekee, ja menetettävät pisteet lukevat varmistuksessa jonka se avaa. */
     const rajaus = kausiNimi();
-    /* Tyhjä valinta päivän pelin päällä ei tarvitse kehotetta: "Vapaa peli"
-       -rivi suoraan yläpuolella tekee jo täsmälleen sen mitä kehote
-       tekisi, ja sen alateksti lukee "viisi satunnaista biisiä". Kesken
-       vapaan sarjan kehote tarvitaan silloinkin, koska rajauksen
-       poistaminen on sekin muutos joka odottaa aloitusta. */
-    const kaudetKesken = kaudetOdottavat() && (vapaassaSarjassa || Boolean(rajaus));
-    el.kaudetAloita.hidden = !kaudetKesken;
-    el.kaudetAloitaNimi.textContent = vapaassaSarjassa
-      ? (rajaus ? "Aloita uusi sarja valituilla" : "Aloita uusi sarja kaikilla vuosikymmenillä")
-      : "Aloita vapaa peli valituilla";
-    el.freeReset.hidden = !vapaassaSarjassa || kaudetKesken;
+    el.freeReset.hidden = !(state.mode === "free" && state.view === "game");
     /* "Vapaa peli" on valittuna aina kun vapaa sarja on käynnissä, myös
        rajattuna. Aiemmin rajaus vei korostuksen kausinapille, koska nappi
        oli itsessään pelin aloitus. Nyt napit ovat suodatin ja rivi on
        aloitus, joten ne kertovat kahta eri asiaa eivätkä kilpaile. */
     document.querySelectorAll("[data-go]").forEach((b) => {
-      /* Apurivit rajataan pois vaikka niillä olisi sama kohde. Kehotteen
-         kohde on "free", mutta se on toiminto eikä pelimuoto: is-active
-         tarkoittaa "tässä sinä olet", ja kehotteeseen osuessaan se
-         väittäisi sivun olevan rivillä joka kertoo mitä tehdä seuraavaksi. */
-      const isMode = (b.dataset.go === "daily" || b.dataset.go === "free")
-        && !b.classList.contains("navitem-sub");
+      const isMode = b.dataset.go === "daily" || b.dataset.go === "free";
       if (isMode) {
         b.classList.toggle("is-active",
           state.view === "game" && state.mode === b.dataset.go);
@@ -1489,9 +1484,6 @@
      * talleteta, koska satunnaisuus riittää eikä toistoa käytännössä ehdi
      * huomata yhden istunnon aikana. */
     state.mode = "free";
-    // Vertailukohta talteen: tästä hetkestä eteenpäin napin painaminen on
-    // muutos, joka odottaa aloitusta.
-    state.sarjanKaudet = valitutKaudet().map((k) => k.avain);
     state.results = [];
     state.score = 0;
     state.rounds = TIER_CYCLE.map((t) => newRound(pickFreeSong(t)));
@@ -2875,6 +2867,10 @@
 
   // ---------- Navigointi ----------
   async function go(target) {
+    /* Vuosikymmennapista voi olla kokoaminen kesken. Pelaajan oma valinta
+     * valikosta voittaa sen aina: ilman tätä Tilastot tai Päivän biisit
+     * vaihtuisi kolmannessa sekunnissa vapaaksi peliksi. */
+    peruSarjanKokoaminen();
     // Vapaan pelin nollaus: uusi sarja kesken pelin. Varmistetaan vain, jos
     // jotain oikeasti menetetään.
     if (target === "refree") {

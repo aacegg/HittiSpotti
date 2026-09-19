@@ -222,11 +222,16 @@
     /* c-kierros: b poltti tiedotteen jokaiselta jonka tallennustila oli
      * sillä hetkellä tyhjä, koska tyhjää pidettiin uutena pelaajana.
      * Heidät tavoittaa vain uudella tunnuksella. */
+    /* Luvut korjattu v114:n jälkeen ilman tunnuksen vaihtoa. Ne jotka
+     * ovat jo lukeneet tiedotteen eivät näe sitä uudestaan, ja he näkivät
+     * hieman vanhentuneet luvut kerran; se on pienempi haitta kuin
+     * kolmas pakotettu näyttö kaikille. Ne jotka eivät ole vielä
+     * nähneet saavat oikeat luvut. */
     id: "2026-09-19c",
     kohdat: [
       "<b>Valitse useampi vuosikymmen kerralla</b> vapaassa pelissä, tai jätä vaikka 50-80-luku pois",
-      "<b>143 uutta biisiä</b>, nyt yhteensä 1 690",
-      "<b>175 biisin</b> vaikeustaso korjattu pelidatan perusteella",
+      "<b>198 uutta biisiä</b>, nyt yhteensä 1 745",
+      "<b>163 biisin</b> vaikeustaso korjattu pelidatan perusteella",
     ],
   };
 

@@ -228,6 +228,18 @@
      * kolmas pakotettu näyttö kaikille. Ne jotka eivät ole vielä
      * nähneet saavat oikeat luvut. */
     id: "2026-09-19c",
+    /* Tiedote lakkaa näkymästä kokonaan tästä päivästä alkaen, eikä sitä
+     * voi enää tulla kenellekään. Tämä julkaisu on maanantaina vanha uutinen:
+     * uudet biisit ovat silloin jo päivän pelissä, ja lukitus on ohi.
+     *
+     * Vanheneminen on päivämäärä eikä käsin poistaminen, koska käsin
+     * poistaminen vaatii muistamista ja uuden julkaisun juuri oikeana
+     * päivänä. Päivä hoitaa sen itsestään myös siinä tapauksessa etten ole
+     * paikalla. Vertailu on tekstivertailu, koska YYYY-MM-DD järjestyy
+     * oikein sellaisenaan, ja se käyttää pelin omaa vuorokausirajaa
+     * (todayKey) eikä selaimen paikallista, jotta se vaihtuu samaan aikaan
+     * kuin päivän biisitkin. */
+    loppuu: "2026-09-21",
     kohdat: [
       "<b>Valitse useampi vuosikymmen kerralla</b> vapaassa pelissä, tai jätä vaikka 50-80-luku pois",
       "<b>198 uutta biisiä</b>, nyt yhteensä 1 745",
@@ -2485,6 +2497,7 @@
 
   function naytaUutta(palaava) {
     if (!UUTTA || store.get("uutta:nahty", null) === UUTTA.id) return;
+    if (UUTTA.loppuu && todayKey() >= UUTTA.loppuu) return;
     /* Tyhjä tallennustila: ei näytetä, mutta EI myöskään merkitä nähdyksi.
      *
      * Aiemmin tässä merkittiin, jottei uusi pelaaja näkisi muutoslokia
@@ -2507,7 +2520,25 @@
     el.uuttaSheet.hidden = false;
     el.body.classList.add("sheet-open");
     el.uuttaSheet.focus({ preventScroll: true });
+    /* Nähdyksi myös silloin kun tiedote on ollut ruudulla lukuajan verran.
+     *
+     * Pelkkä sulkemisesta merkitseminen jätti aukon: välilehden sulkeminen
+     * ei ole sulkemista, joten se joka luki tiedotteen ja sulki välilehden
+     * sai sen uudestaan joka käynnillä. Pelkkä näyttämisestä merkitseminen
+     * taas poltti sen sekunnissa, kun service workerin vaihtuminen latasi
+     * sivun alta. Lukuaika erottaa nämä kaksi: uudelleenlataus ei ehdi
+     * sen sisään, mutta lukeminen ehtii. */
+    clearTimeout(uuttaAjastin);
+    uuttaAjastin = setTimeout(() => {
+      uuttaAjastin = 0;
+      /* Ehto on tarpeen, koska show() piilottaa avoimet ruudut näkymää
+       * vaihdettaessa käymättä suljeUutan kautta. Ilman tätä ajastin
+       * merkitsisi nähdyksi tiedotteen joka ei ole enää ruudulla. */
+      if (UUTTA && !el.uuttaSheet.hidden) store.set("uutta:nahty", UUTTA.id);
+    }, UUTTA_LUKUAIKA);
   }
+  const UUTTA_LUKUAIKA = 6000;
+  let uuttaAjastin = 0;
 
   /* Nähdyksi vasta suljettaessa, ei näytettäessä.
    *
@@ -2518,10 +2549,14 @@
    * uudestaan. Merkintä oli jo tehty, joten tiedote välähti ruudulla
    * sekunnin ja katosi lopullisesti.
    *
-   * Nyt mikä tahansa uudelleenlataus vain näyttää sen uudestaan. Jos
-   * pelaaja sulkee välilehden lukematta, hän saa sen vielä kerran, ja se on
-   * parempi suunta kuin kokonaan näkemättä jääminen. */
+   * Nyt nopea uudelleenlataus vain näyttää sen uudestaan: se ei ehdi
+   * lukuajan sisään. Jos pelaaja sulkee välilehden heti lukematta, hän saa
+   * sen vielä kerran, ja se on parempi suunta kuin kokonaan näkemättä
+   * jääminen. Lukuajan verran ruudulla ollut tiedote taas on luettu, vaikkei
+   * tätä kautta suljettaisi. */
   function suljeUutta() {
+    clearTimeout(uuttaAjastin);
+    uuttaAjastin = 0;
     if (UUTTA) store.set("uutta:nahty", UUTTA.id);
     el.uuttaSheet.hidden = true;
     el.uuttaScrim.hidden = true;

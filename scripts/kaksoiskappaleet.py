@@ -49,6 +49,52 @@ def ryhmat(songs):
     return [v for v in ulos.values() if len(v) > 1]
 
 
+def ryhmat_nimimuoto(songs):
+    """Sama biisi, artistin nimi eri muodossa.
+
+    Yllä oleva ryhmittely avaimena on norm(first_artist(...)), eli se
+    olettaa artistin nimen kirjoitetun joka rivillä samalla tavalla. Sama
+    artisti esiintyy kuitenkin sekä lyhyellä että pitkällä nimellään, ja
+    silloin avaimet eroavat eikä paria huomata lainkaan:
+
+        Marion Rung & Four Cats – Joulupukin Maa   -> "marion rung"
+        Marion & Four Cats – Joulupukin Maa        -> "marion"
+        Marion Rung – Tipi-Tii                     -> "marion rung"
+        Marion – Tipi-tii                          -> "marion"
+
+    Kumpikin pari on sama äänite kahdesti, ja kumpikin meni raportista
+    läpi kunnes pelaaja huomasi ne itse.
+
+    Siksi tämä vertailee saman nimisiä biisejä keskenään ja katsoo
+    artistista sanajoukkoa eikä merkkijonoa: jos toisen artistin sanat
+    ovat toisen osajoukko, kyse on samasta nimestä eri muodossa. Koko
+    artistikenttä otetaan mukaan eikä vain ensimmäistä nimeä, jotta
+    "& Four Cats" erottuu silloin kun se on aito ero.
+
+    Osajoukkosääntö on tahallaan varovainen: se ei yhdistä eri artisteja,
+    koska kummankaan sanat eivät ole toisen osajoukko. Se ei myöskään
+    korvaa ihmisen silmää, vaan nostaa parin katsottavaksi.
+    """
+    def sanat(artist):
+        return frozenset(norm(artist).split())
+
+    nimen_mukaan = collections.defaultdict(list)
+    for s in songs:
+        nimen_mukaan[ydin(s["title"])].append(s)
+
+    ulos = []
+    for ryhma in nimen_mukaan.values():
+        if len(ryhma) < 2:
+            continue
+        for i, x in enumerate(ryhma):
+            for y in ryhma[i + 1:]:
+                ax, ay = sanat(x["artist"]), sanat(y["artist"])
+                if ax == ay or not (ax <= ay or ay <= ax):
+                    continue  # sama avain jo ylempänä, tai aidosti eri artisti
+                ulos.append([x, y])
+    return ulos
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--poista", default="", help="pilkuin eroteltu lista tunnisteita")
@@ -68,7 +114,20 @@ def main() -> int:
                 print(f"      {s.get('year')}  taso {s['tier']}  "
                       f"{'PELISSÄ' if s.get('peli') is not False else 'täyte '}  "
                       f"{s['title']}  id {s['id']}")
-        if loydot:
+        muoto = ryhmat_nimimuoto(songs)
+        muoto_pelissa = sum(
+            1 for v in muoto if sum(1 for s in v if s.get("peli") is not False) > 1)
+        print(f"\nSAMA BIISI, ARTISTIN NIMI ERI MUODOSSA: {len(muoto)} paria")
+        print(f"Näistä {muoto_pelissa} sellaista, joissa useampi on arvattavana.\n")
+        for v in sorted(muoto, key=lambda v: -sum(1 for s in v if s.get("peli") is not False)):
+            monta = sum(1 for s in v if s.get("peli") is not False) > 1
+            print(f"  {v[0]['title']}{'   <-- USEAMPI PELISSÄ' if monta else ''}")
+            for s in v:
+                print(f"      {s.get('year')}  taso {s['tier']}  "
+                      f"{'PELISSÄ' if s.get('peli') is not False else 'täyte '}  "
+                      f"{s['artist']}  id {s['id']}")
+
+        if loydot or muoto:
             print("\nPoista valitsemasi rivit: --poista id,id,...")
         return 0
 

@@ -148,7 +148,7 @@
    * välimuistissa tyylimuutosten yli, mutta uusi katalogi on eri osoite ja
    * tulee varmasti perille – vanha versio antaisi pelaajalle eri päivän
    * biisit kuin muille. */
-  const KATALOGI_K = 18;
+  const KATALOGI_K = 19;
 
   /* Katalogi on kahdessa osassa, ks. scripts/tee_aanet.py.
    *

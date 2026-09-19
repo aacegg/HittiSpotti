@@ -1822,13 +1822,20 @@
 
   // ---------- Ehdotukset ----------
 
-  /* Montako ehdotusta lista näyttää enimmillään. Raja oli kahdeksan, mikä
-   * riitti biisin nimellä haettaessa mutta katkaisi artistihaun kesken:
-   * "gettomasa" antoi kahdeksan yhdeksästä. Katalogin suurimmilla artisteilla
-   * (Eppu Normaali ja PMMP, 20 kappaletta) menee yli kahdenkymmenen vasta jos
-   * katalogi kasvaa, joten 25 näyttää nykyisellään jokaisen artistin koko
-   * tuotannon. Lista vierii, joten pituus ei vie ruudulta tilaa. */
-  const OSUMIA = 25;
+  /* Montako ehdotusta lista näyttää enimmillään.
+   *
+   * Raja oli ensin kahdeksan, mikä riitti biisin nimellä haettaessa mutta
+   * katkaisi artistihaun kesken: "gettomasa" antoi kahdeksan yhdeksästä.
+   * Sitten 25, koska suurimmilla artisteilla oli silloin 20 kappaletta.
+   * Se vanheni katalogin kasvaessa: Cheekillä on nyt 31 biisiä pääartistina
+   * ja 34 kun feat-maininnat lasketaan mukaan, JVG:llä 27 ja 33. Raja
+   * katkaisi siis juuri niiden artistien haun joilla on eniten biisejä.
+   *
+   * 50 antaa nykyiselle suurimmalle kaksinkertaisen varan. Pituus ei maksa
+   * mitään: rivit ovat pelkkää tekstiä ilman kuvia ja verkkoa, ja lista on
+   * rajattu 46 prosenttiin ruudun korkeudesta ja vierii, joten se ei vie
+   * ruudulta tilaa eikä työnnä mitään pois. */
+  const OSUMIA = 50;
 
   function exactMatch(text) {
     const key = normalize(text);

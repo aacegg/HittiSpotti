@@ -242,7 +242,7 @@
     loppuu: "2026-09-21",
     kohdat: [
       "<b>Valitse useampi vuosikymmen kerralla</b> vapaassa pelissä, tai jätä vaikka 50-80-luku pois",
-      "<b>198 uutta biisiä</b>, nyt yhteensä 1 745",
+      "<b>198 uutta biisiä</b>, nyt yhteensä 1 744",
       "<b>163 biisin</b> vaikeustaso korjattu pelidatan perusteella",
     ],
   };

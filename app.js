@@ -338,6 +338,10 @@
     installSheet: $("#install-sheet"),
     installScrim: $("#install-scrim"),
     installClose: $("#install-close"),
+    mainosPeli: $("#mainos-peli"),
+    mainosPeliTila: $("#mainos-peli-tila"),
+    mainosTulos: $("#mainos-tulos"),
+    mainosTulosTila: $("#mainos-tulos-tila"),
     uuttaSheet: $("#uutta-sheet"),
     uuttaScrim: $("#uutta-scrim"),
     uuttaClose: $("#uutta-close"),
@@ -548,6 +552,12 @@
      * se jäi soimaan tulosnäkymään. Pysäytys näkymän vaihdossa kattaa kaikki
      * reitit kerralla. */
     if (name !== "game") stopPlayback();
+    /* Mainospaikat seuraavat näkymää. Pelin paikka kuuluu vain
+     * paljastukseen, joten se piilotetaan aina kun pelistä poistutaan; jos
+     * paljastus on yhä auki, showReveal näyttää sen uudestaan palatessa. */
+    if (name !== "game") piilotaMainos("peli");
+    if (name === "results") naytaMainos("tulos");
+    else piilotaMainos("tulos");
     for (const [k, v] of Object.entries(el.views)) v.hidden = k !== name;
     // Elävä väri kuuluu soivalle biisille. Muualla sivu palaa perusväriin,
     // jotta sovelluksella on myös oma pysyvä sävynsä.
@@ -1619,6 +1629,8 @@
       el.form.hidden = false;
       el.hint.textContent = "";
       el.views.game.classList.remove("is-revealed");
+      // Mainos kuuluu vain paljastukseen, ei arvausvaiheeseen.
+      piilotaMainos("peli");
     }
     renderRound();
   }
@@ -1783,6 +1795,7 @@
     renderRate(song);
     // Viimeisen biisin jälkeen nappi vie tuloksiin kummassakin pelimuodossa.
     el.nextBtn.textContent = state.rounds.some((x) => !x.finished) ? "Seuraava" : "Tulokset";
+    naytaMainos("peli");
   }
 
   function finishRound(solved) {
@@ -2926,6 +2939,106 @@
     el.rateRow.innerHTML = TIER_CYCLE.map((t) => `<button type="button"
       class="tchip${given === t ? " is-on" : ""}" data-rate="${t}" data-tier="${t}"
       aria-pressed="${given === t}">${TIER_NAMES[t]}</button>`).join("");
+  }
+
+  /* ---------- Mainokset ----------
+   *
+   * Mainokset ovat pois päältä niin kauan kuin JULKAISIJA on tyhjä. Se on
+   * tahallinen: koodi voidaan julkaista ennen kuin AdSense-tili on
+   * hyväksytty, eikä mitään lähde selaimesta ulos ennen kuin tunnus
+   * täytetään. Yksi rivi riittää kytkemään ne päälle.
+   *
+   * Paikkatunnukset tulevat AdSensen hallinnasta. Tyhjä paikka ohitetaan,
+   * joten mainoksia voi ottaa käyttöön yksi kerrallaan.
+   *
+   * Suostumusta ei kysytä tässä koodissa. AdSensen oma suostumusikkuna
+   * (Privacy & messaging) hoitaa ETA-alueen vaatimuksen, ja se tulee samasta
+   * skriptistä. Omatekoinen ikkuna olisi sekä turha että riski: Google
+   * vaatii sertifioidun ikkunan, eikä oma sellainen ole.
+   *
+   * HUOM: tämä on eri asia kuin dataLupa(). Se koskee pelin omaa
+   * tilastolähetystä, ja sen sulkeminen ei saa sulkea mainoksia: pelaajalle
+   * luvataan siinä vain että vaikeustasodata jää lähettämättä. */
+  const MAINOS_JULKAISIJA = "";                 // "ca-pub-0000000000000000"
+  const MAINOS_PAIKAT = { peli: "", tulos: "" };  // AdSensen slot-tunnukset
+  const MAINOS_SKRIPTI =
+    "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
+
+  /* Paikanvaraaja ulkoasun katsomista varten. Päälle osoitteen perään
+   * ?mainos=1. Se ei lataa mitään ulkopuolelta eikä jätä jälkeä mihinkään,
+   * joten sen voi näyttää myös tuotannossa ilman seurauksia. */
+  const mainosEsikatselu = new URLSearchParams(location.search).get("mainos") === "1";
+
+  const mainoksetPaalla = () => !!MAINOS_JULKAISIJA || mainosEsikatselu;
+  const mainosAlustetut = new Set();
+  let mainosSkriptiPyydetty = false;
+
+  /* Skripti ladataan vasta kun ensimmäistä mainosta tarvitaan, ei sivun
+   * latauksessa. Mainos on joka tapauksessa vierityksen takana, joten
+   * etusivun ei tarvitse odottaa sitä, ja peli pysyy yhtä nopeana kuin
+   * ennenkin niille jotka eivät vieritä alas. */
+  function lataaMainosskripti() {
+    if (mainosSkriptiPyydetty || !MAINOS_JULKAISIJA) return;
+    mainosSkriptiPyydetty = true;
+    const s = document.createElement("script");
+    s.async = true;
+    s.src = MAINOS_SKRIPTI + "?client=" + encodeURIComponent(MAINOS_JULKAISIJA);
+    s.crossOrigin = "anonymous";
+    document.head.appendChild(s);
+  }
+
+  /* Alustus vain kerran paikkaa kohden.
+   *
+   * Paljastus näytetään ja piilotetaan viisi kertaa sarjan aikana, ja
+   * adsbygoogle.push() heittää virheen jos sama ins-elementti työnnetään
+   * toistamiseen ("already have ads in them"). Siksi paikka täytetään
+   * ensimmäisellä kerralla ja jätetään sen jälkeen rauhaan. Käytännössä
+   * sama mainos näkyy koko sarjan ajan, mikä on myös AdSensen sääntöjen
+   * mukainen tapa: mainosta ei saa virkistää itse kesken katselun. */
+  function naytaMainos(nimi) {
+    if (!mainoksetPaalla()) return;
+    const kuori = nimi === "peli" ? el.mainosPeli : el.mainosTulos;
+    const tila = nimi === "peli" ? el.mainosPeliTila : el.mainosTulosTila;
+    if (!kuori || !tila) return;
+    if (mainosAlustetut.has(nimi)) { kuori.hidden = false; return; }
+
+    if (mainosEsikatselu && !MAINOS_JULKAISIJA) {
+      const laatikko = document.createElement("div");
+      laatikko.className = "mainos-esikatselu";
+      laatikko.textContent = "Mainospaikka (" + nimi + ")";
+      tila.appendChild(laatikko);
+      mainosAlustetut.add(nimi);
+      kuori.hidden = false;
+      return;
+    }
+
+    const paikka = MAINOS_PAIKAT[nimi];
+    if (!paikka) return;        // paikka ei vielä käytössä
+    lataaMainosskripti();
+    const ins = document.createElement("ins");
+    ins.className = "adsbygoogle";
+    ins.style.display = "block";
+    ins.dataset.adClient = MAINOS_JULKAISIJA;
+    ins.dataset.adSlot = paikka;
+    ins.dataset.adFormat = "auto";
+    ins.dataset.fullWidthResponsive = "true";
+    tila.appendChild(ins);
+    try {
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+      mainosAlustetut.add(nimi);
+      kuori.hidden = false;
+    } catch {
+      /* Mainoksen kaatuminen ei saa kaataa peliä: jos push epäonnistuu,
+       * paikka jää piiloon eikä sitä yritetä uudestaan. */
+      ins.remove();
+    }
+  }
+
+  /* Paikka piiloon kun paljastus sulkeutuu. Sisältö jää DOM:iin, joten
+   * mainosta ei alusteta uudestaan, vain kuori piilotetaan. */
+  function piilotaMainos(nimi) {
+    const kuori = nimi === "peli" ? el.mainosPeli : el.mainosTulos;
+    if (kuori) kuori.hidden = true;
   }
 
   // ---------- Tallennus & tilastot ----------

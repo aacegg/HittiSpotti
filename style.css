@@ -1992,3 +1992,55 @@ body.sheet-open { overflow: hidden; }
   color: var(--live);
   font-weight: 600;
 }
+
+/* ---------- Mainokset ----------
+   Mainos on vieras sivulla jonka koko ilme on hiljainen, joten se erotetaan
+   selvästi eikä naamioida sisällöksi: oma otsikko, viiva yläpuolella ja
+   reilusti ilmaa ympärillä.
+
+   Korkeus varataan etukäteen. Ilman varausta mainos työntäisi sisältöä
+   alaspäin juuri silloin kun pelaaja on alkanut lukea sitä, ja paljastuksessa
+   se siirtäisi nappeja sormen alta. Varattu tila on sama tyhjänäkin, joten
+   sivu ei nytkähdä riippumatta siitä täyttyykö paikka. */
+/* Peliosa varaa yhden ruudullisen, jotta mainos jää taitteen alapuolelle.
+   dvh eikä vh: iOS:n Safarissa vh tarkoittaa osoiterivi piilossa -korkeutta,
+   joten vh jättäisi mainoksen kurkistamaan silloin kun rivi on näkyvissä. */
+.peliosa { min-height: 100dvh; }
+
+.mainos {
+  margin-top: var(--s7);
+  padding-top: var(--s5);
+  border-top: 1px solid var(--line-soft);
+}
+.mainos[hidden] { display: none; }
+.mainos-otsikko {
+  margin: 0 0 var(--s4);
+  font-size: var(--f2);
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.mainos-tila {
+  min-height: 250px;      /* sama kuin tavallisin mainoskoko */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+/* Leveällä ruudulla mainos ei saa levitä tekstipalstaa leveämmäksi. */
+.mainos-tila > * { max-width: 100%; }
+
+/* Paikanvaraaja: näkyy vain paikallisessa kokeilussa, kun oikeaa
+   mainostunnusta ei ole. Tuotannossa tätä ei koskaan renderöidä. */
+.mainos-esikatselu {
+  width: 100%;
+  min-height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--line);
+  border-radius: var(--r);
+  color: var(--dim);
+  font-size: var(--f3);
+}

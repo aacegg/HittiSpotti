@@ -27,17 +27,17 @@
        kuvakkeesta kiinni omassa välimuistissaan sitkeämmin kuin mistään
        muusta, eikä pelkkä uusi tiedostosisältö samassa osoitteessa riitä
        vaihtamaan sitä. -->
-  <link rel="icon" href="favicon.svg?v=116" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg?v=117" type="image/svg+xml">
   <!-- iOS ei tue SVG:tä kotinäytön kuvakkeena: SVG:llä se otti sivusta
        ruudunkaappauksen kuvakkeen sijaan. 180 px on iPhonen koko. -->
-  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=116">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=116">
-  <link rel="manifest" href="manifest.webmanifest?v=116">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=117">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=117">
+  <link rel="manifest" href="manifest.webmanifest?v=117">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HittiSpotti">
   <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=116">
+  <link rel="stylesheet" href="style.css?v=117">
 
   <script type="application/ld+json">
   {
@@ -243,6 +243,13 @@
 
     <!-- PELI -->
     <section id="view-game" class="view view-game" hidden>
+      <!-- Peliosa varaa vähintään yhden ruudullisen korkeutta, jotta sen
+           jälkeen tuleva mainos jää aina taitteen alapuolelle riippumatta
+           siitä kuinka lyhyt paljastus tai arvausloki sattuu olemaan.
+           Pelkkä iso marginaali ei riittäisi: se on sama pikselimäärä
+           ruudun korkeudesta riippumatta, ja mainos kurkisti näkyviin
+           puhelimella (mitattu: yläreuna 665 px, ruutu 844 px). -->
+      <div class="peliosa">
       <!-- Yksi ruudullinen, jonka korkeus ei riipu arvauslokista: soitin ei
            saa hypähtää joka ohituksella. Loki jää tämän lohkon ulkopuolelle. -->
       <div class="screen">
@@ -326,6 +333,20 @@
       </div><!-- /.screen -->
 
       <ul id="guess-log" class="log" aria-live="polite"></ul>
+      </div><!-- /.peliosa -->
+
+      <!-- Mainos näkyy vain paljastuksen aikana ja vain alaspäin
+           vierittämällä: se ei saa olla pelin tiellä eikä näkyä silloin kun
+           pelaaja kuuntelee pätkää ja miettii vastausta.
+
+           Etäisyys nappeihin on tahallisen iso. Mainos heti "Seuraava"-napin
+           alla keräisi vahinkopainalluksia, ja AdSense tulkitsee ne
+           kelvottomiksi klikkauksiksi, mikä vaarantaa koko tilin. Sama syy
+           on otsikolla: pelaajan on nähtävä mikä on mainos ja mikä peliä. -->
+      <aside class="mainos" id="mainos-peli" hidden>
+        <p class="mainos-otsikko">Mainos</p>
+        <div class="mainos-tila" id="mainos-peli-tila"></div>
+      </aside>
     </section>
 
     <!-- TULOKSET -->
@@ -346,6 +367,13 @@
         <button type="button" class="btn btn-accent" id="share-btn">Jaa tulos</button>
         <button type="button" class="btn" id="results-again-btn">Vapaa peli</button>
       </div>
+
+      <!-- Tulossivun mainos on nappien alla, koska tulokset luetaan ylhäältä
+           alas ja sivu on täällä muutenkin vieritettävä. -->
+      <aside class="mainos" id="mainos-tulos" hidden>
+        <p class="mainos-otsikko">Mainos</p>
+        <div class="mainos-tila" id="mainos-tulos-tila"></div>
+      </aside>
     </section>
 
     <!-- TILASTOT -->
@@ -555,7 +583,7 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=116"></script>
+  <script src="app.js?v=117"></script>
 
   <!-- Kävijälaskenta: ei evästeitä, ei henkilötietoja, ei seurantaa yli
        sivustorajojen – siksi tämä ei vaadi suostumusikkunaa. Ladataan

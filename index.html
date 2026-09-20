@@ -249,7 +249,7 @@
            Pelkkä iso marginaali ei riittäisi: se on sama pikselimäärä
            ruudun korkeudesta riippumatta, ja mainos kurkisti näkyviin
            puhelimella (mitattu: yläreuna 665 px, ruutu 844 px). -->
-      <div class="peliosa">
+      <div class="ennen-mainosta">
       <!-- Yksi ruudullinen, jonka korkeus ei riipu arvauslokista: soitin ei
            saa hypähtää joka ohituksella. Loki jää tämän lohkon ulkopuolelle. -->
       <div class="screen">
@@ -333,7 +333,7 @@
       </div><!-- /.screen -->
 
       <ul id="guess-log" class="log" aria-live="polite"></ul>
-      </div><!-- /.peliosa -->
+      </div><!-- /.ennen-mainosta -->
 
       <!-- Mainos näkyy vain paljastuksen aikana ja vain alaspäin
            vierittämällä: se ei saa olla pelin tiellä eikä näkyä silloin kun
@@ -353,6 +353,7 @@
     <section id="view-results" class="view" hidden>
       <!-- Yksi kärki, ei viittä päällekkäistä tyylikerrosta: päiväys hiljaa
            ylhäällä, pisteluku isona, yhteenveto pienenä alla. -->
+      <div class="ennen-mainosta">
       <h2 id="results-title" class="results-dateline">Tulokset</h2>
       <p class="score-big"><strong id="results-score">0</strong> <span class="unit">pistettä</span></p>
       <p class="results-sub" id="results-sub"></p>
@@ -367,9 +368,12 @@
         <button type="button" class="btn btn-accent" id="share-btn">Jaa tulos</button>
         <button type="button" class="btn" id="results-again-btn">Vapaa peli</button>
       </div>
+      </div><!-- /.ennen-mainosta -->
 
-      <!-- Tulossivun mainos on nappien alla, koska tulokset luetaan ylhäältä
-           alas ja sivu on täällä muutenkin vieritettävä. -->
+      <!-- Tulossivun mainos on nappien alla. Sama ruudullisen varaus kuin
+           pelinäkymässä: ilman sitä mainos näkyi ilman vierittämistä, koska
+           viiden biisin tuloslista ei yksin täytä ruutua (mitattu: yläreuna
+           688 px, ruutu 844 px). -->
       <aside class="mainos" id="mainos-tulos" hidden>
         <p class="mainos-otsikko">Mainos</p>
         <div class="mainos-tila" id="mainos-tulos-tila"></div>

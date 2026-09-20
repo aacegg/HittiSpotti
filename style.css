@@ -2002,10 +2002,10 @@ body.sheet-open { overflow: hidden; }
    alaspäin juuri silloin kun pelaaja on alkanut lukea sitä, ja paljastuksessa
    se siirtäisi nappeja sormen alta. Varattu tila on sama tyhjänäkin, joten
    sivu ei nytkähdä riippumatta siitä täyttyykö paikka. */
-/* Peliosa varaa yhden ruudullisen, jotta mainos jää taitteen alapuolelle.
+/* Mainosta edeltävä osa varaa yhden ruudullisen, jotta mainos jää taitteen alapuolelle.
    dvh eikä vh: iOS:n Safarissa vh tarkoittaa osoiterivi piilossa -korkeutta,
    joten vh jättäisi mainoksen kurkistamaan silloin kun rivi on näkyvissä. */
-.peliosa { min-height: 100dvh; }
+.ennen-mainosta { min-height: 100dvh; }
 
 .mainos {
   margin-top: var(--s7);

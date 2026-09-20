@@ -338,6 +338,7 @@
     installSheet: $("#install-sheet"),
     installScrim: $("#install-scrim"),
     installClose: $("#install-close"),
+    mainosEiViela: $("#mainos-ei-viela"),
     mainosPeli: $("#mainos-peli"),
     mainosPeliTila: $("#mainos-peli-tila"),
     mainosTulos: $("#mainos-tulos"),
@@ -3043,6 +3044,15 @@
     }
   }
 
+  /* Ohjeiden "mainoksia ei vielä näytetä" pois heti kun jokin paikka on
+   * täytetty. Tämä ajetaan kerran käynnistyksessä, ks. init. Esikatselu ei
+   * laske: ?mainos=1 näyttää vain paikanvaraajan, ei oikeaa mainosta. */
+  function paivitaMainosteksti() {
+    if (!el.mainosEiViela) return;
+    const kaytossa = Object.values(MAINOS_PAIKAT).some((p) => !!p);
+    el.mainosEiViela.hidden = kaytossa;
+  }
+
   /* Paikka piiloon kun paljastus sulkeutuu. Sisältö jää DOM:iin, joten
    * mainosta ei alusteta uudestaan, vain kuori piilotetaan. */
   function piilotaMainos(nimi) {
@@ -3368,6 +3378,7 @@
     const palaava = store.keys().length > 0;
     pruneProgress();
     lataaKaudet();
+    paivitaMainosteksti();
     bind();
     await loadAndStart();
     naytaUutta(palaava);

@@ -2943,13 +2943,19 @@
 
   /* ---------- Mainokset ----------
    *
-   * Mainokset ovat pois päältä niin kauan kuin JULKAISIJA on tyhjä. Se on
-   * tahallinen: koodi voidaan julkaista ennen kuin AdSense-tili on
-   * hyväksytty, eikä mitään lähde selaimesta ulos ennen kuin tunnus
-   * täytetään. Yksi rivi riittää kytkemään ne päälle.
+   * Mainokset ovat pois päältä niin kauan kuin MAINOS_PAIKAT on tyhjä.
+   * Tyhjä paikka ohitetaan ennen kuin skriptiä edes pyydetään, joten
+   * selaimesta ei lähde mitään Googlelle eikä evästeitä voi syntyä. Sama
+   * ehto antaa ottaa paikat käyttöön yksi kerrallaan.
    *
-   * Paikkatunnukset tulevat AdSensen hallinnasta. Tyhjä paikka ohitetaan,
-   * joten mainoksia voi ottaa käyttöön yksi kerrallaan.
+   * Julkaisijatunnus saa siis olla täytettynä jo ennen sitä. Se ei ole
+   * salaisuus: se on tarkoitettu näkymään jokaisen mainosta näyttävän
+   * sivun lähdekoodissa ja se on myös ads.txt-tiedostossa.
+   *
+   * ENNEN KUIN PAIKAT TÄYTETÄÄN, kaksi asiaa on oltava kunnossa:
+   *   1. AdSensen suostumusikkuna (Privacy & messaging) päällä ETA-alueelle
+   *   2. ohjeiden tietosuojakohta kirjoitettu uusiksi, koska siinä lukee
+   *      yhä "Ei evästeitä ... Siksi tämä sivu ei tarvitse evästeilmoitusta"
    *
    * Suostumusta ei kysytä tässä koodissa. AdSensen oma suostumusikkuna
    * (Privacy & messaging) hoitaa ETA-alueen vaatimuksen, ja se tulee samasta
@@ -2959,7 +2965,7 @@
    * HUOM: tämä on eri asia kuin dataLupa(). Se koskee pelin omaa
    * tilastolähetystä, ja sen sulkeminen ei saa sulkea mainoksia: pelaajalle
    * luvataan siinä vain että vaikeustasodata jää lähettämättä. */
-  const MAINOS_JULKAISIJA = "";                 // "ca-pub-0000000000000000"
+  const MAINOS_JULKAISIJA = "ca-pub-2029070076507506";
   const MAINOS_PAIKAT = { peli: "", tulos: "" };  // AdSensen slot-tunnukset
   const MAINOS_SKRIPTI =
     "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
@@ -3002,7 +3008,10 @@
     if (!kuori || !tila) return;
     if (mainosAlustetut.has(nimi)) { kuori.hidden = false; return; }
 
-    if (mainosEsikatselu && !MAINOS_JULKAISIJA) {
+    /* Esikatselu voittaa aina. Ehto oli ennen "&& !MAINOS_JULKAISIJA",
+     * jolloin ?mainos=1 lakkasi toimimasta heti kun tunnus täytettiin, eikä
+     * ulkoasua olisi enää päässyt katsomaan ilman oikeita mainoksia. */
+    if (mainosEsikatselu) {
       const laatikko = document.createElement("div");
       laatikko.className = "mainos-esikatselu";
       laatikko.textContent = "Mainospaikka (" + nimi + ")";

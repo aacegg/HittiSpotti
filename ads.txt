@@ -1,0 +1,13 @@
+# ads.txt kertoo kuka saa myydä mainostilaa tästä osoitteesta.
+#
+# Tiedosto on tarkoitettu julkiseksi ja se luetaan osoitteesta
+# hittispotti.fi/ads.txt. Julkaisijatunnus ei ole salaisuus: se näkyy
+# muutenkin jokaisen mainosta näyttävän sivun lähdekoodissa.
+#
+# Kentät ovat: mainosjärjestelmä, julkaisijatunnus, suhde, varmennetunnus.
+# DIRECT tarkoittaa että tili on oma eikä välittäjän. Viimeinen kenttä on
+# Googlen oma tunniste TAG-rekisterissä, sama kaikilla Googlen julkaisijoilla.
+#
+# Huomaa että tunnus kirjoitetaan tänne ilman ca-etuliitettä, vaikka
+# AdSense näyttää sen muodossa ca-pub-...
+google.com, pub-2029070076507506, DIRECT, f08c47fec0942fa0

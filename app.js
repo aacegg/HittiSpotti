@@ -113,7 +113,6 @@
     pakkaAjastin = setTimeout(async () => {
       pakkaAjastin = 0;
       stopPlayback();
-      lahetaArvio();
       await startFree();
       /* Valikko on auki ja siellä vaihtui rivejä: pelimuodon korostus ja
        * "Aloita peli alusta", joka kuuluu vain vapaaseen peliin. */
@@ -373,9 +372,6 @@
     revealArtist: $("#reveal-artist"),
     revealApple: $("#reveal-apple"),
     revealPoints: $("#reveal-points"),
-    rate: $("#rate"),
-    rateQ: $("#rate-q"),
-    rateRow: $("#rate-row"),
     dataConsent: $("#data-consent"),
     replayBtn: $("#replay-btn"),
     nextBtn: $("#next-btn"),
@@ -1598,8 +1594,6 @@
 
   function openRound() {
     stopPlayback();
-    // Edellisen biisin arvio on nyt lopullinen: pelaaja siirtyi eteenpäin.
-    lahetaArvio();
     const r = cur();
     state.selected = null;
     el.input.value = "";
@@ -1776,7 +1770,6 @@
     el.revealApple.href = `https://music.apple.com/fi/song/${song.id}`;
     el.revealApple.setAttribute("aria-label", `Kuuntele ${song.artist} – ${song.title} Apple Musicissa`);
     el.revealPoints.textContent = r.solved ? `+${fmt(r.points)} pistettä` : "0 pistettä";
-    renderRate(song);
     // Viimeisen biisin jälkeen nappi vie tuloksiin kummassakin pelimuodossa.
     el.nextBtn.textContent = state.rounds.some((x) => !x.finished) ? "Seuraava" : "Tulokset";
     naytaMainos("peli");
@@ -1819,11 +1812,6 @@
   }
 
   function nextRound() {
-    /* Viimeisen biisin arvio jäi ennen roikkumaan: sarjan lopussa mennään
-     * tuloksiin eikä openRoundin kautta, joten mikään ei tyhjentänyt jonoa
-     * ennen kuin välilehti suljettiin. Se meni yleensä perille mutta ei aina.
-     * Tyhjennys tässä kattaa molemmat haarat kerralla. */
-    lahetaArvio();
     // Siirry seuraavaan kesken olevaan biisiin, tarvittaessa alusta kiertäen.
     for (let k = 1; k <= state.rounds.length; k++) {
       const i = (state.at + k) % state.rounds.length;
@@ -2863,67 +2851,17 @@
     } catch { /* tilastointi ei koskaan riko peliä */ }
   }
 
-  /* Arvion lähetys.
+  /* Pelaajan oma vaikeusarvio ("Miltä tämä tuntui?") on poistettu.
    *
-   * Arvio on toinen signaali samasta biisistä: askel kertoo mitä pelaaja
-   * teki, arvio mitä hän ajatteli. Vertaamalla niitä näkee onko biisi
-   * oikeasti vaikea vai tuntuuko se vain siltä.
+   * Se oli toinen signaali samasta biisistä: askel kertoi mitä pelaaja
+   * teki, arvio mitä hän ajatteli. Käytännössä tasot on kuitenkin johdettu
+   * mitatusta vaikeudesta, ja paljastuksesta tarvittiin pystysuora tila
+   * mainokselle. Palvelimen /arvio-päätepiste on yhä olemassa eikä sinne
+   * enää lähetetä mitään.
    *
-   * Kaksi eroa kierroksen lähetykseen, molemmat siksi että palvelin osaa
-   * vain kasvattaa lukua eikä siirtää sitä sarakkeesta toiseen:
-   *
-   *   1. Lähetys tapahtuu vasta kun pelaaja siirtyy eteenpäin, ei joka
-   *      napautuksesta. Mielensä saa siis muuttaa ilman että palvelin
-   *      laskee kolme mielipidettä yhdestä.
-   *   2. Kustakin biisistä lähtee vain ensimmäinen arvio. Jälkikäteen
-   *      vaihdettu arvio näkyy pelaajalle itselleen mutta jää selaimeen.
-   *
-   * Kolmas vaihtoehto olisi lähettää vanha ja uusi arvio ja antaa palvelimen
-   * vähentää edellinen. Se vaatisi luottamaan siihen mitä selain väittää
-   * lähettäneensä aiemmin, ja osoite on julkinen: kuka tahansa voisi
-   * vähentää mitä tahansa. Ensimmäinen arvio on huonompi mutta rehellinen.
-   */
-  let odottavaArvio = null;
-
-  function saveRating(song, tier) {
-    const all = store.get("arviot", {});
-    all[song.id] = tier;
-    store.set("arviot", all);
-    // Toisen biisin odottava arvio lähtee ensin, jottei se jää jumiin.
-    if (odottavaArvio && odottavaArvio.id !== song.id) lahetaArvio();
-    odottavaArvio = { id: song.id, taso: song.tier, arvio: tier };
-  }
-
-  function lahetaArvio() {
-    const a = odottavaArvio;
-    odottavaArvio = null;
-    if (!a || !PALVELIN || !dataLupa()) return;
-    const lahetetyt = store.get("arviot:lahetetyt", []);
-    if (lahetetyt.includes(a.id)) return;
-    const runko = JSON.stringify({ id: a.id, taso: a.taso, arvio: a.arvio });
-    try {
-      if (navigator.sendBeacon) {
-        navigator.sendBeacon(PALVELIN + "/arvio", new Blob([runko], { type: "text/plain" }));
-      } else {
-        fetch(PALVELIN + "/arvio", {
-          method: "POST", body: runko, keepalive: true,
-          headers: { "content-type": "text/plain" },
-        }).catch(() => {});
-      }
-      lahetetyt.push(a.id);
-      store.set("arviot:lahetetyt", lahetetyt.slice(-LOG_MAX));
-    } catch { /* tilastointi ei koskaan riko peliä */ }
-  }
-
-  /* Arviorivi näyttää samalta kuin pelin tasorivi, mutta ei paljasta biisin
-   * nykyistä tasoa: valmiiksi valittu vaihtoehto ohjaisi vastausta. */
-  function renderRate(song) {
-    const given = store.get("arviot", {})[song.id];
-    el.rateQ.textContent = given ? `Arviosi: ${TIER_NAMES[given]}` : "Miltä tämä tuntui?";
-    el.rateRow.innerHTML = TIER_CYCLE.map((t) => `<button type="button"
-      class="tchip${given === t ? " is-on" : ""}" data-rate="${t}" data-tier="${t}"
-      aria-pressed="${given === t}">${TIER_NAMES[t]}</button>`).join("");
-  }
+   * Selaimeen aiemmin tallennetut arviot jäävät avaimen "arviot" alle.
+   * Niitä ei lueta enää mistään, mutta niitä ei myöskään poisteta: ne ovat
+   * pelaajan omaa dataa eikä niiden hävittämiseen ole syytä. */
 
   /* ---------- Mainokset ----------
    *
@@ -3132,7 +3070,7 @@
    * pyörivässä pelissä estää – mutta poistaa vahingossa tapahtuvan reitin ja
    * tekee napista sen mitä sen nimi lupaa. */
   function resetStats() {
-    if (!confirm("Nollataanko tilastot ja aiempien päivien tulokset? Omat arviot ja kerätty pelidata säilyvät.")) return;
+    if (!confirm("Nollataanko tilastot ja aiempien päivien tulokset? Kerätty pelidata säilyy.")) return;
     const tanaan = "daily:" + todayKey();
     for (const key of store.keys()) {
       const menneetTulokset = key.startsWith("daily:") && key !== tanaan && !key.endsWith(":kesken");
@@ -3182,7 +3120,6 @@
     }
     closeDrawer();
     stopPlayback();
-    lahetaArvio();
     if (target === "daily") await startDaily();
     else if (target === "free") await startFree();
     else if (target === "stats") show("stats");
@@ -3229,12 +3166,6 @@
       if (audio.playing) { stopPlayback(); return; }
       playClip(STEPS[STEPS.length - 1]);
     });
-    el.rateRow.addEventListener("click", (e) => {
-      const chip = e.target.closest("[data-rate]");
-      if (!chip || cur() === undefined) return;
-      saveRating(cur().song, Number(chip.dataset.rate));
-      renderRate(cur().song);
-    });
     el.retryBtn.addEventListener("click", loadAndStart);
     asetaPalautelinkki();
     if (el.dataConsent) {
@@ -3255,12 +3186,8 @@
      * ei toivu pelkällä herätyksellä. Siksi soitto pysäytetään siististi
      * poistuttaessa ja konteksti merkitään uusittavaksi. */
     document.addEventListener("visibilitychange", () => {
-      if (document.hidden) { stopPlayback(); audio.revive = true; lahetaArvio(); }
+      if (document.hidden) { stopPlayback(); audio.revive = true; }
     });
-    /* Välilehden sulkeminen on viimeinen hetki jolloin odottava arvio voi
-     * vielä lähteä. visibilitychange ei laukea kaikissa selaimissa sulkiessa,
-     * pagehide laukeaa. */
-    window.addEventListener("pagehide", lahetaArvio);
     // Näppäimistön avautuminen ja sulkeutuminen muuttaa näkyvää aluetta.
     if (window.visualViewport) {
       window.visualViewport.addEventListener("resize", updateSearchMode);

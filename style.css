@@ -1352,6 +1352,13 @@ button.tchip:hover { color: var(--text); }
    biisiin. Kun tasorivi väistyy, ruudulla on vain yksi pilleririvi ja se on
    arvio. Biisistä toiseen pääsee Seuraava-napilla. */
 .view-game.is-revealed #tierbar { display: none; }
+/* Arvausloki pois paljastuksen ajaksi.
+   Se luettelee omat arvaukset biisistä jonka oikea vastaus on jo ruudulla,
+   eli se on juuri siinä hetkessä toisteinen. Tila tarvitaan mainokselle:
+   mitattuna loki vei 183 px, ja ilman sitä mainos jäi iPhone SE:llä
+   kokonaan ruudun alapuolelle (yläreuna 672, ruutu 667). Loki palaa
+   näkyviin heti kun seuraava kierros avataan. */
+.view-game.is-revealed #guess-log { display: none; }
 
 /* Hakutila. Kun kenttään kirjoitetaan, näppäimistö vie alaosan ja ehdotuksille
    jää murto-osa ruudusta: mitattuna kahdeksasta ehdotuksesta ylsi painettavaksi
@@ -1438,21 +1445,6 @@ button.tchip:hover { color: var(--text); }
   letter-spacing: -.03em;
   font-variant-numeric: tabular-nums;
 }
-/* Vapaaehtoinen vaikeusarvio paljastuksessa. Käyttää samoja pillereitä kuin
-   pelin tasorivi, jotta merkitys on heti tuttu, mutta on hillitympi eikä
-   kilpaile Seuraava-napin kanssa. */
-.rate { grid-column: 1 / -1; margin-top: var(--s2); }
-.rate-q {
-  margin-bottom: var(--s3);
-  font-size: var(--f1);
-  font-weight: 600;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--dim);
-}
-.rate-row { margin: 0; padding: 0 0 var(--s1); }
-.rate-row .tchip { font-size: var(--f1); padding: var(--s2) var(--s3); }
-
 .reveal .row { grid-column: 1 / -1; margin-top: var(--s1); }
 
 /* ---------- Tulokset ----------
@@ -2002,10 +1994,21 @@ body.sheet-open { overflow: hidden; }
    alaspäin juuri silloin kun pelaaja on alkanut lukea sitä, ja paljastuksessa
    se siirtäisi nappeja sormen alta. Varattu tila on sama tyhjänäkin, joten
    sivu ei nytkähdä riippumatta siitä täyttyykö paikka. */
-/* Mainosta edeltävä osa varaa yhden ruudullisen, jotta mainos jää taitteen alapuolelle.
+/* Mainosta edeltävä osa varaa yhden ruudullisen, jotta mainos jää taitteen
+   alapuolelle silloin kun sen kuuluu olla siellä.
    dvh eikä vh: iOS:n Safarissa vh tarkoittaa osoiterivi piilossa -korkeutta,
    joten vh jättäisi mainoksen kurkistamaan silloin kun rivi on näkyvissä. */
 .ennen-mainosta { min-height: 100dvh; }
+
+/* Paljastuksen aikana varaus puretaan, jolloin mainos nousee ruudulle ilman
+   vierittämistä.
+   Syy on rahassa: mainos lasketaan nähdyksi vasta kun puolet siitä on ollut
+   ruudulla sekunnin. Vierityksen takana oleva mainos jää valtaosalta
+   näkemättä, ja koska yksi sivunlataus on yksi mainosnäyttö eikä sitä saa
+   virkistää, se yksi näyttö menee silloin hukkaan.
+   Tämä koskee vain paljastusta. Arvausvaiheessa lomake on ruudun alalaidassa
+   eikä mainos saa olla sen tiellä, joten silloin varaus on voimassa. */
+.view-game.is-revealed .ennen-mainosta { min-height: 0; }
 
 .mainos {
   margin-top: var(--s7);

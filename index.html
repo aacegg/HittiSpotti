@@ -27,17 +27,17 @@
        kuvakkeesta kiinni omassa välimuistissaan sitkeämmin kuin mistään
        muusta, eikä pelkkä uusi tiedostosisältö samassa osoitteessa riitä
        vaihtamaan sitä. -->
-  <link rel="icon" href="favicon.svg?v=119" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg?v=120" type="image/svg+xml">
   <!-- iOS ei tue SVG:tä kotinäytön kuvakkeena: SVG:llä se otti sivusta
        ruudunkaappauksen kuvakkeen sijaan. 180 px on iPhonen koko. -->
-  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=119">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=119">
-  <link rel="manifest" href="manifest.webmanifest?v=119">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=120">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=120">
+  <link rel="manifest" href="manifest.webmanifest?v=120">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HittiSpotti">
   <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=119">
+  <link rel="stylesheet" href="style.css?v=120">
 
   <script type="application/ld+json">
   {
@@ -318,13 +318,6 @@
         </div>
         <p id="reveal-points" class="reveal-points"></p>
 
-        <!-- Vapaaehtoinen arvio. Ei estä eteenpäin menoa eikä näytä nykyistä
-             tasoa, jottei se ohjaa vastausta. -->
-        <div class="rate" id="rate">
-          <p class="rate-q" id="rate-q">Miltä tämä tuntui?</p>
-          <div class="tierbar rate-row" id="rate-row"></div>
-        </div>
-
         <div class="row">
           <button type="button" class="btn" id="replay-btn">Kuuntele</button>
           <button type="button" class="btn btn-accent" id="next-btn">Seuraava</button>
@@ -490,9 +483,9 @@
         <details>
           <summary><span>Mitä tietoja minusta kerätään?</span></summary>
           <div class="faq-body">
-            <p>Tulokset, tilastot ja omat arviot tallentuvat vain selaimeesi. Peli ei kysy nimeä, sähköpostia eikä mitään muutakaan, eikä sinusta luoda tunnistetta.</p>
-            <p>Ulos lähtee neljä asiaa. <strong>Kävijälaskuri</strong> (GoatCounter) kirjaa käynnin ja kaksi tapahtumaa: päivän sarjan aloituksen ja sen valmiiksi pelaamisen. <strong>Kierroksista</strong> lähtee biisi, sen taso, monenko sekunnin pätkästä tunnistit sen ja kumpaa pelimuotoa pelasit. <strong>Arvioista</strong> lähtee biisi, sen taso ja se mitä vastasit, jos vastasit. <strong>Päivän sarjasta</strong> lähtee pistemääräsi ja se päivä jonka sarjan pelasit.</p>
-            <p>Kolme ensimmäistä ovat vaikeustasoja varten. Kierros mittaa mitä ihmiset oikeasti tekevät, arvio mitä he ajattelivat, ja vasta yhdessä ne kertovat mikä biisi on minkäkin vaikea. Neljäs on sitä varten, että tulossivulla näet miten muut pärjäsivät saman päivän sarjassa.</p>
+            <p>Tulokset ja tilastot tallentuvat vain selaimeesi. Peli ei kysy nimeä, sähköpostia eikä mitään muutakaan, eikä sinusta luoda tunnistetta.</p>
+            <p>Ulos lähtee kolme asiaa. <strong>Kävijälaskuri</strong> (GoatCounter) kirjaa käynnin ja kaksi tapahtumaa: päivän sarjan aloituksen ja sen valmiiksi pelaamisen. <strong>Kierroksista</strong> lähtee biisi, sen taso, monenko sekunnin pätkästä tunnistit sen ja kumpaa pelimuotoa pelasit. <strong>Päivän sarjasta</strong> lähtee pistemääräsi ja se päivä jonka sarjan pelasit.</p>
+            <p>Kaksi ensimmäistä ovat vaikeustasoja varten: kierros mittaa mitä ihmiset oikeasti tekevät, ja siitä lasketaan mikä biisi on minkäkin vaikea. Kolmas on sitä varten, että tulossivulla näet miten muut pärjäsivät saman päivän sarjassa.</p>
             <p>Mukana ei mene tunnistetta eikä mitään joka yhdistäisi kaksi kierrostasi toisiinsa: palvelin laskee vain summia biiseittäin ja päivittäin. Päivä tallentuu sarjan tuloksesta, koska vertailu on päiväkohtainen, mutta sekin on pelkkä summa johon oma tuloksesi katoaa muiden joukkoon.</p>
             <p>Voit kytkeä lähetyksen pois <strong>Tilastot</strong>-sivun alalaidasta. Silloin peli ei ota tilastopalvelimeen yhteyttä lainkaan, eli et myöskään näe vertailua muihin.</p>
             <p>Peli itse ei käytä evästeitä eikä kirjautumista, eikä se seuraa sinua muille sivustoille.</p>
@@ -504,7 +497,7 @@
                  varaan. Oletuksena näkyvissä: jos skripti ei aja, mainoksia
                  ei myöskään näytetä, joten näkyvä teksti on silloin oikea. -->
             <p id="mainos-ei-viela">Tällä hetkellä mainoksia ei vielä näytetä eikä sivulta lähde Googlelle mitään.</p>
-            <p>Peli ei myöskään näytä mainoksia kesken biisin: ne ovat vain oikean vastauksen paljastuksen ja tulossivun alapuolella, vierityksen takana.</p>
+            <p>Peli ei näytä mainoksia silloin kun kuuntelet pätkää tai kirjoitat arvausta. Mainos tulee näkyviin vasta kun oikea vastaus on paljastettu, ja tulossivulla, eikä se koskaan peitä pelin painikkeita.</p>
           </div>
         </details>
       </div>
@@ -596,7 +589,7 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=119"></script>
+  <script src="app.js?v=120"></script>
 
   <!-- Kävijälaskenta: ei evästeitä, ei henkilötietoja, ei seurantaa yli
        sivustorajojen – siksi tämä ei vaadi suostumusikkunaa. Ladataan

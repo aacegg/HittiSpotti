@@ -148,7 +148,7 @@
    * välimuistissa tyylimuutosten yli, mutta uusi katalogi on eri osoite ja
    * tulee varmasti perille – vanha versio antaisi pelaajalle eri päivän
    * biisit kuin muille. */
-  const KATALOGI_K = 19;
+  const KATALOGI_K = 20;
 
   /* Katalogi on kahdessa osassa, ks. scripts/tee_aanet.py.
    *
@@ -1022,46 +1022,13 @@
     return deck(tier, Math.floor(day / n))[((day % n) + n) % n];
   }
 
-  /* Lukitut päivät.
+  /* Lukitut päivät 17.-20.9.2026 on poistettu.
    *
-   * Pakka on pelkkä katalogin funktio: yhdenkin biisin lisääminen,
-   * poistaminen tai tason vaihtaminen sekoittaa sen tason järjestyksen
-   * kokonaan, eikä vaikutus rajoitu tulevaisuuteen vaan koskee myös
-   * kuluvaa päivää. Se on oikea käytös, koska se pitää sarjan samana
-   * kaikilla ilman palvelinta.
+   * Taulukko kiinnitti neljän päivän biisit, koska niistä oli kuvattu
+   * videot etukäteen. Viimeinen niistä on mennyt, joten taulukko ei enää
+   * tee mitään ja lukitushaara dailySongsista on poistettu.
    *
-   * Päivän biiseistä kuvataan kuitenkin videot etukäteen, ja niiden
-   * julkaisupäivät ovat lyötyjä lukkoon pelin ulkopuolella. Katalogin
-   * päivitys kesken kuvatun jakson tekisi videoista vääriä. Siksi
-   * julkaisemattomat mutta jo kuvatut päivät kiinnitetään tähän
-   * id-luettelona: järjestys on tasojärjestys 1-5, eli sama kuin
-   * TIER_CYCLE antaisi.
-   *
-   * Pelkkä biisin kiinnittäminen ei riitä. Taso ohjaa koko sivun väriä ja
-   * tasopalkin nimeä, joten lukitun päivän biisin taso ei saa muuttua
-   * samassa julkaisussa. Yksi pelidatasta johdettu tasomuutos pidätettiin
-   * tämän takia: Matti ja Teppo - Vauhti kiihtyy (id 1522651576) pysyy
-   * tasolla 2, vaikka data sanoo 1. Se on 18.9. kakkospaikalla. Muutos
-   * kuuluu tehdä kun tämä taulukko poistetaan.
-   *
-   * Tämä ei ole pysyvä rakenne. Kun viimeinen alla oleva päivä on mennyt,
-   * taulukko ei enää tee mitään ja sen voi poistaa sellaisenaan. Tuntematon
-   * tai peliin kuulumaton id ohitetaan ja päivä lasketaan normaalisti,
-   * joten väärä rivi ei voi rikkoa päivää vaan korkeintaan jättää
-   * lukituksen tekemättä. */
-  const LUKITUT = {
-    "2026-09-17": [209285022, 1392974769, 723817717, 1442626023, 1580370681],
-    "2026-09-18": [307823569, 1522651576, 1166823835, 1178935690, 654974316],
-    "2026-09-19": [329146131, 1565598460, 1041903663, 1798232918, 713547026],
-    "2026-09-20": [716186675, 267022867, 1516626959, 847881102, 1442640791],
-  };
-
-  function lukittu(key) {
-    const idt = LUKITUT[key];
-    if (!idt) return null;
-    const biisit = idt.map((id) => state.pool.find((s) => s.id === id));
-    return biisit.every(Boolean) ? biisit : null;
-  }
+   * Karanteeni sen sijaan EI ole ohi, ks. seuraava lohko. */
 
   /* Lukituksen karanteeni.
    *
@@ -1080,12 +1047,30 @@
    * karanteenia eikä päivä voi jäädä tyhjäksi.
    *
    * Ajetaan ennen artistitörmäysten korjausta, jotta se ehtii siivota
-   * vaihdon mahdollisesti tuomat törmäykset. Poistetaan yhdessä
-   * LUKITUT-taulukon kanssa. */
+   * vaihdon mahdollisesti tuomat törmäykset.
+   *
+   * ÄLÄ POISTA TÄTÄ LUKITUKSEN MUKANA. Karanteeni kestää 120 päivää
+   * viimeisen lukitun päivän yli, eli 18.1.2027 asti, kun lukitus itse
+   * päättyi jo 20.9.2026.
+   *
+   * Luvut olivat ennen johdettuja LUKITUT-taulukosta. Se oli ansa: tyhjällä
+   * taulukolla Math.min() on Infinity ja Math.max() on -Infinity, jolloin
+   * KARANTEENI_LOPPU olisi -Infinity ja alla oleva "day > KARANTEENI_LOPPU"
+   * katkaisisi heti. Karanteeni olisi siis lakannut toimimasta täysin
+   * hiljaa sinä hetkenä kun taulukko poistetaan, ilman virhettä tai
+   * mitään merkkiä. Siksi idt ja päivät on kirjoitettu tähän auki.
+   *
+   * Nämä 20 biisiä ovat ne jotka olivat lukittuina 17.-20.9.2026. Koko
+   * lohkon voi poistaa kun 18.1.2027 on mennyt. */
   const KARANTEENI_PV = 120;
-  const KARANTEENI_IDT = new Set(Object.values(LUKITUT).flat());
-  const KARANTEENI_ALKU = Math.min(...Object.keys(LUKITUT).map(dayIndex));
-  const KARANTEENI_LOPPU = Math.max(...Object.keys(LUKITUT).map(dayIndex)) + KARANTEENI_PV;
+  const KARANTEENI_IDT = new Set([
+    209285022, 1392974769, 723817717, 1442626023, 1580370681,   // 17.9.
+    307823569, 1522651576, 1166823835, 1178935690, 654974316,   // 18.9.
+    329146131, 1565598460, 1041903663, 1798232918, 713547026,   // 19.9.
+    716186675, 267022867, 1516626959, 847881102, 1442640791,    // 20.9.
+  ]);
+  const KARANTEENI_ALKU = dayIndex("2026-09-17");
+  const KARANTEENI_LOPPU = dayIndex("2026-09-20") + KARANTEENI_PV;
 
   function karanteeni(order, cycle) {
     if (!KARANTEENI_IDT.size) return;
@@ -1106,8 +1091,6 @@
   }
 
   function dailySongs(key) {
-    const kiinni = lukittu(key);
-    if (kiinni) return kiinni;
     const day = dayIndex(key);
     const picked = [];
     for (const tier of TIER_CYCLE) {

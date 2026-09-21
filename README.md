@@ -167,3 +167,46 @@ scripts/tee_aanet.py      katalogin jako julkaistaviin osiin
 - Lisää biisejä ja artistikohtaiset tai vuosikymmenkohtaiset pelit
 - Osittaiset pisteet, jos artisti on oikein mutta biisi väärin
 - Verkkotulostaulu päivän tuloksille
+- Vapaan pelin `state.used` talteen selaimeen (nyt se nollautuu joka
+  sivunlatauksella, jolloin toisto alkaa noin 20. sarjassa)
+
+### Ankkurimainos ylälaitaan
+
+Jätetty hautumaan 22.9.2026. Idea tuli Spotle.io:sta, jossa on alapalkki
+ja tulosruudun ylälaidan banneri, ja kumpikaan ei häiritse peliä.
+
+Ankkurimainos **kelluu sisällön päällä eikä työnnä mitään**. Se ratkaisee
+sen umpikujan johon tulossivun kanssa jäätiin: tilaa ei tarvitse ottaa
+biisilistalta eikä pelialueelta. AdSense tukee muotoa virallisesti ja
+siinä on sulkemisrasti, joten se ei ole harmaata aluetta kuten mainoksen
+virkistäminen olisi.
+
+**Alalaita ei sovi tähän peliin.** Mitattu iPhone SE:llä: arvauslomake on
+519-641 px ja ruutu 667 px, eli ankkuri peittäisi juuri syöttökentän ja
+napin. Spotlessa kenttä on ylhäällä, siksi alapalkki toimii heillä.
+**Yläreuna sopii**, siellä on vain otsikkopalkki.
+
+Toteutus joko AdSensen Auto adsilla (vain ankkuri päälle, muut muodot
+pois, ei koodia lainkaan) tai omana kiinnitettynä paikkanaan.
+
+Hinta: ankkuri näkyy myös kesken biisin, joten ohjeiden lause "Peli ei
+näytä mainoksia silloin kun kuuntelet pätkää tai kirjoitat arvausta" pitää
+kirjoittaa uusiksi. Se on eri linja kuin se mihin 21.9. päädyttiin.
+
+Hyöty: oma mainospaikkansa paljastuksen mainoksen lisäksi, eli aito
+lisänäyttö joka sivunlatausta kohden.
+
+### Spotlen kaltainen artistipeli
+
+Arvaa päivän suomalainen artisti, esimerkiksi kymmenellä yrityksellä.
+Vihjeitä annetaan yritysten välissä: vuosikymmen, vaikeustaso, montako
+biisiä artistilla on katalogissa, ehkä pätkä tunnetuimmasta.
+
+Katalogi on jo olemassa: 1 744 arvattavaa biisiä, joissa artisti, vuosi ja
+mitattu vaikeus. Valmiina on myös päivän pakan johtaminen puhtaana
+funktiona (sama kaikille ilman palvelinta), tilastoworker ja service
+worker. Uutta olisi lähinnä vihjelogiikka ja oma näkymä.
+
+Kannattaa harkita omaksi osoitteekseen eikä HittiSpotin sisään: se on eri
+peli, ja kaksi peliä samassa sovelluksessa sekoittaisi päivän sarjan
+käsitteen.

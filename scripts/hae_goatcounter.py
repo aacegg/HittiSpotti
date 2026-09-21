@@ -37,7 +37,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from datetime import date
+from datetime import date, timedelta
 
 SIVUSTO = os.environ.get("GOATCOUNTER_SIVUSTO", "hittispotti")
 ALKU = os.environ.get("GOATCOUNTER_ALKU", "2026-01-01")
@@ -96,13 +96,27 @@ def main() -> int:
     # aina täytenä RFC 3339 -aikaleimana.
     alku_ts = ALKU if "T" in ALKU else ALKU + "T00:00:00Z"
     loppu_ts = loppu + "T23:59:59Z"
+
+    # stats/total ei ymmärrä aikaleimoja, ja se on vaarallinen juuri siksi
+    # ettei se valita: rajaus ohitetaan hiljaa ja vastaus on koko ajalta.
+    # Mitattu 15.-21.9.2026: aikaleimoilla 160 422, paljailla päivillä
+    # 129 789, ja koko ajan luku oli 163 162. Aikaleimaversio ei siis
+    # rajannut mitään. stats/hits taas vaatii aikaleimat, ks. yllä.
+    # Kaksi päätepistettä, kaksi eri muotoa.
+    #
+    # Loppupää on seuraava päivä, koska paljas päivämäärä on keskiyö ja
+    # end=tänään katkaisisi kuluvan päivän pois.
+    alku_pv = ALKU.split("T")[0]
+    loppu_pv = (date.today() + timedelta(days=1)).isoformat()
+
     ulos = {"sivusto": SIVUSTO, "alku": alku_ts, "loppu": loppu_ts, "virheet": {}}
 
     print(f"Haetaan {SIVUSTO}.goatcounter.com, {alku_ts} - {loppu_ts}", file=sys.stderr)
 
-    d, virhe = hae("stats/total", token, start=alku_ts, end=loppu_ts)
+    d, virhe = hae("stats/total", token, start=alku_pv, end=loppu_pv)
     if virhe:
         print(f"stats/total epäonnistui: {virhe}", file=sys.stderr)
+        ulos["virheet"]["total"] = virhe
         if "oikeuksia" in virhe:
             print("Tarkista että tokenilla on oikeus lukea tilastoja.", file=sys.stderr)
             return 1

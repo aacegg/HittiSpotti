@@ -180,6 +180,10 @@ YLEISVARTALOT = r"^(?:pop|rock|rokki|dance|tanssi|elektronis|elektronin)"
 ARTISTISANAT = (r"(?:yhtye|bändi|bandi|laulaja|laulajatar|artisti|muusikko|"
                 r"duo|trio|kokoonpano|orkesteri|tähti|räppäri|rapp?ari|"
                 r"kvartetti|kitaristi|tuottaja|tekijä)")
+# Kilpailun nimi ei ole genre. Erika Vikman on "vuoden 2016
+# tangokuningatar", mistä tuli Iskelmä, vaikka kaikki hänen pelissä
+# olevat biisinsä ovat vuodesta 2020 eteenpäin eivätkä ole tangoa.
+TITTELIT = r"kuninga|kuningat|kuninkuu|prinsess|markkina|kilpailu|finaali|voittaj|karsinta"
 
 
 def genre_kuvauksesta(kuvaus, kerro_vahvuus=False):
@@ -202,7 +206,9 @@ def genre_kuvauksesta(kuvaus, kerro_vahvuus=False):
     osumat = Counter()
     vahvat = set()
     for genre, hahmo in VARTALOT:
-        loydot = list(re.finditer(hahmo, t))
+        # Titteli ei ole genre: tangokuningatar, iskelmämarkkinat.
+        loydot = [m for m in re.finditer(hahmo, t)
+                  if not re.search(TITTELIT, t[m.start():m.end() + 14])]
         if not loydot:
             continue
         osumat[genre] = len(loydot)

@@ -67,7 +67,7 @@ VIRHE = object()
 # --uudelleen hakee vain ne jotka on haettu vanhalla parsinnalla.
 # Ilman tätä nopeusrajaan kaatuneet jäisivät ikuisiksi ajoiksi vanhaan
 # tulokseen, koska niillä on jo arvo eikä uusinta-ajo koskisi niihin.
-WP_VERSIO = 2
+WP_VERSIO = 3
 
 
 def paanimi(artist: str) -> str:
@@ -249,6 +249,40 @@ def tyylilajit_tekstista(teksti: str):
     return [x for x in osat if x and len(x) < 40] or None
 
 
+def kuvaus_tekstista(teksti: str):
+    """Artikkelin johdantolause.
+
+    Tietolaatikko luettelee kaiken mihin artisti on koskenut, mutta
+    johdantolause kertoo mikä artisti on: Mamban tietolaatikossa lukee
+    iskelmä, pop, poprock ja suomirock, mutta artikkelin ensimmäinen
+    lause sanoo "iskelmällinen yhtye". Jälkimmäinen on se mitä pelaaja
+    arvaisi.
+    """
+    t = teksti
+    # Tietolaatikot, kuvat ja ohjemallit pois alusta. {{ }} voi olla
+    # sisäkkäin, joten kuoritaan uloin kerros kerrallaan.
+    for _ in range(40):
+        uusi = re.sub(r"\{\{[^{}]*\}\}", "", t)
+        if uusi == t:
+            break
+        t = uusi
+    t = re.sub(r"\[\[(?:Kuva|Tiedosto|File|Image):[^\]]*\]\]", "", t, flags=re.I)
+    t = re.sub(r"<ref[^>]*>.*?</ref>|<ref[^>]*/>", "", t, flags=re.S)
+    t = re.sub(r"<[^>]*>", "", t)
+    t = re.sub(r"\[\[([^\]|]*)\|([^\]]*)\]\]", r"\2", t)
+    t = re.sub(r"\[\[([^\]]*)\]\]", r"\1", t)
+    t = t.replace("'''", "").replace("''", "")
+    for rivi in t.split("\n"):
+        rivi = rivi.strip()
+        if len(rivi) < 30 or rivi.startswith(("|", "=", "*", "#", ":")):
+            continue
+        # Ensimmäinen virke. Piste lyhenteessä (esim. "s. 1970") ei
+        # katkaise, koska sen jälkeen ei tule isoa alkukirjainta.
+        m = re.match(r"(.{30,400}?[.!?])(?:\s+[A-ZÅÄÖ]|\s*$)", rivi)
+        return (m.group(1) if m else rivi)[:400]
+    return None
+
+
 def wikipedia_tyylilajit(nimi: str):
     """Tyylilajit suomenkielisen Wikipedian tietolaatikosta.
 
@@ -273,10 +307,12 @@ def wikipedia_tyylilajit(nimi: str):
     teksti = wikipedia_teksti(nimi)
     if teksti is VIRHE:
         return VIRHE
+    paras = None                       # paras sivu jolta on edes kuvaus
     if teksti is not None:
         osat = tyylilajit_tekstista(teksti)
         if osat:
-            return osat
+            return {"tyylilajit": osat, "kuvaus": kuvaus_tekstista(teksti)}
+        paras = {"tyylilajit": None, "kuvaus": kuvaus_tekstista(teksti)}
     # Ei kenttää oikealla nimellä: ehkä sivu kertoo jostain muusta.
     # Kokeillaan tarkennetut sivut ja hyväksytään ensimmäinen jossa
     # Tyylilajit-kenttä oikeasti on.
@@ -294,8 +330,10 @@ def wikipedia_tyylilajit(nimi: str):
             continue
         osat = tyylilajit_tekstista(aputeksti)
         if osat:
-            return osat
-    return VIRHE if epaonnistui else None
+            return {"tyylilajit": osat, "kuvaus": kuvaus_tekstista(aputeksti)}
+    if epaonnistui:
+        return VIRHE
+    return paras
 
 
 def kerää_artistit():
@@ -378,15 +416,17 @@ def main() -> int:
                       f"hakematta", file=sys.stderr)
                 time.sleep(2)
                 continue
-            tiedot[k]["wp_tyylilajit"] = g
+            lajit = (g or {}).get("tyylilajit")
+            tiedot[k]["wp_tyylilajit"] = lajit
+            tiedot[k]["wp_kuvaus"] = (g or {}).get("kuvaus")
             tiedot[k]["wp_versio"] = WP_VERSIO
             # Puolitoista sekuntia pyyntöjen välissä. 0,3 s tuotti HTTP
             # 429:ää niin paljon, että 206 artistista löytyi vain 47
             # oikean 142 sijaan, ja 1,0 s kaatoi vielä 34 hakua.
             time.sleep(1.5)
-            if i % 20 == 0 or g:
+            if i % 20 == 0 or lajit:
                 print(f"  {i}/{len(kesken)}  {tiedot[k]['nimi']}: "
-                      f"{', '.join(g) if g else '-'}", file=sys.stderr)
+                      f"{', '.join(lajit) if lajit else '-'}", file=sys.stderr)
             ULOS.write_text(json.dumps(tiedot, ensure_ascii=False, indent=1), encoding="utf-8")
         if virheita:
             print(f"  {virheita} epäonnistui, aja uudestaan", file=sys.stderr)

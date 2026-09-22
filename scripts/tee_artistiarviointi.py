@@ -150,6 +150,44 @@ EI_GENRE_FI = {"suomi", "englanti", "ruotsi", "instrumentaali", "saksa",
                "unkari", "heprea", "viro", "norja", "tanska"}
 
 
+# Sanavartalot johdantolauseesta. Suomi taivuttaa, joten "iskelmällinen",
+# "rockia" ja "räppäri" pitää tunnistaa samaksi asiaksi. Populaarimusiikki
+# ei ole pop, joten se suljetaan pois erikseen.
+VARTALOT = [
+    ("Rap", r"räpp\w*|räpp?äri\w*|\brap\w*|hip[\s-]?hop\w*|\btrap\b"),
+    ("Metalli", r"metall\w*|\bmetal\b"),
+    ("Iskelmä", r"iskelm\w*|tango\w*|humpp\w*|laulelm\w*|viihdemusiik\w*|kuplet\w*"),
+    ("Elektroninen", r"elektronis\w*|elektronin\w*|tekno\w*|house|trance|syntikka\w*|"
+                     r"\bdance\b|konemusiik\w*"),
+    ("Rock", r"rock\w*|rokki\w*|punk\w*|blues\w*"),
+    ("Pop", r"pop(?!ulaari)\w*|soul\w*|funk\w*|disko\w*|reggae\w*|folk\w*|r&b"),
+    ("Muu", r"jazz\w*|gospel\w*|klassis\w*"),
+]
+
+
+def genre_kuvauksesta(kuvaus):
+    """Genre artikkelin johdantolauseesta.
+
+    Tietolaatikko luettelee kaiken mihin artisti on koskenut, lause
+    kertoo mikä artisti on. Mamban tietolaatikossa on iskelmä, pop,
+    poprock ja suomirock, joista enemmistö antaa Rockin, mutta lause
+    sanoo "iskelmällinen yhtye". Lause on se jonka pelaaja arvaisi.
+    """
+    if not kuvaus:
+        return None
+    t = kuvaus.lower()
+    osumat = Counter()
+    for genre, hahmo in VARTALOT:
+        n = len(re.findall(hahmo, t))
+        if n:
+            osumat[genre] = n
+    if not osumat:
+        return None
+    paras = max(osumat.values())
+    ehdokkaat = [g for g, n in osumat.items() if n == paras]
+    return min(ehdokkaat, key=lambda g: PAINO_FI[g])
+
+
 def wp_termit(raaka):
     """Yksi kentän arvo pilkottuna vertailukelpoisiksi termeiksi.
 
@@ -202,13 +240,21 @@ def genre_tageista(tagit):
 
 
 def genre_ehdotus(a):
-    """Wikipedia ensin, MusicBrainz vasta sitten.
+    """Johdantolause, sitten tietolaatikko, sitten MusicBrainz.
 
-    Wikipedia on suomalaisille tarkempi: Jari Sillanpää on
-    MusicBrainzissa tagitta ja Applella "Pop", mutta Wikipediassa
-    "tango, iskelmämusiikki". Mitattu kattavuus 206 artistilla:
-    Wikipedia 142, MusicBrainz 135, yhdessä 182.
+    Wikipedia on suomalaisille tarkempi kuin MusicBrainz: Jari
+    Sillanpää on MusicBrainzissa tagitta ja Applella "Pop", mutta
+    Wikipediassa "tango, iskelmämusiikki".
+
+    Wikipedian sisällä johdantolause voittaa tietolaatikon. Laatikko
+    luettelee kaiken mihin artisti on koskenut ja enemmistöäänestys
+    palkitsee saman genren monta alalajia: Melon seitsemästä
+    tyylilajista neljä on rockin alalajeja, joten laatikko tekee
+    räppäristä rockartistin. Lause sanoo suoraan mikä artisti on.
     """
+    g = genre_kuvauksesta(a.get("wp_kuvaus"))
+    if g:
+        return g, "Wikipedia (lause)"
     g = genre_wikipediasta(a.get("wp_tyylilajit"))
     if g:
         return g, "Wikipedia"
@@ -272,6 +318,7 @@ def rivi(k, a):
   <td class="nimi"><b>{esc(a['nimi'])}</b>
     <span>{a['biisit']} biisiä &middot; {a['eka']}&ndash;{a['vika']} &middot; debyytti {esc(a.get('debyytti') or '?')}</span>
     <span class="tagit">{esc(tagit)}</span>
+    {'<span class="kuvaus">' + esc(a['wp_kuvaus']) + '</span>' if a.get('wp_kuvaus') else ''}
     {'<span class="varo">' + esc(' &middot; '.join(varoitus)) + '</span>' if varoitus else ''}
   </td>
   <td class="napit">{napit}<div class="rivi2">{kokot}</div>
@@ -338,6 +385,7 @@ tr.huomio .nimi b{color:var(--varo)}
 .nimi b{display:block;font-size:14px}
 .nimi span{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}
 .nimi .tagit{color:var(--dim);font-style:italic}
+.nimi .kuvaus{color:var(--dim)}
 .nimi .varo{color:var(--varo)}
 .napit{text-align:right}
 .rivi2{margin-top:5px}

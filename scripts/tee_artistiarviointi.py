@@ -327,6 +327,22 @@ def genre_ehdotus(a):
 SUKUPUOLET = ["Mies", "Nainen", "Seka"]
 
 
+def jasenlista(a):
+    """Jäsenet ilman kaksoiskappaleita.
+
+    Sama muusikko on jäsensuhteissa kerran per soitin, joten Risto
+    Paananen esiintyy Leevi and the Leavingsissä kolmesti.
+    """
+    nahdyt, ulos = set(), []
+    for j in a.get("jasenet_tiedot") or []:
+        nimi = (j.get("nimi") or "").strip()
+        if nimi.lower() in nahdyt:
+            continue
+        nahdyt.add(nimi.lower())
+        ulos.append(j)
+    return ulos
+
+
 def sukupuoli_ehdotus(a):
     """Mies, nainen vai seka.
 
@@ -339,15 +355,18 @@ def sukupuoli_ehdotus(a):
     ylimääräinen mies tekisi naisyhtyeestä sekayhtyeen. Siksi jäsenten
     nimet ja sukupuolet näkyvät arviointisivulla tarkistettaviksi.
     """
+    # Pieniksi kirjaimiksi aina. MusicBrainzin hakuendpoint palauttaa
+    # "male" mutta /artist/{id} palauttaa "Male", ja isolla kirjaimella
+    # vertaaminen teki jokaisesta yhtyeestä sekakokoonpanon.
     if a.get("tyyppi") == "Person":
-        g = a.get("sukupuoli")
+        g = (a.get("sukupuoli") or "").lower()
         if g == "male":
             return "Mies", "MusicBrainz"
         if g == "female":
             return "Nainen", "MusicBrainz"
         return None, "ei tietoa"
-    jas = a.get("jasenet_tiedot") or []
-    tunnetut = {j["sukupuoli"] for j in jas if j.get("sukupuoli")}
+    jas = jasenlista(a)
+    tunnetut = {(j.get("sukupuoli") or "").lower() for j in jas if j.get("sukupuoli")}
     if not tunnetut:
         return None, "ei tietoa"
     if tunnetut == {"male"}:
@@ -452,8 +471,8 @@ def rivi(k, a):
     kaikki_kielet = ", ".join(a.get("wp_laulukieli") or [])
     # Jäsenet näkyviin, koska MusicBrainz laskee taustamuusikot mukaan.
     jasenet = ", ".join(
-        f'{j["nimi"]} ({ {"male": "m", "female": "n"}.get(j.get("sukupuoli"), "?") })'
-        for j in (a.get("jasenet_tiedot") or []))
+        f'{j["nimi"]} ({ {"male": "m", "female": "n"}.get((j.get("sukupuoli") or "").lower(), "?") })'
+        for j in jasenlista(a))
     return f"""<tr data-k="{esc(k)}" data-genre="{esc(genre or '')}" data-kokoonpano="{esc(kokoonpano)}"
       data-kieli="{esc(kieli or '')}" data-sp="{esc(sp or '')}" class="{'huomio' if varoitus else ''}">
   <td class="nimi"><b>{esc(a['nimi'])}</b>

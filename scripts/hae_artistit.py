@@ -70,6 +70,27 @@ VIRHE = object()
 WP_VERSIO = 4
 
 
+def tallenna(tiedot: dict):
+    """Kirjoita tulos yhdistäen siihen mitä levyllä jo on.
+
+    Jokainen hakukierros lukee koko tiedoston muistiin ja kirjoittaa sen
+    takaisin. Jos kaksi kierrosta ajetaan rinnakkain, jälkimmäinen
+    kirjoitus pyyhkii toisen työn: wikipediakierros luki tiedoston ennen
+    yhtyekierroksen alkua, joten sen vanha kopio kumosi jäsentiedot 70
+    yhtyeeltä. Yhdistäminen artistin kenttätasolla estää sen, koska
+    kierros kirjoittaa vain ne kentät jotka se itse asetti.
+    """
+    levy = {}
+    if ULOS.exists():
+        try:
+            levy = json.loads(ULOS.read_text(encoding="utf-8"))
+        except Exception:
+            levy = {}
+    for k, v in tiedot.items():
+        levy.setdefault(k, {}).update(v)
+    ULOS.write_text(json.dumps(levy, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
 def paanimi(artist: str) -> str:
     """Yhteistyömerkinnät pois, yhtyeen nimi ehjänä."""
     return re.split(r"\s*,\s*|\s+feat\.?\s+|\s*\(feat", artist, flags=re.I)[0].strip()
@@ -483,7 +504,7 @@ def main() -> int:
             print(f"  {i}/{len(yhtyeet)}  {tiedot[k]['nimi']}: "
                   f"{len(jas or [])} jäsentä, sukupuoli tiedossa {len(tunnetut)} "
                   f"({', '.join(sorted(set(tunnetut))) or '-'})", file=sys.stderr)
-            ULOS.write_text(json.dumps(tiedot, ensure_ascii=False, indent=1), encoding="utf-8")
+            tallenna(tiedot)
         loytyi = sum(1 for k in artistit
                      if any(j["sukupuoli"] for j in (tiedot[k].get("jasenet_tiedot") or [])))
         print(f"\nJäsenten sukupuoli tiedossa {loytyi} / {len(yhtyeet)} yhtyeelle",
@@ -503,7 +524,7 @@ def main() -> int:
                   f"{len(vuodet) if vuodet else 0} julkaisua "
                   f"{min(vuodet) if vuodet else '?'}-{max(vuodet) if vuodet else '?'}",
                   file=sys.stderr)
-            ULOS.write_text(json.dumps(tiedot, ensure_ascii=False, indent=1), encoding="utf-8")
+            tallenna(tiedot)
         loytyi = sum(1 for k in artistit if tiedot[k].get("julkaisuvuodet"))
         print(f"\nJulkaisuvuodet {loytyi} / {len(artistit)}", file=sys.stderr)
         return 0
@@ -536,7 +557,7 @@ def main() -> int:
             if i % 20 == 0 or lajit:
                 print(f"  {i}/{len(kesken)}  {tiedot[k]['nimi']}: "
                       f"{', '.join(lajit) if lajit else '-'}", file=sys.stderr)
-            ULOS.write_text(json.dumps(tiedot, ensure_ascii=False, indent=1), encoding="utf-8")
+            tallenna(tiedot)
         if virheita:
             print(f"  {virheita} epäonnistui, aja uudestaan", file=sys.stderr)
         loytyi = sum(1 for k in artistit if tiedot[k].get("wp_tyylilajit"))
@@ -561,8 +582,8 @@ def main() -> int:
             tiedot[k]["jasenet_kaikkiaan"] = kaikki
             print(f"  {i}/{len(yhtyeet)}  {tiedot[k]['nimi']}: {nyt} nyt, {kaikki} kaikkiaan",
                   file=sys.stderr)
-            ULOS.write_text(json.dumps(tiedot, ensure_ascii=False, indent=1), encoding="utf-8")
-        ULOS.write_text(json.dumps(tiedot, ensure_ascii=False, indent=1), encoding="utf-8")
+            tallenna(tiedot)
+        tallenna(tiedot)
         print("\nValmis. Tarkista jäsenmäärät käsin: MusicBrainz laskee "
               "taustamuusikot mukaan.", file=sys.stderr)
         return 0
@@ -594,7 +615,7 @@ def main() -> int:
                   f"({mb.get('type')}, {tiedot[k]['debyytti']}, "
                   f"{len(tiedot[k]['tagit'])} tagia)", file=sys.stderr)
         # Tallennetaan joka kierroksella: keskeytys ei hukkaa tehtyä työtä.
-        ULOS.write_text(json.dumps(tiedot, ensure_ascii=False, indent=1), encoding="utf-8")
+        tallenna(tiedot)
 
     print(file=sys.stderr)
     raportti({k: tiedot[k] for k in artistit})

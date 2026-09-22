@@ -55,6 +55,26 @@ SALLITUT = {
 # siitä: 1 on soolo, 2 duo, 3 tai enemmän yhtye.
 LUVUT = {"jasenluku": (1, 30)}
 
+# Sama asia eri sanoin. Lista kirjoitetaan käsin, joten arvo voi olla
+# pienellä tai eri muodossa: "ei laulukieltä" on instrumentaali.
+SYNONYYMIT = {
+    "ei laulukielta": "Instrumentaali",
+    "ei laulua": "Instrumentaali",
+    "instrumentaalimusiikki": "Instrumentaali",
+    "molemmat": None,        # ei enää käytössä, ks. laulukielen perustelu
+}
+
+
+def normalisoi(arvo: str, sallitut):
+    """Kirjainkoko ja tavalliset synonyymit siedetään."""
+    if not sallitut:
+        return arvo
+    avainmuoto = avain(arvo)
+    for s in sallitut:
+        if avain(s) == avainmuoto:
+            return s
+    return SYNONYYMIT.get(avainmuoto, arvo)
+
 
 def avain(nimi: str) -> str:
     s = nimi.replace("’", "'").lower().strip()
@@ -112,9 +132,11 @@ def main() -> int:
                 tuntematon_arvo.append((nimi, arvo))
                 continue
             arvo = int(arvo)
-        elif arvo not in sallitut:
-            tuntematon_arvo.append((nimi, arvo))
-            continue
+        else:
+            arvo = normalisoi(arvo, sallitut)
+            if arvo not in sallitut:
+                tuntematon_arvo.append((nimi, arvo))
+                continue
         if tiedot[k].get(a.kentta) == arvo:
             ennallaan += 1
             continue

@@ -59,6 +59,10 @@ UA = "HittiSpotti/1.0 ( https://hittispotti.fi )"
 VIIVE = 1.1          # sekuntia pyyntöjen välissä
 OSUVUUS_RAJA = 90    # MusicBrainzin oma pistemäärä 0-100
 
+# Erottaa epäonnistuneen haun aidosti tyhjästä tuloksesta, jottei
+# verkkovirhe tallennu tietona "ei tyylilajeja".
+VIRHE = object()
+
 
 def paanimi(artist: str) -> str:
     """Yhteistyömerkinnät pois, yhtyeen nimi ehjänä."""
@@ -156,6 +160,62 @@ def jasenmaara(mbid: str):
     return len(nyt), len(jasenet)
 
 
+def wikipedia_tyylilajit(nimi: str):
+    """Tyylilajit suomenkielisen Wikipedian tietolaatikosta.
+
+    Tarpeen, koska MusicBrainzin tagit eivät kata suomalaista kenttää.
+    Mitattu 206 artistilla: MusicBrainz 135, Wikipedia 142, yhdessä 182.
+    Ilman Wikipediaa ihmisen täytettäväksi jäisi 71, sen kanssa 24.
+
+    Wikipedia on myös tarkempi juuri siinä mikä merkitsee. Jari
+    Sillanpää on Applella "Pop" ja Wikidatassa "popmusiikki", mutta
+    Wikipediassa "tango, iskelmämusiikki", mikä on oikein.
+
+    Tietolaatikko on vapaata wikitekstiä eikä rakenteista dataa, joten
+    tämä on hauraampi kuin rajapintahaku. Siksi tulos on ehdotus joka
+    tarkistetaan, ei suoraan pelidataa.
+
+    Nopeusrajoitus on otettava vakavasti. Ensimmäinen versio nielaisi
+    kaikki poikkeukset ja palautti None, jolloin HTTP 429 tallentui
+    tuloksena "ei tyylilajeja": 206 artistista löytyi 47, vaikka
+    oikea luku on 142. Siksi 429 ja verkkovirhe erotetaan nyt tyhjästä
+    tuloksesta, ja epäonnistuminen palauttaa VIRHE jottei sitä tallenneta.
+    """
+    url = ("https://fi.wikipedia.org/w/api.php?action=parse&page="
+           + urllib.parse.quote(nimi) + "&prop=wikitext&format=json")
+    d = None
+    for yritys in range(5):
+        req = urllib.request.Request(url, headers={"User-Agent": UA})
+        try:
+            with urllib.request.urlopen(req, timeout=30) as r:
+                d = json.load(r)
+            break
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                return None            # artikkelia ei ole, aito tyhjä
+            if e.code in (429, 503):
+                time.sleep(2 ** yritys)
+                continue
+            return VIRHE
+        except Exception:
+            time.sleep(2 ** yritys)
+    if d is None:
+        return VIRHE
+    teksti = (d.get("parse") or {}).get("wikitext", {}).get("*") or ""
+    # Koko kentän arvo rivin loppuun asti. Katkaisu ensimmäiseen
+    # |-merkkiin osuisi wikilinkin sisälle: [[Folkmusiikki|folk]].
+    m = re.search(r"\|\s*[Tt]yylilaj(?:it|i)\s*=\s*((?:[^\n]|\n(?!\s*[|}]))*)", teksti)
+    if not m:
+        return None
+    arvo = m.group(1)
+    arvo = re.sub(r"<ref[^>]*>.*?</ref>", "", arvo, flags=re.S)
+    arvo = re.sub(r"\[\[([^\]|]*)\|([^\]]*)\]\]", r"\2", arvo)
+    arvo = re.sub(r"\[\[([^\]]*)\]\]", r"\1", arvo)
+    arvo = re.sub(r"<[^>]*>|\{\{[^}]*\}\}", "", arvo)
+    osat = [x.strip() for x in re.split(r"\s*[,;•·]\s*", arvo)]
+    return [x for x in osat if x and len(x) < 40] or None
+
+
 def kerää_artistit():
     kat = json.loads(KATALOGI.read_text(encoding="utf-8"))
     pool = [s for s in kat if s.get("peli") is not False]
@@ -197,6 +257,8 @@ def main() -> int:
     ap.add_argument("--raportti", action="store_true")
     ap.add_argument("--jasenet", action="store_true",
                     help="hae yhtyeiden jäsenmäärät (oma kierroksensa)")
+    ap.add_argument("--wikipedia", action="store_true",
+                    help="hae tyylilajit fi.wikipediasta (oma kierroksensa)")
     a = ap.parse_args()
 
     artistit = kerää_artistit()
@@ -214,6 +276,34 @@ def main() -> int:
 
     if a.raportti:
         raportti({k: tiedot[k] for k in artistit})
+        return 0
+
+    if a.wikipedia:
+        kesken = [k for k in artistit if "wp_tyylilajit" not in tiedot[k]]
+        print(f"Hakematta {len(kesken)}", file=sys.stderr)
+        virheita = 0
+        for i, k in enumerate(kesken, 1):
+            g = wikipedia_tyylilajit(tiedot[k]["nimi"])
+            if g is VIRHE:
+                # EI tallenneta. Muuten verkkovirhe jäisi tietokantaan
+                # tietona "ei tyylilajeja" eikä sitä yritettäisi uudelleen.
+                virheita += 1
+                print(f"  {i}/{len(kesken)}  {tiedot[k]['nimi']}: VIRHE, jätetään "
+                      f"hakematta", file=sys.stderr)
+                time.sleep(2)
+                continue
+            tiedot[k]["wp_tyylilajit"] = g
+            # Sekunti pyyntöjen välissä. 0,3 s tuotti HTTP 429:ää niin
+            # paljon, että 206 artistista löytyi vain 47 oikean 142 sijaan.
+            time.sleep(1.0)
+            if i % 20 == 0 or g:
+                print(f"  {i}/{len(kesken)}  {tiedot[k]['nimi']}: "
+                      f"{', '.join(g) if g else '-'}", file=sys.stderr)
+            ULOS.write_text(json.dumps(tiedot, ensure_ascii=False, indent=1), encoding="utf-8")
+        if virheita:
+            print(f"  {virheita} epäonnistui, aja uudestaan", file=sys.stderr)
+        loytyi = sum(1 for k in artistit if tiedot[k].get("wp_tyylilajit"))
+        print(f"\nTyylilajit {loytyi} / {len(artistit)}", file=sys.stderr)
         return 0
 
     if a.jasenet:

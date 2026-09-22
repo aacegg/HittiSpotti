@@ -207,6 +207,28 @@ mitattu vaikeus. Valmiina on myös päivän pakan johtaminen puhtaana
 funktiona (sama kaikille ilman palvelinta), tilastoworker ja service
 worker. Uutta olisi lähinnä vihjelogiikka ja oma näkymä.
 
-Kannattaa harkita omaksi osoitteekseen eikä HittiSpotin sisään: se on eri
-peli, ja kaksi peliä samassa sovelluksessa sekoittaisi päivän sarjan
-käsitteen.
+**Nimi "Päivän artisti" ja sama sovellus.** Ensin kirjattiin suositus
+omasta osoitteesta sillä perusteella, että kaksi päivittäistä peliä
+sekoittaisi päivän sarjan käsitteen. Nimi kumoaa sen: valikossa
+"Päivän artisti" heti "Päivän biisien" alla on ilmiselvä pari eikä
+sekaannuksen aihe.
+
+Samassa sovelluksessa on myös etuja jotka painavat enemmän:
+
+- 13 000 päivittäistä kävijää on jo täällä, uusi osoite alkaisi nollasta
+- katalogi, service worker, tilastopalvelin ja päivän pakan johtaminen
+  ovat valmiina
+- yksi AdSense-sivusto, ei uutta hyväksyntää
+- kaksi päivittäistä peliä pidentää käyntiä eli lisää mainosnäyttöjä
+
+Mitä pitää ratkaista ennen kuin koodia kirjoitetaan:
+
+- Tallennusavaimet erilleen. Nyt päivän tulos on `daily:<pvm>` ja kesken
+  jäänyt sarja `daily:<pvm>:kesken` (ks. `progressKey`); artistipeli
+  tarvitsee oman etuliitteen, muuten pelit ylikirjoittavat toisensa.
+- Palvelimen `/paiva` on avainnettu pelkällä päivämäärällä, joten
+  artistipeli tarvitsee oman sarakkeen tai oman päätepisteen. Muuten
+  päiväkeskiarvo sekoittaa kahden eri pelin pisteet.
+- Tilastonäkymä ja jakoteksti tarvitsevat oman osionsa.
+- `state`-olio on nyt yhden pelin muotoinen (rounds, at, score). Kannattaa
+  miettiä kumpi on halvempi: erillinen tila artistipelille vai yhteinen.

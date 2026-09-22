@@ -63,6 +63,12 @@ OSUVUUS_RAJA = 90    # MusicBrainzin oma pistemäärä 0-100
 # verkkovirhe tallennu tietona "ei tyylilajeja".
 VIRHE = object()
 
+# Tietolaatikon parsinnan versio. Tallennetaan tuloksen viereen, jotta
+# --uudelleen hakee vain ne jotka on haettu vanhalla parsinnalla.
+# Ilman tätä nopeusrajaan kaatuneet jäisivät ikuisiksi ajoiksi vanhaan
+# tulokseen, koska niillä on jo arvo eikä uusinta-ajo koskisi niihin.
+WP_VERSIO = 2
+
 
 def paanimi(artist: str) -> str:
     """Yhteistyömerkinnät pois, yhtyeen nimi ehjänä."""
@@ -358,7 +364,8 @@ def main() -> int:
 
     if a.wikipedia:
         kesken = [k for k in artistit
-                  if a.uudelleen or "wp_tyylilajit" not in tiedot[k]]
+                  if "wp_tyylilajit" not in tiedot[k]
+                  or (a.uudelleen and tiedot[k].get("wp_versio") != WP_VERSIO)]
         print(f"Hakematta {len(kesken)}", file=sys.stderr)
         virheita = 0
         for i, k in enumerate(kesken, 1):
@@ -372,9 +379,11 @@ def main() -> int:
                 time.sleep(2)
                 continue
             tiedot[k]["wp_tyylilajit"] = g
-            # Sekunti pyyntöjen välissä. 0,3 s tuotti HTTP 429:ää niin
-            # paljon, että 206 artistista löytyi vain 47 oikean 142 sijaan.
-            time.sleep(1.0)
+            tiedot[k]["wp_versio"] = WP_VERSIO
+            # Puolitoista sekuntia pyyntöjen välissä. 0,3 s tuotti HTTP
+            # 429:ää niin paljon, että 206 artistista löytyi vain 47
+            # oikean 142 sijaan, ja 1,0 s kaatoi vielä 34 hakua.
+            time.sleep(1.5)
             if i % 20 == 0 or g:
                 print(f"  {i}/{len(kesken)}  {tiedot[k]['nimi']}: "
                       f"{', '.join(g) if g else '-'}", file=sys.stderr)

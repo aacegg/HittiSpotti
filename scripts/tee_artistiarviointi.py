@@ -66,42 +66,100 @@ KARTTA = [
                  "melodic death metal", "industrial metal", "nu metal"]),
     ("Iskelmä", ["iskelmä", "schlager", "tango", "humppa"]),
     ("Elektroninen", ["electronic", "eurodance", "techno", "house", "trance",
-                      "edm", "synthpop", "electropop", "dance"]),
+                      "edm", "synthpop", "synth-pop", "electropop",
+                      "electro-pop", "dance"]),
     ("Rock", ["rock", "alternative rock", "finnish rock", "punk", "punk rock",
               "post-grunge", "gothic rock", "alternative/indie rock", "manserock",
               "folk rock", "indie rock", "hard rock", "garage rock", "grunge",
-              "progressive rock", "psychedelic rock", "rockabilly", "blues rock"]),
-    ("Pop", ["pop", "pop rock", "art pop", "finnish pop", "dance-pop", "indie pop",
+              "progressive rock", "psychedelic rock", "rockabilly", "blues rock",
+              "pop rock", "pop punk", "pop-punk"]),
+    ("Pop", ["pop", "art pop", "finnish pop", "dance-pop", "indie pop",
              "teen pop", "singer-songwriter", "soul", "r&b", "funk", "disco",
-             "chamber pop", "synth-pop", "folk pop", "reggae"]),
+             "chamber pop", "folk pop", "reggae"]),
 ]
 # Suomenkielinen sanasto Wikipedian tietolaatikosta. Eri lista kuin
 # MusicBrainzin, koska termit ovat eri: "suomirock", "iskelmä", "kantri".
+#
+# Yhdyssanan pääsana ratkaisee: "pop-rock" on rockia jota pop värittää,
+# ei poppia. Sama sääntö antaa pop-punkille Rockin ja pop rapille Rapin,
+# ja toisin päin rap-popille Popin. Poikkeus on syntikkapop ja sen
+# sukulaiset, joissa nimenomaan määrite kertoo mistä on kyse.
 KARTTA_FI = [
-    ("Rap", ["rap", "räppi", "hip hop", "hiphop", "trap", "suomirap"]),
-    ("Metalli", ["metalli", "heavy metal", "power metal", "raskas rock",
-                 "sinfoninen metalli", "death metal", "black metal",
-                 "gootti-metalli", "melodinen death metal"]),
-    ("Iskelmä", ["iskelmä", "iskelmämusiikki", "tango", "humppa", "schlager"]),
-    ("Elektroninen", ["dance", "eurodance", "elektroninen musiikki", "house",
-                      "techno", "tekno", "synapop", "syntikkapop", "edm",
-                      "elektroninen tanssimusiikki"]),
-    ("Rock", ["rock", "suomirock", "vaihtoehtorock", "hard rock", "folkrock",
-              "folk rock", "rock and roll", "uusi aalto", "punk", "punkrock",
-              "punk rock", "blues", "blues rock", "kantri", "country",
-              "progressiivinen rock", "indierock", "garagerock", "grunge",
-              "rockabilly"]),
-    ("Pop", ["pop", "popmusiikki", "poprock", "pop-rock", "pop rock", "r&b",
-             "rhythm and blues", "soul", "funk", "disko", "disco", "folk",
-             "folkmusiikki", "indiepop", "indie pop", "laulelma",
-             "singer-songwriter", "reggae", "teinipop"]),
+    ("Rap", ["rap", "räppi", "hip hop", "hiphop", "hip hop -musiikki",
+             "trap", "suomirap", "suomiräp", "huumorirap", "hardcore rap",
+             "horrorcore", "drill", "freestyle", "gangsta rap", "pop rap",
+             "poprap", "rap rock", "battle rap"]),
+    ("Metalli", ["metalli", "metal", "heavy metal", "power metal",
+                 "raskas rock", "sinfoninen metalli", "symphonic metal",
+                 "death metal", "black metal", "gootti-metalli",
+                 "goottimetalli", "gothic metal", "melodinen death metal",
+                 "melodic death metal", "progressiivinen metalli",
+                 "progressive metal", "nu metal", "nu-metal", "nu-metalli",
+                 "industrial metal", "teollisuusmetalli",
+                 "neoklassinen metalli", "glam metal", "cello metal",
+                 "folk metal", "kansanmetalli", "doom metal",
+                 "thrash metal", "speed metal", "viking metal"]),
+    ("Iskelmä", ["iskelmä", "iskelmämusiikki", "tango", "tangomusiikki",
+                 "humppa", "cityhumppa", "polkka", "schlager", "laulelma",
+                 "laulelmamusiikki", "kupletti", "viihde", "viihdemusiikki",
+                 "tanssimusiikki", "rautalanka", "rautalankamusiikki"]),
+    ("Elektroninen", ["elektroninen", "elektroninen musiikki",
+                      "elektroninen tanssimusiikki", "edm", "dance",
+                      "eurodance", "house", "progressiivinen house",
+                      "electro house", "techno", "tekno", "trance",
+                      "uplifting trance", "electro trance", "hard trance",
+                      "acid trance", "progressiivinen trance",
+                      "synapop", "syntikkapop", "synthpop", "synth-pop",
+                      "elektropop", "electropop", "industrial",
+                      "teollisuusmusiikki", "drum and bass", "drum'n'bass",
+                      "drum’n’bass", "dnb", "breakbeat", "ambient"]),
+    ("Rock", ["rock", "rockmusiikki", "suomirock", "manserock", "aikuisrock",
+              "taiderock", "vaihtoehtorock", "vaihtoehtomusiikki",
+              "alternative", "alternative rock", "hard rock", "kovarock",
+              "folkrock", "folk rock", "rock and roll", "rock'n'roll",
+              "uusi aalto", "new wave", "punk", "punkrock", "punk rock",
+              "hardcore punk", "skate punk", "pop-punk", "pop punk",
+              "poppunk", "post-hardcore", "blues", "bluesmusiikki",
+              "blues rock", "bluesrock", "kantri", "country", "countryrock",
+              "progressiivinen rock", "indierock", "indie rock",
+              "garagerock", "garage rock", "grunge", "rockabilly",
+              "goottirock", "gothic rock", "glam rock", "shock rock",
+              "sleaze rock", "shoegaze", "poprock", "pop-rock", "pop rock",
+              "stoner rock", "psykedeelinen rock"]),
+    ("Pop", ["pop", "popmusiikki", "pop-musiikki", "suomipop", "iskelmäpop",
+             "tanssipop", "dancepop", "dance-pop", "teinipop", "teini-pop",
+             "hyperpop", "rap-pop", "art pop", "taidepop", "kamaripop",
+             "r&b", "rnb", "r'n'b", "r’n’b", "rhythm and blues", "soul",
+             "funk", "disko", "disco", "folk", "folkmusiikki",
+             "kansanmusiikki", "indiepop", "indie pop", "singer-songwriter",
+             "lauluntekijä", "reggae", "dancehall", "ska"]),
+    # Pelin seitsemäs vastaus. Viimeisenä, joten tasapelissä se häviää
+    # aina tarkemmalle genrelle.
+    ("Muu", ["jazz", "jazzmusiikki", "swing", "gospel", "hengellinen musiikki",
+             "klassinen musiikki", "kamarimusiikki", "musiikkiteatteri",
+             "huumorimusiikki", "lastenmusiikki", "soundtrack",
+             "elokuvamusiikki", "world music", "maailmanmusiikki"]),
 ]
 TAGI_GENRE_FI = {t: g for g, tagit in KARTTA_FI for t in tagit}
 PAINO_FI = {g: i for i, (g, _) in enumerate(KARTTA_FI)}
 
 # Tietolaatikon parsinta vuotaa toisinaan seuraavaan kenttään, jolloin
 # arvoksi tulee esimerkiksi "| laulukieli = suomi". Kieli ei ole genre.
-EI_GENRE_FI = {"suomi", "englanti", "ruotsi", "instrumentaali"}
+EI_GENRE_FI = {"suomi", "englanti", "ruotsi", "instrumentaali", "saksa",
+               "espanja", "italia", "ranska", "venäjä", "afrikaans",
+               "unkari", "heprea", "viro", "norja", "tanska"}
+
+
+def wp_termit(raaka):
+    """Yksi kentän arvo pilkottuna vertailukelpoisiksi termeiksi.
+
+    Tietolaatikossa lukee toisinaan "hip hop ja rap" yhtenä arvona tai
+    "glam metal (aluksi)" tarkenteen kanssa.
+    """
+    t = raaka.lower().strip()
+    t = re.sub(r"\s*\([^)]*\)", "", t)
+    # &-merkin ympärillä vaaditaan välilyönnit, jottei "r&b" hajoa.
+    return [x.strip(" -–—'\"") for x in re.split(r"\s+ja\s+|\s+&\s+", t)]
 
 
 def genre_wikipediasta(tyylilajit):
@@ -110,12 +168,14 @@ def genre_wikipediasta(tyylilajit):
         return None
     osumat = []
     for raaka in tyylilajit:
-        t = raaka.lower().strip()
         # Vuotanut kenttä: sisältää =-merkin tai alkaa putkella.
-        if "=" in t or t.startswith("|") or t in EI_GENRE_FI:
+        if "=" in raaka or raaka.strip().startswith("|"):
             continue
-        if t in TAGI_GENRE_FI:
-            osumat.append(TAGI_GENRE_FI[t])
+        for t in wp_termit(raaka):
+            if not t or t in EI_GENRE_FI:
+                continue
+            if t in TAGI_GENRE_FI:
+                osumat.append(TAGI_GENRE_FI[t])
     if not osumat:
         return None
     laskuri = Counter(osumat)

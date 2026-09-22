@@ -17,12 +17,16 @@ MITÄ ARVIOIDAAN
 
 Kolme asiaa, jotka kone ei osaa päättää luotettavasti:
 
-1. GENRE. MusicBrainzin tagit ratkaisevat genren 135 artistille, mutta
-   71:ltä ne puuttuvat tai eivät kerro genreä (esimerkiksi pelkkä
-   "finnish" tai "eurovision"). Applen rajapinta antaa genren, mutta se on liian karkea
-   juuri siinä kohdassa joka merkitsee: Jari Sillanpää, Danny ja Frederik
-   ovat kaikki "Pop", vaikka ne ovat iskelmää. Applen arvaus näytetään
-   esivalintana, mutta se on arvaus eikä data.
+1. GENRE. Kaksi lähdettä yhdessä ratkaisee 177 artistia 206:sta:
+   Wikipedia 113 ja MusicBrainz 64. Wikipedia on ensisijainen, koska se
+   on suomalaisille tarkempi. Jari Sillanpää on MusicBrainzissa ilman
+   tageja ja Applella "Pop", mutta Wikipediassa "tango, iskelmämusiikki".
+
+   Applen genre kokeiltiin eikä se kelvannut: Jari Sillanpää, Danny ja
+   Frederik ovat siellä kaikki "Pop", vaikka ne ovat iskelmää, ja sama
+   artisti on kappaletasolla "Pop" ja artistitasolla "Rock".
+
+   29 artistia jää ilman ehdotusta.
 
 2. KOKOONPANO. MusicBrainz laskee taustamuusikot mukaan, joten JVG on
    siellä nelihenkinen ja PMMP viisihenkinen, vaikka molempia pidetään
@@ -71,6 +75,55 @@ KARTTA = [
              "teen pop", "singer-songwriter", "soul", "r&b", "funk", "disco",
              "chamber pop", "synth-pop", "folk pop", "reggae"]),
 ]
+# Suomenkielinen sanasto Wikipedian tietolaatikosta. Eri lista kuin
+# MusicBrainzin, koska termit ovat eri: "suomirock", "iskelmä", "kantri".
+KARTTA_FI = [
+    ("Rap", ["rap", "räppi", "hip hop", "hiphop", "trap", "suomirap"]),
+    ("Metalli", ["metalli", "heavy metal", "power metal", "raskas rock",
+                 "sinfoninen metalli", "death metal", "black metal",
+                 "gootti-metalli", "melodinen death metal"]),
+    ("Iskelmä", ["iskelmä", "iskelmämusiikki", "tango", "humppa", "schlager"]),
+    ("Elektroninen", ["dance", "eurodance", "elektroninen musiikki", "house",
+                      "techno", "tekno", "synapop", "syntikkapop", "edm",
+                      "elektroninen tanssimusiikki"]),
+    ("Rock", ["rock", "suomirock", "vaihtoehtorock", "hard rock", "folkrock",
+              "folk rock", "rock and roll", "uusi aalto", "punk", "punkrock",
+              "punk rock", "blues", "blues rock", "kantri", "country",
+              "progressiivinen rock", "indierock", "garagerock", "grunge",
+              "rockabilly"]),
+    ("Pop", ["pop", "popmusiikki", "poprock", "pop-rock", "pop rock", "r&b",
+             "rhythm and blues", "soul", "funk", "disko", "disco", "folk",
+             "folkmusiikki", "indiepop", "indie pop", "laulelma",
+             "singer-songwriter", "reggae", "teinipop"]),
+]
+TAGI_GENRE_FI = {t: g for g, tagit in KARTTA_FI for t in tagit}
+PAINO_FI = {g: i for i, (g, _) in enumerate(KARTTA_FI)}
+
+# Tietolaatikon parsinta vuotaa toisinaan seuraavaan kenttään, jolloin
+# arvoksi tulee esimerkiksi "| laulukieli = suomi". Kieli ei ole genre.
+EI_GENRE_FI = {"suomi", "englanti", "ruotsi", "instrumentaali"}
+
+
+def genre_wikipediasta(tyylilajit):
+    """Yleisin genre Wikipedian tyylilajeista."""
+    if not tyylilajit:
+        return None
+    osumat = []
+    for raaka in tyylilajit:
+        t = raaka.lower().strip()
+        # Vuotanut kenttä: sisältää =-merkin tai alkaa putkella.
+        if "=" in t or t.startswith("|") or t in EI_GENRE_FI:
+            continue
+        if t in TAGI_GENRE_FI:
+            osumat.append(TAGI_GENRE_FI[t])
+    if not osumat:
+        return None
+    laskuri = Counter(osumat)
+    paras = max(laskuri.values())
+    ehdokkaat = [g for g, n in laskuri.items() if n == paras]
+    return min(ehdokkaat, key=lambda g: PAINO_FI[g])
+
+
 TAGI_GENRE = {t: g for g, tagit in KARTTA for t in tagit}
 # Järjestys ratkaisee tasapelin. Rap ennen poppia, koska "pop rap" on rap.
 PAINO = {g: i for i, (g, _) in enumerate(KARTTA)}
@@ -86,6 +139,23 @@ def genre_tageista(tagit):
     paras = max(laskuri.values())
     ehdokkaat = [g for g, n in laskuri.items() if n == paras]
     return min(ehdokkaat, key=lambda g: PAINO[g])
+
+
+def genre_ehdotus(a):
+    """Wikipedia ensin, MusicBrainz vasta sitten.
+
+    Wikipedia on suomalaisille tarkempi: Jari Sillanpää on
+    MusicBrainzissa tagitta ja Applella "Pop", mutta Wikipediassa
+    "tango, iskelmämusiikki". Mitattu kattavuus 206 artistilla:
+    Wikipedia 142, MusicBrainz 135, yhdessä 182.
+    """
+    g = genre_wikipediasta(a.get("wp_tyylilajit"))
+    if g:
+        return g, "Wikipedia"
+    g = genre_tageista(a.get("tagit") or [])
+    if g:
+        return g, "MusicBrainz"
+    return None, "ei tietoa"
 
 
 def kokoonpano_ehdotus(a):
@@ -115,10 +185,12 @@ def esc(t):
 
 
 def rivi(k, a):
-    genre = genre_tageista(a.get("tagit") or [])
-    lahde = "MusicBrainz" if genre else "ei tietoa"
+    genre, lahde = genre_ehdotus(a)
     kokoonpano, peruste = kokoonpano_ehdotus(a)
-    tagit = ", ".join(a.get("tagit") or []) or "ei tageja"
+    wp = ", ".join(a.get("wp_tyylilajit") or [])
+    mb = ", ".join(a.get("tagit") or [])
+    tagit = " &middot; ".join(x for x in (
+        ("WP: " + wp) if wp else "", ("MB: " + mb) if mb else "") if x) or "ei tietoja"
     varoitus = []
     if a.get("lahde") == "sumea":
         varoitus.append(f"sumea osuma: {a.get('mbnimi')}")
@@ -169,13 +241,13 @@ def main() -> int:
     # Huomiota vaativat ensin, muuten biisimäärän mukaan.
     def jarjestys(kv):
         k, v = kv
-        puuttuu = (not genre_tageista(v.get("tagit") or [])
+        puuttuu = (not genre_ehdotus(v)[0]
                    or v.get("lahde") == "sumea" or not v.get("debyytti"))
         return (0 if puuttuu else 1, -v["biisit"])
 
     rivit = "".join(rivi(k, v) for k, v in sorted(mukana.items(), key=jarjestys))
     huomio = sum(1 for k, v in mukana.items()
-                 if not genre_tageista(v.get("tagit") or [])
+                 if not genre_ehdotus(v)[0]
                  or v.get("lahde") == "sumea" or not v.get("debyytti"))
 
     html = SIVU.replace("{{RIVIT}}", rivit).replace("{{N}}", str(len(mukana))) \

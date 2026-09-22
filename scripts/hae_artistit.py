@@ -69,6 +69,13 @@ VIRHE = object()
 # tulokseen, koska niillä on jo arvo eikä uusinta-ajo koskisi niihin.
 WP_VERSIO = 4
 
+# Tarkennettu sivunimi joka voi kertoa artistista: "Ares (artisti)",
+# "Viivi (laulaja)", "Tehosekoitin (yhtye)".
+MUSIIKKITARKENNE = re.compile(
+    r"\((?:[^)]*\s)?(?:artisti|laulaja|laulajatar|muusikko|yhtye|bändi|"
+    r"räppäri|rapp?ari|duo|kokoonpano|orkesteri|rap-artisti|tuottaja|"
+    r"säveltäjä|muusikko)\)", re.I)
+
 
 def tallenna(tiedot: dict):
     """Kirjoita tulos yhdistäen siihen mitä levyllä jo on.
@@ -282,7 +289,14 @@ def wikipedia_tarkenteet(nimi: str):
         return VIRHE
     osumat = (d.get("query") or {}).get("prefixsearch") or []
     alku = nimi.lower() + " ("
-    return [o["title"] for o in osumat if o.get("title", "").lower().startswith(alku)]
+    kaikki = [o["title"] for o in osumat if o.get("title", "").lower().startswith(alku)]
+    # Vain musiikkiin liittyvät tarkenteet. Ares tuottaa kuusi sivua,
+    # joista viisi on DC Comicsia, raketti, yritys, Xena ja
+    # täsmennyssivu. Jokainen turha haku on yksi mahdollisuus osua
+    # nopeusrajaan, ja yksikin kaatunut haku merkitsee koko tuloksen
+    # virheeksi. Turhat haut siis aiheuttavat itse sen virheen.
+    osuvat = [t for t in kaikki if MUSIIKKITARKENNE.search(t)]
+    return (osuvat or kaikki)[:4]
 
 
 def kentan_arvot(teksti: str, kentta: str):

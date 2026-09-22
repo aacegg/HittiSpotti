@@ -122,6 +122,26 @@ def ensijulkaisu(mbid: str):
     return min(vuodet) if vuodet else None
 
 
+def jasenmaara(mbid: str):
+    """Yhtyeen nykyisten jäsenten määrä.
+
+    Palauttaa myös kaikkien aikojen määrän, koska ero on iso ja kertoo
+    onko kyse pitkäikäisestä bändistä: Apulanta 7 kaikkiaan mutta 3 nyt.
+
+    HUOM: luku EI vastaa aina yleistä käsitystä. MusicBrainz laskee
+    mukaan taustamuusikot, joten JVG on siellä nelihenkinen ja PMMP
+    viisihenkinen, vaikka molempia pidetään duoina. Siksi nämä on
+    tarkoitettu tarkistettaviksi, ei sellaisenaan peliin.
+    """
+    d, virhe = hae(f"artist/{mbid}", inc="artist-rels", fmt="json")
+    time.sleep(VIIVE)
+    if virhe or not d:
+        return None, None
+    jasenet = [r for r in d.get("relations", []) if r.get("type") == "member of band"]
+    nyt = [r for r in jasenet if not r.get("end") and not r.get("ended")]
+    return len(nyt), len(jasenet)
+
+
 def kerää_artistit():
     kat = json.loads(KATALOGI.read_text(encoding="utf-8"))
     pool = [s for s in kat if s.get("peli") is not False]
@@ -161,6 +181,8 @@ def raportti(tiedot):
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--raportti", action="store_true")
+    ap.add_argument("--jasenet", action="store_true",
+                    help="hae yhtyeiden jäsenmäärät (oma kierroksensa)")
     a = ap.parse_args()
 
     artistit = kerää_artistit()
@@ -178,6 +200,30 @@ def main() -> int:
 
     if a.raportti:
         raportti({k: tiedot[k] for k in artistit})
+        return 0
+
+    if a.jasenet:
+        # Sooloartistille jäsenmäärä on 1 ilman hakua. MusicBrainzin
+        # "member of band" tarkoittaa henkilöllä päinvastaista: niitä
+        # bändejä joihin hän kuuluu.
+        yhtyeet = [k for k in artistit
+                   if tiedot[k].get("tyyppi") == "Group"
+                   and tiedot[k].get("mbid") and "jasenet" not in tiedot[k]]
+        for k in artistit:
+            if tiedot[k].get("tyyppi") == "Person":
+                tiedot[k]["jasenet"] = 1
+                tiedot[k]["jasenet_kaikkiaan"] = 1
+        print(f"Yhtyeitä hakematta: {len(yhtyeet)}", file=sys.stderr)
+        for i, k in enumerate(yhtyeet, 1):
+            nyt, kaikki = jasenmaara(tiedot[k]["mbid"])
+            tiedot[k]["jasenet"] = nyt
+            tiedot[k]["jasenet_kaikkiaan"] = kaikki
+            print(f"  {i}/{len(yhtyeet)}  {tiedot[k]['nimi']}: {nyt} nyt, {kaikki} kaikkiaan",
+                  file=sys.stderr)
+            ULOS.write_text(json.dumps(tiedot, ensure_ascii=False, indent=1), encoding="utf-8")
+        ULOS.write_text(json.dumps(tiedot, ensure_ascii=False, indent=1), encoding="utf-8")
+        print("\nValmis. Tarkista jäsenmäärät käsin: MusicBrainz laskee "
+              "taustamuusikot mukaan.", file=sys.stderr)
         return 0
 
     kesken = [k for k in artistit if "mbid" not in tiedot[k]]

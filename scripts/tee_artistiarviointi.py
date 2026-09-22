@@ -165,27 +165,63 @@ VARTALOT = [
 ]
 
 
-def genre_kuvauksesta(kuvaus):
+# Sateenvarjotermit. Ne kertovat karkean kentän mutta eivät erottele
+# mitään, koska lähes jokainen artisti mahtuu johonkin niistä.
+# Eurodance kertoo enemmän kuin dance ja nu metal enemmän kuin rock.
+YLEISTERMIT = {"pop", "popmusiikki", "pop-musiikki", "suomipop",
+               "rock", "rockmusiikki", "suomirock", "dance", "alternative",
+               "vaihtoehtomusiikki", "elektroninen", "elektroninen musiikki",
+               "musiikki", "tanssimusiikki"}
+# Lauseessa ratkaisee kielioppi eikä sanasto. "Ultra Bra on suomalainen
+# popyhtye" on itsemäärittely ja kertoo mikä yhtye on. Movetron taas
+# "tekee tanssi- ja muuta popmusiikkia", mikä kertoo mitä se tekee.
+# Ensimmäinen on vahva todiste vaikka sana on pop, jälkimmäinen ei.
+YLEISVARTALOT = r"^(?:pop|rock|rokki|dance|tanssi|elektronis|elektronin)"
+ARTISTISANAT = (r"(?:yhtye|bändi|bandi|laulaja|laulajatar|artisti|muusikko|"
+                r"duo|trio|kokoonpano|orkesteri|tähti|räppäri|rapp?ari|"
+                r"kvartetti|kitaristi|tuottaja|tekijä)")
+
+
+def genre_kuvauksesta(kuvaus, kerro_vahvuus=False):
     """Genre artikkelin johdantolauseesta.
 
     Tietolaatikko luettelee kaiken mihin artisti on koskenut, lause
     kertoo mikä artisti on. Mamban tietolaatikossa on iskelmä, pop,
     poprock ja suomirock, joista enemmistö antaa Rockin, mutta lause
     sanoo "iskelmällinen yhtye". Lause on se jonka pelaaja arvaisi.
+
+    Palauttaa myös tiedon siitä nojaako tulos pelkkään yleistermiin.
+    Movetronin lause sanoo "tanssi- ja muuta popmusiikkia tekevä
+    yhtye", mistä tulee Pop, mutta tietolaatikossa lukee eurodance,
+    joka kertoo enemmän. Silloin laatikko saa voittaa lauseen.
     """
+    tyhja = (None, False) if kerro_vahvuus else None
     if not kuvaus:
-        return None
+        return tyhja
     t = kuvaus.lower()
     osumat = Counter()
+    vahvat = set()
     for genre, hahmo in VARTALOT:
-        n = len(re.findall(hahmo, t))
-        if n:
-            osumat[genre] = n
+        loydot = list(re.finditer(hahmo, t))
+        if not loydot:
+            continue
+        osumat[genre] = len(loydot)
+        for m in loydot:
+            sana = m.group(0)
+            if not re.match(YLEISVARTALOT, sana):
+                vahvat.add(genre)      # iskelmällinen, metallin, räppäri
+                continue
+            # Yleissana kelpaa jos se on kiinni artistisanassa:
+            # "popyhtye" ja "pop-laulaja" kyllä, "popmusiikkia tekevä" ei.
+            ikkuna = t[m.start():m.end() + 12]
+            if re.match(r"\w*[\s-]?" + ARTISTISANAT, ikkuna):
+                vahvat.add(genre)
     if not osumat:
-        return None
+        return tyhja
     paras = max(osumat.values())
     ehdokkaat = [g for g, n in osumat.items() if n == paras]
-    return min(ehdokkaat, key=lambda g: PAINO_FI[g])
+    g = min(ehdokkaat, key=lambda g: PAINO_FI[g])
+    return (g, g in vahvat) if kerro_vahvuus else g
 
 
 def wp_termit(raaka):
@@ -200,26 +236,37 @@ def wp_termit(raaka):
     return [x.strip(" -–—'\"") for x in re.split(r"\s+ja\s+|\s+&\s+", t)]
 
 
-def genre_wikipediasta(tyylilajit):
-    """Yleisin genre Wikipedian tyylilajeista."""
+def genre_wikipediasta(tyylilajit, kerro_vahvuus=False):
+    """Yleisin genre Wikipedian tyylilajeista.
+
+    Sateenvarjotermi painaa puolikkaan. "pop" ja "dance" eivät erottele
+    mitään, koska melkein jokainen artisti mahtuu niihin, kun taas
+    eurodance ja nu metal kertovat suoraan mistä on kyse.
+    """
+    tyhja = (None, False) if kerro_vahvuus else None
     if not tyylilajit:
-        return None
-    osumat = []
+        return tyhja
+    laskuri = Counter()
+    vahvat = set()
     for raaka in tyylilajit:
         # Vuotanut kenttä: sisältää =-merkin tai alkaa putkella.
         if "=" in raaka or raaka.strip().startswith("|"):
             continue
         for t in wp_termit(raaka):
-            if not t or t in EI_GENRE_FI:
+            if not t or t in EI_GENRE_FI or t not in TAGI_GENRE_FI:
                 continue
-            if t in TAGI_GENRE_FI:
-                osumat.append(TAGI_GENRE_FI[t])
-    if not osumat:
-        return None
-    laskuri = Counter(osumat)
+            g = TAGI_GENRE_FI[t]
+            if t in YLEISTERMIT:
+                laskuri[g] += 0.5
+            else:
+                laskuri[g] += 1
+                vahvat.add(g)
+    if not laskuri:
+        return tyhja
     paras = max(laskuri.values())
     ehdokkaat = [g for g, n in laskuri.items() if n == paras]
-    return min(ehdokkaat, key=lambda g: PAINO_FI[g])
+    g = min(ehdokkaat, key=lambda g: PAINO_FI[g])
+    return (g, g in vahvat) if kerro_vahvuus else g
 
 
 TAGI_GENRE = {t: g for g, tagit in KARTTA for t in tagit}
@@ -252,12 +299,19 @@ def genre_ehdotus(a):
     tyylilajista neljä on rockin alalajeja, joten laatikko tekee
     räppäristä rockartistin. Lause sanoo suoraan mikä artisti on.
     """
-    g = genre_kuvauksesta(a.get("wp_kuvaus"))
-    if g:
-        return g, "Wikipedia (lause)"
-    g = genre_wikipediasta(a.get("wp_tyylilajit"))
-    if g:
-        return g, "Wikipedia"
+    lause, lause_vahva = genre_kuvauksesta(a.get("wp_kuvaus"), True)
+    laatikko, laatikko_vahva = genre_wikipediasta(a.get("wp_tyylilajit"), True)
+    if lause and lause_vahva:
+        return lause, "Wikipedia (lause)"
+    # Lause nojaa pelkkään sateenvarjotermiin. Jos laatikossa on
+    # täsmällinen termi, se kertoo enemmän: Movetronin lause sanoo
+    # "tanssi- ja muuta popmusiikkia", laatikko sanoo eurodance.
+    if laatikko and laatikko_vahva:
+        return laatikko, "Wikipedia"
+    if lause:
+        return lause, "Wikipedia (lause)"
+    if laatikko:
+        return laatikko, "Wikipedia"
     g = genre_tageista(a.get("tagit") or [])
     if g:
         return g, "MusicBrainz"

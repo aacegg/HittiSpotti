@@ -154,6 +154,40 @@ def julkaisuvuodet(mbid: str):
     return sorted(vuodet) or None
 
 
+def jasenten_tiedot(mbid: str, valimuisti: dict):
+    """Yhtyeen jäsenet nimineen ja sukupuolineen.
+
+    Sukupuoli on tyhjä kaikilla 70 yhtyeellä, koska MusicBrainzin
+    sukupuoli koskee vain henkilöitä. Yhtyeelle se pitää johtaa
+    jäsenistä, eikä jäsensuhde sisällä sitä: suhteen artisti-olio antaa
+    vain id:n, nimen, tyypin ja maan. Siksi jokainen jäsen haetaan
+    erikseen. Välimuisti mbid:llä, koska sama muusikko on monessa
+    yhtyeessä.
+
+    Nykyiset jäsenet ensin. MusicBrainz laskee mukaan taustamuusikot,
+    joten kokoonpanoon kuulumaton mies tekisi naisyhtyeestä sekayhtyeen.
+    """
+    d, virhe = hae(f"artist/{mbid}", inc="artist-rels", fmt="json")
+    time.sleep(VIIVE)
+    if virhe or not d:
+        return None
+    kaikki = [r for r in d.get("relations", []) if r.get("type") == "member of band"]
+    nyt = [r for r in kaikki if not r.get("end") and not r.get("ended")]
+    valitut = nyt or kaikki
+    ulos = []
+    for r in valitut:
+        a = r.get("artist") or {}
+        jid = a.get("id")
+        if not jid:
+            continue
+        if jid not in valimuisti:
+            j, jvirhe = hae(f"artist/{jid}", fmt="json")
+            time.sleep(VIIVE)
+            valimuisti[jid] = None if jvirhe or not j else j.get("gender")
+        ulos.append({"nimi": a.get("name"), "sukupuoli": valimuisti[jid]})
+    return ulos
+
+
 def jasenmaara(mbid: str):
     """Yhtyeen nykyisten jäsenten määrä.
 
@@ -412,6 +446,8 @@ def main() -> int:
                     help="hae tyylilajit fi.wikipediasta (oma kierroksensa)")
     ap.add_argument("--uudelleen", action="store_true",
                     help="hae myös jo haetut uudestaan (parsinta muuttui)")
+    ap.add_argument("--yhtyeet", action="store_true",
+                    help="hae yhtyeiden jäsenten sukupuolet (oma kierroksensa)")
     ap.add_argument("--julkaisut", action="store_true",
                     help="hae julkaisuvuodet aktiivisinta vuosikymmentä "
                          "varten (oma kierroksensa)")
@@ -432,6 +468,26 @@ def main() -> int:
 
     if a.raportti:
         raportti({k: tiedot[k] for k in artistit})
+        return 0
+
+    if a.yhtyeet:
+        yhtyeet = [k for k in artistit
+                   if tiedot[k].get("tyyppi") == "Group"
+                   and tiedot[k].get("mbid") and "jasenet_tiedot" not in tiedot[k]]
+        print(f"Yhtyeitä hakematta {len(yhtyeet)}", file=sys.stderr)
+        valimuisti = {}
+        for i, k in enumerate(yhtyeet, 1):
+            jas = jasenten_tiedot(tiedot[k]["mbid"], valimuisti)
+            tiedot[k]["jasenet_tiedot"] = jas
+            tunnetut = [j["sukupuoli"] for j in (jas or []) if j["sukupuoli"]]
+            print(f"  {i}/{len(yhtyeet)}  {tiedot[k]['nimi']}: "
+                  f"{len(jas or [])} jäsentä, sukupuoli tiedossa {len(tunnetut)} "
+                  f"({', '.join(sorted(set(tunnetut))) or '-'})", file=sys.stderr)
+            ULOS.write_text(json.dumps(tiedot, ensure_ascii=False, indent=1), encoding="utf-8")
+        loytyi = sum(1 for k in artistit
+                     if any(j["sukupuoli"] for j in (tiedot[k].get("jasenet_tiedot") or [])))
+        print(f"\nJäsenten sukupuoli tiedossa {loytyi} / {len(yhtyeet)} yhtyeelle",
+              file=sys.stderr)
         return 0
 
     if a.julkaisut:

@@ -324,6 +324,39 @@ def genre_ehdotus(a):
     return None, "ei tietoa"
 
 
+SUKUPUOLET = ["Mies", "Nainen", "Seka"]
+
+
+def sukupuoli_ehdotus(a):
+    """Mies, nainen vai seka.
+
+    Sooloartistille MusicBrainzin sukupuoli. Yhtyeelle se johdetaan
+    jäsenistä, koska MusicBrainzin sukupuoli koskee vain henkilöitä ja
+    on tyhjä kaikilla 70 yhtyeellä: pelkkä miehistä koostuva yhtye on
+    Mies, pelkkä naisista Nainen, sekakokoonpano Seka.
+
+    HUOM: MusicBrainz laskee jäseniksi myös taustamuusikot, joten yksi
+    ylimääräinen mies tekisi naisyhtyeestä sekayhtyeen. Siksi jäsenten
+    nimet ja sukupuolet näkyvät arviointisivulla tarkistettaviksi.
+    """
+    if a.get("tyyppi") == "Person":
+        g = a.get("sukupuoli")
+        if g == "male":
+            return "Mies", "MusicBrainz"
+        if g == "female":
+            return "Nainen", "MusicBrainz"
+        return None, "ei tietoa"
+    jas = a.get("jasenet_tiedot") or []
+    tunnetut = {j["sukupuoli"] for j in jas if j.get("sukupuoli")}
+    if not tunnetut:
+        return None, "ei tietoa"
+    if tunnetut == {"male"}:
+        return "Mies", f"{len(jas)} jäsentä"
+    if tunnetut == {"female"}:
+        return "Nainen", f"{len(jas)} jäsentä"
+    return "Seka", f"{len(jas)} jäsentä"
+
+
 KIELET = ["Suomi", "Englanti", "Instrumentaali"]
 KIELI_NIMET = {"suomi": "Suomi", "suomen kieli": "Suomi", "finnish": "Suomi",
                "englanti": "Englanti", "englannin kieli": "Englanti",
@@ -387,6 +420,7 @@ def rivi(k, a):
     genre, lahde = genre_ehdotus(a)
     kokoonpano, peruste = kokoonpano_ehdotus(a)
     kieli, kieliperuste = laulukieli_ehdotus(a)
+    sp, spperuste = sukupuoli_ehdotus(a)
     wp = ", ".join(a.get("wp_tyylilajit") or [])
     mb = ", ".join(a.get("tagit") or [])
     tagit = " &middot; ".join(x for x in (
@@ -400,29 +434,41 @@ def rivi(k, a):
         varoitus.append("genre puuttuu")
     if not kieli:
         varoitus.append("laulukieli puuttuu")
+    if not sp:
+        varoitus.append("sukupuoli puuttuu")
     napit = "".join(
         f'<button type="button" class="g{" on" if g == genre else ""}" data-g="{esc(g)}">{esc(g)}</button>'
         for g in GENRET)
     kokot = "".join(
         f'<button type="button" class="k{" on" if x == kokoonpano else ""}" data-k="{x}">{x}</button>'
         for x in ("Soolo", "Duo", "Yhtye"))
+    spt = "".join(
+        f'<button type="button" class="s{" on" if x == sp else ""}" data-s="{x}">{x}</button>'
+        for x in SUKUPUOLET)
     kielet = "".join(
         f'<button type="button" class="l{" on" if x == kieli else ""}" data-l="{esc(x)}">{esc(x)}</button>'
         for x in KIELET)
     # Kaikki listatut kielet näkyviin, koska ehdotus on vain ensimmäinen.
     kaikki_kielet = ", ".join(a.get("wp_laulukieli") or [])
+    # Jäsenet näkyviin, koska MusicBrainz laskee taustamuusikot mukaan.
+    jasenet = ", ".join(
+        f'{j["nimi"]} ({ {"male": "m", "female": "n"}.get(j.get("sukupuoli"), "?") })'
+        for j in (a.get("jasenet_tiedot") or []))
     return f"""<tr data-k="{esc(k)}" data-genre="{esc(genre or '')}" data-kokoonpano="{esc(kokoonpano)}"
-      data-kieli="{esc(kieli or '')}" class="{'huomio' if varoitus else ''}">
+      data-kieli="{esc(kieli or '')}" data-sp="{esc(sp or '')}" class="{'huomio' if varoitus else ''}">
   <td class="nimi"><b>{esc(a['nimi'])}</b>
     <span>{a['biisit']} biisiä &middot; {a['eka']}&ndash;{a['vika']} &middot; debyytti {esc(a.get('debyytti') or '?')}</span>
     <span class="tagit">{esc(tagit)}</span>
     {'<span class="kuvaus">' + esc(a['wp_kuvaus']) + '</span>' if a.get('wp_kuvaus') else ''}
     {'<span class="tagit">kielet: ' + esc(kaikki_kielet) + '</span>' if kaikki_kielet else ''}
+    {'<span class="tagit">jäsenet: ' + esc(jasenet) + '</span>' if jasenet else ''}
     {'<span class="varo">' + esc(' &middot; '.join(varoitus)) + '</span>' if varoitus else ''}
   </td>
   <td class="napit">{napit}<div class="rivi2">{kokot}</div>
+    <div class="rivi2">{spt}</div>
     <div class="rivi2">{kielet}</div>
-    <span class="peruste">{esc(lahde)} &middot; {esc(peruste)} &middot; kieli {esc(kieliperuste)}</span></td>
+    <span class="peruste">{esc(lahde)} &middot; {esc(peruste)} &middot; kieli {esc(kieliperuste)}
+      &middot; sp {esc(spperuste)}</span></td>
 </tr>"""
 
 
@@ -444,6 +490,7 @@ def main() -> int:
             tiedot[k]["genre"] = v.get("genre")
             tiedot[k]["kokoonpano"] = v.get("kokoonpano")
             tiedot[k]["laulukieli"] = v.get("kieli")
+            tiedot[k]["sukupuoli_peli"] = v.get("sukupuoli")
             n += 1
         TIEDOT.write_text(json.dumps(tiedot, ensure_ascii=False, indent=1), encoding="utf-8")
         print(f"Päivitetty {n} artistia")
@@ -453,12 +500,14 @@ def main() -> int:
     def jarjestys(kv):
         k, v = kv
         puuttuu = (not genre_ehdotus(v)[0] or not laulukieli_ehdotus(v)[0]
+                   or not sukupuoli_ehdotus(v)[0]
                    or v.get("lahde") == "sumea" or not v.get("debyytti"))
         return (0 if puuttuu else 1, -v["biisit"])
 
     rivit = "".join(rivi(k, v) for k, v in sorted(mukana.items(), key=jarjestys))
     huomio = sum(1 for k, v in mukana.items()
                  if not genre_ehdotus(v)[0] or not laulukieli_ehdotus(v)[0]
+                 or not sukupuoli_ehdotus(v)[0]
                  or v.get("lahde") == "sumea" or not v.get("debyytti"))
 
     html = SIVU.replace("{{RIVIT}}", rivit).replace("{{N}}", str(len(mukana))) \
@@ -495,6 +544,7 @@ button{background:transparent;border:1px solid var(--line);border-radius:999px;
 button.on{border-color:var(--live);color:var(--live);font-weight:700}
 button.k.on{border-color:var(--varo);color:var(--varo)}
 button.l.on{border-color:var(--dim);color:var(--teksti)}
+button.s.on{border-color:var(--dim);color:var(--teksti)}
 .peruste{display:block;color:var(--dim);font-size:10.5px;margin-top:3px}
 #ala{position:fixed;left:0;right:0;bottom:0;background:#12100e;border-top:1px solid var(--line);
  padding:10px 14px;display:flex;gap:10px;align-items:center}
@@ -521,19 +571,23 @@ function piirra(){
     const g=(tila[k]&&tila[k].genre)||tr.dataset.genre;
     const ko=(tila[k]&&tila[k].kokoonpano)||tr.dataset.kokoonpano;
     const ki=(tila[k]&&tila[k].kieli)||tr.dataset.kieli;
+    const sp=(tila[k]&&tila[k].sukupuoli)||tr.dataset.sp;
     tr.querySelectorAll("button.g").forEach(b=>b.classList.toggle("on",b.dataset.g===g));
     tr.querySelectorAll("button.k").forEach(b=>b.classList.toggle("on",b.dataset.k===ko));
     tr.querySelectorAll("button.l").forEach(b=>b.classList.toggle("on",b.dataset.l===ki));
+    tr.querySelectorAll("button.s").forEach(b=>b.classList.toggle("on",b.dataset.s===sp));
     if(tila[k]) muutettu++;
   }
   document.getElementById("luku").textContent=muutettu+" muutettu / "+rivit.length;
 }
 document.addEventListener("click",(e)=>{
-  const b=e.target.closest("button.g, button.k, button.l"); if(!b) return;
+  const b=e.target.closest("button.g, button.k, button.l, button.s"); if(!b) return;
   const tr=b.closest("tr"), k=tr.dataset.k;
-  tila[k]=tila[k]||{genre:tr.dataset.genre,kokoonpano:tr.dataset.kokoonpano,kieli:tr.dataset.kieli};
+  tila[k]=tila[k]||{genre:tr.dataset.genre,kokoonpano:tr.dataset.kokoonpano,
+                    kieli:tr.dataset.kieli,sukupuoli:tr.dataset.sp};
   if(b.dataset.g) tila[k].genre=b.dataset.g;
   else if(b.dataset.l) tila[k].kieli=b.dataset.l;
+  else if(b.dataset.s) tila[k].sukupuoli=b.dataset.s;
   else tila[k].kokoonpano=b.dataset.k;
   try{ localStorage.setItem(AVAIN,JSON.stringify(tila)); }catch(e){}
   piirra();
@@ -545,7 +599,8 @@ function kopioi(){
     const k=tr.dataset.k;
     ulos[k]={genre:(tila[k]&&tila[k].genre)||tr.dataset.genre,
              kokoonpano:(tila[k]&&tila[k].kokoonpano)||tr.dataset.kokoonpano,
-             kieli:(tila[k]&&tila[k].kieli)||tr.dataset.kieli};
+             kieli:(tila[k]&&tila[k].kieli)||tr.dataset.kieli,
+             sukupuoli:(tila[k]&&tila[k].sukupuoli)||tr.dataset.sp};
   }
   const t=JSON.stringify({artistit:ulos});
   const ta=document.getElementById("ta"); ta.value=t; ta.select();

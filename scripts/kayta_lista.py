@@ -59,6 +59,9 @@ LUVUT = {"jasenluku": (1, 30)}
 # pienellä tai eri muodossa: "ei laulukieltä" on instrumentaali.
 SYNONYYMIT = {
     "ei laulukielta": "Instrumentaali",
+    "sekayhtye": "Seka",
+    "sekakokoonpano": "Seka",
+    "mies ja nainen": "Seka",
     "ei laulua": "Instrumentaali",
     "instrumentaalimusiikki": "Instrumentaali",
     "molemmat": None,        # ei enää käytössä, ks. laulukielen perustelu

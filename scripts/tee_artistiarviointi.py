@@ -49,7 +49,8 @@ ROOT = Path(__file__).resolve().parent.parent
 TIEDOT = ROOT / ".artistit.json"
 ULOS = ROOT / "artistit.html"
 
-GENRET = ["Rap", "Rock", "Pop", "Iskelmä", "Metalli", "Elektroninen", "Muu"]
+GENRET = ["Rap", "Rock", "Pop", "Iskelmä", "Metalli", "Elektroninen",
+          "Reggae", "Muu"]
 
 # Tagi -> genre. Kansallisuus, ammatti ja tapahtumat eivät ole genrejä:
 # "finnish" on 49 artistilla eikä erottele mitään, koska kaikki ovat
@@ -305,6 +306,11 @@ def genre_ehdotus(a):
     tyylilajista neljä on rockin alalajeja, joten laatikko tekee
     räppäristä rockartistin. Lause sanoo suoraan mikä artisti on.
     """
+    # Käsin asetettu voittaa aina. Automaattinen päättely osui 77 %
+    # oikein mitattuna, mikä ei riitä peliin jossa vastaus on vihreä
+    # tai punainen, joten ehdotus on vain pohja käymättömille.
+    if a.get("genre"):
+        return a["genre"], "käsin"
     lause, lause_vahva = genre_kuvauksesta(a.get("wp_kuvaus"), True)
     laatikko, laatikko_vahva = genre_wikipediasta(a.get("wp_tyylilajit"), True)
     if lause and lause_vahva:
@@ -358,6 +364,8 @@ def sukupuoli_ehdotus(a):
     # Pieniksi kirjaimiksi aina. MusicBrainzin hakuendpoint palauttaa
     # "male" mutta /artist/{id} palauttaa "Male", ja isolla kirjaimella
     # vertaaminen teki jokaisesta yhtyeestä sekakokoonpanon.
+    if a.get("sukupuoli_peli"):
+        return a["sukupuoli_peli"], "käsin"
     if a.get("tyyppi") == "Person":
         g = (a.get("sukupuoli") or "").lower()
         if g == "male":
@@ -396,6 +404,8 @@ def laulukieli_ehdotus(a):
     Ensimmäinen listattu on ensisijainen, kuten tietolaatikoissa yleensä.
     Ei arvoa "molemmat": genrekin on yksi per artisti.
     """
+    if a.get("laulukieli"):
+        return a["laulukieli"], "käsin"
     lista = a.get("wp_laulukieli") or []
     for raaka in lista:
         t = raaka.lower().strip()
@@ -413,6 +423,8 @@ def kokoonpano_ehdotus(a):
     ja "Ida Paul & Kalle Lindroth" ovat duoja nimensä perusteella, vaikka
     tietokanta sanoo muuta.
     """
+    if a.get("kokoonpano"):
+        return a["kokoonpano"], "käsin"
     if a.get("tyyppi") == "Person":
         return "Soolo", "tyyppi on Person"
     nimi = a.get("nimi", "")

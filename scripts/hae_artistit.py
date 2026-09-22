@@ -160,6 +160,89 @@ def jasenmaara(mbid: str):
     return len(nyt), len(jasenet)
 
 
+def wikipedia_teksti(nimi: str):
+    """Sivun wikiteksti. None jos sivua ei ole, VIRHE jos haku kaatui."""
+    url = ("https://fi.wikipedia.org/w/api.php?action=parse&page="
+           + urllib.parse.quote(nimi) + "&prop=wikitext&format=json")
+    d = None
+    for yritys in range(5):
+        req = urllib.request.Request(url, headers={"User-Agent": UA})
+        try:
+            with urllib.request.urlopen(req, timeout=30) as r:
+                d = json.load(r)
+            break
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                return None            # artikkelia ei ole, aito tyhjä
+            if e.code in (429, 503):
+                time.sleep(2 ** yritys)
+                continue
+            return VIRHE
+        except Exception:
+            time.sleep(2 ** yritys)
+    if d is None:
+        return VIRHE
+    if "error" in d:                   # esim. sivua ei ole
+        return None
+    return (d.get("parse") or {}).get("wikitext", {}).get("*") or ""
+
+
+def wikipedia_tarkenteet(nimi: str):
+    """Sivut joiden otsikko on "nimi (jotain)".
+
+    Tarpeen koska moni artistinimi on tavallinen sana. Sivu
+    "Tehosekoitin" kertoo kodinkoneesta ja yhtye on "Tehosekoitin
+    (yhtye)". Ilman tätä yhtyeen tyylilajit jäivät löytymättä.
+
+    Epäonnistuminen palauttaa VIRHE eikä tyhjää listaa: tyhjä lista
+    tarkoittaisi "ei tarkennettuja sivuja" ja nopeusrajaan osunut haku
+    tallentuisi tietona "ei tyylilajeja".
+    """
+    url = ("https://fi.wikipedia.org/w/api.php?action=query&list=prefixsearch"
+           "&pslimit=20&format=json&pssearch=" + urllib.parse.quote(nimi))
+    d = None
+    for yritys in range(5):
+        req = urllib.request.Request(url, headers={"User-Agent": UA})
+        try:
+            with urllib.request.urlopen(req, timeout=30) as r:
+                d = json.load(r)
+            break
+        except Exception:
+            time.sleep(2 ** yritys)
+    if d is None:
+        return VIRHE
+    osumat = (d.get("query") or {}).get("prefixsearch") or []
+    alku = nimi.lower() + " ("
+    return [o["title"] for o in osumat if o.get("title", "").lower().startswith(alku)]
+
+
+def tyylilajit_tekstista(teksti: str):
+    """Tietolaatikon Tyylilajit-kentän arvot listana, None jos kenttää ei ole."""
+    # Kentän arvo rivin loppuun asti. Katkaisu ensimmäiseen |-merkkiin
+    # osuisi wikilinkin sisälle: [[Folkmusiikki|folk]]. Väli =-merkin
+    # ympärillä ei saa olla \s, koska se nielaisisi rivinvaihdon ja
+    # tyhjä kenttä lainaisi arvonsa seuraavalta riviltä.
+    m = re.search(r"\|[^\S\n]*[Tt]yylilaj(?:it|i)[^\S\n]*="
+                  r"[^\S\n]*((?:[^\n]|\n(?!\s*[|}]))*)", teksti)
+    if not m:
+        return None
+    arvo = m.group(1)
+    arvo = re.sub(r"<ref[^>]*>.*?</ref>", "", arvo, flags=re.S)
+    arvo = re.sub(r"<ref[^>]*/>", "", arvo)
+    # Rivinvaihtotagi on erotin, ei koriste. Jos sen poistaa muiden
+    # tagien mukana, arvot liimautuvat yhteen: Tiktakin kolmesta
+    # tyylilajista tuli yksi merkkijono "pop-rockvaihtoehtorockpop-punk".
+    arvo = re.sub(r"<br\s*/?>", ",", arvo, flags=re.I)
+    # Listamallit kääritään pois, sisältö jää: {{Plainlist|* rock * pop}}
+    arvo = re.sub(r"\{\{\s*(?:plainlist|flatlist|hlist|lista|ubl|unbulleted list)\s*\|",
+                  "", arvo, flags=re.I)
+    arvo = re.sub(r"\[\[([^\]|]*)\|([^\]]*)\]\]", r"\2", arvo)
+    arvo = re.sub(r"\[\[([^\]]*)\]\]", r"\1", arvo)
+    arvo = re.sub(r"<[^>]*>|\{\{[^}]*\}\}|\}\}", "", arvo)
+    osat = [x.strip(" *-–—'\t") for x in re.split(r"\s*[,;•·/\n]\s*|\s+\*\s*", arvo)]
+    return [x for x in osat if x and len(x) < 40] or None
+
+
 def wikipedia_tyylilajit(nimi: str):
     """Tyylilajit suomenkielisen Wikipedian tietolaatikosta.
 
@@ -181,39 +264,32 @@ def wikipedia_tyylilajit(nimi: str):
     oikea luku on 142. Siksi 429 ja verkkovirhe erotetaan nyt tyhjästä
     tuloksesta, ja epäonnistuminen palauttaa VIRHE jottei sitä tallenneta.
     """
-    url = ("https://fi.wikipedia.org/w/api.php?action=parse&page="
-           + urllib.parse.quote(nimi) + "&prop=wikitext&format=json")
-    d = None
-    for yritys in range(5):
-        req = urllib.request.Request(url, headers={"User-Agent": UA})
-        try:
-            with urllib.request.urlopen(req, timeout=30) as r:
-                d = json.load(r)
-            break
-        except urllib.error.HTTPError as e:
-            if e.code == 404:
-                return None            # artikkelia ei ole, aito tyhjä
-            if e.code in (429, 503):
-                time.sleep(2 ** yritys)
-                continue
-            return VIRHE
-        except Exception:
-            time.sleep(2 ** yritys)
-    if d is None:
+    teksti = wikipedia_teksti(nimi)
+    if teksti is VIRHE:
         return VIRHE
-    teksti = (d.get("parse") or {}).get("wikitext", {}).get("*") or ""
-    # Koko kentän arvo rivin loppuun asti. Katkaisu ensimmäiseen
-    # |-merkkiin osuisi wikilinkin sisälle: [[Folkmusiikki|folk]].
-    m = re.search(r"\|\s*[Tt]yylilaj(?:it|i)\s*=\s*((?:[^\n]|\n(?!\s*[|}]))*)", teksti)
-    if not m:
-        return None
-    arvo = m.group(1)
-    arvo = re.sub(r"<ref[^>]*>.*?</ref>", "", arvo, flags=re.S)
-    arvo = re.sub(r"\[\[([^\]|]*)\|([^\]]*)\]\]", r"\2", arvo)
-    arvo = re.sub(r"\[\[([^\]]*)\]\]", r"\1", arvo)
-    arvo = re.sub(r"<[^>]*>|\{\{[^}]*\}\}", "", arvo)
-    osat = [x.strip() for x in re.split(r"\s*[,;•·]\s*", arvo)]
-    return [x for x in osat if x and len(x) < 40] or None
+    if teksti is not None:
+        osat = tyylilajit_tekstista(teksti)
+        if osat:
+            return osat
+    # Ei kenttää oikealla nimellä: ehkä sivu kertoo jostain muusta.
+    # Kokeillaan tarkennetut sivut ja hyväksytään ensimmäinen jossa
+    # Tyylilajit-kenttä oikeasti on.
+    tarkenteet = wikipedia_tarkenteet(nimi)
+    if tarkenteet is VIRHE:
+        return VIRHE
+    epaonnistui = False
+    for otsikko in tarkenteet:
+        aputeksti = wikipedia_teksti(otsikko)
+        time.sleep(0.5)
+        if aputeksti is VIRHE:
+            epaonnistui = True
+            continue
+        if aputeksti is None:
+            continue
+        osat = tyylilajit_tekstista(aputeksti)
+        if osat:
+            return osat
+    return VIRHE if epaonnistui else None
 
 
 def kerää_artistit():
@@ -259,6 +335,8 @@ def main() -> int:
                     help="hae yhtyeiden jäsenmäärät (oma kierroksensa)")
     ap.add_argument("--wikipedia", action="store_true",
                     help="hae tyylilajit fi.wikipediasta (oma kierroksensa)")
+    ap.add_argument("--uudelleen", action="store_true",
+                    help="hae myös jo haetut uudestaan (parsinta muuttui)")
     a = ap.parse_args()
 
     artistit = kerää_artistit()
@@ -279,7 +357,8 @@ def main() -> int:
         return 0
 
     if a.wikipedia:
-        kesken = [k for k in artistit if "wp_tyylilajit" not in tiedot[k]]
+        kesken = [k for k in artistit
+                  if a.uudelleen or "wp_tyylilajit" not in tiedot[k]]
         print(f"Hakematta {len(kesken)}", file=sys.stderr)
         virheita = 0
         for i, k in enumerate(kesken, 1):

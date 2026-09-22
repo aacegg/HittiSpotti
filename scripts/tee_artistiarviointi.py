@@ -171,7 +171,10 @@ def kokoonpano_ehdotus(a):
     # Kaksi henkilönnimeä yhdistettynä: "X ja Y", "X & Y".
     if re.search(r"\w+\s+(ja|&)\s+\w+", nimi) and len(nimi.split()) <= 6:
         return "Duo", "nimessä kaksi nimeä"
-    n = a.get("jasenet")
+    # Nykyisiä jäseniä on nolla jos yhtye on hajonnut: MusicBrainzissa
+    # jokaisella jäsenyydellä on silloin päättymispäivä. Tiktakilla se
+    # on 0 vaikka jäseniä oli kaikkiaan 6. Siksi kaikkiaan-luku varalle.
+    n = a.get("jasenet") or a.get("jasenet_kaikkiaan")
     if n == 2:
         return "Duo", "MusicBrainz: 2 jäsentä"
     if isinstance(n, int) and n >= 3:

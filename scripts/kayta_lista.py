@@ -50,6 +50,11 @@ SALLITUT = {
     "sukupuoli_peli": {"Mies", "Nainen", "Seka"},
 }
 
+# Lukuarvoiset kentät. Jäsenmäärä on luku eikä luokka, koska peli
+# vertailee sitä nuolella kuten debyyttivuotta, ja kokoonpano johdetaan
+# siitä: 1 on soolo, 2 duo, 3 tai enemmän yhtye.
+LUVUT = {"jasenluku": (1, 30)}
+
 
 def avain(nimi: str) -> str:
     s = nimi.replace("’", "'").lower().strip()
@@ -80,7 +85,7 @@ def lue_lista(polku: Path):
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("kentta", choices=sorted(SALLITUT))
+    ap.add_argument("kentta", choices=sorted(set(SALLITUT) | set(LUVUT)))
     ap.add_argument("tiedosto")
     ap.add_argument("--kuiva", action="store_true",
                     help="näytä muutokset mutta älä kirjoita")
@@ -92,7 +97,8 @@ def main() -> int:
         hakemisto.setdefault(avain(v.get("nimi", "")), k)
 
     parit = lue_lista(Path(a.tiedosto))
-    sallitut = SALLITUT[a.kentta]
+    luku = a.kentta in LUVUT
+    sallitut = SALLITUT.get(a.kentta)
     tuntematon_nimi, tuntematon_arvo, muuttui, ennallaan = [], [], [], 0
 
     for nimi, arvo in parit:
@@ -100,7 +106,13 @@ def main() -> int:
         if not k:
             tuntematon_nimi.append(nimi)
             continue
-        if arvo not in sallitut:
+        if luku:
+            ala, yla = LUVUT[a.kentta]
+            if not arvo.isdigit() or not (ala <= int(arvo) <= yla):
+                tuntematon_arvo.append((nimi, arvo))
+                continue
+            arvo = int(arvo)
+        elif arvo not in sallitut:
             tuntematon_arvo.append((nimi, arvo))
             continue
         if tiedot[k].get(a.kentta) == arvo:
@@ -112,8 +124,10 @@ def main() -> int:
     for nimi in tuntematon_nimi:
         print(f"TUNTEMATON NIMI: {nimi}", file=sys.stderr)
     for nimi, arvo in tuntematon_arvo:
-        print(f"TUNTEMATON ARVO: {nimi} -> {arvo!r} "
-              f"(sallitut: {', '.join(sorted(sallitut))})", file=sys.stderr)
+        odotus = (f"kokonaisluku {LUVUT[a.kentta][0]}-{LUVUT[a.kentta][1]}"
+                  if luku else ", ".join(sorted(sallitut)))
+        print(f"TUNTEMATON ARVO: {nimi} -> {arvo!r} (odotettiin: {odotus})",
+              file=sys.stderr)
 
     print(f"{a.kentta}: {len(muuttui)} muuttui, {ennallaan} oli jo oikein, "
           f"{len(tuntematon_nimi)} tuntematonta nimeä, "

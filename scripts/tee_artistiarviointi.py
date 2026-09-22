@@ -423,6 +423,14 @@ def kokoonpano_ehdotus(a):
     ja "Ida Paul & Kalle Lindroth" ovat duoja nimensä perusteella, vaikka
     tietokanta sanoo muuta.
     """
+    # Jäsenmäärä käsin annettuna ratkaisee. MusicBrainz laskee mukaan
+    # taustamuusikot ja entiset jäsenet, joten se oli eri mieltä 43
+    # yhtyeestä 199:stä: PMMP 5 vaikka duo, JVG 4 vaikka duo, Leevi and
+    # the Leavings 10 vaikka 3.
+    n = a.get("jasenluku")
+    if isinstance(n, int):
+        luokka = "Soolo" if n == 1 else ("Duo" if n == 2 else "Yhtye")
+        return luokka, f"käsin, {n} jäsentä"
     if a.get("kokoonpano"):
         return a["kokoonpano"], "käsin"
     if a.get("tyyppi") == "Person":

@@ -67,7 +67,7 @@ VIRHE = object()
 # --uudelleen hakee vain ne jotka on haettu vanhalla parsinnalla.
 # Ilman tätä nopeusrajaan kaatuneet jäisivät ikuisiksi ajoiksi vanhaan
 # tulokseen, koska niillä on jo arvo eikä uusinta-ajo koskisi niihin.
-WP_VERSIO = 3
+WP_VERSIO = 4
 
 
 def paanimi(artist: str) -> str:
@@ -230,13 +230,18 @@ def wikipedia_tarkenteet(nimi: str):
     return [o["title"] for o in osumat if o.get("title", "").lower().startswith(alku)]
 
 
-def tyylilajit_tekstista(teksti: str):
-    """Tietolaatikon Tyylilajit-kentän arvot listana, None jos kenttää ei ole."""
+def kentan_arvot(teksti: str, kentta: str):
+    """Tietolaatikon kentän arvot listana, None jos kenttää ei ole.
+
+    Sama käsittely kaikille kentille, koska ne ovat samaa wikitekstiä:
+    tyylilajit ja laulukieli luetellaan molemmat pilkulla tai <br>:llä
+    erotettuina wikilinkkeinä.
+    """
     # Kentän arvo rivin loppuun asti. Katkaisu ensimmäiseen |-merkkiin
     # osuisi wikilinkin sisälle: [[Folkmusiikki|folk]]. Väli =-merkin
     # ympärillä ei saa olla \s, koska se nielaisisi rivinvaihdon ja
     # tyhjä kenttä lainaisi arvonsa seuraavalta riviltä.
-    m = re.search(r"\|[^\S\n]*[Tt]yylilaj(?:it|i)[^\S\n]*="
+    m = re.search(r"\|[^\S\n]*" + kentta + r"[^\S\n]*="
                   r"[^\S\n]*((?:[^\n]|\n(?!\s*[|}]))*)", teksti)
     if not m:
         return None
@@ -255,6 +260,21 @@ def tyylilajit_tekstista(teksti: str):
     arvo = re.sub(r"<[^>]*>|\{\{[^}]*\}\}|\}\}", "", arvo)
     osat = [x.strip(" *-–—'\t") for x in re.split(r"\s*[,;•·/\n]\s*|\s+\*\s*", arvo)]
     return [x for x in osat if x and len(x) < 40] or None
+
+
+def tyylilajit_tekstista(teksti: str):
+    return kentan_arvot(teksti, r"[Tt]yylilaj(?:it|i)")
+
+
+def laulukieli_tekstista(teksti: str):
+    """Tietolaatikon Laulukieli-kentän arvot.
+
+    HUOM: tyhjä tulos ei tarkoita suomea. Darudella kenttä on tyhjä
+    koska hän ei laula, Kotiteollisuudella koska kukaan ei ole
+    täyttänyt sitä. Näitä ei voi erottaa toisistaan automaattisesti,
+    joten puuttuva arvo merkitään käsin arviointisivulla.
+    """
+    return kentan_arvot(teksti, r"[Ll]aulukiel(?:i|et)")
 
 
 def kuvaus_tekstista(teksti: str):
@@ -319,8 +339,10 @@ def wikipedia_tyylilajit(nimi: str):
     if teksti is not None:
         osat = tyylilajit_tekstista(teksti)
         if osat:
-            return {"tyylilajit": osat, "kuvaus": kuvaus_tekstista(teksti)}
-        paras = {"tyylilajit": None, "kuvaus": kuvaus_tekstista(teksti)}
+            return {"tyylilajit": osat, "kuvaus": kuvaus_tekstista(teksti),
+                    "laulukieli": laulukieli_tekstista(teksti)}
+        paras = {"tyylilajit": None, "kuvaus": kuvaus_tekstista(teksti),
+                 "laulukieli": laulukieli_tekstista(teksti)}
     # Ei kenttää oikealla nimellä: ehkä sivu kertoo jostain muusta.
     # Kokeillaan tarkennetut sivut ja hyväksytään ensimmäinen jossa
     # Tyylilajit-kenttä oikeasti on.
@@ -338,7 +360,8 @@ def wikipedia_tyylilajit(nimi: str):
             continue
         osat = tyylilajit_tekstista(aputeksti)
         if osat:
-            return {"tyylilajit": osat, "kuvaus": kuvaus_tekstista(aputeksti)}
+            return {"tyylilajit": osat, "kuvaus": kuvaus_tekstista(aputeksti),
+                    "laulukieli": laulukieli_tekstista(aputeksti)}
     if epaonnistui:
         return VIRHE
     return paras
@@ -448,6 +471,7 @@ def main() -> int:
             lajit = (g or {}).get("tyylilajit")
             tiedot[k]["wp_tyylilajit"] = lajit
             tiedot[k]["wp_kuvaus"] = (g or {}).get("kuvaus")
+            tiedot[k]["wp_laulukieli"] = (g or {}).get("laulukieli")
             tiedot[k]["wp_versio"] = WP_VERSIO
             # Puolitoista sekuntia pyyntöjen välissä. 0,3 s tuotti HTTP
             # 429:ää niin paljon, että 206 artistista löytyi vain 47

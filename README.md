@@ -227,8 +227,23 @@ Samassa sovelluksessa on myös etuja jotka painavat enemmän:
   **206 artistia**. Kierto 7 kuukautta.
 - **Kuusi arvausta**, ei Spotlen kymmentä.
 - Attribuutit: **genre, kokoonpano (soolo/duo/yhtye), sukupuoli,
-  debyyttivuosi, aktiivisin vuosikymmen**. Maa pudotettiin, koska kaikki
-  ovat suomalaisia eikä sarake erottelisi mitään.
+  debyyttivuosi, laulukieli**. Maa pudotettiin, koska kaikki ovat
+  suomalaisia eikä sarake erottelisi mitään.
+- **Aktiivisin vuosikymmen pudotettiin, tilalle laulukieli.** Sille ei
+  ole luotettavaa lähdettä. MusicBrainzin julkaisumäärät vääristyvät
+  uusintajulkaisuista niin pahasti että Olavi Virran aktiivisin
+  vuosikymmen olisi 1990-luku, vaikka hän kuoli 1972; Annikki Tähdestä
+  tulisi 2010-luvun artisti. Wikipedian `aktiivisena`-kenttä antaa vain
+  ura-välin, josta vuosikymmenen saa vain uudella oletuksella (Tähden
+  väli 1952-2008 antaisi keskikohtana 1980-luvun). Katalogin vuodet
+  eivät kelpaa: ne kertovat mitä biisejä arvauspelissä sattuu olemaan,
+  ja artistipeli on oma pelinsä.
+- **Laulukieli: suomi / englanti / molemmat / instrumentaali.** Lähde on
+  Wikipedian `laulukieli`-kenttä. Neljäs arvo tarvitaan Darudelle, joka
+  ei laula mitään. HUOM: tyhjä kenttä EI tarkoita suomea. Darudella se
+  on tyhjä koska hän ei laula, Kotiteollisuudella koska kukaan ei ole
+  täyttänyt sitä, eikä näitä voi erottaa automaattisesti. Puuttuvat
+  merkitään käsin arviointisivulla, arviolta 40-60 artistia.
 - **Genre on yksi per artisti eikä osittaista osumaa ole**, eli vihreä
   tai punainen. Spotlessa artistilla on useita genrejä ja yhteinen genre
   antaa keltaisen. Seuraus: väärä arvaus kertoo genrestä vähemmän, joten
@@ -236,9 +251,36 @@ Samassa sovelluksessa on myös etuja jotka painavat enemmän:
   arvausta kun peli on pystyssä.
 
 **Datan tila:** ks. `scripts/hae_artistit.py` ja `.artistit.json`.
-206/206 löytyy MusicBrainzista, debyyttivuosi 201:lle, tyyppi 205:lle.
-Genre kahdesta lähteestä: Wikipedia 113, MusicBrainz 64, ilman 29.
+206/206 löytyy MusicBrainzista, debyyttivuosi 201:lle, tyyppi 205:lle
+(135 henkilöä, 70 yhtyettä). Genre kolmesta lähteestä: Wikipedian
+johdantolause 107, tietolaatikko 73, MusicBrainz 14, ilman 12.
 Tarkistus `scripts/tee_artistiarviointi.py` -> artistit.html.
+
+**Genren päättely, kolme sääntöä jotka syntyivät mittaamalla:**
+
+1. *Johdantolause ennen tietolaatikkoa.* Laatikko luettelee kaiken mihin
+   artisti on koskenut ja enemmistöäänestys palkitsee sen genren jolla on
+   eniten alalajeja: Melon seitsemästä tyylilajista neljä on rockin
+   alalajeja, joten laatikko teki räppäristä rockartistin. Lause kertoo
+   mikä artisti on ("iskelmällinen yhtye", "nu metal -yhtye").
+2. *Täsmällinen termi ennen sateenvarjotermiä.* Pop, rock, dance ja
+   suomirock eivät erottele mitään, eurodance ja nu metal erottelevat.
+   Siksi lause voittaa laatikon vain jos sen tulos nojaa täsmälliseen
+   sanaan. Movetronin lause sanoo "tanssi- ja muuta popmusiikkia", mutta
+   laatikossa lukee eurodance, joka on oikeampi.
+3. *Lauseessa ratkaisee kielioppi.* Yleissana kelpaa todisteeksi vain
+   kiinni artistisanassa: "on popyhtye" ja "on poplaulaja" kertovat mikä
+   artisti on, "tekee popmusiikkia" ei. Ilman tätä Ultra Bra muuttui
+   Rockiksi vaikka artikkeli sanoo suoraan "suomalainen popyhtye".
+
+Lisäksi yhdyssanan pääsana ratkaisee genren (pop-rock on rockia,
+rap-pop on poppia), ja kilpailun nimi ei ole genre (Erika Vikman on
+"vuoden 2016 tangokuningatar", mikä ei tee hänestä iskelmäartistia).
+
+**Avoin kohta:** sukupuoli on tyhjä kaikilla 70 yhtyeellä, eli
+kolmasosalla artisteista yksi attribuutti puuttuu. Pitää täyttää
+MusicBrainzin jäsensuhteista muotoon miesyhtye / naisyhtye /
+sekayhtye.
 
 Mitä pitää ratkaista ennen kuin koodia kirjoitetaan:
 

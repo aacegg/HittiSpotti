@@ -130,7 +130,15 @@ def etsi_artisti(nimi: str):
     return None, None
 
 
-def ensijulkaisu(mbid: str):
+def julkaisuvuodet(mbid: str):
+    """Artistin omien julkaisujen vuodet.
+
+    Kaikki vuodet talteen eikä pelkkä ensimmäinen, koska artistipeli
+    kysyy myös aktiivisinta vuosikymmentä. Sitä ei saa päätellä
+    HittiSpotin katalogista: katalogi kertoo mitä biisejä arvauspelissä
+    sattuu olemaan, ei milloin artisti oli aktiivinen. Vesa-Matti
+    Loirilla katalogi alkaa 1977 vaikka ura alkoi 1960-luvulla.
+    """
     d, virhe = hae("release-group", artist=mbid, type="album|single",
                    fmt="json", limit="100")
     time.sleep(VIIVE)
@@ -143,7 +151,7 @@ def ensijulkaisu(mbid: str):
             v = int(pvm[:4])
             if 1900 < v <= 2100:
                 vuodet.append(v)
-    return min(vuodet) if vuodet else None
+    return sorted(vuodet) or None
 
 
 def jasenmaara(mbid: str):
@@ -381,6 +389,9 @@ def main() -> int:
                     help="hae tyylilajit fi.wikipediasta (oma kierroksensa)")
     ap.add_argument("--uudelleen", action="store_true",
                     help="hae myös jo haetut uudestaan (parsinta muuttui)")
+    ap.add_argument("--julkaisut", action="store_true",
+                    help="hae julkaisuvuodet aktiivisinta vuosikymmentä "
+                         "varten (oma kierroksensa)")
     a = ap.parse_args()
 
     artistit = kerää_artistit()
@@ -398,6 +409,24 @@ def main() -> int:
 
     if a.raportti:
         raportti({k: tiedot[k] for k in artistit})
+        return 0
+
+    if a.julkaisut:
+        kesken = [k for k in artistit
+                  if tiedot[k].get("mbid") and "julkaisuvuodet" not in tiedot[k]]
+        print(f"Hakematta {len(kesken)}", file=sys.stderr)
+        for i, k in enumerate(kesken, 1):
+            vuodet = julkaisuvuodet(tiedot[k]["mbid"])
+            tiedot[k]["julkaisuvuodet"] = vuodet
+            if vuodet:
+                tiedot[k]["debyytti"] = min(vuodet)
+            print(f"  {i}/{len(kesken)}  {tiedot[k]['nimi']}: "
+                  f"{len(vuodet) if vuodet else 0} julkaisua "
+                  f"{min(vuodet) if vuodet else '?'}-{max(vuodet) if vuodet else '?'}",
+                  file=sys.stderr)
+            ULOS.write_text(json.dumps(tiedot, ensure_ascii=False, indent=1), encoding="utf-8")
+        loytyi = sum(1 for k in artistit if tiedot[k].get("julkaisuvuodet"))
+        print(f"\nJulkaisuvuodet {loytyi} / {len(artistit)}", file=sys.stderr)
         return 0
 
     if a.wikipedia:
@@ -478,7 +507,9 @@ def main() -> int:
                 "tagit": [t["name"] for t in sorted(mb.get("tags") or [],
                                                     key=lambda t: -t.get("count", 0))[:5]],
             })
-            tiedot[k]["debyytti"] = ensijulkaisu(mb["id"])
+            vuodet = julkaisuvuodet(mb["id"])
+            tiedot[k]["julkaisuvuodet"] = vuodet
+            tiedot[k]["debyytti"] = min(vuodet) if vuodet else None
             print(f"  {i}/{len(kesken)}  {nimi} -> {mb.get('name')} "
                   f"({mb.get('type')}, {tiedot[k]['debyytti']}, "
                   f"{len(tiedot[k]['tagit'])} tagia)", file=sys.stderr)

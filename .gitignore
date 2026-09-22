@@ -9,3 +9,10 @@ puuttuvat-biisit.txt
 
 # Äänitasojen mittausvälimuisti: johdettavissa esikuunteluista.
 .aanitasot.json
+
+# Artistien taustatiedot MusicBrainzista, Päivän artisti -peliä varten.
+# Haettavissa uudelleen scripts/hae_artistit.py:llä, ja haku kirjoittaa
+# tiedostoa jatkuvasti, joten keskeneräistä ei kannata versioida. Kun
+# datasta tehdään kuratoitu pelidata, se tulee omaan seurattuun
+# tiedostoonsa samaan tapaan kuin songs.json.
+.artistit.json

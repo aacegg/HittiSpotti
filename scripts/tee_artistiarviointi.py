@@ -4,9 +4,14 @@
     python3 scripts/tee_artistiarviointi.py          # rakenna sivu
     python3 scripts/tee_artistiarviointi.py --kayta arviot.json
 
-Lukee .artistit.json (ks. hae_artistit.py) ja kirjoittaa
-.artistit-arviointi.html. Molemmat alkavat pisteellä eivätkä mene
-julkaistuun hakemistoon.
+Lukee .artistit.json (ks. hae_artistit.py) ja kirjoittaa artistit.html.
+
+Lähde alkaa pisteellä eikä mene julkaistuun hakemistoon, mutta sivu
+menee, samoin kuin arviointi.html. Se on tarkoituskin: sivua käytetään
+puhelimella, eikä ladattua HTML-tiedostoa saa iOS:ssä auki. Sivulla on
+noindex eikä siihen ole linkkiä mistään, joten se löytyy vain osoitteen
+tietävälle. Se ei myöskään näytä mitään mitä julkinen katalogi ei jo
+kerro.
 
 MITÄ ARVIOIDAAN
 
@@ -38,7 +43,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 TIEDOT = ROOT / ".artistit.json"
-ULOS = ROOT / ".artistit-arviointi.html"
+ULOS = ROOT / "artistit.html"
 
 GENRET = ["Rap", "Rock", "Pop", "Iskelmä", "Metalli", "Elektroninen", "Muu"]
 
@@ -182,6 +187,7 @@ def main() -> int:
 
 SIVU = """<!doctype html><html lang="fi"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
 <title>Artistien arviointi</title><style>
 :root{--bg:#0a0908;--text:#f2ebdf;--muted:#8a8073;--dim:#857c6f;--line:#2a2521;
 --live:#5ecf9a;--varo:#e0b341}

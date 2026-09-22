@@ -17,5 +17,3 @@ puuttuvat-biisit.txt
 # tiedostoonsa samaan tapaan kuin songs.json.
 .artistit.json
 
-# Artistien arviointisivu, koneen kirjoittama .artistit.json:ista.
-.artistit-arviointi.html

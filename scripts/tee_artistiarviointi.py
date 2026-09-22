@@ -384,7 +384,7 @@ def sukupuoli_ehdotus(a):
     return "Seka", f"{len(jas)} jäsentä"
 
 
-KIELET = ["Suomi", "Englanti", "Instrumentaali"]
+KIELET = ["Suomi", "Englanti", "Molemmat", "Instrumentaali"]
 KIELI_NIMET = {"suomi": "Suomi", "suomen kieli": "Suomi", "finnish": "Suomi",
                "englanti": "Englanti", "englannin kieli": "Englanti",
                "english": "Englanti", "instrumentaali": "Instrumentaali",

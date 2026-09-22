@@ -45,7 +45,12 @@ TIEDOT = ROOT / ".artistit.json"
 SALLITUT = {
     "genre": {"Rap", "Rock", "Pop", "Iskelmä", "Metalli", "Elektroninen",
               "Reggae", "Muu"},
-    "laulukieli": {"Suomi", "Englanti", "Instrumentaali"},
+    # Molemmat on mukana koska viisi artistia laulaa oikeasti kummallakin
+    # kielellä tunnetuissa kappaleissaan. Se ei ole sama asia kuin
+    # Wikipedian laulukieli-kenttä, joka listasi jokaisen kielen jolla
+    # artisti on koskaan levyttänyt ja teki Juice Leskisestä
+    # kaksikielisen.
+    "laulukieli": {"Suomi", "Englanti", "Molemmat", "Instrumentaali"},
     "kokoonpano": {"Soolo", "Duo", "Yhtye"},
     "sukupuoli_peli": {"Mies", "Nainen", "Seka"},
 }
@@ -60,11 +65,13 @@ LUVUT = {"jasenluku": (1, 30)}
 SYNONYYMIT = {
     "ei laulukielta": "Instrumentaali",
     "sekayhtye": "Seka",
+    "sekaduo": "Seka",
+    "englanti suomi": "Molemmat",
+    "suomi englanti": "Molemmat",
     "sekakokoonpano": "Seka",
     "mies ja nainen": "Seka",
     "ei laulua": "Instrumentaali",
     "instrumentaalimusiikki": "Instrumentaali",
-    "molemmat": None,        # ei enää käytössä, ks. laulukielen perustelu
 }
 
 

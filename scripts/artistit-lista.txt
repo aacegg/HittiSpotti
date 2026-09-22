@@ -1,0 +1,238 @@
+# Päivän artisti -pelin artistijoukko. Yksi nimi per rivi.
+#
+# Tämä lista on pelin oma eikä johdettu katalogista. Alun perin joukko
+# oli "ne joilla on katalogissa vähintään kolme biisiä", mutta sääntö ei
+# kanna: se pudotti Hanoi Rocksin ja Amorphiksen, joilla on katalogissa
+# 13 ja 7 biisiä mutta vain kaksi pelattavana, ja se ei tunne artisteja
+# jotka eivät ole katalogissa lainkaan. Artistipeli on oma pelinsä, joten
+# sillä on oma joukkonsa.
+#
+# Nimi on avain. Katalogin biisimäärä ja vuodet haetaan niille jotka
+# katalogista löytyvät, mutta puuttuminen ei ole este.
+ABREU
+Adi L Hasla
+Ahti
+Aikakone
+Aknestik
+ALMA
+Anna Eriksson
+Anna Hanski
+Anna Puu
+Anne Mattila
+Annikki Tähti
+Anssi Kela
+Antti Tuisku
+Apocalyptica
+Apulanta
+Ares
+Ari Koivunen
+Arja Koriseva
+Arttu Wiskari
+Aste
+Aurora
+Averagekidluke
+Axel Kala
+Bat & Ryyd
+Beast in Black
+Behm
+Benjamin
+BESS
+Blind Channel
+Bomfunk MC's
+Brädi
+Cheek
+Chisu
+Cledos
+CMX
+Costee
+Costi
+Danny
+Darude
+Dave Lindholm
+Dingo
+Egotrippi
+Eino Grön
+Elastinen
+Ellinoora
+Elokuu
+Eppu Normaali
+Erika Vikman
+Erin
+Etta
+Evelina
+Fintelligens
+Frederik
+Fröbelin Palikat
+Gasellit
+Gettomasa
+Haloo Helsinki!
+Happoradio
+Hausmylly
+Hector
+Heikki Kuula
+HesaÄijä
+HIM
+Hurriganes
+ibe
+Ida Paul & Kalle Lindroth
+Irina
+Irwin Goodman
+Isac Elliot
+Ismo Alanko
+J. Karjalainen
+Jami Faltin
+Jari Sillanpää
+Jenni Vartiainen
+Jesse Kaikuranta
+Joe L
+Johanna Kurkela
+Jonna Tervomaa
+Jonne Aaron
+Juha Tapio
+Juice Leskinen
+Jukka Poika
+Jukka Ruusumaa
+Juno
+Justimus
+JVG
+Kaija Koo
+Kake Randelin
+Kari Tapio
+Karri Koira
+Kasmir
+Katri Helena
+Katri Ylander
+Kauko Röyhkä & Narttu
+Kikka
+Kirka
+Klamydia
+Kolmas Nainen
+Komiat
+Korpiklaani
+Kotiteollisuus
+Kube
+Kuumaa
+Käärijä
+Laila Kinnunen
+Laura Närhi
+Laura Voutilainen
+Lauri Haav
+Lauri Tähkä
+Lauri Tähkä & Elonkerjuu
+Leevi and the Leavings
+Lord Est
+Lordi
+Lukas Leon
+Maija Vilkkumaa
+Mamba
+Marion Rung
+Martti Servo & Napander
+Matti ja Teppo
+Maukka Perusjätkä
+Meiju Suvas
+Melo
+Mikael Gabriel
+Miljoonasade
+Mirella
+Mouhous
+Movetron
+Musta Barbaari
+Mäkki
+Neljä Ruusua
+Neljänsuora
+Nelli Matula
+Nightwish
+Nikke Ankara
+Nylon Beat
+Olavi Uusivirta
+Olavi Virta
+Paleface
+Paperi T
+Pariisin Kevät
+Pasi ja Anssi
+Paula Koivuniemi
+Pave Maijanen
+Pehmoaino
+Pelle Miljoona
+Petri Nygård
+Pikku G
+PMMP
+Poets of the Fall
+Popeda
+Portion Boys
+Pyhimys
+Raappana
+Rauli Badding Somerjoki
+Redrama
+Reino Nordin
+Ressu Redford
+Robin
+Robin Packalen
+Ruger Hauer
+Ruudolf
+Samuli Edelmann
+Samuli Putro
+Sanni
+Sexmane
+Skandaali
+Sonata Arctica
+Spekti
+Stella
+Stepa
+Stig
+Stratovarius
+Sunrise Avenue
+Suvi Teräsniska
+Taiska
+Tapani Kansa
+Tapio Rautavaara
+Tauski
+Teflon Brothers
+Tehosekoitin
+The 69 Eyes
+The Rasmus
+The Verkkars
+Tiktak
+Tippa-T
+Topi Sorsakoski
+Topi Sorsakoski & Agents
+Tuomari Nurmio
+Tuomas Kauhanen
+Turisti
+Turmion Kätilöt
+Ultra Bra
+Uniikki
+Uniklubi
+Vesa-Matti Loiri
+Vesala
+Vesta
+Vesterinen Yhtyeineen
+VIIVI
+Virve Rosti
+Waldo's People
+Yksi Totuus
+Yö
+Yölintu
+Zen Café
+Pete Parkkonen
+KAJ
+Jore & Zpoppa
+Bizi
+Emma & Matilda
+Sara Bee
+ANI
+Aliisa Syrjä
+Olli Halonen
+William
+Sliki
+Korelon
+DJ FKU
+Janji
+Amorphis
+Children of Bodom
+Battle Beast
+Tarja
+Ville Valo
+Michael Monroe
+Hanoi Rocks
+Elonkerjuu

@@ -50,7 +50,8 @@ SALLITUT = {
     # Wikipedian laulukieli-kenttä, joka listasi jokaisen kielen jolla
     # artisti on koskaan levyttänyt ja teki Juice Leskisestä
     # kaksikielisen.
-    "laulukieli": {"Suomi", "Englanti", "Molemmat", "Instrumentaali"},
+    "laulukieli": {"Suomi", "Englanti", "Molemmat", "Ruotsi",
+                   "Instrumentaali"},
     "kokoonpano": {"Soolo", "Duo", "Yhtye"},
     "sukupuoli_peli": {"Mies", "Nainen", "Seka"},
 }

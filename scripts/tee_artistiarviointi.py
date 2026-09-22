@@ -47,6 +47,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 TIEDOT = ROOT / ".artistit.json"
+LISTA = Path(__file__).resolve().parent / "artistit-lista.txt"
 ULOS = ROOT / "artistit.html"
 
 GENRET = ["Rap", "Rock", "Pop", "Iskelmä", "Metalli", "Elektroninen",
@@ -384,7 +385,7 @@ def sukupuoli_ehdotus(a):
     return "Seka", f"{len(jas)} jäsentä"
 
 
-KIELET = ["Suomi", "Englanti", "Molemmat", "Instrumentaali"]
+KIELET = ["Suomi", "Englanti", "Molemmat", "Ruotsi", "Instrumentaali"]
 KIELI_NIMET = {"suomi": "Suomi", "suomen kieli": "Suomi", "finnish": "Suomi",
                "englanti": "Englanti", "englannin kieli": "Englanti",
                "english": "Englanti", "instrumentaali": "Instrumentaali",
@@ -517,7 +518,23 @@ def main() -> int:
     a = ap.parse_args()
 
     tiedot = json.loads(TIEDOT.read_text(encoding="utf-8"))
-    mukana = {k: v for k, v in tiedot.items() if v.get("biisit", 0) >= 3}
+    # Pelin joukko tulee roolilistasta, ei katalogin biisimäärästä.
+    # Lista sisältää artisteja joilla on katalogissa alle kolme
+    # pelattavaa biisiä tai ei yhtään.
+    if LISTA.exists():
+        import unicodedata as _ud
+
+        def _av(n):
+            n = n.replace("\u2019", "'").lower().strip()
+            n = _ud.normalize("NFD", n)
+            n = "".join(c for c in n if _ud.category(c) != "Mn")
+            return re.sub(r"[^a-z0-9]+", " ", n).strip()
+
+        halutut = {_av(r.strip()) for r in LISTA.read_text(encoding="utf-8").splitlines()
+                   if r.strip() and not r.startswith("#")}
+        mukana = {k: v for k, v in tiedot.items() if _av(v.get("nimi", "")) in halutut}
+    else:
+        mukana = {k: v for k, v in tiedot.items() if v.get("biisit", 0) >= 3}
 
     if a.kayta:
         arviot = json.loads(Path(a.kayta).read_text(encoding="utf-8"))

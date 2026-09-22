@@ -53,6 +53,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 KATALOGI = ROOT / "katalogi.json"
 ULOS = ROOT / ".artistit.json"
+LISTA = Path(__file__).resolve().parent / "artistit-lista.txt"
 
 VAHINTAAN_BIISEJA = 3
 UA = "HittiSpotti/1.0 ( https://hittispotti.fi )"
@@ -436,7 +437,28 @@ def wikipedia_tyylilajit(nimi: str):
     return paras
 
 
+def lue_roolilista():
+    """Pelin artistijoukko tiedostosta, tai None jos tiedostoa ei ole."""
+    if not LISTA.exists():
+        return None
+    nimet = []
+    for rivi in LISTA.read_text(encoding="utf-8").splitlines():
+        rivi = rivi.strip()
+        if rivi and not rivi.startswith("#"):
+            nimet.append(rivi)
+    return nimet or None
+
+
 def kerää_artistit():
+    """Pelin artistit ja niiden katalogitilastot.
+
+    Joukko tulee roolilistasta jos sellainen on. Katalogin biisimäärään
+    perustuva sääntö ei kanna: se pudotti Hanoi Rocksin ja Amorphiksen,
+    joilla on katalogissa 13 ja 7 biisiä mutta vain kaksi pelattavana,
+    eikä se tunne artisteja jotka eivät ole katalogissa lainkaan.
+    Artistipeli on oma pelinsä. Ilman roolilistaa palataan vanhaan
+    sääntöön, jolla ensimmäinen joukko koottiin.
+    """
     kat = json.loads(KATALOGI.read_text(encoding="utf-8"))
     pool = [s for s in kat if s.get("peli") is not False]
     ryhmat = defaultdict(lambda: {"nimi": None, "biisit": 0, "vuodet": []})
@@ -446,7 +468,21 @@ def kerää_artistit():
         r["nimi"] = r["nimi"] or nimi
         r["biisit"] += 1
         r["vuodet"].append(s["year"])
-    return {k: v for k, v in ryhmat.items() if v["biisit"] >= VAHINTAAN_BIISEJA}
+
+    lista = lue_roolilista()
+    if lista is None:
+        return {k: v for k, v in ryhmat.items() if v["biisit"] >= VAHINTAAN_BIISEJA}
+
+    ulos = {}
+    for nimi in lista:
+        k = avain(nimi)
+        kat_tiedot = ryhmat.get(k)
+        ulos[k] = {
+            "nimi": nimi,                       # listan kirjoitusasu voittaa
+            "biisit": (kat_tiedot or {}).get("biisit", 0),
+            "vuodet": (kat_tiedot or {}).get("vuodet", []),
+        }
+    return ulos
 
 
 def raportti(tiedot):
@@ -458,7 +494,7 @@ def raportti(tiedot):
     tagit = [a for a in loytyi if a.get("tagit")]
     debyytit = [a for a in loytyi if a.get("debyytti")]
     muualta = [a for a in loytyi if a.get("lahde") != "FI"]
-    print(f"Artisteja (väh. {VAHINTAAN_BIISEJA} biisiä): {n}")
+    print(f"Artisteja: {n}")
     print(f"  MusicBrainzista löytyi:  {len(loytyi)}  ({100*len(loytyi)//n} %)")
     print(f"  genretagit:              {len(tagit)}  ({100*len(tagit)//n} %)")
     print(f"  debyyttivuosi:           {len(debyytit)}  ({100*len(debyytit)//n} %)")
@@ -496,10 +532,13 @@ def main() -> int:
         tiedot.setdefault(k, {})
         tiedot[k]["nimi"] = v["nimi"]
         tiedot[k]["biisit"] = v["biisit"]
-        tiedot[k]["eka"] = min(v["vuodet"])
-        tiedot[k]["vika"] = max(v["vuodet"])
+        # Roolilistalla voi olla artisteja joita katalogissa ei ole
+        # lainkaan, esimerkiksi Battle Beast. Vuodet jäävät silloin
+        # tyhjiksi eikä se ole virhe.
         vuodet = sorted(v["vuodet"])
-        tiedot[k]["mediaanivuosi"] = vuodet[len(vuodet) // 2]
+        tiedot[k]["eka"] = vuodet[0] if vuodet else None
+        tiedot[k]["vika"] = vuodet[-1] if vuodet else None
+        tiedot[k]["mediaanivuosi"] = vuodet[len(vuodet) // 2] if vuodet else None
 
     if a.raportti:
         raportti({k: tiedot[k] for k in artistit})

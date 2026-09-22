@@ -16,3 +16,6 @@ puuttuvat-biisit.txt
 # datasta tehdään kuratoitu pelidata, se tulee omaan seurattuun
 # tiedostoonsa samaan tapaan kuin songs.json.
 .artistit.json
+
+# Artistien arviointisivu, koneen kirjoittama .artistit.json:ista.
+.artistit-arviointi.html

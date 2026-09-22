@@ -95,8 +95,22 @@ def etsi_artisti(nimi: str):
     löysi italialaisen artistin. Jos suomalaista ei löydy, otetaan paras
     osuma mutta merkitään se tarkistettavaksi.
     """
-    for suodatin, lahde in ((' AND country:FI', "FI"), ("", "yleinen")):
-        d, virhe = hae("artist", query=f'artist:"{nimi}"' + suodatin, fmt="json", limit="3")
+    kyselyt = [
+        (f'artist:"{nimi}" AND country:FI', "FI"),
+        (f'artist:"{nimi}"', "yleinen"),
+        # Viimeisenä sumea haku ilman kenttää ja lainausmerkkejä.
+        #
+        # Tarkka lausehaku vaatii että katalogin nimi on merkilleen sama
+        # kuin MusicBrainzin. Näin ei aina ole: Marion Rung on siellä
+        # pelkkä "Marion", ja artist:"Marion Rung" palauttaa tyhjän vaikka
+        # artisti on olemassa. Sumea haku löytää sen pistemäärällä 100.
+        #
+        # Tämä on kuitenkin altis väärille osumille, joten tulos merkitään
+        # lähteellä "sumea" ja se kuuluu tarkistaa käsin.
+        (nimi, "sumea"),
+    ]
+    for kysely, lahde in kyselyt:
+        d, virhe = hae("artist", query=kysely, fmt="json", limit="3")
         time.sleep(VIIVE)
         if virhe or not d.get("artists"):
             continue

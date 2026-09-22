@@ -221,6 +221,25 @@ Samassa sovelluksessa on myös etuja jotka painavat enemmän:
 - yksi AdSense-sivusto, ei uutta hyväksyntää
 - kaksi päivittäistä peliä pidentää käyntiä eli lisää mainosnäyttöjä
 
+**Päätetyt asiat 22.9.2026:**
+
+- Artistijoukko: ne joilla on katalogissa vähintään kolme biisiä, eli
+  **206 artistia**. Kierto 7 kuukautta.
+- **Kuusi arvausta**, ei Spotlen kymmentä.
+- Attribuutit: **genre, kokoonpano (soolo/duo/yhtye), sukupuoli,
+  debyyttivuosi, aktiivisin vuosikymmen**. Maa pudotettiin, koska kaikki
+  ovat suomalaisia eikä sarake erottelisi mitään.
+- **Genre on yksi per artisti eikä osittaista osumaa ole**, eli vihreä
+  tai punainen. Spotlessa artistilla on useita genrejä ja yhteinen genre
+  antaa keltaisen. Seuraus: väärä arvaus kertoo genrestä vähemmän, joten
+  muut attribuutit kantavat enemmän. Kannattaa testata riittääkö kuusi
+  arvausta kun peli on pystyssä.
+
+**Datan tila:** ks. `scripts/hae_artistit.py` ja `.artistit.json`.
+206/206 löytyy MusicBrainzista, debyyttivuosi 201:lle, tyyppi 205:lle.
+Genre kahdesta lähteestä: Wikipedia 113, MusicBrainz 64, ilman 29.
+Tarkistus `scripts/tee_artistiarviointi.py` -> artistit.html.
+
 Mitä pitää ratkaista ennen kuin koodia kirjoitetaan:
 
 - Tallennusavaimet erilleen. Nyt päivän tulos on `daily:<pvm>` ja kesken

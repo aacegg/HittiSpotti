@@ -324,6 +324,36 @@ def genre_ehdotus(a):
     return None, "ei tietoa"
 
 
+KIELET = ["Suomi", "Englanti", "Instrumentaali"]
+KIELI_NIMET = {"suomi": "Suomi", "suomen kieli": "Suomi", "finnish": "Suomi",
+               "englanti": "Englanti", "englannin kieli": "Englanti",
+               "english": "Englanti", "instrumentaali": "Instrumentaali",
+               "instrumentaalimusiikki": "Instrumentaali"}
+
+
+def laulukieli_ehdotus(a):
+    """Se kieli josta artisti tunnetaan, ei kaikki joita hän on käyttänyt.
+
+    Sama vika kuin tyylilajeissa: kenttä luettelee kaiken mitä artisti
+    on joskus tehnyt. Elastinen, Apulanta, Juice Leskinen, Kirka, Danny,
+    Anssi Kela ja Neljä Ruusua ovat kaikki listattu suomeksi ja
+    englanniksi, vaikka yleisölle he ovat suomenkielisiä artisteja.
+    Nightwish on päinvastainen tapaus: englanti ensin, pari suomenkielistä
+    kappaletta perässä, eikä kukaan arvaisi heitä kaksikielisiksi.
+
+    Ensimmäinen listattu on ensisijainen, kuten tietolaatikoissa yleensä.
+    Ei arvoa "molemmat": genrekin on yksi per artisti.
+    """
+    lista = a.get("wp_laulukieli") or []
+    for raaka in lista:
+        t = raaka.lower().strip()
+        # "muun muassa suomi" -> "suomi"
+        t = re.sub(r"^(?:muun muassa|mm\.?|esim\.?|pääosin|enimm\w*)\s+", "", t)
+        if t in KIELI_NIMET:
+            return KIELI_NIMET[t], "Wikipedia"
+    return None, "ei tietoa"
+
+
 def kokoonpano_ehdotus(a):
     """Soolo, duo vai yhtye.
 
@@ -356,6 +386,7 @@ def esc(t):
 def rivi(k, a):
     genre, lahde = genre_ehdotus(a)
     kokoonpano, peruste = kokoonpano_ehdotus(a)
+    kieli, kieliperuste = laulukieli_ehdotus(a)
     wp = ", ".join(a.get("wp_tyylilajit") or [])
     mb = ", ".join(a.get("tagit") or [])
     tagit = " &middot; ".join(x for x in (
@@ -367,22 +398,31 @@ def rivi(k, a):
         varoitus.append("debyyttivuosi puuttuu")
     if not genre:
         varoitus.append("genre puuttuu")
+    if not kieli:
+        varoitus.append("laulukieli puuttuu")
     napit = "".join(
         f'<button type="button" class="g{" on" if g == genre else ""}" data-g="{esc(g)}">{esc(g)}</button>'
         for g in GENRET)
     kokot = "".join(
         f'<button type="button" class="k{" on" if x == kokoonpano else ""}" data-k="{x}">{x}</button>'
         for x in ("Soolo", "Duo", "Yhtye"))
+    kielet = "".join(
+        f'<button type="button" class="l{" on" if x == kieli else ""}" data-l="{esc(x)}">{esc(x)}</button>'
+        for x in KIELET)
+    # Kaikki listatut kielet näkyviin, koska ehdotus on vain ensimmäinen.
+    kaikki_kielet = ", ".join(a.get("wp_laulukieli") or [])
     return f"""<tr data-k="{esc(k)}" data-genre="{esc(genre or '')}" data-kokoonpano="{esc(kokoonpano)}"
-      class="{'huomio' if varoitus else ''}">
+      data-kieli="{esc(kieli or '')}" class="{'huomio' if varoitus else ''}">
   <td class="nimi"><b>{esc(a['nimi'])}</b>
     <span>{a['biisit']} biisiä &middot; {a['eka']}&ndash;{a['vika']} &middot; debyytti {esc(a.get('debyytti') or '?')}</span>
     <span class="tagit">{esc(tagit)}</span>
     {'<span class="kuvaus">' + esc(a['wp_kuvaus']) + '</span>' if a.get('wp_kuvaus') else ''}
+    {'<span class="tagit">kielet: ' + esc(kaikki_kielet) + '</span>' if kaikki_kielet else ''}
     {'<span class="varo">' + esc(' &middot; '.join(varoitus)) + '</span>' if varoitus else ''}
   </td>
   <td class="napit">{napit}<div class="rivi2">{kokot}</div>
-    <span class="peruste">{esc(lahde)} &middot; {esc(peruste)}</span></td>
+    <div class="rivi2">{kielet}</div>
+    <span class="peruste">{esc(lahde)} &middot; {esc(peruste)} &middot; kieli {esc(kieliperuste)}</span></td>
 </tr>"""
 
 
@@ -403,6 +443,7 @@ def main() -> int:
                 continue
             tiedot[k]["genre"] = v.get("genre")
             tiedot[k]["kokoonpano"] = v.get("kokoonpano")
+            tiedot[k]["laulukieli"] = v.get("kieli")
             n += 1
         TIEDOT.write_text(json.dumps(tiedot, ensure_ascii=False, indent=1), encoding="utf-8")
         print(f"Päivitetty {n} artistia")
@@ -411,13 +452,13 @@ def main() -> int:
     # Huomiota vaativat ensin, muuten biisimäärän mukaan.
     def jarjestys(kv):
         k, v = kv
-        puuttuu = (not genre_ehdotus(v)[0]
+        puuttuu = (not genre_ehdotus(v)[0] or not laulukieli_ehdotus(v)[0]
                    or v.get("lahde") == "sumea" or not v.get("debyytti"))
         return (0 if puuttuu else 1, -v["biisit"])
 
     rivit = "".join(rivi(k, v) for k, v in sorted(mukana.items(), key=jarjestys))
     huomio = sum(1 for k, v in mukana.items()
-                 if not genre_ehdotus(v)[0]
+                 if not genre_ehdotus(v)[0] or not laulukieli_ehdotus(v)[0]
                  or v.get("lahde") == "sumea" or not v.get("debyytti"))
 
     html = SIVU.replace("{{RIVIT}}", rivit).replace("{{N}}", str(len(mukana))) \
@@ -453,6 +494,7 @@ button{background:transparent;border:1px solid var(--line);border-radius:999px;
  color:var(--dim);font:inherit;font-size:11.5px;padding:4px 9px;margin:0 0 4px 4px;cursor:pointer}
 button.on{border-color:var(--live);color:var(--live);font-weight:700}
 button.k.on{border-color:var(--varo);color:var(--varo)}
+button.l.on{border-color:var(--dim);color:var(--teksti)}
 .peruste{display:block;color:var(--dim);font-size:10.5px;margin-top:3px}
 #ala{position:fixed;left:0;right:0;bottom:0;background:#12100e;border-top:1px solid var(--line);
  padding:10px 14px;display:flex;gap:10px;align-items:center}
@@ -478,17 +520,21 @@ function piirra(){
     const k=tr.dataset.k;
     const g=(tila[k]&&tila[k].genre)||tr.dataset.genre;
     const ko=(tila[k]&&tila[k].kokoonpano)||tr.dataset.kokoonpano;
+    const ki=(tila[k]&&tila[k].kieli)||tr.dataset.kieli;
     tr.querySelectorAll("button.g").forEach(b=>b.classList.toggle("on",b.dataset.g===g));
     tr.querySelectorAll("button.k").forEach(b=>b.classList.toggle("on",b.dataset.k===ko));
+    tr.querySelectorAll("button.l").forEach(b=>b.classList.toggle("on",b.dataset.l===ki));
     if(tila[k]) muutettu++;
   }
   document.getElementById("luku").textContent=muutettu+" muutettu / "+rivit.length;
 }
 document.addEventListener("click",(e)=>{
-  const b=e.target.closest("button.g, button.k"); if(!b) return;
+  const b=e.target.closest("button.g, button.k, button.l"); if(!b) return;
   const tr=b.closest("tr"), k=tr.dataset.k;
-  tila[k]=tila[k]||{genre:tr.dataset.genre,kokoonpano:tr.dataset.kokoonpano};
-  if(b.dataset.g) tila[k].genre=b.dataset.g; else tila[k].kokoonpano=b.dataset.k;
+  tila[k]=tila[k]||{genre:tr.dataset.genre,kokoonpano:tr.dataset.kokoonpano,kieli:tr.dataset.kieli};
+  if(b.dataset.g) tila[k].genre=b.dataset.g;
+  else if(b.dataset.l) tila[k].kieli=b.dataset.l;
+  else tila[k].kokoonpano=b.dataset.k;
   try{ localStorage.setItem(AVAIN,JSON.stringify(tila)); }catch(e){}
   piirra();
 });
@@ -498,7 +544,8 @@ function kopioi(){
   for(const tr of rivit){
     const k=tr.dataset.k;
     ulos[k]={genre:(tila[k]&&tila[k].genre)||tr.dataset.genre,
-             kokoonpano:(tila[k]&&tila[k].kokoonpano)||tr.dataset.kokoonpano};
+             kokoonpano:(tila[k]&&tila[k].kokoonpano)||tr.dataset.kokoonpano,
+             kieli:(tila[k]&&tila[k].kieli)||tr.dataset.kieli};
   }
   const t=JSON.stringify({artistit:ulos});
   const ta=document.getElementById("ta"); ta.value=t; ta.select();

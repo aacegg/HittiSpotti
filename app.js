@@ -1901,15 +1901,26 @@
       const sanatOsuvat = tokens.length > 0 && tokens.every((t) => s.key.includes(t));
       if (!sanatOsuvat && !raakaOsuu) continue;
       let score = 0;
-      /* Välimerkkeineen osuva voittaa aina, koska se on tarkempi: haku
-       * "40+" nostaa biisin "40+" biisin "40K" ohi. */
+      /* Välimerkkeineen osuva voittaa normalisoidun, koska se on
+       * tarkempi: haku "40+" nostaa biisin "40+" biisin "40K" ohi. */
       if (raakaOsuu) score += 40;
       if (q) {
+        /* Täsmälleen sama nimi voittaa alkuosuman. Ilman tätä lyhyet
+         * nimet olivat käytännössä löytymättömissä: biisi "M" jäi
+         * kaikkien m-alkuisten alle, koska "Mankeli" saa alkuosumasta
+         * saman 30 pistettä kuin täsmälleen oikea "M". Sama koski
+         * biisejä "e", "Ei", "Jos" ja "100". */
+        if (s.keyTitle === q) score += 120;
+        else if (s.keyArtist === q) score += 90;
         if (s.keyTitle.startsWith(q)) score += 30;
         else if (s.keyArtist.startsWith(q)) score += 25;
         else if (s.key.startsWith(q)) score += 20;
         if (s.keyTitle.includes(q)) score += 10;
         if (s.keyArtist.includes(q)) score += 8;
+        /* Lyhyt nimi ensin, kun haku osuu useaan. "M" on lähempänä
+         * hakua "M" kuin "Mankeli", ja pelaaja joka kirjoittaa vain
+         * yhden kirjaimen etsii todennäköisimmin juuri sitä biisiä. */
+        score -= Math.min(10, s.keyTitle.length / 4);
       }
       score -= s.tier; // tutummat ensin tasapelissä
       scored.push([score, s]);

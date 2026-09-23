@@ -2,7 +2,7 @@
 ABREU — Helsinki
 Adi L Hasla — Helsinki
 Ahti — Helsinki
-Aikakone — Helsinki
+Aikakone — Espoo
 Aknestik — Haukipudas
 Aliisa Syrjä — Helsinki
 ALMA — Kuopio
@@ -46,7 +46,7 @@ Danny — Helsinki
 Darude — Turku
 Dave Lindholm — Helsinki
 Dingo — Pori
-DJ FKU — Helsinki
+DJ FKU — Enonkoski
 Don Huonot — Helsinki
 Ege Zulu — Helsinki
 Egotrippi — Helsinki
@@ -92,7 +92,7 @@ Jean Sibelius — Hämeenlinna
 Jenni Vartiainen — Kuopio
 Jesse Kaikuranta — Maarianhamina
 Jippu — Helsinki
-Joe L — Helsinki
+Joe L — Rauma
 Johanna Kurkela — Lumijoki
 Jonna Tervomaa — Forssa
 Jonne Aaron — Tampere
@@ -117,8 +117,8 @@ Kikka — Tampere
 Kirka — Helsinki
 Klamydia — Vaasa
 Kolmas Nainen — Alavus
-Komiat — Seinäjoki
-Korelon — Helsinki
+Komiat — Pöytyä
+Korelon — Vantaa
 Korpiklaani — Lahti
 Kotiteollisuus — Lappeenranta
 Kube — Helsinki
@@ -126,7 +126,7 @@ Kuumaa — Helsinki
 Laila Kinnunen — Vantaa
 Laura Närhi — Kirkkonummi
 Laura Voutilainen — Jyväskylä
-Lauri Haav — Helsinki
+Lauri Haav — Jyväskylä
 Lauri Tähkä — Vaasa
 Lauri Tähkä & Elonkerjuu — Teuva
 Lea Laven — Haukipudas
@@ -152,7 +152,7 @@ Miljoonasade — Jyväskylä
 Mirella — Vantaa
 Mokoma — Lappeenranta
 Mouhous — Jyväskylä
-Movetron — Turku
+Movetron — Tampere
 Musta Barbaari — Turku
 Neljä Ruusua — Joensuu
 Neljänsuora — Lohja
@@ -164,7 +164,7 @@ Nylon Beat — Helsinki
 Olavi Uusivirta — Helsinki
 Olavi Virta — Sysmä
 Olli Halonen — Kuopio
-Paleface — Helsinki
+Paleface — Hämeenlinna
 Paperi T — Porvoo
 Pariisin Kevät — Helsinki
 Pasi ja Anssi — Vaasa
@@ -182,10 +182,10 @@ Poets of the Fall — Helsinki
 Popeda — Tampere
 Portion Boys — Helsinki
 Pyhimys — Helsinki
-Raappana — Helsinki
+Raappana — Lahti
 Rauli Badding Somerjoki — Somero
 Redrama — Helsinki
-Reijo Taipale — Mikkeli
+Reijo Taipale — Miehikkälä
 Reino Nordin — Helsinki
 Ressu Redford — Helsinki
 Robin Packalen — Turku
@@ -194,10 +194,10 @@ Ruudolf — Helsinki
 Samuli Edelmann — Pori
 Samuli Putro — Helsinki
 Sanni — Lohja
-Sara Bee — Helsinki
+Sara Bee — Seinäjoki
 Scandinavian Music Group — Helsinki
 Sexmane — Siilinjärvi
-Sielun Veljet — Joensuu
+Sielun Veljet — Helsinki
 Sir Elwoodin Hiljaiset Värit — Helsinki
 Skandaali — Helsinki
 Sliki — Helsinki
@@ -205,7 +205,7 @@ Sonata Arctica — Kemi
 Spekti — Helsinki
 Stam1na — Lemi
 Stella — Joensuu
-Stepa — Rovaniemi
+Stepa — Sodankylä
 Stig — Helsinki
 Stratovarius — Helsinki
 Sunrise Avenue — Helsinki

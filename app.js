@@ -298,9 +298,19 @@
   const $ = (s) => document.querySelector(s);
   const el = {
     body: document.body,
+    aPvm: $("#a-pvm"),
+    aRivit: $("#a-rivit"),
+    aArvaus: $("#a-arvaus"),
+    aInput: $("#a-input"),
+    aEhdotukset: $("#a-ehdotukset"),
+    aJaljella: $("#a-jaljella"),
+    aLoppu: $("#a-loppu"),
+    aLoppuOtsikko: $("#a-loppu-otsikko"),
+    aLoppuTeksti: $("#a-loppu-teksti"),
     views: {
       game: $("#view-game"),
       results: $("#view-results"),
+      artisti: $("#view-artisti"),
       stats: $("#view-stats"),
       help: $("#view-help"),
       loading: $("#view-loading"),
@@ -1154,6 +1164,236 @@
     if (!n) return null;
     const day = artistiDayIndex(key);
     return artistiPakka(Math.floor(day / n))[((day % n) + n) % n];
+  }
+
+  /* Arvauksia päivässä. Wordlessa kuusi, ja sama luku toimii tässä:
+   * viidellä attribuutilla kuusi arvausta riittää päättelyyn mutta ei
+   * tee siitä varmaa. */
+  const ARTISTI_ARVAUKSIA = 6;
+
+  /* Numeroattribuutin "lähellä" -raja. Jäsenmäärässä yksi ja
+   * debyyttivuodessa viisi: molemmat ovat sen verran lähellä, että
+   * pelaaja on oikeilla jäljillä muttei osunut. Tämä on Wordlen
+   * keltaisen vastine, ja ilman sitä kaikki väärät näyttäisivät
+   * samalta vaikka osa arvauksista oli aivan vieressä. */
+  const ARTISTI_KENTAT = [
+    { avain: "g", otsikko: "Genre" },
+    { avain: "j", otsikko: "Jäseniä", luku: true, lahella: 1 },
+    { avain: "s", otsikko: "Sukup." },
+    { avain: "k", otsikko: "Kieli" },
+    { avain: "v", otsikko: "Debyytti", luku: true, lahella: 5 },
+  ];
+
+  /* Yksi arvausrivi verrattuna oikeaan vastaukseen.
+   *
+   * Palauttaa ruudut, ei valmista HTML:ää: samaa vertailua tarvitsee
+   * sekä ruudukko että jakoteksti, eikä jakoteksti saa joutua
+   * lukemaan väreja DOM:ista. */
+  function artistiVertaa(arvaus, oikea) {
+    return ARTISTI_KENTAT.map((kentta) => {
+      const a = arvaus[kentta.avain];
+      const o = oikea[kentta.avain];
+      if (a === o) return { tila: "osui", teksti: String(a), nuoli: "" };
+      if (kentta.luku) {
+        const lahella = Math.abs(a - o) <= kentta.lahella;
+        return {
+          tila: lahella ? "lahella" : "ohi",
+          teksti: String(a),
+          nuoli: a < o ? "▲" : "▼",   // nuoli osoittaa oikeaan suuntaan
+        };
+      }
+      return { tila: "ohi", teksti: String(a), nuoli: "" };
+    });
+  }
+
+  /* Artistipelin tila. Oma oliona eikä state.rounds-muotoisena: pelit
+   * ovat erillisiä, ja yhteinen tila sotkisi kesken jääneen biisisarjan
+   * kesken jääneeseen artistiin. */
+  const artistiTila = {
+    pvm: null,
+    oikea: null,
+    arvaukset: [],     // artistiolioita siinä järjestyksessä kuin arvattiin
+    ohi: false,
+    voitto: false,
+  };
+
+  /* Artistilista ladataan vasta kun peliin mennään. Biisipelin avaus ei
+   * saa hidastua 27 kilotavulla dataa jota se ei käytä. */
+  let artistiLataus = null;
+
+  function lataaArtistit() {
+    if (state.artistit.length) return Promise.resolve();
+    if (!artistiLataus) {
+      artistiLataus = fetch("artistit.json?v=" + KATALOGI_K)
+        .then((v) => {
+          if (!v.ok) throw new Error("artistit.json (" + v.status + ")");
+          return v.json();
+        })
+        .then((lista) => {
+          state.artistit = lista;
+          state.artistit.forEach((a) => {
+            a.haku = normalize(a.n);
+          });
+        })
+        .catch((e) => { artistiLataus = null; throw e; });
+    }
+    return artistiLataus;
+  }
+
+  function artistiEhdotukset(teksti) {
+    const q = normalize(teksti);
+    const raaka = teksti.toLowerCase().trim();
+    if (!q && !raaka) return [];
+    const arvatut = new Set(artistiTila.arvaukset.map((a) => a.id));
+    const pisteet = [];
+    for (const a of state.artistit) {
+      if (arvatut.has(a.id)) continue;          // jo arvattua ei tarjota
+      const raakaOsuu = raaka.length > 0 && a.n.toLowerCase().includes(raaka);
+      if (!q ? !raakaOsuu : !(a.haku.includes(q) || raakaOsuu)) continue;
+      let p = 0;
+      if (a.haku === q) p += 120;
+      if (raakaOsuu) p += 40;
+      if (a.haku.startsWith(q)) p += 30;
+      p -= Math.min(10, a.n.length / 4);        // lyhyempi nimi ensin
+      pisteet.push([p, a]);
+    }
+    pisteet.sort((x, y) => y[0] - x[0] || x[1].n.localeCompare(y[1].n, "fi"));
+    return pisteet.slice(0, 40).map((x) => x[1]);
+  }
+
+  function piirraArtistiRivit() {
+    const rivit = artistiTila.arvaukset.map((arvaus) => {
+      const ruudut = artistiVertaa(arvaus, artistiTila.oikea);
+      const solut = ruudut.map((r) => {
+        const luokka = r.tila === "osui" ? " on-osui"
+                     : r.tila === "lahella" ? " on-lahella" : "";
+        const nuoli = r.nuoli ? `<span class="a-nuoli">${r.nuoli}</span>` : "";
+        return `<div class="a-ruutu${luokka}"><span>${escapeHtml(r.teksti)}</span>${nuoli}</div>`;
+      }).join("");
+      return `<li><p class="a-artisti">${escapeHtml(arvaus.n)}</p>
+        <div class="a-rivi">${solut}</div></li>`;
+    });
+    el.aRivit.innerHTML = rivit.join("");
+    const jaljella = ARTISTI_ARVAUKSIA - artistiTila.arvaukset.length;
+    el.aJaljella.textContent = artistiTila.ohi
+      ? ""
+      : `${jaljella} ${jaljella === 1 ? "arvaus" : "arvausta"} jäljellä`;
+    el.aArvaus.hidden = artistiTila.ohi;
+    el.aLoppu.hidden = !artistiTila.ohi;
+    if (artistiTila.ohi) {
+      const n = artistiTila.arvaukset.length;
+      el.aLoppuOtsikko.textContent = artistiTila.voitto ? "Oikein!" : "Ei osunut";
+      el.aLoppuTeksti.textContent = artistiTila.voitto
+        ? `Päivän artisti oli ${artistiTila.oikea.n}. Arvauksia ${n}/${ARTISTI_ARVAUKSIA}.`
+        : `Päivän artisti oli ${artistiTila.oikea.n}.`;
+    }
+  }
+
+  function tallennaArtisti() {
+    if (!artistiTila.pvm) return;
+    const avain = artistiTila.ohi
+      ? AVAIN.artisti.tulos(artistiTila.pvm)
+      : AVAIN.artisti.kesken(artistiTila.pvm);
+    store.set(avain, {
+      arvaukset: artistiTila.arvaukset.map((a) => a.id),
+      voitto: artistiTila.voitto,
+    });
+    if (artistiTila.ohi) store.remove(AVAIN.artisti.kesken(artistiTila.pvm));
+  }
+
+  function artistiArvaa(artisti) {
+    if (artistiTila.ohi || !artisti) return;
+    if (artistiTila.arvaukset.some((a) => a.id === artisti.id)) return;
+    artistiTila.arvaukset.push(artisti);
+    if (artisti.id === artistiTila.oikea.id) {
+      artistiTila.voitto = true;
+      artistiTila.ohi = true;
+    } else if (artistiTila.arvaukset.length >= ARTISTI_ARVAUKSIA) {
+      artistiTila.ohi = true;
+    }
+    tallennaArtisti();
+    piirraArtistiRivit();
+    if (artistiTila.ohi) {
+      /* Arvauksia 1-6 jos ratkesi, 0 jos ei. Palvelin ei saa pisteitä
+       * lainkaan: artistipelissä niitä ei ole. */
+      lahetaArtisti(artistiTila.pvm,
+        artistiTila.voitto ? artistiTila.arvaukset.length : 0);
+    }
+  }
+
+  /* Päivän artistin avaaminen. Palauttaa kesken jääneen sarjan samasta
+   * kohdasta, koska päivä on sama ja arvaukset on jo nähty. */
+  async function avaaArtisti() {
+    show("artisti");
+    await lataaArtistit();
+    const pvm = todayKey();
+    if (artistiTila.pvm !== pvm) {
+      artistiTila.pvm = pvm;
+      artistiTila.oikea = paivanArtisti(pvm);
+      artistiTila.arvaukset = [];
+      artistiTila.ohi = false;
+      artistiTila.voitto = false;
+      const byId = new Map(state.artistit.map((a) => [a.id, a]));
+      const tallessa = store.get(AVAIN.artisti.tulos(pvm), null)
+                    || store.get(AVAIN.artisti.kesken(pvm), null);
+      if (tallessa && Array.isArray(tallessa.arvaukset)) {
+        for (const id of tallessa.arvaukset) {
+          const a = byId.get(id);
+          if (a) artistiTila.arvaukset.push(a);
+        }
+        artistiTila.voitto = artistiTila.arvaukset
+          .some((a) => a.id === artistiTila.oikea.id);
+        artistiTila.ohi = artistiTila.voitto
+          || artistiTila.arvaukset.length >= ARTISTI_ARVAUKSIA;
+      }
+    }
+    el.aPvm.textContent = todayPretty();
+    el.aInput.value = "";
+    el.aEhdotukset.hidden = true;
+    piirraArtistiRivit();
+  }
+
+  /* Ehdotuslista ja sen valinta. Sama rakenne kuin biisipelin haussa,
+   * mutta oma toteutuksensa: biisipelin lista käsittelee arvauslokia ja
+   * soitinta, joita tässä ei ole. */
+  function piirraArtistiEhdotukset(lista) {
+    if (!lista.length) {
+      el.aEhdotukset.hidden = true;
+      el.aEhdotukset.innerHTML = "";
+      return;
+    }
+    el.aEhdotukset.innerHTML = lista.map((a, i) =>
+      `<li role="option" data-i="${i}"><span class="s-title">${escapeHtml(a.n)}</span></li>`
+    ).join("");
+    el.aEhdotukset.hidden = false;
+    artistiEhdokkaat = lista;
+  }
+
+  let artistiEhdokkaat = [];
+
+  el.aInput.addEventListener("input", () => {
+    piirraArtistiEhdotukset(artistiEhdotukset(el.aInput.value));
+  });
+
+  el.aInput.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    /* Enter valitsee listan ensimmäisen. Pelaaja kirjoittaa nimen
+     * harvoin täsmälleen oikein, ja ilman tätä Enter ei tekisi mitään. */
+    if (artistiEhdokkaat.length) valitseArtisti(artistiEhdokkaat[0]);
+  });
+
+  el.aEhdotukset.addEventListener("click", (e) => {
+    const li = e.target.closest("li[data-i]");
+    if (li) valitseArtisti(artistiEhdokkaat[Number(li.dataset.i)]);
+  });
+
+  function valitseArtisti(a) {
+    if (!a) return;
+    el.aInput.value = "";
+    el.aEhdotukset.hidden = true;
+    artistiEhdokkaat = [];
+    artistiArvaa(a);
   }
 
   /* Lukitut päivät 17.-20.9.2026 on poistettu.
@@ -3324,6 +3564,7 @@
     stopPlayback();
     if (target === "daily") await startDaily();
     else if (target === "free") await startFree();
+    else if (target === "artisti") await avaaArtisti();
     else if (target === "stats") show("stats");
     else if (target === "help") show("help");
     else if (target === "back") show(state.rounds.length ? "game" : "results");

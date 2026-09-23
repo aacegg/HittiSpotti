@@ -221,7 +221,10 @@ Samassa sovelluksessa on myös etuja jotka painavat enemmän:
 - yksi AdSense-sivusto, ei uutta hyväksyntää
 - kaksi päivittäistä peliä pidentää käyntiä eli lisää mainosnäyttöjä
 
-**Perussääntö: Päivän artisti on kokonaan eri peli.** Se on samalla
+**Nimi: ArtistiSpotti.** Iso S kuten HittiSpotissa, koska se on saman
+perheen peli. Työnimi oli Päivän artisti.
+
+**Perussääntö: ArtistiSpotti on kokonaan eri peli.** Se on samalla
 sivulla ja samassa sovelluksessa, mutta siinä kaikki yhteys loppuu.
 Pisteet, tilastot, putki, tallennusavaimet, palvelinkooste ja jakoteksti
 ovat omansa eivätkä vaikuta Päivän biiseihin millään tavalla. Myöskään

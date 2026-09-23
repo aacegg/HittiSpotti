@@ -251,6 +251,11 @@
     songs: [],           // kaikki – näistä haetaan ja arvataan
     pool: [],            // näistä peli jakaa biisit
     byId: new Map(),
+    /* Päivän artisti -pelin artistit. Oma listansa eikä katalogista
+     * johdettu: artistipeli on eri peli eikä sen joukko liity siihen
+     * mitä biisejä arvauspelissä sattuu olemaan. Ladataan vasta kun
+     * peliin mennään, jottei biisipelin avaus hidastu. */
+    artistit: [],
     mode: "daily",        // "daily" | "free"
     /* Vapaan pelin vuosikymmenrajaus: lista KAUDET-avaimia. Tyhjä lista
      * tarkoittaa koko katalogia, ja niin tarkoittaa myös täysi lista, koska
@@ -1082,6 +1087,73 @@
     const n = tierList(tier).length;
     if (!n) return null;
     return deck(tier, Math.floor(day / n))[((day % n) + n) % n];
+  }
+
+  /* ---------- Päivän artisti ----------
+   *
+   * Sama periaate kuin biisipakassa mutta yksinkertaisempi: yksi lista,
+   * ei tasoja eikä törmäyksiä. Artisti arvotaan pelkästä päivämäärästä,
+   * joten kaikki saavat saman ilman palvelinta.
+   *
+   * Omat vakiot eikä biisipelin jaetut: artistipeli on eri peli, ja jos
+   * jaettu EPOCH tai SEKOITUS joskus muuttuisi biisipelin takia, se
+   * sekoittaisi artistikierron ilman että kukaan yhdistäisi asioita.
+   *
+   * Lista järjestetään tunnisteen mukaan ennen sekoitusta, jottei
+   * artistit.json:in rivijärjestys vaikuta arvontaan. */
+  const ARTISTI_EPOCH = Date.UTC(2026, 8, 24);   // 24.9.2026
+  const ARTISTI_SEKOITUS = 1;
+  /* Sauman suoja, sama idea kuin biisipakan GAP. Kierroksen loppu ja
+   * seuraavan alku ovat päiviä peräkkäin, joten ilman tätä sama artisti
+   * voisi tulla kahtena peräkkäisenä päivänä vaikka kierto on 247
+   * päivää.
+   *
+   * Luku on suoraan se takuu jonka saa: lyhin väli saman artistin
+   * toistoon on GAP + 1 päivää. Kahdellakymmenellä mitattu lyhin oli 23
+   * päivää, mikä on 247 päivän kierrossa liian lyhyt: pelaaja muistaa
+   * vielä hyvin kolmen viikon takaisen artistin.
+   *
+   * Yläraja tulee vaihtokohteista: siirrettäviä on enintään GAP ja
+   * kohteita n - 2 * GAP, joten tarvitaan n >= 3 * GAP. Kuudellakymmenellä
+   * se on 180. JOS ARTISTEJA JOSKUS ON ALLE 180, tämä on pienennettävä,
+   * tai sauman korjaus lakkaa toimimasta hiljaa. */
+  const ARTISTI_GAP = 60;
+
+  function artistiDayIndex(key) {
+    const [y, m, d] = key.split("-").map(Number);
+    return Math.floor((Date.UTC(y, m - 1, d) - ARTISTI_EPOCH) / DAY_MS);
+  }
+
+  const artistiPakat = new Map();
+
+  function artistiPakka(cycle) {
+    const valmis = artistiPakat.get(cycle);
+    if (valmis) return valmis;
+    const lista = state.artistit.slice().sort((a, b) => (a.id < b.id ? -1 : 1));
+    const order = shuffled(lista, hashString(`artisti:${ARTISTI_SEKOITUS}:${cycle}`));
+    const n = order.length;
+    if (cycle > 0 && n >= 3 * ARTISTI_GAP) {
+      const edellinen = shuffled(lista,
+        hashString(`artisti:${ARTISTI_SEKOITUS}:${cycle - 1}`));
+      const hanta = new Set(edellinen.slice(n - ARTISTI_GAP).map((a) => a.id));
+      for (let i = 0; i < ARTISTI_GAP; i++) {
+        if (!hanta.has(order[i].id)) continue;
+        for (let j = ARTISTI_GAP; j < n - ARTISTI_GAP; j++) {
+          if (hanta.has(order[j].id)) continue;
+          [order[i], order[j]] = [order[j], order[i]];
+          break;
+        }
+      }
+    }
+    artistiPakat.set(cycle, order);
+    return order;
+  }
+
+  function paivanArtisti(key) {
+    const n = state.artistit.length;
+    if (!n) return null;
+    const day = artistiDayIndex(key);
+    return artistiPakka(Math.floor(day / n))[((day % n) + n) % n];
   }
 
   /* Lukitut päivät 17.-20.9.2026 on poistettu.

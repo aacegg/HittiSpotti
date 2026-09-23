@@ -1188,11 +1188,30 @@
    * pelaaja on oikeilla jäljillä muttei osunut. Tämä on Wordlen
    * keltaisen vastine, ja ilman sitä kaikki väärät näyttäisivät
    * samalta vaikka osa arvauksista oli aivan vieressä. */
+  /* Osittainen osuma muissa kuin lukukentissä.
+   *
+   * Keltainen oli aluksi vain jäsenmäärässä ja debyyttivuodessa, ja
+   * mitattuna 21 % peleistä ei saanut yhtään keltaista ruutua. Kolme
+   * saraketta viidestä oli mustavalkoisia, vaikka niissä on aitoa
+   * osittaista osumaa: sekayhtye ON osaksi miesyhtye, ja molemmilla
+   * kielillä laulava ON osaksi suomeksi laulava. Se on sama tieto kuin
+   * "vuosi menee viisi pieleen", eikä keksitty sukulaisuus.
+   *
+   * Pari luetaan kumpaankin suuntaan: arvaus Seka oikean Miehen kohdalla
+   * on yhtä lailla osittain oikein kuin toisin päin. */
   const ARTISTI_KENTAT = [
-    { avain: "g", otsikko: "Genre" },
+    /* Metalli on rockin alalaji, joten ne ovat osittain sama asia. Tämä
+     * on ainoa genrepari joka otetaan mukaan: muut olisivat makuasioita,
+     * ja väärä sukulaisuus olisi pahempi kuin puuttuva keltainen, koska
+     * pelaaja päättelee siitä väärään suuntaan. */
+    { avain: "g", otsikko: "Genre", osittain: [["Rock", "Metalli"]] },
     { avain: "j", otsikko: "Jäseniä", luku: true, lahella: 1 },
-    { avain: "s", otsikko: "Sukup." },
-    { avain: "k", otsikko: "Kieli" },
+    { avain: "s", otsikko: "Sukup.",
+      osittain: [["Seka", "Mies"], ["Seka", "Nainen"]] },
+    /* Molemmat tarkoittaa suomea ja englantia, joten ruotsi ja
+     * instrumentaali eivät ole sen kanssa osittain samoja. */
+    { avain: "k", otsikko: "Kieli",
+      osittain: [["Molemmat", "Suomi"], ["Molemmat", "Englanti"]] },
     { avain: "v", otsikko: "Debyytti", luku: true, lahella: 5 },
   ];
 
@@ -1231,7 +1250,9 @@
           nuoli: a < o ? "▲" : "▼",   // nuoli osoittaa oikeaan suuntaan
         };
       }
-      return { tila: "ohi", teksti: String(a), nuoli: "" };
+      const osittain = (kentta.osittain || []).some(
+        ([x, y]) => (a === x && o === y) || (a === y && o === x));
+      return { tila: osittain ? "lahella" : "ohi", teksti: String(a), nuoli: "" };
     });
   }
 

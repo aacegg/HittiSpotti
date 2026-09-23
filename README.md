@@ -269,6 +269,27 @@ arvaukselle mutta vaatii vierittämistä kuudelle, ja sarakeotsikko
 kuudesti toistettuna olisi kohinaa. Selite ja korttien pyöreys ovat
 sieltä lainattuja, asettelu ei.
 
+**Keltainen tarkoittaa osittaista osumaa, myös muissa kuin
+lukukentissä.** Aluksi keltaista sai vain jäsenmäärästä (heitto enintään
+yksi) ja debyyttivuodesta (enintään viisi), ja mitattuna 21 % peleistä
+ei saanut yhtään keltaista ruutua: kolme saraketta viidestä oli
+mustavalkoisia. Niissä on kuitenkin aitoa osittaista osumaa:
+
+- sekayhtye on osaksi miesyhtye ja osaksi naisyhtye
+- molemmilla kielillä laulava on osaksi suomeksi ja osaksi englanniksi
+  laulava (ruotsi ja instrumentaali eivät kuulu tähän)
+- metalli on rockin alalaji
+
+Nämä ovat samaa tietoa kuin "vuosi menee viisi pieleen" eivätkä keksittyä
+sukulaisuutta. Genrestä otettiin vain rock ja metalli: muut parit
+olisivat makuasioita, ja väärä sukulaisuus on pahempi kuin puuttuva
+keltainen, koska pelaaja päättelee siitä väärään suuntaan. Iskelmä ja
+pop olisi seuraava harkittava, mutta sitä ei ole päätetty.
+
+Muutoksen jälkeen keltaisia on kuuden arvauksen pelissä keskimäärin 3,0
+aiemman 1,7 sijaan, ja ilman yhtään keltaista jää 10 % peleistä aiemman
+21 %:n sijaan. Vertailu on testattu, ks. `testit/artistivertailu.mjs`.
+
 **Paljastusanimaatio.** Uusin rivi kääntyy auki ruutu kerrallaan
 vasemmalta oikealle, ja väri tulee näkyviin käännön mukana. Ruudussa on
 jo lopullinen värinsä, joten mitään ei vaihdeta kesken animaation.

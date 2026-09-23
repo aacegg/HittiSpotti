@@ -466,8 +466,6 @@ def rivi(k, a):
     tagit = " &middot; ".join(x for x in (
         ("WP: " + wp) if wp else "", ("MB: " + mb) if mb else "") if x) or "ei tietoja"
     varoitus = []
-    if a.get("lahde") == "sumea":
-        varoitus.append(f"sumea osuma: {a.get('mbnimi')}")
     if not a.get("debyytti"):
         varoitus.append("debyyttivuosi puuttuu")
     if not genre:
@@ -497,7 +495,7 @@ def rivi(k, a):
     return f"""<tr data-k="{esc(k)}" data-genre="{esc(genre or '')}" data-kokoonpano="{esc(kokoonpano)}"
       data-kieli="{esc(kieli or '')}" data-sp="{esc(sp or '')}" class="{'huomio' if varoitus else ''}">
   <td class="nimi"><b>{esc(a['nimi'])}</b>
-    <span>{a['biisit']} biisiä &middot; {a['eka']}&ndash;{a['vika']} &middot; debyytti {esc(a.get('debyytti') or '?')}</span>
+    <span>debyytti {esc(a.get('debyytti') or '?')} &middot; {esc(kieli or '?')} &middot; {esc(sp or '?')} &middot; {a.get('jasenluku') or '?'} jäsentä</span>
     <span class="tagit">{esc(tagit)}</span>
     {'<span class="kuvaus">' + esc(a['wp_kuvaus']) + '</span>' if a.get('wp_kuvaus') else ''}
     {'<span class="tagit">kielet: ' + esc(kaikki_kielet) + '</span>' if kaikki_kielet else ''}
@@ -556,15 +554,13 @@ def main() -> int:
     def jarjestys(kv):
         k, v = kv
         puuttuu = (not genre_ehdotus(v)[0] or not laulukieli_ehdotus(v)[0]
-                   or not sukupuoli_ehdotus(v)[0]
-                   or v.get("lahde") == "sumea" or not v.get("debyytti"))
-        return (0 if puuttuu else 1, -v["biisit"])
+                   or not sukupuoli_ehdotus(v)[0] or not v.get("debyytti"))
+        return (0 if puuttuu else 1, v.get("nimi", "").lower())
 
     rivit = "".join(rivi(k, v) for k, v in sorted(mukana.items(), key=jarjestys))
     huomio = sum(1 for k, v in mukana.items()
                  if not genre_ehdotus(v)[0] or not laulukieli_ehdotus(v)[0]
-                 or not sukupuoli_ehdotus(v)[0]
-                 or v.get("lahde") == "sumea" or not v.get("debyytti"))
+                 or not sukupuoli_ehdotus(v)[0] or not v.get("debyytti"))
 
     html = SIVU.replace("{{RIVIT}}", rivit).replace("{{N}}", str(len(mukana))) \
                .replace("{{HUOMIO}}", str(huomio))

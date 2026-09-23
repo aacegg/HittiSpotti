@@ -134,6 +134,42 @@ MAAKUNNAT = {
     "Ahvenanmaa": ["Maarianhamina", "Jomala", "Finström", "Lemland"],
 }
 
+# Suuralueet eli Tilastokeskuksen NUTS 2 -jako. Pelissä keltainen ruutu
+# tarkoittaa samaa suuraluetta, ei samaa maakuntaa.
+#
+# Maakunta oli ensin, mutta se ei tuota keltaista: mitattuna 246
+# artistista 142 on Uusimaalta ja heistä lähes kaikki Helsingistä, joten
+# "sama maakunta mutta eri kunta" on harvinaista. Keltaisia tuli 5 %
+# ruuduista. Suuralueella niitä on 10 %, ja sarakkeesta tulee toiseksi
+# vahvin heti debyyttivuoden jälkeen.
+#
+# Virallinen jako eikä itse keksitty: karkea "etelä, länsi, itä,
+# pohjoinen" antaisi enemmän keltaista (19 %) mutta rajat olisivat oma
+# mielipide, ja silloin pelaaja voisi olla perustellusti eri mieltä
+# siitä onko Jyväskylä idässä vai lännessä.
+SUURALUEET = {
+    "Uusimaa": "Helsinki-Uusimaa",
+    "Kanta-Häme": "Etelä-Suomi",
+    "Päijät-Häme": "Etelä-Suomi",
+    "Kymenlaakso": "Etelä-Suomi",
+    "Etelä-Karjala": "Etelä-Suomi",
+    "Varsinais-Suomi": "Länsi-Suomi",
+    "Satakunta": "Länsi-Suomi",
+    "Pirkanmaa": "Länsi-Suomi",
+    "Keski-Suomi": "Länsi-Suomi",
+    "Etelä-Pohjanmaa": "Länsi-Suomi",
+    "Pohjanmaa": "Länsi-Suomi",
+    "Keski-Pohjanmaa": "Pohjois- ja Itä-Suomi",
+    "Pohjois-Pohjanmaa": "Pohjois- ja Itä-Suomi",
+    "Kainuu": "Pohjois- ja Itä-Suomi",
+    "Lappi": "Pohjois- ja Itä-Suomi",
+    "Etelä-Savo": "Pohjois- ja Itä-Suomi",
+    "Pohjois-Savo": "Pohjois- ja Itä-Suomi",
+    "Pohjois-Karjala": "Pohjois- ja Itä-Suomi",
+    "Ahvenanmaa": "Ahvenanmaa",
+    ULKOMAAT: ULKOMAAT,
+}
+
 # Käänteinen taulukko, jota muut skriptit käyttävät.
 KUNNAT = {kunta: maakunta
           for maakunta, kunnat in MAAKUNNAT.items()
@@ -150,6 +186,12 @@ def maakunta(kunta: str):
     if kunta == ULKOMAAT:
         return ULKOMAAT
     return KUNNAT.get(kunta)
+
+
+def suuralue(kunta: str):
+    """Kunnan suuralue, tai None jos kuntaa ei tunneta."""
+    mk = maakunta(kunta)
+    return SUURALUEET.get(mk) if mk else None
 
 
 if __name__ == "__main__":

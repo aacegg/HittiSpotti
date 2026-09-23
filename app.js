@@ -147,7 +147,7 @@
    * välimuistissa tyylimuutosten yli, mutta uusi katalogi on eri osoite ja
    * tulee varmasti perille – vanha versio antaisi pelaajalle eri päivän
    * biisit kuin muille. */
-  const KATALOGI_K = 21;
+  const KATALOGI_K = 22;
 
   /* Katalogi on kahdessa osassa, ks. scripts/tee_aanet.py.
    *
@@ -1214,10 +1214,17 @@
     { avain: "j", otsikko: "Jäseniä", luku: true, lahella: 1 },
     { avain: "s", otsikko: "Sukup.",
       osittain: [["Seka", "Mies"], ["Seka", "Nainen"]] },
-    /* Molemmat tarkoittaa suomea ja englantia, joten ruotsi ja
-     * instrumentaali eivät ole sen kanssa osittain samoja. */
-    { avain: "k", otsikko: "Kieli",
-      osittain: [["Molemmat", "Suomi"], ["Molemmat", "Englanti"]] },
+    /* Kotipaikka. Vihreä on sama kunta, keltainen sama suuralue.
+     *
+     * Suuralue tulee datassa valmiina kenttänä (Tilastokeskuksen NUTS 2
+     * -jako), koska vaihtoehto olisi kuljettaa 344 kunnan taulukko
+     * selaimeen. Sääntö on sama sisältyvyys kuin muissakin keltaisissa:
+     * kunta kuuluu maakuntaan ja maakunta suuralueeseen.
+     *
+     * Tämä korvasi laulukielen, joka oli mitattuna heikoin sarake: 211
+     * artistia 247:stä lauloi suomeksi, joten yhden arvauksen jälkeen
+     * siitä jäi jäljelle 75 % artisteista. Kotipaikasta jää 58 %. */
+    { avain: "p", otsikko: "Kotoisin", ylakentta: "a" },
     { avain: "v", otsikko: "Debyytti", luku: true, lahella: 5 },
   ];
 
@@ -1234,8 +1241,26 @@
    * Tämä on vain näyttömuoto. Data, vertailu ja jakoteksti käyttävät
    * arvoa sellaisenaan. */
   const ARTISTI_TAVUT = {
-    "Elektroninen": "Elektro\u00ADninen",
-    "Instrumentaali": "Instru\u00ADmentaali",
+    "Elektroninen": "Elek­tro­ninen",
+    "Harjavalta": "Har­ja­valta",
+    "Haukipudas": "Hau­ki­pudas",
+    "Hämeenlinna": "Hä­meen­linna",
+    "Kauniainen": "Kau­ni­ainen",
+    "Kemijärvi": "Ke­mi­järvi",
+    "Kirkkonummi": "Kirk­ko­nummi",
+    "Kuusankoski": "Kuu­san­koski",
+    "Lappeenranta": "Lap­peen­ranta",
+    "Maarianhamina": "Maa­rian­hamina",
+    "Outokumpu": "Ou­to­kumpu",
+    "Pietarsaari": "Pie­tar­saari",
+    "Pyhäranta": "Py­hä­ranta",
+    "Rovaniemi": "Ro­va­niemi",
+    "Seinäjoki": "Sei­nä­joki",
+    "Siilinjärvi": "Sii­lin­järvi",
+    "Suonenjoki": "Suo­nen­joki",
+    "Tohmajärvi": "Toh­ma­järvi",
+    "Utajärvi": "U­ta­järvi",
+    "Ylitornio": "Yli­tor­nio",
   };
 
   /* Yksi arvausrivi verrattuna oikeaan vastaukseen.
@@ -1256,7 +1281,11 @@
           nuoli: a < o ? "▲" : "▼",   // nuoli osoittaa oikeaan suuntaan
         };
       }
-      const osittain = (kentta.osittain || []).some(
+      /* Yläkenttä: arvo kuuluu laajempaan joukkoon, ja jos joukko on
+       * sama, arvaus on lähellä. Kunta kuuluu suuralueeseen. */
+      const sama = kentta.ylakentta
+        && arvaus[kentta.ylakentta] === oikea[kentta.ylakentta];
+      const osittain = sama || (kentta.osittain || []).some(
         ([x, y]) => (a === x && o === y) || (a === y && o === x));
       return { tila: osittain ? "lahella" : "ohi", teksti: String(a), nuoli: "" };
     });

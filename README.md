@@ -305,12 +305,33 @@ katsotaan vain tätä saraketta:
 |---|---|---|---|
 | debyytti | 3 % | 17 % | 50 % |
 | jäsenmäärä | 44 % | 10 % | 53 % |
+| kotipaikka | 30 % | 10 % | 58 % |
 | sukupuoli | 56 % | 13 % | 60 % |
 | genre | 21 % | 0 % | 68 % |
-| laulukieli | 74 % | 6 % | 75 % |
+| ~~laulukieli~~ | 74 % | 6 % | 75 % |
 
-Laulukieli on selvästi heikoin, koska 211 artistia 247:stä laulaa
-suomeksi. Se on silti mukana, koska se on päätetty pitää.
+**Laulukieli poistettiin ja tilalle tuli kotipaikka.** Laulukieli oli
+selvästi heikoin sarake, koska 211 artistia 247:stä lauloi suomeksi:
+yhden arvauksen jälkeen siitä jäi jäljelle kolme neljäsosaa artisteista.
+Kenttä on yhä lähdetiedostossa, joten se saadaan takaisin ilman uutta
+hakukierrosta.
+
+Kotipaikassa vihreä on sama kunta ja keltainen sama suuralue.
+Suuralue on Tilastokeskuksen NUTS 2 -jako (Helsinki-Uusimaa,
+Etelä-Suomi, Länsi-Suomi, Pohjois- ja Itä-Suomi, Ahvenanmaa) eikä itse
+keksitty. Maakunta kokeiltiin ensin eikä se toiminut: 246 artistista
+142 on Uusimaalta ja heistä lähes kaikki Helsingistä, joten "sama
+maakunta mutta eri kunta" jäi harvinaiseksi ja keltaisia tuli vain 5 %
+ruuduista. Karkea "etelä, länsi, itä, pohjoinen" olisi antanut
+enemmän keltaista (19 %) mutta rajat olisivat oma mielipide.
+
+Kotipaikka on kunta jossa yhtye perustettiin tai johon sooloartisti
+yhdistetään, ei välttämättä synnyinpaikka: Cheek syntyi Vantaalla mutta
+on Lahdesta. Siksi Wikipedia ei kelpaa lähteeksi sellaisenaan, ja siksi
+`scripts/tarkista_kotipaikat.py` raportoi erot eikä korjaa niitä.
+
+Keltaisia on nyt kuuden arvauksen pelissä keskimäärin 3,3, ja ilman
+yhtään keltaista jää 7 % peleistä. Lähtötilanne oli 1,7 ja 21 %.
 
 **Paljastusanimaatio.** Uusin rivi kääntyy auki ruutu kerrallaan
 vasemmalta oikealle, ja väri tulee näkyviin käännön mukana. Ruudussa on

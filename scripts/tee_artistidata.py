@@ -30,19 +30,28 @@ import json
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from kotipaikat import suuralue
+
 ROOT = Path(__file__).resolve().parent.parent
 LAHDE = ROOT / ".artistit.json"
 ULOS = ROOT / "artistit.json"
 LISTA = Path(__file__).resolve().parent / "artistit-lista.txt"
 
-# Peliin menevät kentät. Lyhyet avaimet, koska ne toistuvat 248 kertaa.
+# Peliin menevät kentät. Lyhyet avaimet, koska ne toistuvat 246 kertaa.
+#
+# laulukieli oli tässä ennen kotipaikkaa. Se poistettiin koska se oli
+# mitattuna selvästi heikoin sarake: 211 artistia 247:stä lauloi
+# suomeksi, joten yhden arvauksen jälkeen siitä jäi jäljelle 75 %
+# artisteista. Kotipaikasta jää 58 %. Kenttä on yhä lähdetiedostossa,
+# joten se saadaan takaisin ilman uutta hakukierrosta.
 KENTAT = [
     ("id", "mbid"),
     ("n", "nimi"),
     ("g", "genre"),
     ("j", "jasenluku"),
     ("s", "sukupuoli_peli"),
-    ("k", "laulukieli"),
+    ("p", "kotipaikka"),
     ("v", "debyytti"),
 ]
 
@@ -62,6 +71,15 @@ def main() -> int:
                 break
             rivi[lyhyt] = arvo
         else:
+            # Suuralue mukaan valmiiksi laskettuna. Peli tarvitsee sen
+            # keltaista ruutua varten, ja vaihtoehto olisi kuljettaa
+            # 344 kunnan taulukko selaimeen. Kaksi kenttää per artisti
+            # on halvempi kuin koko taulukko kerran.
+            rivi["a"] = suuralue(rivi["p"])
+            if not rivi["a"]:
+                puutteet.append(f"{v.get('nimi')}: tuntematon kunta "
+                                f"{rivi['p']!r}")
+                continue
             ulos.append(rivi)
 
     if puutteet:

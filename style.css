@@ -2095,7 +2095,7 @@ body.sheet-open { overflow: hidden; }
   min-height: 48px; border-radius: 8px; background: var(--line);
   display: flex; flex-direction: column; align-items: center;
   justify-content: center; gap: 1px; font-size: 11px; color: var(--text);
-  line-height: 1.15; text-align: center; padding: 3px; font-weight: 600;
+  line-height: 1.15; text-align: center; padding: 3px 2px; font-weight: 600;
   hyphens: auto; overflow-wrap: break-word;
 }
 /* Flex-lapsen oletusleveys on sisällön leveys eikä se kutistu sen alle,

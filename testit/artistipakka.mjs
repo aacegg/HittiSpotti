@@ -77,7 +77,7 @@ vaita("ennen aloituspäivää ei kaadu", !!menneet && !!menneet.n, menneet && me
 console.log(`\nEnsimmäiset 10 päivää:`);
 for (let i = 0; i < 10; i++) {
   const a = paivanArtisti(pvm(i));
-  console.log(`  ${pvm(i)}  ${a.n}  (${a.g}, ${a.j} jäsentä, ${a.s}, ${a.k}, ${a.v})`);
+  console.log(`  ${pvm(i)}  ${a.n}  (${a.g}, ${a.j} jäsentä, ${a.s}, ${a.p}, ${a.v})`);
 }
 console.log(ok ? "\nLÄPI" : "\nHYLÄTTY");
 process.exit(ok ? 0 : 1);

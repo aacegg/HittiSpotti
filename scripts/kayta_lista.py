@@ -59,7 +59,7 @@ SALLITUT = {
 # Lukuarvoiset kentät. Jäsenmäärä on luku eikä luokka, koska peli
 # vertailee sitä nuolella kuten debyyttivuotta, ja kokoonpano johdetaan
 # siitä: 1 on soolo, 2 duo, 3 tai enemmän yhtye.
-LUVUT = {"jasenluku": (1, 30)}
+LUVUT = {"jasenluku": (1, 30), "debyytti": (1900, 2100)}
 
 # Sama asia eri sanoin. Lista kirjoitetaan käsin, joten arvo voi olla
 # pienellä tai eri muodossa: "ei laulukieltä" on instrumentaali.

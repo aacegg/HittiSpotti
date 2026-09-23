@@ -257,6 +257,27 @@ Seuraus, joka on helppo unohtaa: **artistipelissä ei ole pisteitä
 lainkaan.** Tulos on se monellako arvauksella artisti ratkesi, 1-6 tai
 ei lainkaan. Pisteytys olisi lainaa biisipelistä eikä toisi mitään.
 
+**Ulkoasu.** Ruudukko on viisi saraketta kuusi riviä, sarakeotsikot
+yllä ja väriselite alla. Selite on siksi, että keltainen ei kerro
+itsestään mitään: pelaaja näkee värin muttei tiedä tarkoittaako se
+lähellä vai väärin. Ruutu on matala suorakaide eikä neliö, jotta koko
+peli mahtuu puhelimen ruudulle kerralla.
+
+Spotle.io tekee saman toisin: yksi arvaus kerrallaan, kuusi isoa korttia
+kahdella rivillä, otsikko jokaisessa kortissa. Se on selkeä yhdelle
+arvaukselle mutta vaatii vierittämistä kuudelle, ja sarakeotsikko
+kuudesti toistettuna olisi kohinaa. Selite ja korttien pyöreys ovat
+sieltä lainattuja, asettelu ei.
+
+**Paljastusanimaatio.** Uusin rivi kääntyy auki ruutu kerrallaan
+vasemmalta oikealle, ja väri tulee näkyviin käännön mukana. Ruudussa on
+jo lopullinen värinsä, joten mitään ei vaihdeta kesken animaation.
+Vastaus odottaa animaation ohi: muuten "Päivän artisti oli X" lukisi
+ruudulla ennen kuin pelaaja on ehtinyt katsoa sitä riviä josta se olisi
+pitänyt päätellä. Vain uusin rivi animoituu, koska kesken jääneen pelin
+avaaminen piirtää samat rivit eikä niitä saa paljastaa uudestaan kuin
+ne olisi juuri arvattu. `prefers-reduced-motion` ottaa liikkeen pois.
+
 **Päätetyt asiat 22.9.2026:**
 
 - Artistijoukko: ne joilla on katalogissa vähintään kolme biisiä, eli

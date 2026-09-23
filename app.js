@@ -1290,18 +1290,31 @@
     return pisteet.slice(0, 40).map((x) => x[1]);
   }
 
-  function piirraArtistiRivit() {
-    const rivit = artistiTila.arvaukset.map((arvaus) => {
+  /* Paljastuksen kesto: viimeinen ruutu alkaa kääntyä 4 * 110 ms kohdalla
+   * ja kääntyy 320 ms. Luku on tässä yhtenä paikkana, koska sekä
+   * loppulohkon odotus että tyylitiedoston ajoitus nojaavat siihen. */
+  const ARTISTI_PALJASTUS_MS = 4 * 110 + 320;
+  let artistiLoppuAjastin = 0;
+
+  /* uusi = kutsu tulee juuri tehdystä arvauksesta. Vain silloin viimeinen
+   * rivi animoidaan ja loppulohko odottaa animaation ohi: kesken jääneen
+   * pelin avaaminen piirtää samat rivit, eikä niitä saa paljastaa
+   * uudestaan kuin ne olisi juuri arvattu. */
+  function piirraArtistiRivit(uusi = false) {
+    clearTimeout(artistiLoppuAjastin);
+    const viimeinen = artistiTila.arvaukset.length - 1;
+    const rivit = artistiTila.arvaukset.map((arvaus, rivi) => {
       const ruudut = artistiVertaa(arvaus, artistiTila.oikea);
-      const solut = ruudut.map((r) => {
+      const solut = ruudut.map((r, i) => {
         const luokka = r.tila === "osui" ? " on-osui"
                      : r.tila === "lahella" ? " on-lahella" : "";
         const nuoli = r.nuoli ? `<span class="a-nuoli">${r.nuoli}</span>` : "";
         const teksti = ARTISTI_TAVUT[r.teksti] || r.teksti;
-        return `<div class="a-ruutu${luokka}"><span>${escapeHtml(teksti)}</span>${nuoli}</div>`;
+        return `<div class="a-ruutu${luokka}" style="--i:${i}"><span>${escapeHtml(teksti)}</span>${nuoli}</div>`;
       }).join("");
+      const animoi = uusi && rivi === viimeinen ? " on-uusi" : "";
       return `<li><p class="a-artisti">${escapeHtml(arvaus.n)}</p>
-        <div class="a-rivi">${solut}</div></li>`;
+        <div class="a-rivi${animoi}">${solut}</div></li>`;
     });
     el.aRivit.innerHTML = rivit.join("");
     const jaljella = ARTISTI_ARVAUKSIA - artistiTila.arvaukset.length;
@@ -1309,13 +1322,26 @@
       ? ""
       : `${jaljella} ${jaljella === 1 ? "arvaus" : "arvausta"} jäljellä`;
     el.aArvaus.hidden = artistiTila.ohi;
-    el.aLoppu.hidden = !artistiTila.ohi;
     if (artistiTila.ohi) {
       const n = artistiTila.arvaukset.length;
       el.aLoppuOtsikko.textContent = artistiTila.voitto ? "Oikein!" : "Ei osunut";
       el.aLoppuTeksti.textContent = artistiTila.voitto
         ? `Päivän artisti oli ${artistiTila.oikea.n}. Arvauksia ${n}/${ARTISTI_ARVAUKSIA}.`
         : `Päivän artisti oli ${artistiTila.oikea.n}.`;
+      /* Vastaus vasta kun viimeinenkin ruutu on kääntynyt. Muuten
+       * "Päivän artisti oli X" lukisi ruudulla ennen kuin pelaaja on
+       * ehtinyt katsoa sitä riviä josta se olisi pitänyt päätellä. */
+      el.aLoppu.classList.toggle("on-uusi", uusi);
+      if (uusi) {
+        el.aLoppu.hidden = true;
+        artistiLoppuAjastin = setTimeout(() => {
+          el.aLoppu.hidden = false;
+        }, ARTISTI_PALJASTUS_MS);
+      } else {
+        el.aLoppu.hidden = false;
+      }
+    } else {
+      el.aLoppu.hidden = true;
     }
   }
 
@@ -1346,7 +1372,7 @@
       artistiTila.ohi = true;
     }
     tallennaArtisti();
-    piirraArtistiRivit();
+    piirraArtistiRivit(true);
     if (artistiTila.ohi) {
       /* Arvauksia 1-6 jos ratkesi, 0 jos ei. Palvelin ei saa pisteitä
        * lainkaan: artistipelissä niitä ei ole. */

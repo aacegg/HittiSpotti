@@ -2069,8 +2069,8 @@ body.sheet-open { overflow: hidden; }
 .a-rivi { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
 .a-otsikot { margin-bottom: 6px; }
 .a-otsikot span {
-  font-size: 9px; text-transform: uppercase; letter-spacing: .06em;
-  color: var(--dim); text-align: center;
+  font-size: 10px; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--muted); text-align: center;
 }
 
 .a-rivit { list-style: none; margin: 0; padding: 0; }
@@ -2092,21 +2092,64 @@ body.sheet-open { overflow: hidden; }
    antaa selaimelle suomen tavutussäännöt; break-word on varalla niille
    selaimille joilla niitä ei ole. */
 .a-ruutu {
-  min-height: 46px; border-radius: 6px; background: var(--line);
+  min-height: 48px; border-radius: 8px; background: var(--line);
   display: flex; flex-direction: column; align-items: center;
   justify-content: center; gap: 1px; font-size: 11px; color: var(--text);
-  line-height: 1.15; text-align: center; padding: 3px;
+  line-height: 1.15; text-align: center; padding: 3px; font-weight: 600;
   hyphens: auto; overflow-wrap: break-word;
 }
 /* Flex-lapsen oletusleveys on sisällön leveys eikä se kutistu sen alle,
    joten pitkä sana valui ruudun reunojen yli rivittymättä. Katto sataan
    prosenttiin pakottaa sen tavuttumaan ruudun sisällä. */
 .a-ruutu > span { max-width: 100%; min-width: 0; }
-.a-ruutu.on-osui { background: var(--t1); color: #0a0908; font-weight: 700; }
-.a-ruutu.on-lahella { background: var(--t3); color: #0a0908; font-weight: 700; }
+.a-ruutu.on-osui { background: var(--t1); color: #0a0908; }
+.a-ruutu.on-lahella { background: var(--t3); color: #0a0908; }
 /* Nuoli numeroruudussa. Kertoo kumpaan suuntaan oikea arvo on, mikä on
    se tieto jonka väri yksin jättäisi antamatta. */
 .a-nuoli { font-size: 11px; opacity: .85; }
+
+/* Värien paljastus. Ruutu kääntyy auki reunaltaan, jolloin väri tulee
+   näkyviin käännön mukana, ja sarakkeet kääntyvät peräkkäin vasemmalta
+   oikealle. Ruudussa on jo lopullinen värinsä, joten mitään ei tarvitse
+   vaihtaa kesken animaation.
+
+   Vain uusin rivi animoituu. Jos kaikki animoituisivat, kesken jääneen
+   pelin avaaminen räiskisi koko ruudukon uusiksi joka kerta. */
+@keyframes a-paljasta {
+  from { transform: rotateX(-92deg); opacity: 0; }
+  to   { transform: rotateX(0);      opacity: 1; }
+}
+.a-rivi { perspective: 420px; }
+.a-rivi.on-uusi .a-ruutu {
+  animation: a-paljasta .32s ease-out both;
+  animation-delay: calc(var(--i) * .11s);
+}
+.a-loppu.on-uusi { animation: a-loppu-esiin .35s ease-out both; }
+@keyframes a-loppu-esiin {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+/* Liike pois niiltä jotka ovat sen käyttöjärjestelmästään kieltäneet.
+   Väri on tieto, animaatio on koriste, eikä tieto saa riippua siitä. */
+@media (prefers-reduced-motion: reduce) {
+  .a-rivi.on-uusi .a-ruutu,
+  .a-loppu.on-uusi { animation: none; }
+}
+
+/* Selite. Pieni ja himmeä: se on ohje eikä osa peliä, ja sitä luetaan
+   kerran. */
+.a-selite {
+  list-style: none; margin: 12px 0 0; padding: 0;
+  display: flex; justify-content: center; gap: 14px;
+  font-size: 11px; color: var(--dim);
+}
+.a-selite li { display: flex; align-items: center; gap: 5px; }
+.a-merkki {
+  width: 10px; height: 10px; border-radius: 3px; background: var(--line);
+  display: inline-block;
+}
+.a-merkki.on-osui { background: var(--t1); }
+.a-merkki.on-lahella { background: var(--t3); }
 
 .a-arvaus { position: relative; margin-top: 18px; }
 .a-jaljella { color: var(--dim); font-size: 12px; margin: 8px 0 0; text-align: center; }

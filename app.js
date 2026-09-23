@@ -490,6 +490,44 @@
     return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
 
+  /* Tallennusavaimet peleittäin.
+   *
+   * Päivän biisin avaimet ovat jo pelaajien selaimissa, joten niitä EI saa
+   * muuttaa: pelkkä etuliitteen lisäys nollaisi jokaisen putken ja
+   * tilaston. Siksi biisipeli kirjoittaa yhä samoihin avaimiin kuin ennen
+   * ja artistipeli saa oman etuliitteensä.
+   *
+   * Tämä taulu on yksi paikka jossa avaimet ovat näkyvissä. Ilman sitä
+   * toinen peli kirjoittaisi samaan "daily:<pvm>"-avaimeen ja pelit
+   * ylikirjoittaisivat toistensa tulokset. Myös tilastojen nollaus ja
+   * keskeneräisten siivous käyvät molemmat pelit läpi tämän kautta,
+   * joten uuden pelin lisääminen ei jätä niitä jälkeen. */
+  const PELIT = ["biisi", "artisti"];
+  const AVAIN = {
+    biisi: {
+      etuliite: "",
+      tulos: (pvm) => `daily:${pvm}`,
+      kesken: (pvm) => `daily:${pvm}:kesken`,
+      vertailu: (pvm) => `paivavertailu:${pvm}`,
+      stats: "stats",
+    },
+    artisti: {
+      etuliite: "artisti:",
+      tulos: (pvm) => `artisti:daily:${pvm}`,
+      kesken: (pvm) => `artisti:daily:${pvm}:kesken`,
+      vertailu: (pvm) => `artisti:paivavertailu:${pvm}`,
+      stats: "artisti:stats",
+    },
+  };
+
+  /* Kuuluuko avain tälle pelille. Biisipelillä ei ole etuliitettä, joten
+   * sille kelpaa kaikki mikä EI ala jonkin toisen pelin etuliitteellä. */
+  function omaAvain(peli, key) {
+    const etuliite = AVAIN[peli].etuliite;
+    if (etuliite) return key.startsWith(etuliite);
+    return PELIT.every((p) => p === peli || !key.startsWith(AVAIN[p].etuliite));
+  }
+
   const store = {
     get(key, fallbackValue) {
       try {
@@ -681,7 +719,7 @@
      * hetken päästä, ja asennuksen jälkeen rivi saa kadota ilman uudelleen
      * latausta. Valikon avaus on luonteva hetki tarkistaa se. */
     paivitaAsennusnappi();
-    const done = store.get("daily:" + todayKey(), null);
+    const done = store.get(AVAIN.biisi.tulos(todayKey()), null);
     el.navDailyNote.textContent = done
       ? `pelattu tänään, ${fmt(done.score)} p`
       : `viisi biisiä, ${dateLine(new Date())}`;
@@ -731,7 +769,7 @@
    * katkennut. Lohko piilotetaan kunnes ensimmäinen päivä on pelattu, jottei
    * uudelle pelaajalle näytetä pelkkiä nollia. */
   function refreshDrawerStats() {
-    const s = { ...defaultStats(), ...store.get("stats", {}) };
+    const s = { ...defaultStats(), ...store.get(AVAIN.biisi.stats, {}) };
     /* Kaksi lohkoa, kaksi eri lähdettä, siis kaksi eri ehtoa. Luvut tulevat
      * kootuista tilastoista, viikko suoraan päivien omista tuloksista.
      *
@@ -772,7 +810,7 @@
       const pv = new Date();
       pv.setDate(pv.getDate() - i);
       const avain = dayKey(pv);
-      const tulos = store.get("daily:" + avain, null);
+      const tulos = store.get(AVAIN.biisi.tulos(avain), null);
       paivat.push({
         avain,
         tanaan: i === 0,
@@ -1475,7 +1513,7 @@
      * ja 00.03 päättynyt peli kirjautuisi huomisen päivälle tämän päivän
      * biiseillä. */
     const key = todayKey();
-    const done = store.get("daily:" + key, null);
+    const done = store.get(AVAIN.biisi.tulos(key), null);
     state.mode = "daily";
     state.dayKey = key;
     if (done) {
@@ -1510,7 +1548,7 @@
    * tallennetuista tunnisteista eikä arvonnasta uudestaan, koska katalogin
    * päivitys voi vaihtaa päivän biisit; pelaajalle kuuluvat ne jotka hän
    * aloitti. */
-  const progressKey = (key) => `daily:${key}:kesken`;
+  const progressKey = (key) => AVAIN.biisi.kesken(key);
 
   function persistDaily() {
     if (state.mode !== "daily" || !state.dayKey) return;
@@ -2247,7 +2285,7 @@
   }
 
   function yhteenveto() {
-    const s = { ...defaultStats(), ...store.get("stats", {}) };
+    const s = { ...defaultStats(), ...store.get(AVAIN.biisi.stats, {}) };
     const eilen = new Date(); eilen.setDate(eilen.getDate() - 1);
     const putki = (s.lastDaily === todayKey() || s.lastDaily === dayKey(eilen)) ? s.streak : 0;
     const osumat = state.results.filter((r) => r.solved).length;
@@ -2735,7 +2773,7 @@
   const VERTAILU_RAJA = 11;
   const KORI = 500;           // sama koriväli kuin palvelimella
 
-  function vertailuKey(key) { return "paivavertailu:" + key; }
+  function vertailuKey(key) { return AVAIN.biisi.vertailu(key); }
 
   /* Lähetetään vain kerran päivää kohti ja vain jos pelaaja sallii sen.
    * Vastaus sisältää järjestysluvun ja koko koosteen, joten tulossivu saa
@@ -2800,7 +2838,7 @@
     if (!el2) return;
     if (state.mode !== "daily" || !PALVELIN || !dataLupa()) { el2.hidden = true; return; }
     const key = state.dayKey || todayKey();
-    const oma = store.get("daily:" + key, null);
+    const oma = store.get(AVAIN.biisi.tulos(key), null);
     if (!oma) { el2.hidden = true; return; }
 
     const vuoro = ++vertailuVuoro;
@@ -2993,9 +3031,9 @@
     // Sen päivän avain, jonka sarja pelattiin – ei kellon päivä. Keskiyön yli
     // pelattu sarja kuuluu sille päivälle jolta biisit ovat.
     const key = state.dayKey || todayKey();
-    const already = !!store.get("daily:" + key, null);
+    const already = !!store.get(AVAIN.biisi.tulos(key), null);
     store.remove(progressKey(key));
-    store.set("daily:" + key, {
+    store.set(AVAIN.biisi.tulos(key), {
       score: state.score,
       results: state.results.map((r) => ({ id: r.id, step: r.step, points: r.points, solved: r.solved })),
     });
@@ -3010,7 +3048,7 @@
       el.resultsVertailu.textContent = teksti;
       el.resultsVertailu.hidden = !teksti;
     });
-    const stats = { ...defaultStats(), ...store.get("stats", {}) };
+    const stats = { ...defaultStats(), ...store.get(AVAIN.biisi.stats, {}) };
     stats.dailyPlayed += 1;
     stats.dailyTotal += state.score;
     stats.dailyBest = Math.max(stats.dailyBest, state.score);
@@ -3020,22 +3058,22 @@
     stats.streak = stats.lastDaily === dayKey(y) ? stats.streak + 1 : 1;
     stats.bestStreak = Math.max(stats.bestStreak, stats.streak);
     stats.lastDaily = key;
-    store.set("stats", stats);
+    store.set(AVAIN.biisi.stats, stats);
   }
 
   function saveFree() {
-    const stats = { ...defaultStats(), ...store.get("stats", {}) };
+    const stats = { ...defaultStats(), ...store.get(AVAIN.biisi.stats, {}) };
     stats.freeGames += 1;
     stats.freeRounds += state.results.length;
     stats.freeSolved += state.results.filter((r) => r.solved).length;
     stats.freeTotal += state.score;
     stats.freeBestRun = Math.max(stats.freeBestRun, state.score);
-    store.set("stats", stats);
+    store.set(AVAIN.biisi.stats, stats);
   }
 
   function renderStats() {
-    const s = { ...defaultStats(), ...store.get("stats", {}) };
-    const todayDone = !!store.get("daily:" + todayKey(), null);
+    const s = { ...defaultStats(), ...store.get(AVAIN.biisi.stats, {}) };
+    const todayDone = !!store.get(AVAIN.biisi.tulos(todayKey()), null);
     const y = new Date(); y.setDate(y.getDate() - 1);
     const streak = (s.lastDaily === todayKey() || s.lastDaily === dayKey(y)) ? s.streak : 0;
     const tiles = [
@@ -3071,10 +3109,20 @@
    * tekee napista sen mitä sen nimi lupaa. */
   function resetStats() {
     if (!confirm("Nollataanko tilastot ja aiempien päivien tulokset? Kerätty pelidata säilyy.")) return;
-    const tanaan = "daily:" + todayKey();
-    for (const key of store.keys()) {
-      const menneetTulokset = key.startsWith("daily:") && key !== tanaan && !key.endsWith(":kesken");
-      if (key === "stats" || menneetTulokset) store.remove(key);
+    /* Molemmat pelit kerralla: nappi lupaa nollata tilastot, ei vain
+     * biisipelin tilastot. Ilman PELIT-silmukkaa artistipelin tulokset
+     * jäisivät jäljelle eikä kukaan huomaisi sitä ennen kuin putki
+     * näyttäisi väärää lukua. */
+    for (const peli of PELIT) {
+      const a = AVAIN[peli];
+      const tanaan = a.tulos(todayKey());
+      const alku = a.etuliite + "daily:";
+      for (const key of store.keys()) {
+        if (!omaAvain(peli, key)) continue;
+        const menneetTulokset = key.startsWith(alku) && key !== tanaan
+                                && !key.endsWith(":kesken");
+        if (key === a.stats || menneetTulokset) store.remove(key);
+      }
     }
     renderStats();
     refreshDrawer();
@@ -3244,10 +3292,15 @@
    * Siivotaan, ettei localStorageen jää päivä päivältä kasvavaa jäämää. */
   function pruneProgress() {
     const tag = ":kesken";
-    const today = progressKey(todayKey());
-    store.keys()
-      .filter((k) => k.startsWith("daily:") && k.endsWith(tag) && k !== today)
-      .forEach((k) => store.remove(k));
+    for (const peli of PELIT) {
+      const a = AVAIN[peli];
+      const today = a.kesken(todayKey());
+      const alku = a.etuliite + "daily:";
+      store.keys()
+        .filter((k) => omaAvain(peli, k) && k.startsWith(alku)
+                       && k.endsWith(tag) && k !== today)
+        .forEach((k) => store.remove(k));
+    }
   }
 
   /* Virheteksti pelaajan kielellä. Selaimen oma viesti ("Failed to fetch")

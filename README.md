@@ -330,6 +330,21 @@ yhdistetään, ei välttämättä synnyinpaikka: Cheek syntyi Vantaalla mutta
 on Lahdesta. Siksi Wikipedia ei kelpaa lähteeksi sellaisenaan, ja siksi
 `scripts/tarkista_kotipaikat.py` raportoi erot eikä korjaa niitä.
 
+**Kolmelletoista artistille ei löytynyt lähdettä.** Näiden kotipaikka on
+arvio eikä Wikipediasta varmistettu, ja se on kirjattu tähän jotta
+seuraava lukija ei luule koko saraketta yhtä varmaksi:
+
+    BESS, Bizi, Bomfunk MC's, Ege Zulu, Elokuu, Fröbelin Palikat,
+    Leevi and the Leavings, Nylon Beat, Skandaali, Sliki,
+    Waldo's People   -> Helsinki
+    Costee           -> Turku
+    Olli Halonen     -> Kuopio
+
+Yksitoista niistä on Helsinki, mikä on uskottava arvaus Helsingin
+skenen tekijöille mutta silti arvaus. Jos joku niistä osoittautuu
+vääräksi, korjaus on yksi rivi `scripts/kotipaikat-lista.txt`:ään ja
+`kayta_lista.py`-ajo.
+
 Keltaisia on nyt kuuden arvauksen pelissä keskimäärin 3,3, ja ilman
 yhtään keltaista jää 7 % peleistä. Lähtötilanne oli 1,7 ja 21 %.
 

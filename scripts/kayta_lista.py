@@ -37,6 +37,8 @@ import sys
 import unicodedata
 from pathlib import Path
 
+from kotipaikat import KUNNAT, ULKOMAAT
+
 ROOT = Path(__file__).resolve().parent.parent
 TIEDOT = ROOT / ".artistit.json"
 
@@ -55,6 +57,12 @@ SALLITUT = {
     "kokoonpano": {"Soolo", "Duo", "Yhtye"},
     "sukupuoli_peli": {"Mies", "Nainen", "Seka"},
 }
+
+# Kotipaikka ei ole kiinteä joukko vaan Suomen kunnat, joten se
+# tarkistetaan omaa taulukkoaan vasten. Tuntematon kunta pysäyttää ajon
+# eikä mene läpi: pelissä siitä johdetaan maakunta, ja väärä maakunta
+# näkyisi vain väärän värisenä ruutuna jota kukaan ei osaisi raportoida.
+KUNTAKENTAT = {"kotipaikka"}
 
 # Lukuarvoiset kentät. Jäsenmäärä on luku eikä luokka, koska peli
 # vertailee sitä nuolella kuten debyyttivuotta, ja kokoonpano johdetaan
@@ -117,7 +125,8 @@ def lue_lista(polku: Path):
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("kentta", choices=sorted(set(SALLITUT) | set(LUVUT)))
+    ap.add_argument("kentta",
+                    choices=sorted(set(SALLITUT) | set(LUVUT) | KUNTAKENTAT))
     ap.add_argument("tiedosto")
     ap.add_argument("--kuiva", action="store_true",
                     help="näytä muutokset mutta älä kirjoita")
@@ -130,7 +139,11 @@ def main() -> int:
 
     parit = lue_lista(Path(a.tiedosto))
     luku = a.kentta in LUVUT
+    kunta = a.kentta in KUNTAKENTAT
     sallitut = SALLITUT.get(a.kentta)
+    # Kirjoitusasu haetaan taulukosta, jotta "hämeenlinna" ja
+    # "HÄMEENLINNA" tallentuvat molemmat muodossa "Hämeenlinna".
+    kuntahakemisto = {avain(k): k for k in list(KUNNAT) + [ULKOMAAT]}
     tuntematon_nimi, tuntematon_arvo, muuttui, ennallaan = [], [], [], 0
 
     for nimi, arvo in parit:
@@ -144,6 +157,12 @@ def main() -> int:
                 tuntematon_arvo.append((nimi, arvo))
                 continue
             arvo = int(arvo)
+        elif kunta:
+            oikea = kuntahakemisto.get(avain(arvo))
+            if not oikea:
+                tuntematon_arvo.append((nimi, arvo))
+                continue
+            arvo = oikea
         else:
             arvo = normalisoi(arvo, sallitut)
             if arvo not in sallitut:
@@ -165,8 +184,12 @@ def main() -> int:
     for nimi in tuntematon_nimi:
         print(f"TUNTEMATON NIMI: {nimi}", file=sys.stderr)
     for nimi, arvo in tuntematon_arvo:
-        odotus = (f"kokonaisluku {LUVUT[a.kentta][0]}-{LUVUT[a.kentta][1]}"
-                  if luku else ", ".join(sorted(sallitut)))
+        if luku:
+            odotus = f"kokonaisluku {LUVUT[a.kentta][0]}-{LUVUT[a.kentta][1]}"
+        elif a.kentta in KUNTAKENTAT:
+            odotus = f"Suomen kunta tai {ULKOMAAT}, ks. scripts/kotipaikat.py"
+        else:
+            odotus = ", ".join(sorted(sallitut))
         print(f"TUNTEMATON ARVO: {nimi} -> {arvo!r} (odotettiin: {odotus})",
               file=sys.stderr)
 

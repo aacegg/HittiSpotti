@@ -2233,3 +2233,49 @@ body.sheet-open { overflow: hidden; }
   content: "·"; position: absolute; left: 0; color: var(--dim);
 }
 .a-ohje-lista b { color: var(--text); }
+
+/* Ohjeruudun välilehdet ja sisältö. */
+.a-ohje-valit { display: flex; gap: 6px; margin: 0 0 16px; }
+.a-ohje-vali {
+  flex: 1; padding: 8px 6px; border-radius: 8px;
+  border: 1px solid var(--line); background: transparent;
+  color: var(--muted); font-family: var(--display); font-size: 13px;
+  cursor: pointer;
+}
+.a-ohje-vali.on-auki {
+  background: var(--t1); border-color: var(--t1); color: #0a0908;
+  font-weight: 700;
+}
+.a-ohje-vali:focus-visible { outline: 2px solid var(--live); outline-offset: 2px; }
+
+.a-ohje-esim-otsikko {
+  font-size: 12px; color: var(--dim); margin: 16px 0 6px;
+}
+.a-ohje-esim { margin-bottom: 14px; }
+
+/* Sarakkeiden selitykset. dt on sarakkeen nimi, ensimmäinen dd sen
+   selitys ja toinen värit. */
+.a-ohje-sarake { margin: 0; }
+.a-ohje-sarake dt {
+  font-size: 13px; font-weight: 700; color: var(--text);
+  margin: 0 0 4px; letter-spacing: .02em;
+}
+.a-ohje-sarake dd {
+  margin: 0 0 8px; font-size: 13px; line-height: 1.45; color: var(--muted);
+}
+.a-ohje-tilat { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 16px !important; }
+.a-tila {
+  font-size: 11px; padding: 4px 8px; border-radius: 6px;
+  background: var(--line); color: var(--text);
+}
+.a-tila.on-osui { background: var(--t1); color: #0a0908; font-weight: 700; }
+.a-tila.on-lahella { background: var(--t3); color: #0a0908; font-weight: 700; }
+
+/* Otsikko pysyy näkyvissä kun sarakkeiden selitykset vierivät alta:
+   rasti on ainoa tapa sulkea ilman näppäimistöä, eikä sen pidä olla
+   vierityksen takana. */
+#a-ohje-sheet .sheet-head {
+  position: sticky; top: calc(var(--s5) * -1); z-index: 1;
+  background: var(--bg-lift);
+  padding-top: var(--s5); margin-top: calc(var(--s5) * -1);
+}

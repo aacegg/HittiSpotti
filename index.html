@@ -679,23 +679,94 @@
       <button type="button" class="iconbtn" id="a-ohje-close" aria-label="Sulje">✕</button>
     </div>
 
-    <p class="a-ohje-lead">Arvaa päivän artisti kuudella yrityksellä.
-      Sama artisti kaikille, uusi joka päivä.</p>
+    <!-- Kaksi välilehteä. Säännöt luetaan kerran ja sarakkeiden
+         tarkat rajat haetaan uudestaan kesken pelin, joten ne eivät
+         kuulu samalle ruudulle: yhdessä ne olivat lista jonka loppu jäi
+         vierityksen taakse. -->
+    <div class="a-ohje-valit" role="tablist">
+      <button type="button" class="a-ohje-vali on-auki" id="a-ohje-vali-peli"
+              role="tab" aria-selected="true" aria-controls="a-ohje-peli">Miten pelataan</button>
+      <button type="button" class="a-ohje-vali" id="a-ohje-vali-sarakkeet"
+              role="tab" aria-selected="false" aria-controls="a-ohje-sarakkeet">Sarakkeet</button>
+    </div>
 
-    <ul class="a-ohje-varit">
-      <li><i class="a-merkki on-osui"></i><b>Vihreä</b> osuu</li>
-      <li><i class="a-merkki on-lahella"></i><b>Keltainen</b> on lähellä</li>
-      <li><i class="a-merkki"></i><b>Harmaa</b> ei osu</li>
-    </ul>
+    <div id="a-ohje-peli" role="tabpanel">
+      <p class="a-ohje-lead">Arvaa päivän artisti kuudella yrityksellä.
+        Sama artisti kaikille, uusi joka päivä.</p>
 
-    <p>Keltainen tarkoittaa aina osittaista osumaa:</p>
-    <ul class="a-ohje-lista">
-      <li><b>Jäseniä</b> heittää yhdellä, <b>debyytti</b> viidellä. Nuoli
-        kertoo kumpaan suuntaan oikea arvo on.</li>
-      <li><b>Sukupuoli</b>: sekayhtye on osittain sama kuin mies tai nainen.</li>
-      <li><b>Kotoisin</b>: eri kunta, sama suuralue.</li>
-      <li><b>Genressä</b> keltaista ei ole.</li>
-    </ul>
+      <!-- Esimerkki oikean näköisenä. Sama ruudukko ja samat värit kuin
+           pelissä, koska selitys jota ei tunnista peliksi ei selitä
+           mitään. -->
+      <p class="a-ohje-esim-otsikko">Esimerkki: arvasit Kotiteollisuuden</p>
+      <div class="a-otsikot" aria-hidden="true">
+        <span>Genre</span><span>Jäseniä</span><span>Sukup.</span>
+        <span>Kotoisin</span><span>Debyytti</span>
+      </div>
+      <div class="a-rivi a-ohje-esim" aria-hidden="true">
+        <div class="a-ruutu"><span>Metalli</span></div>
+        <div class="a-ruutu on-osui"><span>3</span></div>
+        <div class="a-ruutu on-osui"><span>Mies</span></div>
+        <div class="a-ruutu on-lahella"><span>Lappeen&shy;ranta</span></div>
+        <div class="a-ruutu on-lahella"><span>1996</span><span class="a-nuoli">▼</span></div>
+      </div>
+
+      <ul class="a-ohje-lista">
+        <li>Vihreä: kolme jäsentä, miesyhtye.</li>
+        <li>Keltainen kotoisin: eri kunta, sama suuralue.</li>
+        <li>Keltainen debyytti ja nuoli alas: vuosi on 1991&ndash;1995.</li>
+        <li>Harmaa genre: ei metallia.</li>
+      </ul>
+
+      <p class="a-ohje-loppu">Jäljellä on siis kolmen hengen miesyhtye
+        Etelä-Suomesta, joka debytoi 1991&ndash;1995 eikä soita metallia.</p>
+    </div>
+
+    <div id="a-ohje-sarakkeet" role="tabpanel" hidden>
+      <dl class="a-ohje-sarake">
+        <dt>Genre</dt>
+        <dd>Rap, Rock, Pop, Iskelmä, Metalli, Elektroninen, Reggae tai Muu.
+          Yksi kullekin artistille, se joka kuvaa parhaiten.</dd>
+        <dd class="a-ohje-tilat">
+          <span class="a-tila">Ei osu</span>
+          <span class="a-tila on-osui">Osuu</span>
+        </dd>
+
+        <dt>Jäseniä</dt>
+        <dd>Kokoonpanon koko. Sooloartisti on 1, duo 2.</dd>
+        <dd class="a-ohje-tilat">
+          <span class="a-tila">Ei osu</span>
+          <span class="a-tila on-lahella">Heittää yhdellä</span>
+          <span class="a-tila on-osui">Osuu</span>
+        </dd>
+
+        <dt>Sukup.</dt>
+        <dd>Mies, Nainen tai Seka. Seka tarkoittaa yhtyettä jossa on sekä
+          miehiä että naisia.</dd>
+        <dd class="a-ohje-tilat">
+          <span class="a-tila">Ei osu</span>
+          <span class="a-tila on-lahella">Seka ja mies tai nainen</span>
+          <span class="a-tila on-osui">Osuu</span>
+        </dd>
+
+        <dt>Kotoisin</dt>
+        <dd>Kunta jossa yhtye perustettiin tai johon artisti yhdistetään,
+          ei välttämättä synnyinpaikka.</dd>
+        <dd class="a-ohje-tilat">
+          <span class="a-tila">Ei osu</span>
+          <span class="a-tila on-lahella">Sama suuralue</span>
+          <span class="a-tila on-osui">Osuu</span>
+        </dd>
+
+        <dt>Debyytti</dt>
+        <dd>Vuosi jolloin artisti julkaisi ensimmäisen levynsä. Nuoli
+          kertoo kumpaan suuntaan oikea vuosi on.</dd>
+        <dd class="a-ohje-tilat">
+          <span class="a-tila">Ei osu</span>
+          <span class="a-tila on-lahella">Viiden vuoden sisällä</span>
+          <span class="a-tila on-osui">Osuu</span>
+        </dd>
+      </dl>
+    </div>
 
     <div class="sheet-actions">
       <button type="button" class="btn btn-accent btn-wide" id="a-ohje-ok">Selvä</button>

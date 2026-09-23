@@ -312,6 +312,10 @@
     aOhjeSheet: $("#a-ohje-sheet"),
     aOhjeScrim: $("#a-ohje-scrim"),
     aOhjeClose: $("#a-ohje-close"),
+    aOhjeValiPeli: $("#a-ohje-vali-peli"),
+    aOhjeValiSarakkeet: $("#a-ohje-vali-sarakkeet"),
+    aOhjePeli: $("#a-ohje-peli"),
+    aOhjeSarakkeet: $("#a-ohje-sarakkeet"),
     aOhjeOk: $("#a-ohje-ok"),
     atOtsikko: $("#at-otsikko"),
     atTeksti: $("#at-teksti"),
@@ -1704,8 +1708,26 @@
    * koska ArtistiSpotti on pelimuoto HittiSpotin sisällä: sen säännöt
    * kuuluvat sinne missä peli on, eivät yhdeksän tuhannen merkin päähän
    * toisen pelin ohjeiden perään. */
+  /* Välilehden vaihto. Auki oleva lehti on aina se jonka nappi on
+   * korostettu, joten tila on yhdessä paikassa eikä kahdessa. */
+  function artistiOhjeVali(peli) {
+    el.aOhjeValiPeli.classList.toggle("on-auki", peli);
+    el.aOhjeValiSarakkeet.classList.toggle("on-auki", !peli);
+    el.aOhjeValiPeli.setAttribute("aria-selected", String(peli));
+    el.aOhjeValiSarakkeet.setAttribute("aria-selected", String(!peli));
+    el.aOhjePeli.hidden = !peli;
+    el.aOhjeSarakkeet.hidden = peli;
+    el.aOhjeSheet.scrollTop = 0;
+  }
+
+  el.aOhjeValiPeli.addEventListener("click", () => artistiOhjeVali(true));
+  el.aOhjeValiSarakkeet.addEventListener("click", () => artistiOhjeVali(false));
+
   function avaaArtistiOhje() {
     store.set(AVAIN.artisti.etuliite + "ohje-nahty", 1);
+    // Aina säännöistä: sarakkeet ovat hakuteos, säännöt ovat se mitä
+    // ensimmäisenä halutaan tietää.
+    artistiOhjeVali(true);
     el.aOhjeScrim.hidden = false;
     el.aOhjeSheet.hidden = false;
     el.body.classList.add("sheet-open");

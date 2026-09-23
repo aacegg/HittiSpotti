@@ -18,13 +18,19 @@ const pala = (h) => { const m = src.match(h); if (!m) throw new Error("ei löyty
 const koodi = `
   ${pala(/const ARTISTI_KENTAT = \[[\s\S]*?\n  \];/)}
   ${pala(/function artistiVertaa\(arvaus, oikea\) \{[\s\S]*?\n  \}/)}
-  return artistiVertaa;`;
-const artistiVertaa = new Function(koodi)();
+  ${pala(/function asetaAakkosjarjestys\(lista\) \{[\s\S]*?\n  \}/)}
+  ${pala(/function artistiAakkosnuoli\(arvaus, oikea\) \{[\s\S]*?\n  \}/)}
+  return { artistiVertaa, asetaAakkosjarjestys, artistiAakkosnuoli };`;
+const { artistiVertaa, asetaAakkosjarjestys, artistiAakkosnuoli } = new Function(koodi)();
 const kaikki = JSON.parse(fs.readFileSync("artistit.json", "utf8"));
+asetaAakkosjarjestys(kaikki);
 
-// Palaute yhtenä merkkijonona, jotta samanlaiset palautteet niputtuvat.
+/* Palaute yhtenä merkkijonona, jotta samanlaiset palautteet niputtuvat.
+   Aakkosnuoli on osa palautetta: pelaaja näkee sen rivillä siinä missä
+   ruudutkin, joten sen on oltava mukana myös mittauksessa. */
 const palaute = (arvaus, oikea) =>
-  artistiVertaa(arvaus, oikea).map((r) => r.tila[0] + r.nuoli).join("|");
+  artistiVertaa(arvaus, oikea).map((r) => r.tila[0] + r.nuoli).join("|")
+  + artistiAakkosnuoli(arvaus, oikea);
 
 // Esilasketaan kaikki palautteet: 246 x 246 on pieni taulukko.
 const idx = new Map(kaikki.map((a, i) => [a.id, i]));

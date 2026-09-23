@@ -15,9 +15,12 @@ const pala = (h) => { const m = src.match(h); if (!m) throw new Error("ei löyty
 const koodi = `
   ${pala(/const ARTISTI_KENTAT = \[[\s\S]*?\n  \];/)}
   ${pala(/function artistiVertaa\(arvaus, oikea\) \{[\s\S]*?\n  \}/)}
-  return { artistiVertaa, ARTISTI_KENTAT };
+  ${pala(/function asetaAakkosjarjestys\(lista\) \{[\s\S]*?\n  \}/)}
+  ${pala(/function artistiAakkosnuoli\(arvaus, oikea\) \{[\s\S]*?\n  \}/)}
+  return { artistiVertaa, ARTISTI_KENTAT, asetaAakkosjarjestys, artistiAakkosnuoli };
 `;
-const { artistiVertaa, ARTISTI_KENTAT } = new Function(koodi)();
+const { artistiVertaa, ARTISTI_KENTAT, asetaAakkosjarjestys, artistiAakkosnuoli } =
+  new Function(koodi)();
 
 let ok = true;
 const vaita = (nimi, ehto, lisa = "") => {
@@ -94,6 +97,46 @@ for (const kentta of ARTISTI_KENTAT) {
     vaita(`${kentta.avain}: ${x} ja ${y} ovat eri arvot`, x !== y);
   }
 }
+
+/* 8. Aakkosnuoli. Se on pelin ainoa uniikki vihje: ilman sitä 246
+      artistista 56 oli sellaisia joista mikään arvaus ei tehnyt eroa,
+      ja pelaaja saattoi nähdä viisi vihreää ja silti "väärin". */
+const lista = JSON.parse(fs.readFileSync("artistit.json", "utf8"));
+asetaAakkosjarjestys(lista);
+const nimella = (n) => lista.find((a) => a.n === n);
+
+vaita("aakkosjärjestys on uniikki",
+  new Set(lista.map((a) => a.jarjestys)).size === lista.length);
+/* Ä ja ö ovat suomen aakkosissa lopussa, mutta vain omalla
+   kohdallaan sanassa: "Yö" on silti ennen "Zen Caféta", koska Y on
+   ennen Z:aa. Vertailu tehdään siis kirjain kerrallaan eikä niin että
+   ääkkönen heittäisi koko sanan loppuun. */
+vaita("ä tulee u:n jälkeen",
+  nimella("Käärijä").jarjestys > nimella("Kuumaa").jarjestys,
+  `Käärijä ${nimella("Käärijä").jarjestys}, Kuumaa ${nimella("Kuumaa").jarjestys}`);
+vaita("y tulee ennen z:aa",
+  nimella("Yö").jarjestys < nimella("Zen Café").jarjestys,
+  `Yö ${nimella("Yö").jarjestys}, Zen Café ${nimella("Zen Café").jarjestys}`);
+vaita("aiempi arvaus saa ylänuolen",
+  artistiAakkosnuoli(nimella("Apulanta"), nimella("Elonkerjuu")) === "▲");
+vaita("myöhempi arvaus saa alanuolen",
+  artistiAakkosnuoli(nimella("Yö"), nimella("Elonkerjuu")) === "▼");
+vaita("osunut arvaus ei saa nuolta",
+  artistiAakkosnuoli(nimella("Elonkerjuu"), nimella("Elonkerjuu")) === "");
+
+/* 9. Kaksi artistia ei saa olla erottamattomia. Nuoli takaa sen, mutta
+      testi vartioi ettei se katoa vahingossa. */
+const profiilit = new Map();
+for (const oikea of lista) {
+  const prof = lista.map((g) =>
+    artistiVertaa(g, oikea).map((r) => r.tila[0] + r.nuoli).join("|")
+    + artistiAakkosnuoli(g, oikea)).join("#");
+  if (!profiilit.has(prof)) profiilit.set(prof, []);
+  profiilit.get(prof).push(oikea.n);
+}
+const siteet = [...profiilit.values()].filter((v) => v.length > 1);
+vaita("yksikään artistipari ei ole erottamaton", siteet.length === 0,
+  siteet.slice(0, 3).map((v) => v.join(" = ")).join(", "));
 
 console.log(ok ? "\nLÄPI" : "\nVIRHEITÄ");
 process.exit(ok ? 0 : 1);

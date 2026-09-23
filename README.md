@@ -379,18 +379,32 @@ yhtään mahdotonta päivää ei ole. Kumpikaan malli ei ole ihminen:
 molemmat tietävät kaikkien 246 artistin debyyttivuodet ja
 jäsenmäärät, joten ne ovat parhaita tapauksia.
 
-**25 artistilla on kaksoisolento.** Täsmälleen samat viisi tietoa on
-12 ryhmällä, esimerkiksi Elastinen ja Pyhimys, Chisu ja ABREU sekä
-Cledos, ibe ja Bizi. Päivän artistilla on siis 10 prosentin
-todennäköisyydellä joku jolta viisi vihreää ei vielä ratkaise peliä.
-Juuri näistä tulevat ne päivät joissa täydellinenkin pelaaja tarvitsee
-kuusi arvausta.
+**Kuudes vihje on nimi.** Arvatun nimen perässä on nuoli, joka kertoo
+onko oikea artisti aakkosissa myöhemmin vai aiemmin. Sama nuolisääntö
+kuin lukuruuduissa: ylänuoli tarkoittaa että oikea arvo on suurempi.
 
-Tätä ei korjata poistamalla artisteja: he ovat oikeita artisteja ja
-samanlaisuus on totta. Ohjeen sarakevälilehdellä sanotaan se ääneen,
-jottei viisi vihreää ja "väärin" näytä rikkinäiseltä pelilta.
-Kuudes attribuutti katkaisisi siteet, mutta viisi saraketta on jo
-puhelimen leveydellä ahdas.
+Tämä ei ole koriste vaan korjaus mitattuun vikaan. Ilman sitä 246
+artistista **56 oli erottamattomia**: mikään arvaus ei tehnyt eroa
+Elastisen ja Pyhimyksen, Chisun ja ABREUn tai Cledosin, iben ja Bizin
+välillä. Pelaaja saattoi nähdä viisi vihreää ja saada silti "väärin",
+mikä näyttää rikkinäiseltä pelilta vaikka on sääntöjen mukaista.
+
+Nimi on ainoa tieto joka on varmasti uniikki, joten se poistaa siteet
+kokonaan eikä uusia voi syntyä artisteja lisättäessä. Vaikutus
+mitattuna:
+
+| | erottamattomia | ratkesi kuudella (satunnainen pelaaja) | keskimäärin |
+|---|---|---|---|
+| ilman nimeä | 56 | 90,0 % | 4,3 |
+| nimen kanssa | **0** | **98,9 %** | 3,6 |
+
+Peli ei muutu aakkoshauksi: pelkällä nuolella eteneminen on binäärihaku
+246 artistiin, mikä vaatii keskimäärin 7 ja pahimmillaan 8 arvausta eli
+enemmän kuin kuusi. Nuoli on siis apu joka on yhdistettävä
+musiikkitietoon, ei oikotie.
+
+Nuoli ei vie saraketta, koska se on nimen perässä eikä ruudukossa.
+Kuudes sarake ei olisi mahtunut puhelimen leveydelle.
 
 **Paljastusanimaatio.** Uusin rivi kääntyy auki ruutu kerrallaan
 vasemmalta oikealle, ja väri tulee näkyviin käännön mukana. Ruudussa on

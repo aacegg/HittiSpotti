@@ -1274,6 +1274,32 @@
     "Ylitornio": "Yli­tor­nio",
   };
 
+  /* Aakkosjärjestys jokaiselle artistille.
+   *
+   * Erillinen kopio järjestettäväksi, koska state.artistit on tunnisteen
+   * mukaan järjestetty ja päivän arvonta nojaa siihen järjestykseen.
+   *
+   * ä ja ö aakkosten loppuun kuten suomessa kuuluu: pelkkä sort ilman
+   * tätä asettaisi ne ääkkösten koodiarvojen mukaan keskelle. */
+  function asetaAakkosjarjestys(lista) {
+    const avain = (n) => n.toLowerCase().replace(/ä/g, "z~").replace(/ö/g, "z~~");
+    lista.slice().sort((x, y) => (avain(x.n) < avain(y.n) ? -1 : 1))
+      .forEach((a, i) => { a.jarjestys = i; });
+  }
+
+  /* Aakkosnuoli: kertoo onko oikea artisti aakkosissa myöhemmin.
+   *
+   * Oma funktionsa eikä piirron sisällä, jotta testit voivat lukea sen
+   * app.js:stä. Sääntö jonka testi kopioi itselleen ei testaa peliä
+   * vaan kopiota.
+   *
+   * Sama nuolisääntö kuin lukuruuduissa: ylänuoli tarkoittaa että oikea
+   * arvo on suurempi, eli aakkosissa myöhempi. Tyhjä kun arvaus osui. */
+  function artistiAakkosnuoli(arvaus, oikea) {
+    if (arvaus.jarjestys === oikea.jarjestys) return "";
+    return arvaus.jarjestys < oikea.jarjestys ? "▲" : "▼";
+  }
+
   /* Yksi arvausrivi verrattuna oikeaan vastaukseen.
    *
    * Palauttaa ruudut, ei valmista HTML:ää: samaa vertailua tarvitsee
@@ -1327,6 +1353,21 @@
         })
         .then((lista) => {
           state.artistit = lista;
+          /* Aakkosjärjestys jokaiselle artistille.
+           *
+           * Tästä tulee kuudes vihje: nuoli arvatun nimen perässä kertoo
+           * onko oikea artisti aakkosissa ennen vai jälkeen. Se on ainoa
+           * tieto joka on varmasti uniikki, joten se poistaa
+           * erottamattomat parit kokonaan: 246 artistista 56 oli
+           * sellaisia joista mikään arvaus ei tehnyt eroa, ja pelaaja
+           * saattoi nähdä viisi vihreää ja silti "väärin".
+           *
+           * Erillinen kopio, koska state.artistit on tunnisteen mukaan
+           * järjestetty ja päivän arvonta nojaa siihen järjestykseen.
+           *
+           * ä ja ö aakkosten loppuun kuten suomessa kuuluu: pelkkä
+           * localeCompare ilman kieltä antaisi selaimen oletuksen. */
+          asetaAakkosjarjestys(state.artistit);
           state.artistit.forEach((a) => {
             const alias = ARTISTI_ALIAKSET[a.n];
             a.haku = normalize(a.n + (alias ? " " + alias : ""));
@@ -1408,7 +1449,17 @@
         return `<div class="a-ruutu${luokka}" style="--i:${i}"><span>${escapeHtml(teksti)}</span>${nuoli}</div>`;
       }).join("");
       const animoi = uusi && rivi === viimeinen ? " on-uusi" : "";
-      return `<li><p class="a-artisti">${escapeHtml(arvaus.n)}</p>
+      /* Aakkosnuoli vain väärälle arvaukselle: oikean kohdalla ei ole
+       * mitään suuntaa eikä peli enää jatku.
+       *
+       * Sama sääntö kuin lukuruuduissa: ylänuoli tarkoittaa että oikea
+       * arvo on suurempi, eli tässä aakkosissa myöhempi. Kaksi eri
+       * nuolisääntöä samassa pelissä olisi yksi liikaa. */
+      const nuoli2 = artistiAakkosnuoli(arvaus, artistiTila.oikea);
+      const suunta = !nuoli2 ? ""
+        : ` <span class="a-aakkoset" title="Oikea artisti on aakkosissa ${
+            nuoli2 === "▲" ? "myöhemmin" : "aiemmin"}">${nuoli2}</span>`;
+      return `<li><p class="a-artisti">${escapeHtml(arvaus.n)}${suunta}</p>
         <div class="a-rivi${animoi}">${solut}</div></li>`;
     });
     el.aRivit.innerHTML = rivit.join("");

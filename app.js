@@ -307,10 +307,22 @@
     aLoppu: $("#a-loppu"),
     aLoppuOtsikko: $("#a-loppu-otsikko"),
     aLoppuTeksti: $("#a-loppu-teksti"),
+    aTulokset: $("#a-tulokset"),
+    atOtsikko: $("#at-otsikko"),
+    atTeksti: $("#at-teksti"),
+    atPelatut: $("#at-pelatut"),
+    atVoitto: $("#at-voitto"),
+    atPutki: $("#at-putki"),
+    atPisin: $("#at-pisin"),
+    atJakauma: $("#at-jakauma"),
+    atKorttiYla: $("#at-kortti-ylä"),
+    atKorttiRivit: $("#at-kortti-rivit"),
+    atJaa: $("#at-jaa"),
     views: {
       game: $("#view-game"),
       results: $("#view-results"),
       artisti: $("#view-artisti"),
+      artistitulos: $("#view-artisti-tulos"),
       stats: $("#view-stats"),
       help: $("#view-help"),
       loading: $("#view-loading"),
@@ -1291,6 +1303,9 @@
 
   function tallennaArtisti() {
     if (!artistiTila.pvm) return;
+    // Luetaan ennen kirjoitusta: tilastot kirjataan vain kerran päivässä,
+    // ja tallenteen olemassaolo on se mikä kertoo päivän jo kirjatuksi.
+    const jo = !!store.get(AVAIN.artisti.tulos(artistiTila.pvm), null);
     const avain = artistiTila.ohi
       ? AVAIN.artisti.tulos(artistiTila.pvm)
       : AVAIN.artisti.kesken(artistiTila.pvm);
@@ -1299,6 +1314,7 @@
       voitto: artistiTila.voitto,
     });
     if (artistiTila.ohi) store.remove(AVAIN.artisti.kesken(artistiTila.pvm));
+    if (artistiTila.ohi && !jo) kirjaaArtistiTilastot();
   }
 
   function artistiArvaa(artisti) {
@@ -1319,6 +1335,163 @@
       lahetaArtisti(artistiTila.pvm,
         artistiTila.voitto ? artistiTila.arvaukset.length : 0);
     }
+  }
+
+  /* ---------- ArtistiSpotin tilastot ja tuloskortti ----------
+   *
+   * Omat lukunsa eikä biisipelin tilastoihin liitettyjä: tämä on eri peli
+   * samalla sivulla. Pisteitä ei ole, joten mitattavaa on kolme: monenako
+   * päivänä pelattu, moniko ratkesi, ja monellako arvauksella. */
+  const ARTISTI_MERKIT = { osui: "🟩", lahella: "🟨", ohi: "⬛" };
+
+  function artistiOletustilastot() {
+    return {
+      pelatut: 0,      // päiviä pelattu loppuun
+      voitot: 0,
+      putki: 0,        // peräkkäisiä ratkaistuja päiviä
+      pisin: 0,
+      viimeisin: "",   // viimeisin RATKAISTU päivä, putken jatkoa varten
+      jakauma: [0, 0, 0, 0, 0, 0],
+    };
+  }
+
+  function artistiTilastot() {
+    const s = { ...artistiOletustilastot(),
+                ...store.get(AVAIN.artisti.stats, {}) };
+    /* Jakauma rakennetaan aina uusiksi oikean mittaisena. Tallenteesta voi
+     * tulla mitä tahansa: vanhempi versio, käsin muokattu localStorage tai
+     * puuttuva kenttä, eikä piirto saa kaatua siihen. */
+    const j = Array.isArray(s.jakauma) ? s.jakauma : [];
+    s.jakauma = Array.from({ length: ARTISTI_ARVAUKSIA },
+      (_, i) => Number(j[i]) || 0);
+    return s;
+  }
+
+  function kirjaaArtistiTilastot() {
+    const s = artistiTilastot();
+    s.pelatut += 1;
+    if (artistiTila.voitto) {
+      s.voitot += 1;
+      s.jakauma[artistiTila.arvaukset.length - 1] += 1;
+    }
+    /* Putki lasketaan pelatusta päivästä eikä kellosta, samoin kuin
+     * biisipelissä: keskiyön yli pelattu päivä kuuluu sille päivälle jonka
+     * artistista on kyse. */
+    const edellinen = keyToDate(artistiTila.pvm);
+    edellinen.setDate(edellinen.getDate() - 1);
+    if (!artistiTila.voitto) {
+      // Väärin mennyt päivä katkaisee putken, ei jätä sitä roikkumaan.
+      s.putki = 0;
+      s.viimeisin = "";
+    } else {
+      s.putki = s.viimeisin === dayKey(edellinen) ? s.putki + 1 : 1;
+      s.viimeisin = artistiTila.pvm;
+      s.pisin = Math.max(s.pisin, s.putki);
+    }
+    store.set(AVAIN.artisti.stats, s);
+  }
+
+  /* Jaettava teksti. Sama vertailu kuin ruudukossa, koska merkit luetaan
+   * artistiVertaa():sta eikä DOM:ista: jaettu tulos ei voi erota siitä
+   * mitä pelaaja näki. Sarakeotsikoita ei ole mukana, koska ne
+   * paljastaisivat vastaajalle mitä kukin ruutu tarkoittaa ennen kuin hän
+   * on itse pelannut. */
+  function artistiJakoteksti() {
+    const n = artistiTila.arvaukset.length;
+    const rivit = [
+      `🎤 ArtistiSpotti · ${keyToDate(artistiTila.pvm).toLocaleDateString("fi-FI")}`,
+      `${artistiTila.voitto ? n : "X"}/${ARTISTI_ARVAUKSIA}`,
+      "",
+    ];
+    for (const arvaus of artistiTila.arvaukset) {
+      rivit.push(artistiVertaa(arvaus, artistiTila.oikea)
+        .map((r) => ARTISTI_MERKIT[r.tila]).join(""));
+    }
+    rivit.push("");
+    rivit.push(jaettavaOsoite());
+    return rivit.join("\n");
+  }
+
+  async function jaaArtisti() {
+    const teksti = artistiJakoteksti();
+    /* Natiivi jako ensin, leikepöytä varalle. Sama järjestys kuin
+     * biisipelissä: puhelimessa jako avaa sovellusvalikon, työpöydällä
+     * sitä ei yleensä ole ja kopiointi on ainoa mikä toimii. */
+    if (navigator.share) {
+      try {
+        await navigator.share({ text: teksti });
+        return;
+      } catch (e) {
+        // Oma peruutus ei ole virhe eikä ansaitse ilmoitusta.
+        if (e && e.name === "AbortError") return;
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(teksti);
+      toast("Tulos kopioitu leikepöydälle.");
+    } catch {
+      toast("Kopiointi ei onnistunut.");
+    }
+  }
+
+  function piirraArtistiTulos() {
+    const s = artistiTilastot();
+    const n = artistiTila.arvaukset.length;
+    el.atOtsikko.textContent = artistiTila.voitto ? "Oikein!" : "Ei osunut";
+    el.atTeksti.textContent = artistiTila.voitto
+      ? `Päivän artisti oli ${artistiTila.oikea.n}. Arvauksia ${n}/${ARTISTI_ARVAUKSIA}.`
+      : `Päivän artisti oli ${artistiTila.oikea.n}.`;
+
+    /* Putki näytetään nollana, jos viimeisin ratkaistu päivä ei ole tämä
+     * eikä eilinen. Luku on tallessa muuttumattomana, mutta katkennutta
+     * putkea ei saa näyttää elävänä. */
+    const eilen = new Date();
+    eilen.setDate(eilen.getDate() - 1);
+    const putki = (s.viimeisin === todayKey() || s.viimeisin === dayKey(eilen))
+      ? s.putki : 0;
+    el.atPelatut.textContent = s.pelatut;
+    el.atVoitto.textContent = s.pelatut
+      ? Math.round((s.voitot / s.pelatut) * 100) : 0;
+    el.atPutki.textContent = putki;
+    el.atPisin.textContent = s.pisin;
+
+    /* Palkit suhteessa suurimpaan koriin, ei pelattuihin päiviin: yksikin
+     * pelattu päivä antaa täyden palkin, mikä on juuri mitä Wordlekin
+     * tekee. Tyhjät korit jäävät nollan levyisiksi mutta pysyvät rivissä,
+     * jotta jakauman muoto näkyy. */
+    const suurin = Math.max(1, ...s.jakauma);
+    const oma = artistiTila.voitto ? n : 0;
+    el.atJakauma.innerHTML = s.jakauma.map((maara, i) => {
+      const leveys = Math.round((maara / suurin) * 100);
+      const luokka = i + 1 === oma ? " on-oma" : "";
+      return `<div class="at-rivi"><span class="at-nro">${i + 1}</span>
+        <span class="at-palkki${luokka}" style="width:${leveys}%">${maara}</span></div>`;
+    }).join("");
+
+    el.atKorttiYla.textContent =
+      `ArtistiSpotti · ${keyToDate(artistiTila.pvm).toLocaleDateString("fi-FI")} · `
+      + `${artistiTila.voitto ? n : "X"}/${ARTISTI_ARVAUKSIA}`;
+    /* Kortissa vain värit, ei tekstiä. Se on sama ruudukko jonka pelaaja
+     * jakaa, ja arvattujen artistien nimet jäävät pois samasta syystä kuin
+     * jakotekstistäkin. */
+    el.atKorttiRivit.innerHTML = artistiTila.arvaukset.map((arvaus) => {
+      const solut = artistiVertaa(arvaus, artistiTila.oikea).map((r) => {
+        const luokka = r.tila === "osui" ? " on-osui"
+                     : r.tila === "lahella" ? " on-lahella" : "";
+        return `<div class="a-ruutu${luokka}"></div>`;
+      }).join("");
+      return `<div class="a-rivi">${solut}</div>`;
+    }).join("");
+  }
+
+  /* Tulosnäkymä aukeaa vain ratkaistusta päivästä. Kesken oleva sarja veisi
+   * sinne tyhjän kortin ja kertoisi vastauksen tilastorivin vierestä. */
+  async function avaaArtistiTulos() {
+    await lataaArtistit();
+    if (!artistiTila.pvm) await avaaArtisti();
+    if (!artistiTila.ohi) { await avaaArtisti(); return; }
+    show("artistitulos");
+    piirraArtistiTulos();
   }
 
   /* Päivän artistin avaaminen. Palauttaa kesken jääneen sarjan samasta
@@ -1387,6 +1560,9 @@
     const li = e.target.closest("li[data-i]");
     if (li) valitseArtisti(artistiEhdokkaat[Number(li.dataset.i)]);
   });
+
+  el.aTulokset.addEventListener("click", () => { avaaArtistiTulos(); });
+  el.atJaa.addEventListener("click", () => { jaaArtisti(); });
 
   function valitseArtisti(a) {
     if (!a) return;
@@ -3565,6 +3741,7 @@
     if (target === "daily") await startDaily();
     else if (target === "free") await startFree();
     else if (target === "artisti") await avaaArtisti();
+    else if (target === "artistitulos") await avaaArtistiTulos();
     else if (target === "stats") show("stats");
     else if (target === "help") show("help");
     else if (target === "back") show(state.rounds.length ? "game" : "results");

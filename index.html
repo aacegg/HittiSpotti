@@ -410,8 +410,37 @@
       <div class="a-loppu" id="a-loppu" hidden>
         <h3 id="a-loppu-otsikko"></h3>
         <p id="a-loppu-teksti"></p>
-        <button type="button" class="btn btn-primary" id="a-tulokset">Tulokset</button>
+        <button type="button" class="btn btn-accent" id="a-tulokset">Tulokset</button>
       </div>
+    </section>
+
+    <!-- ArtistiSpotin tulosnäkymä. Omat tilastot ja oma jakoteksti:
+         luvut eivät kohtaa biisipelin tilastojen kanssa missään. -->
+    <section id="view-artisti-tulos" class="view view-artisti" hidden>
+      <div class="a-ylä">
+        <h2 class="a-nimi" id="at-otsikko"></h2>
+        <p class="a-pvm" id="at-teksti"></p>
+      </div>
+
+      <h3 class="at-osio">Tilastot</h3>
+      <div class="at-luvut">
+        <div><b id="at-pelatut">0</b><span>Pelattu</span></div>
+        <div><b id="at-voitto">0</b><span>Voitto&nbsp;%</span></div>
+        <div><b id="at-putki">0</b><span>Putki</span></div>
+        <div><b id="at-pisin">0</b><span>Pisin putki</span></div>
+      </div>
+
+      <h3 class="at-osio">Arvausjakauma</h3>
+      <div id="at-jakauma"></div>
+
+      <h3 class="at-osio">Tuloskortti</h3>
+      <div class="at-kortti">
+        <p class="at-kortti-ylä" id="at-kortti-ylä"></p>
+        <div id="at-kortti-rivit"></div>
+      </div>
+
+      <button type="button" class="btn btn-accent at-jaa" id="at-jaa">Jaa tulos</button>
+      <button type="button" class="btn at-takaisin" data-go="artisti">Takaisin ruudukkoon</button>
     </section>
 
     <section id="view-stats" class="view" hidden>

@@ -311,6 +311,14 @@ Mitä pitää ratkaista ennen kuin koodia kirjoitetaan:
   pistettä 13 korissa, artistipelissä monellako arvauksella ratkesi
   eli 1-6 tai ei lainkaan. **Vaatii migraation:**
   `npx wrangler d1 execute hittispotti --remote --file=palvelin/migraatio-artisti.sql`
-- Tilastonäkymä ja jakoteksti tarvitsevat oman osionsa.
+- ~~Tilastonäkymä ja jakoteksti.~~ **tehty.** Oma näkymä
+  `#view-artisti-tulos` ja omat tilastot avaimessa `artisti:stats`:
+  pelatut, voitot, putki, pisin putki ja jakauma kuudessa korissa.
+  Pisteitä ei ole missään, koska artistipelissä ei ole pisteitä.
+  Jakoteksti on Wordlen muotoa (🟩 osui, 🟨 numero lähellä, ⬛ ohi) ja
+  se kootaan samasta `artistiVertaa()`:sta kuin ruudukko, ei DOM:ista
+  luetuista väreistä. Arvattujen artistien nimet ja sarakeotsikot
+  jäävät pois: jaettu tulos ei saa paljastaa vastaanottajalle mitä
+  ruudut tarkoittavat ennen kuin hän on itse pelannut.
 - `state`-olio on nyt yhden pelin muotoinen (rounds, at, score). Kannattaa
   miettiä kumpi on halvempi: erillinen tila artistipelille vai yhteinen.

@@ -1200,11 +1200,17 @@
    * Pari luetaan kumpaankin suuntaan: arvaus Seka oikean Miehen kohdalla
    * on yhtä lailla osittain oikein kuin toisin päin. */
   const ARTISTI_KENTAT = [
-    /* Metalli on rockin alalaji, joten ne ovat osittain sama asia. Tämä
-     * on ainoa genrepari joka otetaan mukaan: muut olisivat makuasioita,
-     * ja väärä sukulaisuus olisi pahempi kuin puuttuva keltainen, koska
-     * pelaaja päättelee siitä väärään suuntaan. */
-    { avain: "g", otsikko: "Genre", osittain: [["Rock", "Metalli"]] },
+    /* Genressä ei ole osittaista osumaa.
+     *
+     * Rock ja metalli oli hetken mukana sillä perusteella että metalli on
+     * rockin alalaji. Se ei kuitenkaan noudata samaa sääntöä kuin muut
+     * keltaiset: niissä arvattu arvo SISÄLTYY oikeaan (sekayhtyeessä on
+     * miehiä, "molemmat" sisältää suomen), mikä on logiikkaa eikä
+     * mielipidettä. Rock ei sisällä metallia tässä datassa, vaan ne ovat
+     * rinnakkaisia koreja jotka erotettiin toisistaan juuri siksi että
+     * ne ovat eri asioita. Mitattuna se toi 0,2 keltaista peliin, eli
+     * koko hyöty tuli niistä kahdesta joista ei voi olla eri mieltä. */
+    { avain: "g", otsikko: "Genre" },
     { avain: "j", otsikko: "Jäseniä", luku: true, lahella: 1 },
     { avain: "s", otsikko: "Sukup.",
       osittain: [["Seka", "Mies"], ["Seka", "Nainen"]] },

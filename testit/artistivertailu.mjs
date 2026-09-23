@@ -62,15 +62,18 @@ vaita("molemmilla kielillä on osittain suomeksi",
   rivi(tee("Pop", 9, "Nainen", "Molemmat", 1800), oikea)[3] === "K");
 vaita("ruotsi ei ole osittain suomi",
   rivi(tee("Pop", 9, "Nainen", "Ruotsi", 1800), oikea)[3] === "-");
-vaita("metalli on osittain rock",
-  rivi(tee("Metalli", 9, "Nainen", "Ruotsi", 1800), oikea)[0] === "K");
+/* Genressä ei ole osittaista osumaa lainkaan: vain täysosuma on vihreä
+   ja kaikki muu mustaa. Metalli oli hetken rockin kanssa keltainen, ja
+   tämä on se testi joka kaatuu jos sellainen palaa takaisin. */
+vaita("metalli ei ole osittain rock",
+  rivi(tee("Metalli", 9, "Nainen", "Ruotsi", 1800), oikea)[0] === "-");
 vaita("pop ei ole osittain rock",
   rivi(tee("Pop", 9, "Nainen", "Ruotsi", 1800), oikea)[0] === "-");
 
 // 5. Osittaisuus toimii kumpaankin suuntaan
-const sekaOikea = tee("Metalli", 3, "Seka", "Molemmat", 2012);
+const sekaOikea = tee("Rock", 3, "Seka", "Molemmat", 2012);
 vaita("mies on osittain sekayhtye",
-  rivi(tee("Rock", 3, "Mies", "Suomi", 2012), sekaOikea) === "KVKKV",
+  rivi(tee("Rock", 3, "Mies", "Suomi", 2012), sekaOikea) === "VVKKV",
   rivi(tee("Rock", 3, "Mies", "Suomi", 2012), sekaOikea));
 
 // 6. Pari ei saa olla itsensä kanssa osittainen: se söisi vihreän.

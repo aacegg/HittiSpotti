@@ -280,15 +280,37 @@ mustavalkoisia. Niissä on kuitenkin aitoa osittaista osumaa:
   laulava (ruotsi ja instrumentaali eivät kuulu tähän)
 - metalli on rockin alalaji
 
-Nämä ovat samaa tietoa kuin "vuosi menee viisi pieleen" eivätkä keksittyä
-sukulaisuutta. Genrestä otettiin vain rock ja metalli: muut parit
-olisivat makuasioita, ja väärä sukulaisuus on pahempi kuin puuttuva
-keltainen, koska pelaaja päättelee siitä väärään suuntaan. Iskelmä ja
-pop olisi seuraava harkittava, mutta sitä ei ole päätetty.
+Sääntö on: **keltainen tarkoittaa että arvattu arvo sisältyy oikeaan**,
+tai lukukentässä että se on riittävän lähellä. Se on logiikkaa eikä
+mielipidettä.
 
-Muutoksen jälkeen keltaisia on kuuden arvauksen pelissä keskimäärin 3,0
-aiemman 1,7 sijaan, ja ilman yhtään keltaista jää 10 % peleistä aiemman
+Genressä ei siksi ole osittaista osumaa. Rock ja metalli oli hetken
+mukana sillä perusteella että metalli on rockin alalaji, mutta se ei
+noudata samaa sääntöä: rock ei sisällä metallia tässä datassa, vaan ne
+ovat rinnakkaisia koreja jotka erotettiin toisistaan juuri siksi että ne
+ovat eri asioita. Mitattuna pari toi 0,2 keltaista peliin. Pop ja
+iskelmä harkittiin ja hylättiin: iskelmäkorissa ovat Olavi Virta,
+Annikki Tähti ja Reijo Taipale, eikä keltainen popin kohdalla osoittaisi
+pelaajaa oikeaan vaan väärään suuntaan.
+
+Muutoksen jälkeen keltaisia on kuuden arvauksen pelissä keskimäärin 2,8
+aiemman 1,7 sijaan, ja ilman yhtään keltaista jää 12 % peleistä aiemman
 21 %:n sijaan. Vertailu on testattu, ks. `testit/artistivertailu.mjs`.
+
+**Attribuuttien mitattu teho.** Kuinka suuri osa artisteista sopii yhä
+vastaukseksi sen jälkeen kun yksi satunnainen arvaus on annettu ja
+katsotaan vain tätä saraketta:
+
+| sarake | vihreä | keltainen | jäljelle jää |
+|---|---|---|---|
+| debyytti | 3 % | 17 % | 50 % |
+| jäsenmäärä | 44 % | 10 % | 53 % |
+| sukupuoli | 56 % | 13 % | 60 % |
+| genre | 21 % | 0 % | 68 % |
+| laulukieli | 74 % | 6 % | 75 % |
+
+Laulukieli on selvästi heikoin, koska 211 artistia 247:stä laulaa
+suomeksi. Se on silti mukana, koska se on päätetty pitää.
 
 **Paljastusanimaatio.** Uusin rivi kääntyy auki ruutu kerrallaan
 vasemmalta oikealle, ja väri tulee näkyviin käännön mukana. Ruudussa on

@@ -1150,7 +1150,12 @@ button.tchip:hover { color: var(--text); }
 
 /* Alleviivattu kenttä laatikon sijaan: rivi näyttää siltä, että siihen
    kirjoitetaan, eikä kilpaile napin kanssa huomiosta. */
-#guess-input {
+/* Molempien pelien arvauskenttä. ArtistiSpotin kentällä oli luokka
+   "input", jota ei ole tyyleissä lainkaan, joten se piirtyi selaimen
+   oletuksilla: harmaa laatikko, järjestelmäkirjasin ja oletusleveys
+   kesken sivun. */
+#guess-input,
+#a-input {
   width: 100%;
   padding: var(--s4) 0;
   border: 0;
@@ -1162,8 +1167,10 @@ button.tchip:hover { color: var(--text); }
   outline: none;
   transition: border-color .15s ease;
 }
-#guess-input:focus { border-bottom-color: var(--live); }
-#guess-input::placeholder { color: var(--dim); }
+#guess-input:focus,
+#a-input:focus { border-bottom-color: var(--live); }
+#guess-input::placeholder,
+#a-input::placeholder { color: var(--dim); }
 #guess-input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none;
   width: 17px; height: 17px; margin-left: var(--s3); cursor: pointer;
   background: var(--muted);

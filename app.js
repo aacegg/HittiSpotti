@@ -1379,7 +1379,10 @@
       pisteet.push([p, a]);
     }
     pisteet.sort((x, y) => y[0] - x[0] || x[1].n.localeCompare(y[1].n, "fi"));
-    return pisteet.slice(0, 40).map((x) => x[1]);
+    /* Kahdeksan eikä neljäkymmentä. Lista mahtuu ruudulle ilman
+     * vieritystä, ja pidempi lista on joka tapauksessa väärä työkalu:
+     * jos oikeaa ei näy, kirjoittaa yhden kirjaimen lisää. */
+    return pisteet.slice(0, 8).map((x) => x[1]);
   }
 
   /* Paljastuksen kesto: viimeinen ruutu alkaa kääntyä 4 * 110 ms kohdalla
@@ -1677,7 +1680,7 @@
       return;
     }
     el.aEhdotukset.innerHTML = lista.map((a, i) =>
-      `<li role="option" data-i="${i}"><span class="s-title">${escapeHtml(a.n)}</span></li>`
+      `<li class="suggestion" role="option" data-i="${i}"><span class="s-title">${escapeHtml(a.n)}</span></li>`
     ).join("");
     el.aEhdotukset.hidden = false;
     artistiEhdokkaat = lista;

@@ -178,7 +178,9 @@ def julkaisuvuodet(mbid: str):
         pvm = r.get("first-release-date") or ""
         if len(pvm) >= 4 and pvm[:4].isdigit():
             v = int(pvm[:4])
-            if 1900 < v <= 2100:
+            # Alaraja 1850 eikä 1900, jotta 1800-luvun julkaisut eivät
+            # katoa. Aineistossa on Jean Sibelius, joka debytoi 1892.
+            if 1850 < v <= 2100:
                 vuodet.append(v)
     return sorted(vuodet) or None
 
@@ -571,7 +573,7 @@ def main() -> int:
         for i, k in enumerate(kesken, 1):
             vuodet = julkaisuvuodet(tiedot[k]["mbid"])
             tiedot[k]["julkaisuvuodet"] = vuodet
-            if vuodet:
+            if vuodet and "debyytti" not in (tiedot[k].get("kasin") or []):
                 tiedot[k]["debyytti"] = min(vuodet)
             print(f"  {i}/{len(kesken)}  {tiedot[k]['nimi']}: "
                   f"{len(vuodet) if vuodet else 0} julkaisua "
@@ -663,7 +665,8 @@ def main() -> int:
             })
             vuodet = julkaisuvuodet(mb["id"])
             tiedot[k]["julkaisuvuodet"] = vuodet
-            tiedot[k]["debyytti"] = min(vuodet) if vuodet else None
+            if "debyytti" not in (tiedot[k].get("kasin") or []):
+                tiedot[k]["debyytti"] = min(vuodet) if vuodet else None
             print(f"  {i}/{len(kesken)}  {nimi} -> {mb.get('name')} "
                   f"({mb.get('type')}, {tiedot[k]['debyytti']}, "
                   f"{len(tiedot[k]['tagit'])} tagia)", file=sys.stderr)

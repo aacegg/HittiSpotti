@@ -59,7 +59,8 @@ SALLITUT = {
 # Lukuarvoiset kentät. Jäsenmäärä on luku eikä luokka, koska peli
 # vertailee sitä nuolella kuten debyyttivuotta, ja kokoonpano johdetaan
 # siitä: 1 on soolo, 2 duo, 3 tai enemmän yhtye.
-LUVUT = {"jasenluku": (1, 30), "debyytti": (1900, 2100)}
+# Alaraja 1850 eikä 1900: Jean Sibelius debytoi 1892.
+LUVUT = {"jasenluku": (1, 30), "debyytti": (1850, 2100)}
 
 # Sama asia eri sanoin. Lista kirjoitetaan käsin, joten arvo voi olla
 # pienellä tai eri muodossa: "ei laulukieltä" on instrumentaali.
@@ -153,6 +154,13 @@ def main() -> int:
             continue
         muuttui.append((tiedot[k]["nimi"], tiedot[k].get(a.kentta), arvo))
         tiedot[k][a.kentta] = arvo
+        # Merkitään käsin asetetuksi, jotta hakukierros ei ylikirjoita.
+        # debyytti tulee muuten MusicBrainzin julkaisuvuosista, ja
+        # seuraava --julkaisut palauttaisi käsin korjatun arvon takaisin
+        # ilman että kukaan huomaa.
+        kasin = tiedot[k].setdefault("kasin", [])
+        if a.kentta not in kasin:
+            kasin.append(a.kentta)
 
     for nimi in tuntematon_nimi:
         print(f"TUNTEMATON NIMI: {nimi}", file=sys.stderr)

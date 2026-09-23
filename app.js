@@ -1317,13 +1317,37 @@
         .then((lista) => {
           state.artistit = lista;
           state.artistit.forEach((a) => {
-            a.haku = normalize(a.n);
+            const alias = ARTISTI_ALIAKSET[a.n];
+            a.haku = normalize(a.n + (alias ? " " + alias : ""));
+            /* Toinen avain ilman heittomerkkiä. normalize tekee
+             * heittomerkistä välin, joten "Waldo's People" on siellä
+             * muodossa "waldo s people" eikä "waldos people" osu siihen
+             * lainkaan. Sama koskee Bomfunk MC's:ää. */
+            a.haku2 = normalize((a.n + (alias ? " " + alias : ""))
+              .replace(/['\u2019]/g, ""));
           });
         })
         .catch((e) => { artistiLataus = null; throw e; });
     }
     return artistiLataus;
   }
+
+  /* Hakunimet joilla artisti tunnetaan mutta joita ei ole listalla.
+   *
+   * Pelaaja kirjoittaa sen nimen jonka hän muistaa, ei sitä jonka
+   * valitsimme listalle. "Tarja Turunen" ei osunut mihinkään, koska
+   * listalla lukee "Tarja", ja "Anna Abreu" ei osunut koska listalla
+   * lukee "ABREU". Kumpikin näytti pelaajalle siltä että artistia ei
+   * ole pelissä.
+   *
+   * Vain haku. Ruudukko, jakoteksti ja arvonta käyttävät listan omaa
+   * nimeä kuten ennenkin, eikä tämä voi vaikuttaa päivän artistiin. */
+  const ARTISTI_ALIAKSET = {
+    "Tarja": "Tarja Turunen",
+    "ABREU": "Anna Abreu",
+    "Vesala": "Paula Vesala",
+    "Stig": "Stig Dogg",
+  };
 
   function artistiEhdotukset(teksti) {
     const q = normalize(teksti);
@@ -1334,11 +1358,12 @@
     for (const a of state.artistit) {
       if (arvatut.has(a.id)) continue;          // jo arvattua ei tarjota
       const raakaOsuu = raaka.length > 0 && a.n.toLowerCase().includes(raaka);
-      if (!q ? !raakaOsuu : !(a.haku.includes(q) || raakaOsuu)) continue;
+      const osuu = a.haku.includes(q) || a.haku2.includes(q);
+      if (!q ? !raakaOsuu : !(osuu || raakaOsuu)) continue;
       let p = 0;
-      if (a.haku === q) p += 120;
+      if (a.haku === q || a.haku2 === q) p += 120;
       if (raakaOsuu) p += 40;
-      if (a.haku.startsWith(q)) p += 30;
+      if (a.haku.startsWith(q) || a.haku2.startsWith(q)) p += 30;
       p -= Math.min(10, a.n.length / 4);        // lyhyempi nimi ensin
       pisteet.push([p, a]);
     }

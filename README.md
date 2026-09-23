@@ -45,6 +45,28 @@ python3 -m http.server 8000
 
 Avaa sitten <http://localhost:8000>. Mikä tahansa muu staattinen palvelin (esim. `npx serve`) käy yhtä hyvin.
 
+## Testisivu
+
+<https://hittispotti-testi.hittispotti.workers.dev>
+
+Kehityshaaran oma osoite. `claude/`-alkuiseen haaraan työntäminen ajaa
+`.github/workflows/testisivu.yml`:n, joka julkaisee haaran erilliseen
+Workeriin `hittispotti-testi`. Tuotantoon se ei voi koskea: liipaisin on
+rajattu `claude/`-haaroihin, `julkaise.yml` ajetaan vain mainista, ja
+Workerin nimi tarkistetaan vielä ennen julkaisua.
+
+Testisivu on irti oikeista luvuista. Julkaistavasta kopiosta riisutaan
+kävijälaskuri ja tilastopalvelimen osoite (`PALVELIN = ""`), joten
+testiklikkailu ei näy GoatCounterissa eikä testipelaaminen mene siihen
+pelidataan josta vaikeustasot johdetaan. Samasta syystä testisivu ei ota
+yhteyttä palvelimen päätepisteisiin lainkaan, eli ArtistiSpottia voi
+kokeilla siellä ennen kuin `paiva_artisti`-taulun migraatio on ajettu.
+Hakukoneilta sivu on suljettu `_headers`- ja `robots.txt`-tiedostoilla.
+
+Välimuistista ei tarvitse huolehtia: jokainen ajo saa oman
+versioleimansa commitista (esim. `v=121tccc3dd1`), joten service worker
+ei tarjoile edellisen ajon tiedostoja.
+
 ## Julkaisu GitHub Pagesiin
 
 1. Avaa repon **Settings → Pages**.

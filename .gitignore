@@ -9,3 +9,6 @@ puuttuvat-biisit.txt
 
 # Äänitasojen mittausvälimuisti: johdettavissa esikuunteluista.
 .aanitasot.json
+
+# Ylläpidon artistidata. Peli lukee artistit.json:in, ei tätä.
+.artistit.json

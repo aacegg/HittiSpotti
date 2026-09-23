@@ -221,6 +221,17 @@ Samassa sovelluksessa on myös etuja jotka painavat enemmän:
 - yksi AdSense-sivusto, ei uutta hyväksyntää
 - kaksi päivittäistä peliä pidentää käyntiä eli lisää mainosnäyttöjä
 
+**Perussääntö: Päivän artisti on kokonaan eri peli.** Se on samalla
+sivulla ja samassa sovelluksessa, mutta siinä kaikki yhteys loppuu.
+Pisteet, tilastot, putki, tallennusavaimet, palvelinkooste ja jakoteksti
+ovat omansa eivätkä vaikuta Päivän biiseihin millään tavalla. Myöskään
+artistijoukkoa ei johdeta biisikatalogista. Tämä on kirjattu tähän
+siksi, että se on jouduttu sanomaan kolmesti.
+
+Seuraus, joka on helppo unohtaa: **artistipelissä ei ole pisteitä
+lainkaan.** Tulos on se monellako arvauksella artisti ratkesi, 1-6 tai
+ei lainkaan. Pisteytys olisi lainaa biisipelistä eikä toisi mitään.
+
 **Päätetyt asiat 22.9.2026:**
 
 - Artistijoukko: ne joilla on katalogissa vähintään kolme biisiä, eli

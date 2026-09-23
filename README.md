@@ -365,6 +365,33 @@ ei katoa tilastojen nollauksessa.
 joskus saada rajattoman version omaan osoitteeseensa. Päivän peli
 pysyisi silloin täällä pelimuotona ja unlimited olisi erillinen.
 
+**Kuusi arvausta riittää, mitattuna.** `testit/vaikeus.mjs` pelaa
+jokaisen 246 päivän läpi kahdella pelaajamallilla, jotka lukevat
+vertailun app.js:stä:
+
+| pelaaja | ratkesi kuudella | keskimäärin |
+|---|---|---|
+| täydellinen (minimoi pahimman jäännösjoukon) | 100 % | 3,5 |
+| satunnainen (arvaa jonkin vihjeisiin sopivan) | 90 % | 4,3 |
+
+Täydellinen pelaaja ei tarvitse kertaakaan yli kuutta arvausta, eli
+yhtään mahdotonta päivää ei ole. Kumpikaan malli ei ole ihminen:
+molemmat tietävät kaikkien 246 artistin debyyttivuodet ja
+jäsenmäärät, joten ne ovat parhaita tapauksia.
+
+**25 artistilla on kaksoisolento.** Täsmälleen samat viisi tietoa on
+12 ryhmällä, esimerkiksi Elastinen ja Pyhimys, Chisu ja ABREU sekä
+Cledos, ibe ja Bizi. Päivän artistilla on siis 10 prosentin
+todennäköisyydellä joku jolta viisi vihreää ei vielä ratkaise peliä.
+Juuri näistä tulevat ne päivät joissa täydellinenkin pelaaja tarvitsee
+kuusi arvausta.
+
+Tätä ei korjata poistamalla artisteja: he ovat oikeita artisteja ja
+samanlaisuus on totta. Ohjeen sarakevälilehdellä sanotaan se ääneen,
+jottei viisi vihreää ja "väärin" näytä rikkinäiseltä pelilta.
+Kuudes attribuutti katkaisisi siteet, mutta viisi saraketta on jo
+puhelimen leveydellä ahdas.
+
 **Paljastusanimaatio.** Uusin rivi kääntyy auki ruutu kerrallaan
 vasemmalta oikealle, ja väri tulee näkyviin käännön mukana. Ruudussa on
 jo lopullinen värinsä, joten mitään ei vaihdeta kesken animaation.

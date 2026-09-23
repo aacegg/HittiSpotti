@@ -470,6 +470,29 @@
       .trim();
   }
 
+  /* Artistin entiset ja nykyiset nimet samaan hakuavaimeen.
+   *
+   * Katalogissa biisi on sillä nimellä jolla se julkaistiin, mikä on
+   * oikein: "Bandana" on Abreun eikä Anna Abreun. Pelaaja ei kuitenkaan
+   * tiedä kumpaa nimeä käyttää, ja haku vaatii että jokainen kirjoitettu
+   * sana löytyy riviltä. Siksi haku "Anna Abreu" antoi viisi biisiä
+   * kymmenestä ja "Robin Packalen" yhdeksän kolmestatoista.
+   *
+   * Tämä koskee VAIN hakua. Näytettävä nimi, päivän pakka ja
+   * artistitörmäysten esto käyttävät katalogin omaa nimeä kuten ennenkin.
+   * Mitattuna 800 päivältä pakka ei muutu tästä lainkaan. */
+  const HAKUALIAKSET = {
+    "abreu": "Anna Abreu",
+    "anna abreu": "Abreu",
+    "robin": "Robin Packalen",
+    "robin packalen": "Robin",
+  };
+
+  function hakuAliakset(artist) {
+    const lisa = HAKUALIAKSET[normalize(artist)];
+    return lisa ? " " + lisa : "";
+  }
+
   function hashString(str) {
     let h = 2166136261 >>> 0;
     for (let i = 0; i < str.length; i++) {
@@ -825,9 +848,14 @@
     deckCache.clear();
     state.songs.forEach((s) => {
       s.label = `${s.artist} – ${s.title}`;
-      s.key = normalize(s.artist + " " + s.title);
+      s.key = normalize(s.artist + " " + s.title + hakuAliakset(s.artist));
       s.keyTitle = normalize(s.title);
       s.keyArtist = normalize(s.artist);
+      /* Sama teksti ilman normalisointia, pelkkä pieni kirjainkoko.
+       * normalize poistaa välimerkit, joten "+", "/" ja "-" katoavat
+       * hausta kokonaan: haku "40+" antoi biisin "40K" eikä biisiä "40+",
+       * ja pelkkä "+" ei antanut mitään. Raaka muoto säilyttää ne. */
+      s.keyRaaka = `${s.artist} ${s.title}`.toLowerCase();
       state.byId.set(String(s.id), s);
     });
     if (state.pool.length < DAILY_COUNT) throw new Error("Katalogissa on liian vähän biisejä.");
@@ -1860,17 +1888,29 @@
 
   function findSuggestions(text) {
     const q = normalize(text);
-    if (!q) return [];
-    const tokens = q.split(" ");
+    /* Hakusana myös raakana, pelkkä kirjainkoko pienennettynä.
+     * normalize poistaa välimerkit, joten "+", "/" ja "-" katoavat siitä
+     * kokonaan: haku "40+" osui biisiin "40K" eikä biisiin "40+", ja
+     * pelkkä "+" palautti tyhjän koska normalisoitu haku oli tyhjä. */
+    const raaka = text.toLowerCase().trim();
+    if (!q && !raaka) return [];
+    const tokens = q ? q.split(" ") : [];
     const scored = [];
     for (const s of state.songs) {
-      if (!tokens.every((t) => s.key.includes(t))) continue;
+      const raakaOsuu = raaka.length > 0 && s.keyRaaka.includes(raaka);
+      const sanatOsuvat = tokens.length > 0 && tokens.every((t) => s.key.includes(t));
+      if (!sanatOsuvat && !raakaOsuu) continue;
       let score = 0;
-      if (s.keyTitle.startsWith(q)) score += 30;
-      else if (s.keyArtist.startsWith(q)) score += 25;
-      else if (s.key.startsWith(q)) score += 20;
-      if (s.keyTitle.includes(q)) score += 10;
-      if (s.keyArtist.includes(q)) score += 8;
+      /* Välimerkkeineen osuva voittaa aina, koska se on tarkempi: haku
+       * "40+" nostaa biisin "40+" biisin "40K" ohi. */
+      if (raakaOsuu) score += 40;
+      if (q) {
+        if (s.keyTitle.startsWith(q)) score += 30;
+        else if (s.keyArtist.startsWith(q)) score += 25;
+        else if (s.key.startsWith(q)) score += 20;
+        if (s.keyTitle.includes(q)) score += 10;
+        if (s.keyArtist.includes(q)) score += 8;
+      }
       score -= s.tier; // tutummat ensin tasapelissä
       scored.push([score, s]);
     }

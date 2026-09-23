@@ -2059,9 +2059,14 @@ body.sheet-open { overflow: hidden; }
 .a-pvm { color: var(--dim); font-size: 13px; margin: 4px 0 0; }
 
 /* Viisi saraketta, sama ruudukko otsikoille ja riveille, jotta ne
-   pysyvät kohdakkain kaikilla ruudun leveyksillä. */
+   pysyvät kohdakkain kaikilla ruudun leveyksillä.
+
+   minmax(0, 1fr) eikä 1fr: 1fr:n alaraja on auto eli sarakkeen leveimmän
+   sanan leveys, joten "Elektroninen" levitti rivin muita leveämmäksi ja
+   rivit menivät eri linjoille. Nollan alaraja antaa tekstin rivittyä
+   ruudun sisällä ruudun venyttämisen sijaan. */
 .a-otsikot,
-.a-rivi { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+.a-rivi { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
 .a-otsikot { margin-bottom: 6px; }
 .a-otsikot span {
   font-size: 9px; text-transform: uppercase; letter-spacing: .06em;
@@ -2069,16 +2074,34 @@ body.sheet-open { overflow: hidden; }
 }
 
 .a-rivit { list-style: none; margin: 0; padding: 0; }
-.a-rivit li { margin-bottom: 5px; }
+.a-rivit li { margin-bottom: 8px; }
+/* Nimi on rivin selite eikä otsikko: se kertoo mitä arvattiin, ja ruudut
+   ovat se mitä katsotaan. Aiemmin se oli isolla ja valkoisella, jolloin
+   kuusi arvausta luki kuutena otsikkona ruudukoiden välissä. */
 .a-artisti {
-  font-size: 13px; color: var(--text); margin: 0 0 3px; font-weight: 600;
+  font-size: 11px; color: var(--muted); margin: 0 0 3px;
+  letter-spacing: .02em;
 }
+/* Kiinteä korkeus eikä aspect-ratio. Neliö tarkoittaa puhelimessa noin
+   68 pikselin korkeutta ruutua kohti, eli kuusi arvausta ei mahtunut
+   ruudulle läheskään. Matalampi suorakaide vie kolmanneksen vähemmän
+   tilaa eikä menetä mitään: ruudussa on sana, ei kirjain.
+
+   Tavutus päälle, koska pisin arvo on "Instrumentaali" eikä se mahdu
+   yhdelle riville millään järkevällä kirjasinkoolla. Sivun lang="fi"
+   antaa selaimelle suomen tavutussäännöt; break-word on varalla niille
+   selaimille joilla niitä ei ole. */
 .a-ruutu {
-  aspect-ratio: 1; border-radius: 6px; background: var(--line);
+  min-height: 46px; border-radius: 6px; background: var(--line);
   display: flex; flex-direction: column; align-items: center;
-  justify-content: center; gap: 1px; font-size: 12px; color: var(--text);
-  line-height: 1.1; text-align: center; padding: 2px;
+  justify-content: center; gap: 1px; font-size: 11px; color: var(--text);
+  line-height: 1.15; text-align: center; padding: 3px;
+  hyphens: auto; overflow-wrap: break-word;
 }
+/* Flex-lapsen oletusleveys on sisällön leveys eikä se kutistu sen alle,
+   joten pitkä sana valui ruudun reunojen yli rivittymättä. Katto sataan
+   prosenttiin pakottaa sen tavuttumaan ruudun sisällä. */
+.a-ruutu > span { max-width: 100%; min-width: 0; }
 .a-ruutu.on-osui { background: var(--t1); color: #0a0908; font-weight: 700; }
 .a-ruutu.on-lahella { background: var(--t3); color: #0a0908; font-weight: 700; }
 /* Nuoli numeroruudussa. Kertoo kumpaan suuntaan oikea arvo on, mikä on
@@ -2102,21 +2125,37 @@ body.sheet-open { overflow: hidden; }
 .at-luvut b { display: block; font-size: 26px; font-weight: 600; line-height: 1.1; }
 .at-luvut span { font-size: 11px; color: var(--dim); display: block; margin-top: 3px; }
 
-.at-rivi { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
-.at-nro { width: 10px; font-size: 12px; color: var(--dim); }
-.at-palkki {
-  background: var(--line); color: var(--text); font-size: 11px;
-  text-align: right; padding: 2px 6px; border-radius: 3px; min-width: 22px;
+/* Jakauman rivi: numero, koko leveyden mittainen ura ja lukumäärä.
+   Ura piirretään aina, myös tyhjälle korille. Ilman sitä hävitty päivä
+   näytti rikkinäiseltä: kuusi nollaa kellui tyhjässä tilassa eikä
+   mikään kertonut että kyseessä on kaavio. */
+.at-rivi { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.at-nro { width: 9px; font-size: 11px; color: var(--dim); flex: none; }
+.at-ura {
+  flex: 1; height: 20px; background: var(--bg-lift); border-radius: 4px;
+  overflow: hidden;
 }
-.at-palkki.on-oma { background: var(--t1); color: #0a0908; font-weight: 700; }
+.at-palkki { display: block; height: 100%; background: var(--line); border-radius: 4px; }
+.at-palkki.on-oma { background: var(--t1); }
+.at-maara {
+  width: 18px; flex: none; font-size: 11px; color: var(--dim);
+  text-align: right; font-variant-numeric: tabular-nums;
+}
+.at-rivi.on-oma .at-maara { color: var(--text); font-weight: 700; }
 
+/* Kortti myötäilee ruudukkoa eikä sivun leveyttä. Koko leveydellä
+   ruudukko kellui keskellä tyhjää laatikkoa; tiiviinä se näyttää siltä
+   miltä se jaettunakin näyttää. */
 .at-kortti {
   background: var(--bg-lift); border: 1px solid var(--line);
-  border-radius: 12px; padding: 14px;
+  border-radius: 12px; padding: 12px 14px;
+  width: max-content; max-width: 100%; margin: 0 auto;
 }
-.at-kortti-ylä { font-size: 12px; color: var(--dim); margin: 0 0 10px; }
-.at-kortti .a-rivi { grid-template-columns: repeat(5, 34px); justify-content: center; }
-.at-kortti .a-ruutu { font-size: 0; }
-.at-kortti .a-rivi + .a-rivi { margin-top: 5px; }
+.at-kortti-ylä {
+  font-size: 12px; color: var(--dim); margin: 0 0 10px; text-align: center;
+}
+.at-kortti .a-rivi { grid-template-columns: repeat(5, 26px); justify-content: center; }
+.at-kortti .a-ruutu { min-height: 26px; font-size: 0; padding: 0; border-radius: 4px; }
+.at-kortti .a-rivi + .a-rivi { margin-top: 4px; }
 .at-jaa { display: block; width: 100%; margin-top: 18px; }
 .at-takaisin { display: block; width: 100%; margin-top: 8px; }

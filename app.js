@@ -1196,6 +1196,23 @@
     { avain: "v", otsikko: "Debyytti", luku: true, lahella: 5 },
   ];
 
+  /* Tavutusvihjeet kahdelle pitkälle arvolle.
+   *
+   * Ruutu on kapea, ja "Elektroninen" ja "Instrumentaali" eivät mahdu
+   * sinne yhdelle riville millään luettavalla kirjasinkoolla. Selaimen
+   * oma hyphens: auto katkaisisi ne oikein, mutta se vaatii suomen
+   * tavutussanaston, jota kaikissa selaimissa ei ole: ilman sitä sana
+   * katkeaa mistä sattuu ("Instrume|ntaali"). Arvoja on kaikkiaan
+   * kourallinen, joten oikea katkokohta kirjoitetaan tähän pehmeänä
+   * tavuviivana. Se näkyy vain jos rivi oikeasti katkeaa siitä.
+   *
+   * Tämä on vain näyttömuoto. Data, vertailu ja jakoteksti käyttävät
+   * arvoa sellaisenaan. */
+  const ARTISTI_TAVUT = {
+    "Elektroninen": "Elektro\u00ADninen",
+    "Instrumentaali": "Instru\u00ADmentaali",
+  };
+
   /* Yksi arvausrivi verrattuna oikeaan vastaukseen.
    *
    * Palauttaa ruudut, ei valmista HTML:ää: samaa vertailua tarvitsee
@@ -1280,7 +1297,8 @@
         const luokka = r.tila === "osui" ? " on-osui"
                      : r.tila === "lahella" ? " on-lahella" : "";
         const nuoli = r.nuoli ? `<span class="a-nuoli">${r.nuoli}</span>` : "";
-        return `<div class="a-ruutu${luokka}"><span>${escapeHtml(r.teksti)}</span>${nuoli}</div>`;
+        const teksti = ARTISTI_TAVUT[r.teksti] || r.teksti;
+        return `<div class="a-ruutu${luokka}"><span>${escapeHtml(teksti)}</span>${nuoli}</div>`;
       }).join("");
       return `<li><p class="a-artisti">${escapeHtml(arvaus.n)}</p>
         <div class="a-rivi">${solut}</div></li>`;
@@ -1463,9 +1481,10 @@
     const oma = artistiTila.voitto ? n : 0;
     el.atJakauma.innerHTML = s.jakauma.map((maara, i) => {
       const leveys = Math.round((maara / suurin) * 100);
-      const luokka = i + 1 === oma ? " on-oma" : "";
-      return `<div class="at-rivi"><span class="at-nro">${i + 1}</span>
-        <span class="at-palkki${luokka}" style="width:${leveys}%">${maara}</span></div>`;
+      const oma_ = i + 1 === oma ? " on-oma" : "";
+      return `<div class="at-rivi${oma_}"><span class="at-nro">${i + 1}</span>
+        <span class="at-ura"><span class="at-palkki${oma_}" style="width:${leveys}%"></span></span>
+        <span class="at-maara">${maara}</span></div>`;
     }).join("");
 
     el.atKorttiYla.textContent =

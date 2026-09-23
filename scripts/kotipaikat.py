@@ -47,6 +47,7 @@ MAAKUNNAT = {
         "Pori", "Rauma", "Ulvila", "Kankaanpää", "Harjavalta", "Kokemäki",
         "Huittinen", "Eura", "Eurajoki", "Nakkila", "Säkylä", "Noormarkku",
         "Merikarvia", "Pomarkku", "Jämijärvi", "Siikainen", "Luvia",
+        "Karvia", "Honkajoki", "Kiikoinen", "Lavia", "Köyliö",
     ],
     "Kanta-Häme": [
         "Hämeenlinna", "Forssa", "Riihimäki", "Janakkala", "Hattula", "Loppi",

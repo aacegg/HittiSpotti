@@ -46,6 +46,21 @@ MUSIIKKISANAT = re.compile(
     r"rumpali|basisti|säveltäjä|sanoittaja|albumi|levy|bändi|duo|"
     r"musiikki|lauluyhtye|tuottaja|dj)", re.I)
 
+# Tietolaatikon malli on paras yksittäinen merkki siitä että artikkeli
+# kertoo muusikosta. Pelkkä sanahaku artikkelin alusta ei riitä: kun
+# ikkuna oli 1500 merkkiä, se osui lähes aina tietolaatikon sisälle
+# ennen ensimmäistä lausetta, ja melkein jokainen artisti leimautui
+# epäillyksi. Seurauksena varahaku ajettiin 246 kertaa kahden pyynnön
+# sarjana, ja tarkistus kesti 16 minuuttia tekemättä yhtään riviä.
+MUSIIKKIMALLI = re.compile(
+    r"\{\{\s*(henkilö/muusikko|muusikko|yhtye|musiikkiryhmä|artisti|"
+    r"bändi|laulaja)", re.I)
+
+
+def musiikkisivu(teksti: str) -> bool:
+    return bool(teksti) and bool(MUSIIKKIMALLI.search(teksti[:3000])
+                                 or MUSIIKKISANAT.search(teksti[:3000]))
+
 # Tietolaatikon kentät joissa paikka yleensä on.
 PAIKKAKENTAT = ("Kotipaikka", "Alkuperä", "Syntynyt", "Syntymäpaikka",
                 "Perustettu", "Lähtöisin")
@@ -199,23 +214,27 @@ def lue(polku: Path):
 
 def main() -> int:
     parit = lue(Path(sys.argv[1]))
+    print(f"haetaan {len(parit)} sivua...", file=sys.stderr)
     sivut = hae_sivut([n for n, _ in parit])
+    print(f"saatiin {sum(1 for v in sivut.values() if isinstance(v, str) and v)} "
+          f"artikkelia", file=sys.stderr)
 
     # Väärä sivu tai puuttuva sivu: kokeillaan tarkennettuja otsikoita
     # ("Nimi (yhtye)"). Näitä on kymmeniä eikä satoja, joten ne haetaan
     # yksitellen. Tarkenteiden haku on oma pyyntönsä, joten se tehdään
     # vain niille joille se oikeasti tarvitaan.
-    epaillyt = [n for n, _ in parit
-                if not isinstance(sivut.get(n), str)
-                or not MUSIIKKISANAT.search(sivut[n][:1500])]
+    epaillyt = [n for n, _ in parit if not musiikkisivu(sivut.get(n))]
+    print(f"{len(epaillyt)} sivua haetaan tarkennetulla otsikolla",
+          file=sys.stderr)
     toiset = {}
-    for n in epaillyt:
+    for i, n in enumerate(epaillyt, 1):
+        print(f"  {i}/{len(epaillyt)} {n}", file=sys.stderr)
         time.sleep(1.0)
         tarkenteet = wikipedia_tarkenteet(n)
         if tarkenteet is VIRHE or not tarkenteet:
             continue
         for t, teksti in hae_sivut(list(tarkenteet)).items():
-            if isinstance(teksti, str) and MUSIIKKISANAT.search(teksti[:1500]):
+            if musiikkisivu(teksti):
                 toiset[n] = (teksti, t)
                 break
 

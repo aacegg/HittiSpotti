@@ -284,12 +284,19 @@ sekayhtye.
 
 Mitä pitää ratkaista ennen kuin koodia kirjoitetaan:
 
-- Tallennusavaimet erilleen. Nyt päivän tulos on `daily:<pvm>` ja kesken
-  jäänyt sarja `daily:<pvm>:kesken` (ks. `progressKey`); artistipeli
-  tarvitsee oman etuliitteen, muuten pelit ylikirjoittavat toisensa.
-- Palvelimen `/paiva` on avainnettu pelkällä päivämäärällä, joten
-  artistipeli tarvitsee oman sarakkeen tai oman päätepisteen. Muuten
-  päiväkeskiarvo sekoittaa kahden eri pelin pisteet.
+- ~~Tallennusavaimet erilleen.~~ **tehty.** Avaimet ovat `app.js`:n
+  `AVAIN`-taulussa peleittäin. Biisipelin avaimet pysyivät ennallaan,
+  koska ne ovat jo pelaajien selaimissa; artistipeli sai etuliitteen
+  `artisti:`. Tilastojen nollaus ja keskeneräisten siivous käyvät
+  molemmat pelit läpi `PELIT`-listan kautta.
+- ~~Palvelimen `/paiva`~~ **tehty.** Artistipelillä on oma taulu
+  `paiva_artisti` ja omat päätepisteet `POST /artisti` ja
+  `GET /artisti?p=`. Oma taulu eikä sarake `paiva`-tauluun, koska
+  avaimen muuttaminen vaatisi SQLitessä koko taulun uudelleenluonnin
+  tuotantokannassa, ja koska datan muoto on eri: biisipelissä 0-6000
+  pistettä 13 korissa, artistipelissä monellako arvauksella ratkesi
+  eli 1-6 tai ei lainkaan. **Vaatii migraation:**
+  `npx wrangler d1 execute hittispotti --remote --file=palvelin/migraatio-artisti.sql`
 - Tilastonäkymä ja jakoteksti tarvitsevat oman osionsa.
 - `state`-olio on nyt yhden pelin muotoinen (rounds, at, score). Kannattaa
   miettiä kumpi on halvempi: erillinen tila artistipelille vai yhteinen.

@@ -2805,6 +2805,37 @@
     } catch { return null; }
   }
 
+  /* Päivän artisti kirjoittaa omaan päätepisteeseensä eikä /paiva-reittiin.
+   * Tulos on eri asia: monellako arvauksella artisti ratkesi, ei montako
+   * pistettä sarjasta tuli. Samaan reittiin pakotettuna kahden pelin
+   * keskiarvot sekoittuisivat.
+   *
+   * arvauksia on 1-6 jos artisti ratkesi ja 0 jos ei ratkennut. */
+  async function lahetaArtisti(key, arvauksia) {
+    if (!PALVELIN || !dataLupa()) return null;
+    try {
+      const v = await fetch(PALVELIN + "/artisti", {
+        method: "POST",
+        body: JSON.stringify({ paiva: key, arvauksia }),
+        headers: { "content-type": "text/plain" },
+      });
+      if (!v.ok) return null;
+      const d = await v.json();
+      if (Number.isInteger(d.sija)) {
+        store.set(AVAIN.artisti.vertailu(key), { sija: d.sija });
+      }
+      return d;
+    } catch { return null; }
+  }
+
+  async function haeArtisti(key) {
+    if (!PALVELIN || !dataLupa()) return null;
+    try {
+      const v = await fetch(PALVELIN + "/artisti?p=" + encodeURIComponent(key));
+      return v.ok ? await v.json() : null;
+    } catch { return null; }
+  }
+
   /* Muiden keskiarvo, ei kaikkien. Oma tulos vähennetään pois, jolloin sana
    * "muut" pitää kirjaimellisesti paikkansa eikä vain suunnilleen. */
   function vertailuTeksti(d, omat, sija) {

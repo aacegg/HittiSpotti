@@ -57,6 +57,20 @@ function paivaKelpaa(k) {
   return Number.isFinite(ero) && ero < 2 * 86400 * 1000;
 }
 
+/* Päivän artistin tulos. Arvauksia 1-6 jos ratkesi, 0 jos ei ratkennut.
+ * Sama kahden vuorokauden haarukka kuin biisipelissä ja samasta syystä:
+ * se kattaa kaikki aikavyöhykkeet mutta estää rivien kylvämisen
+ * mielivaltaisille päiville. */
+const ARVAUKSIA_MAX = 6;
+
+function artistiKelpaa(k) {
+  if (!k || !Number.isInteger(k.arvauksia)) return false;
+  if (k.arvauksia < 0 || k.arvauksia > ARVAUKSIA_MAX) return false;
+  if (typeof k.paiva !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(k.paiva)) return false;
+  const ero = Math.abs(Date.parse(k.paiva + "T00:00:00Z") - Date.now());
+  return Number.isFinite(ero) && ero < 2 * 86400 * 1000;
+}
+
 function vastaus(body, status, origin, tyyppi = "application/json") {
   const h = { "content-type": tyyppi + "; charset=utf-8" };
   if (origin) {
@@ -277,6 +291,91 @@ export default {
        * luku kasvaa koko ajan. Minuutin viive on silti tarkoituksellinen:
        * pelaajan oma tulos ei ehdi mukaan omaan vertailuunsa, mikä on juuri
        * se mitä sana "muut" lupaa. */
+      vast.headers.set("cache-control", "public, max-age=60");
+      ctx.waitUntil(valimuisti.put(avain, vast.clone()));
+      return vast;
+    }
+
+    /* ---- Päivän artistin tuloksen vastaanotto ----
+     *
+     * Oma päätepiste eikä /paiva, koska tulos on eri asia: monellako
+     * arvauksella artisti ratkesi, ei montako pistettä sarjasta tuli.
+     * Samaan reittiin pakotettuna kahden pelin keskiarvot sekoittuisivat.
+     *
+     * Lähetetään vain kun päivän artisti on pelattu loppuun, ratkesi tai
+     * ei. Kesken jättäneet eivät kuulu vertailulukuun. */
+    if (req.method === "POST" && url.pathname === "/artisti") {
+      const teksti = await req.text();
+      if (teksti.length > 200) return vastaus('{"virhe":"liian iso"}', 413, origin);
+      let k;
+      try { k = JSON.parse(teksti); } catch { return vastaus('{"virhe":"ei JSONia"}', 400, origin); }
+      if (!artistiKelpaa(k)) return vastaus('{"virhe":"kelpaamaton tulos"}', 400, origin);
+
+      /* Sarakkeen nimi rakennetaan vasta tarkistuksen jälkeen ja vain
+       * luvusta joka on todistetusti 0..6, joten SQL:ään ei pääse mitään
+       * pelaajan syöttämää. */
+      const sarake = k.arvauksia === 0 ? "epa" : "g" + k.arvauksia;
+      const SARAKKEET = "n, g1,g2,g3,g4,g5,g6, epa";
+      const UPSERT = `
+        INSERT INTO paiva_artisti (paiva, n, ${sarake}) VALUES (?1, 1, 1)
+        ON CONFLICT(paiva) DO UPDATE SET
+          n = paiva_artisti.n + 1,
+          ${sarake} = paiva_artisti.${sarake} + 1`;
+
+      /* Sama varapolku kuin /paiva-reitillä: jos RETURNING ei toimi, ei
+       * koko tallennus saa kaatua. */
+      let rivi;
+      try {
+        rivi = await env.DB.prepare(UPSERT + `\n RETURNING ${SARAKKEET}`)
+          .bind(k.paiva).first();
+      } catch {
+        rivi = null;
+      }
+      if (!rivi) {
+        await env.DB.prepare(UPSERT).bind(k.paiva).run();
+        rivi = await env.DB.prepare(
+          `SELECT ${SARAKKEET} FROM paiva_artisti WHERE paiva = ?1`).bind(k.paiva).first();
+      }
+      if (!rivi) return vastaus('{"ok":true}', 200, origin);
+
+      return vastaus(JSON.stringify({
+        ok: true,
+        sija: rivi.n,
+        n: rivi.n,
+        g: Array.from({ length: 6 }, (_, i) => rivi["g" + (i + 1)]),
+        epa: rivi.epa,
+      }), 200, origin);
+    }
+
+    /* ---- Päivän artistin koosteen luku ----
+     *
+     * Palauttaa raa'at luvut ja peli laskee niistä keskiarvon ja
+     * ratkaisuprosentin. Sama periaate kuin /paiva-reitillä: kun palvelin
+     * ei päätä esitystapaa, sitä voi muuttaa julkaisematta Workeria. */
+    if (req.method === "GET" && url.pathname === "/artisti") {
+      const p = url.searchParams.get("p") || "";
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(p)) {
+        return vastaus('{"virhe":"kelpaamaton päivä"}', 400, origin);
+      }
+
+      const avain = new Request(url.origin + "/artisti?p=" + p
+        + "&o=" + encodeURIComponent(origin || "-"));
+      const valimuisti = caches.default;
+      const osuma = await valimuisti.match(avain);
+      if (osuma) return osuma;
+
+      const rivi = await env.DB.prepare(
+        `SELECT n, g1,g2,g3,g4,g5,g6, epa FROM paiva_artisti WHERE paiva = ?1`
+      ).bind(p).first();
+
+      const ulos = rivi
+        ? { n: rivi.n, g: Array.from({ length: 6 }, (_, i) => rivi["g" + (i + 1)]),
+            epa: rivi.epa }
+        : { n: 0, g: Array(6).fill(0), epa: 0 };
+
+      const vast = vastaus(JSON.stringify(ulos), 200, origin);
+      // Minuutti, samasta syystä kuin /paiva: kuluvan päivän luku kasvaa
+      // koko ajan, eikä pelaajan oma tulos saa ehtiä omaan vertailuunsa.
       vast.headers.set("cache-control", "public, max-age=60");
       ctx.waitUntil(valimuisti.put(avain, vast.clone()));
       return vast;

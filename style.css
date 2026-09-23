@@ -2202,3 +2202,34 @@ body.sheet-open { overflow: hidden; }
 .at-kortti .a-rivi + .a-rivi { margin-top: 4px; }
 .at-jaa { display: block; width: 100%; margin-top: 18px; }
 .at-takaisin { display: block; width: 100%; margin-top: 8px; }
+
+/* ArtistiSpotin ohjenappi ja ohjeruutu.
+   Nappi on otsikkolohkon oikeassa reunassa eikä oman rivinsä varassa,
+   jotta se ei vie tilaa ruudukolta. */
+.a-ylä { position: relative; }
+.a-ohje-nappi {
+  position: absolute; right: 0; top: 0;
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 1px solid var(--line); background: transparent;
+  color: var(--muted); font-family: var(--display); font-size: 15px;
+  line-height: 1; cursor: pointer;
+}
+.a-ohje-nappi:hover { color: var(--text); border-color: var(--muted); }
+.a-ohje-nappi:focus-visible { outline: 2px solid var(--live); outline-offset: 2px; }
+
+#a-ohje-sheet p { font-size: 14px; line-height: 1.5; margin: 0 0 12px; }
+.a-ohje-lead { color: var(--text); }
+#a-ohje-sheet .a-ohje-loppu { color: var(--dim); font-size: 12.5px; }
+.a-ohje-varit, .a-ohje-lista { list-style: none; margin: 0 0 14px; padding: 0; }
+.a-ohje-varit li {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14px; margin-bottom: 6px;
+}
+.a-ohje-lista li {
+  font-size: 13.5px; line-height: 1.45; color: var(--muted);
+  margin-bottom: 8px; padding-left: 12px; position: relative;
+}
+.a-ohje-lista li::before {
+  content: "·"; position: absolute; left: 0; color: var(--dim);
+}
+.a-ohje-lista b { color: var(--text); }

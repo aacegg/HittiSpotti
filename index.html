@@ -386,6 +386,11 @@
       <div class="a-ylä">
         <h2 class="a-nimi">ArtistiSpotti</h2>
         <p class="a-pvm" id="a-pvm"></p>
+        <!-- Ohjeet ovat tässä eivätkä sivun Ohjeet-osiossa: ArtistiSpotti
+             on pelimuoto HittiSpotin sisällä, ja sen säännöt kuuluvat
+             sinne missä peli on. -->
+        <button type="button" class="a-ohje-nappi" id="a-ohje"
+                aria-label="Ohjeet">?</button>
       </div>
 
       <!-- Sarakeotsikot ruudukon yllä. Wordlessa niitä ei tarvita, koska
@@ -663,6 +668,37 @@
     <ul class="uutta" id="uutta-lista"></ul>
     <div class="sheet-actions">
       <button type="button" class="btn btn-accent btn-wide" id="uutta-ok">Pelaamaan</button>
+    </div>
+  </aside>
+
+  <div class="sheet-scrim" id="a-ohje-scrim" hidden></div>
+  <aside class="sheet sheet-keski" id="a-ohje-sheet" hidden tabindex="-1"
+         role="dialog" aria-modal="true" aria-labelledby="a-ohje-title">
+    <div class="sheet-head">
+      <h2 class="sheet-title" id="a-ohje-title">ArtistiSpotti</h2>
+      <button type="button" class="iconbtn" id="a-ohje-close" aria-label="Sulje">✕</button>
+    </div>
+
+    <p class="a-ohje-lead">Arvaa päivän artisti kuudella yrityksellä.
+      Sama artisti kaikille, uusi joka päivä.</p>
+
+    <ul class="a-ohje-varit">
+      <li><i class="a-merkki on-osui"></i><b>Vihreä</b> osuu</li>
+      <li><i class="a-merkki on-lahella"></i><b>Keltainen</b> on lähellä</li>
+      <li><i class="a-merkki"></i><b>Harmaa</b> ei osu</li>
+    </ul>
+
+    <p>Keltainen tarkoittaa aina osittaista osumaa:</p>
+    <ul class="a-ohje-lista">
+      <li><b>Jäseniä</b> heittää yhdellä, <b>debyytti</b> viidellä. Nuoli
+        kertoo kumpaan suuntaan oikea arvo on.</li>
+      <li><b>Sukupuoli</b>: sekayhtye on osittain sama kuin mies tai nainen.</li>
+      <li><b>Kotoisin</b>: eri kunta, sama suuralue.</li>
+      <li><b>Genressä</b> keltaista ei ole.</li>
+    </ul>
+
+    <div class="sheet-actions">
+      <button type="button" class="btn btn-accent btn-wide" id="a-ohje-ok">Selvä</button>
     </div>
   </aside>
 

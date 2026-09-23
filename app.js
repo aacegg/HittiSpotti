@@ -308,6 +308,11 @@
     aLoppuOtsikko: $("#a-loppu-otsikko"),
     aLoppuTeksti: $("#a-loppu-teksti"),
     aTulokset: $("#a-tulokset"),
+    aOhje: $("#a-ohje"),
+    aOhjeSheet: $("#a-ohje-sheet"),
+    aOhjeScrim: $("#a-ohje-scrim"),
+    aOhjeClose: $("#a-ohje-close"),
+    aOhjeOk: $("#a-ohje-ok"),
     atOtsikko: $("#at-otsikko"),
     atTeksti: $("#at-teksti"),
     atPelatut: $("#at-pelatut"),
@@ -629,6 +634,8 @@
       el.installScrim.hidden = true;
       el.uuttaSheet.hidden = true;
       el.uuttaScrim.hidden = true;
+      el.aOhjeSheet.hidden = true;
+      el.aOhjeScrim.hidden = true;
       el.body.classList.remove("sheet-open");
     }
     /* Ääni kuuluu vain peliin. openRound pysäyttää soiton kierrosten välillä
@@ -1650,6 +1657,10 @@
     el.aInput.value = "";
     el.aEhdotukset.hidden = true;
     piirraArtistiRivit();
+    /* Ensimmäisellä käynnillä säännöt aukeavat itsestään. Pelkkä
+     * kysymysmerkki jäisi huomaamatta, ja ruudukko ilman selitystä on
+     * viisi saraketta värejä ilman kertojaa siitä mitä ne tarkoittavat. */
+    if (!store.get(AVAIN.artisti.etuliite + "ohje-nahty", 0)) avaaArtistiOhje();
   }
 
   /* Ehdotuslista ja sen valinta. Sama rakenne kuin biisipelin haussa,
@@ -1686,6 +1697,32 @@
     const li = e.target.closest("li[data-i]");
     if (li) valitseArtisti(artistiEhdokkaat[Number(li.dataset.i)]);
   });
+
+  /* Ohjeruutu.
+   *
+   * Säännöt ovat pelin omassa näkymässä eivätkä sivun Ohjeet-osiossa,
+   * koska ArtistiSpotti on pelimuoto HittiSpotin sisällä: sen säännöt
+   * kuuluvat sinne missä peli on, eivät yhdeksän tuhannen merkin päähän
+   * toisen pelin ohjeiden perään. */
+  function avaaArtistiOhje() {
+    store.set(AVAIN.artisti.etuliite + "ohje-nahty", 1);
+    el.aOhjeScrim.hidden = false;
+    el.aOhjeSheet.hidden = false;
+    el.body.classList.add("sheet-open");
+    el.aOhjeSheet.focus({ preventScroll: true });
+  }
+
+  function suljeArtistiOhje() {
+    el.aOhjeSheet.hidden = true;
+    el.aOhjeScrim.hidden = true;
+    el.body.classList.remove("sheet-open");
+    el.aOhje.focus({ preventScroll: true });
+  }
+
+  el.aOhje.addEventListener("click", avaaArtistiOhje);
+  el.aOhjeClose.addEventListener("click", suljeArtistiOhje);
+  el.aOhjeOk.addEventListener("click", suljeArtistiOhje);
+  el.aOhjeScrim.addEventListener("click", suljeArtistiOhje);
 
   el.aTulokset.addEventListener("click", () => { avaaArtistiTulos(); });
   el.atJaa.addEventListener("click", () => { jaaArtisti(); });
@@ -3261,6 +3298,7 @@
     if (!el.shareSheet.hidden) suljeJako();
     else if (!el.installSheet.hidden) suljeAsennusohje();
     else if (!el.uuttaSheet.hidden) suljeUutta();
+    else if (!el.aOhjeSheet.hidden) suljeArtistiOhje();
     else el.body.classList.remove("sheet-open");
   }
 

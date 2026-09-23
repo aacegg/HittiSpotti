@@ -348,6 +348,23 @@ vääräksi, korjaus on yksi rivi `scripts/kotipaikat-lista.txt`:ään ja
 Keltaisia on nyt kuuden arvauksen pelissä keskimäärin 3,3, ja ilman
 yhtään keltaista jää 7 % peleistä. Lähtötilanne oli 1,7 ja 21 %.
 
+**Säännöt ovat pelin omassa näkymässä.** Otsikon oikeassa reunassa on
+kysymysmerkkipallo, joka avaa ruudun jossa lukee mitä arvataan, montako
+arvausta on ja mitä värit tarkoittavat. Sivun Ohjeet-osioon ei tullut
+mitään: se on yhdeksän tuhatta merkkiä biisipeliä, ja ArtistiSpotti on
+pelimuoto HittiSpotin sisällä, joten sen säännöt kuuluvat sinne missä
+peli on.
+
+Ruutu aukeaa itsestään ensimmäisellä käynnillä. Pelkkä kysymysmerkki
+jäisi huomaamatta, ja ruudukko ilman selitystä on viisi saraketta
+värejä ilman kertojaa siitä mitä ne tarkoittavat. Sen jälkeen se aukeaa
+vain napista, ja tieto nähdystä on avaimessa `artisti:ohje-nahty`, joka
+ei katoa tilastojen nollauksessa.
+
+**Idea, ei päätetty: unlimited omana sivunaan.** ArtistiSpotti voisi
+joskus saada rajattoman version omaan osoitteeseensa. Päivän peli
+pysyisi silloin täällä pelimuotona ja unlimited olisi erillinen.
+
 **Paljastusanimaatio.** Uusin rivi kääntyy auki ruutu kerrallaan
 vasemmalta oikealle, ja väri tulee näkyviin käännön mukana. Ruudussa on
 jo lopullinen värinsä, joten mitään ei vaihdeta kesken animaation.

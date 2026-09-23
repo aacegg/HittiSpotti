@@ -57,9 +57,17 @@ MUSIIKKIMALLI = re.compile(
     r"bändi|laulaja)", re.I)
 
 
-def musiikkisivu(teksti: str) -> bool:
-    return bool(teksti) and bool(MUSIIKKIMALLI.search(teksti[:3000])
-                                 or MUSIIKKISANAT.search(teksti[:3000]))
+def musiikkisivu(teksti) -> bool:
+    """Onko teksti musiikkiartikkeli.
+
+    isinstance eikä pelkkä totuusarvo: VIRHE on olio, ja olio on
+    totuusarvoltaan tosi. Ilman tätä epäonnistunut haku meni
+    merkkijonona eteenpäin ja koko ajo kaatui siihen.
+    """
+    if not isinstance(teksti, str) or not teksti:
+        return False
+    alku = teksti[:3000]
+    return bool(MUSIIKKIMALLI.search(alku) or MUSIIKKISANAT.search(alku))
 
 # Tietolaatikon kentät joissa paikka yleensä on.
 PAIKKAKENTAT = ("Kotipaikka", "Alkuperä", "Syntynyt", "Syntymäpaikka",

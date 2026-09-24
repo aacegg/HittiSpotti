@@ -2072,8 +2072,14 @@ body.sheet-open { overflow: hidden; }
    sanan leveys, joten "Elektroninen" levitti rivin muita leveämmäksi ja
    rivit menivät eri linjoille. Nollan alaraja antaa tekstin rivittyä
    ruudun sisällä ruudun venyttämisen sijaan. */
+/* Viisi joustavaa saraketta ja yksi kapea. Kapeassa on nimen
+   alkukirjain eli yksi merkki, joten sille riittää 30 px, ja se vie
+   muilta vain reilun pikselin kullekin. */
 .a-otsikot,
-.a-rivi { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+.a-rivi {
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)) 30px;
+  gap: 4px;
+}
 .a-otsikot { margin-bottom: 6px; }
 .a-otsikot span {
   font-size: 10px; text-transform: uppercase; letter-spacing: .06em;
@@ -2209,7 +2215,7 @@ body.sheet-open { overflow: hidden; }
 .at-kortti-ylä {
   font-size: 12px; color: var(--dim); margin: 0 0 10px; text-align: center;
 }
-.at-kortti .a-rivi { grid-template-columns: repeat(5, 26px); justify-content: center; }
+.at-kortti .a-rivi { grid-template-columns: repeat(5, 26px) 20px; justify-content: center; }
 .at-kortti .a-ruutu { min-height: 26px; font-size: 0; padding: 0; border-radius: 4px; }
 .at-kortti .a-rivi + .a-rivi { margin-top: 4px; }
 .at-jaa { display: block; width: 100%; margin-top: 18px; }
@@ -2323,3 +2329,6 @@ body.sheet-open { overflow: hidden; }
   color: var(--muted); text-align: center;
 }
 .at-vertailu[hidden] { display: none; }
+
+/* Kapea ruutu: yksi merkki keskellä, ei tavutusta eikä pehmustetta. */
+.a-ruutu.on-kapea { padding: 3px 0; font-size: 12px; hyphens: none; }

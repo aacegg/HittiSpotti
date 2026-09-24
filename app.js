@@ -147,7 +147,7 @@
    * välimuistissa tyylimuutosten yli, mutta uusi katalogi on eri osoite ja
    * tulee varmasti perille – vanha versio antaisi pelaajalle eri päivän
    * biisit kuin muille. */
-  const KATALOGI_K = 28;
+  const KATALOGI_K = 29;
 
   /* Katalogi on kahdessa osassa, ks. scripts/tee_aanet.py.
    *
@@ -1261,6 +1261,19 @@
      * siitä jäi jäljelle 75 % artisteista. Kotipaikasta jää 58 %. */
     { avain: "p", otsikko: "Kotoisin", ylakentta: "a" },
     { avain: "v", otsikko: "Debyytti", luku: true, lahella: 5 },
+    /* Nimen alkukirjain. Kapea sarake, koska sisältö on yksi merkki.
+     *
+     * Tämä on se sarake joka estää kaiken vihreän väärällä
+     * arvauksella. 246 artistista 25:llä on täsmälleen samat viisi
+     * muuta tietoa jonkun toisen kanssa, ja ilman tätä pelaaja saattoi
+     * arvata kaksoisolennon, nähdä viisi vihreää ja saada "väärin".
+     * Mitattuna sellaisia pareja oli 14; alkukirjaimen kanssa yksi
+     * (Ares ja Averagekidluke, jotka ovat molemmat A).
+     *
+     * Ei keltaista: kirjain joko on sama tai ei ole. "Lähellä
+     * aakkosissa" olisi eri sääntö ja tarkoittaisi nuolta, eikä nimeen
+     * haluta nuolta. */
+    { avain: "kirjain", otsikko: "Nimi", kapea: true },
   ];
 
   /* Tavutusvihjeet kahdelle pitkälle arvolle.
@@ -1378,6 +1391,10 @@
         .then((lista) => {
           state.artistit = lista;
           state.artistit.forEach((a) => {
+            /* Alkukirjain omaksi kentäkseen, jotta vertailu kohtelee
+             * sitä kuten muitakin sarakkeita. Isoksi kirjaimeksi, koska
+             * "ibe" ja "Irina" ovat molemmat I. */
+            a.kirjain = a.n[0].toUpperCase();
             const alias = ARTISTI_ALIAKSET[a.n];
             a.haku = normalize(a.n + (alias ? " " + alias : ""));
             /* Toinen avain ilman heittomerkkiä. normalize tekee
@@ -1455,7 +1472,8 @@
                      : r.tila === "lahella" ? " on-lahella" : "";
         const nuoli = ARTISTI_NUOLET[r.nuoli] || "";
         const teksti = ARTISTI_TAVUT[r.teksti] || r.teksti;
-        return `<div class="a-ruutu${luokka}" style="--i:${i}"><span>${escapeHtml(teksti)}</span>${nuoli}</div>`;
+        const kapea = ARTISTI_KENTAT[i].kapea ? " on-kapea" : "";
+        return `<div class="a-ruutu${luokka}${kapea}" style="--i:${i}"><span>${escapeHtml(teksti)}</span>${nuoli}</div>`;
       }).join("");
       const animoi = uusi && rivi === viimeinen ? " on-uusi" : "";
       return `<li><p class="a-artisti">${escapeHtml(arvaus.n)}</p>
@@ -1717,10 +1735,11 @@
      * jakaa, ja arvattujen artistien nimet jäävät pois samasta syystä kuin
      * jakotekstistäkin. */
     el.atKorttiRivit.innerHTML = artistiTila.arvaukset.map((arvaus) => {
-      const solut = artistiVertaa(arvaus, artistiTila.oikea).map((r) => {
+      const solut = artistiVertaa(arvaus, artistiTila.oikea).map((r, i) => {
         const luokka = r.tila === "osui" ? " on-osui"
                      : r.tila === "lahella" ? " on-lahella" : "";
-        return `<div class="a-ruutu${luokka}"></div>`;
+        const kapea = ARTISTI_KENTAT[i].kapea ? " on-kapea" : "";
+        return `<div class="a-ruutu${luokka}${kapea}"></div>`;
       }).join("");
       return `<div class="a-rivi">${solut}</div>`;
     }).join("");

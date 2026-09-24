@@ -21,6 +21,10 @@ const koodi = `
   return artistiVertaa;`;
 const artistiVertaa = new Function(koodi)();
 const kaikki = JSON.parse(fs.readFileSync("artistit.json", "utf8"));
+/* Alkukirjain johdetaan nimestä kuten pelissäkin: se ei ole datassa
+   vaan lasketaan latauksessa. Ilman tätä kuudes sarake olisi
+   mittauksessa aina tyhjä ja peli näyttäisi vaikeammalta kuin on. */
+kaikki.forEach((a) => { a.kirjain = a.n[0].toUpperCase(); });
 
 // Palaute yhtenä merkkijonona, jotta samanlaiset palautteet niputtuvat.
 const palaute = (arvaus, oikea) =>

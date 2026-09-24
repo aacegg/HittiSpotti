@@ -439,6 +439,19 @@ yhtään mahdotonta päivää ei ole. Kumpikaan malli ei ole ihminen:
 molemmat tietävät kaikkien 246 artistin debyyttivuodet ja
 jäsenmäärät, joten ne ovat parhaita tapauksia.
 
+**Kuudes sarake on nimen alkukirjain.** Se on kapea, koska sisältö on
+yksi merkki, ja se vie muilta sarakkeilta vain reilun pikselin
+kullekin. Vihreä tai harmaa, ei keltaista: kirjain joko on sama tai ei
+ole.
+
+Tämä sarake estää kaiken vihreän väärällä arvauksella. Mitattuna
+pareja joissa kaikki ruudut olisivat vihreitä mutta arvaus silti
+väärin oli **14; alkukirjaimen kanssa yksi** (Ares ja Averagekidluke,
+jotka ovat molemmat A). Erottamattomia artisteja on 56 sijaan 8.
+
+Aakkosnuolta ei tullut. Se olisi poistanut viimeisenkin parin, mutta
+nimeen ei haluta nuolta: kirjain riittää siihen mihin sitä tarvitaan.
+
 **25 artistilla on kaksoisolento, ja se on sallittua.** Täsmälleen
 samat viisi tietoa on 12 ryhmällä, esimerkiksi Elastinen ja Pyhimys,
 Chisu ja ABREU sekä Cledos, ibe ja Bizi. Päivän artistilla on siis

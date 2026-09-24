@@ -3656,9 +3656,30 @@
    *
    * Osoite on tyhjä kunnes palvelin on julkaistu; silloin tämä ei tee mitään
    * ja peli toimii täsmälleen kuten ennenkin. */
+  /* HUOM: tämä rivi on pidettävä yhtenä merkkijonovakiona.
+   * .github/workflows/testisivu.yml korvaa sen tyhjällä ja vaatii
+   * osuman tasan kerran, joten ehtolauseeksi muutettuna testisivun
+   * julkaisu kaatuisi. Paikallisuuden tarkistus on siksi omanaan
+   * alempana eikä tässä. */
   const PALVELIN = "https://hittispotti-tilastot.hittispotti.workers.dev";
 
   const dataLupa = () => store.get("datalupa", true) !== false;
+
+  /* Paikallinen kehitys ei kirjoita tuotannon tilastoihin.
+   *
+   * Testisivulta palvelimen osoite riisutaan julkaisussa, mutta
+   * localhostissa app.js on sellaisenaan ja osoittaa tuotantoon. Ilman
+   * tätä jokainen paikallinen läpipeluu kirjaisi rivin oikeisiin
+   * lukuihin, ja ne luvut ovat se aineisto josta biisien vaikeustasot
+   * johdetaan. */
+  const PAIKALLINEN = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)
+    || location.protocol === "file:";
+
+  /* Saako palvelimelle puhua. Eri asia kuin dataLupa(), joka on
+   * pelaajan oma valinta ja näkyy asetusruudun valintana: se ei saa
+   * näyttää pois päältä olevalta vain siksi että kehitetään
+   * paikallisesti. */
+  const saaLahettaa = () => !!PALVELIN && !PAIKALLINEN && dataLupa();
 
   /* ---------- Vertailu muihin pelaajiin ----------
    *
@@ -3692,7 +3713,7 @@
    * Vastaus sisältää järjestysluvun ja koko koosteen, joten tulossivu saa
    * kaiken tarvitsemansa yhdellä pyynnöllä. */
   async function lahetaPaiva(key, pisteet) {
-    if (!PALVELIN || !dataLupa()) return null;
+    if (!saaLahettaa()) return null;
     try {
       const v = await fetch(PALVELIN + "/paiva", {
         method: "POST",
@@ -3711,7 +3732,7 @@
   }
 
   async function haePaiva(key) {
-    if (!PALVELIN || !dataLupa()) return null;
+    if (!saaLahettaa()) return null;
     try {
       const v = await fetch(PALVELIN + "/paiva?p=" + encodeURIComponent(key));
       return v.ok ? await v.json() : null;
@@ -3725,7 +3746,7 @@
    *
    * arvauksia on 1-6 jos artisti ratkesi ja 0 jos ei ratkennut. */
   async function lahetaArtisti(key, arvauksia) {
-    if (!PALVELIN || !dataLupa()) return null;
+    if (!saaLahettaa()) return null;
     try {
       const v = await fetch(PALVELIN + "/artisti", {
         method: "POST",
@@ -3742,7 +3763,7 @@
   }
 
   async function haeArtisti(key) {
-    if (!PALVELIN || !dataLupa()) return null;
+    if (!saaLahettaa()) return null;
     try {
       const v = await fetch(PALVELIN + "/artisti?p=" + encodeURIComponent(key));
       return v.ok ? await v.json() : null;
@@ -3780,7 +3801,7 @@
   async function paivitaVertailu() {
     const el2 = el.resultsVertailu;
     if (!el2) return;
-    if (state.mode !== "daily" || !PALVELIN || !dataLupa()) { el2.hidden = true; return; }
+    if (state.mode !== "daily" || !saaLahettaa()) { el2.hidden = true; return; }
     const key = state.dayKey || todayKey();
     const oma = store.get(AVAIN.biisi.tulos(key), null);
     if (!oma) { el2.hidden = true; return; }
@@ -3815,7 +3836,7 @@
   const VAPAA_OTANTA = 3;
 
   function lahetaKierros(k) {
-    if (!PALVELIN || !dataLupa()) return;
+    if (!saaLahettaa()) return;
     if (k.tila === "free" && Math.floor(Math.random() * VAPAA_OTANTA) !== 0) return;
     const runko = JSON.stringify({
       id: k.id, taso: k.taso, askel: k.askel, osui: k.osui, tila: k.tila,

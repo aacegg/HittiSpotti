@@ -45,6 +45,32 @@ python3 -m http.server 8000
 
 Avaa sitten <http://localhost:8000>. Mikä tahansa muu staattinen palvelin (esim. `npx serve`) käy yhtä hyvin.
 
+## Paikallinen kehitys ei kirjoita tilastoihin
+
+`app.js` osoittaa tuotannon tilastopalvelimeen myös localhostissa.
+Testisivulta osoite riisutaan julkaisussa, mutta paikallisella
+palvelimella tiedosto on sellaisenaan, joten jokainen läpipeluu
+kehityksessä kirjaisi rivin oikeisiin lukuihin. Ne luvut ovat se
+aineisto josta biisien vaikeustasot johdetaan, eli kehityspelaaminen
+vääristäisi peliä.
+
+Siksi `saaLahettaa()` vaatii kolme asiaa: palvelimen osoite on
+olemassa, isäntä ei ole localhost, 127.0.0.1, [::1] tai `file:`, ja
+pelaaja on antanut luvan. Kaikki kuusi palvelinkutsua kulkevat sen
+läpi.
+
+`dataLupa()` pysyi erillään, koska se on pelaajan oma valinta ja näkyy
+asetusruudun valintana: se ei saa näyttää pois päältä olevalta vain
+siksi että kehitetään paikallisesti.
+
+`const PALVELIN = "...";` on pidettävä yhtenä merkkijonovakiona.
+Testisivun työnkulku korvaa sen tyhjällä ja vaatii osuman tasan kerran,
+joten ehtolauseeksi muutettuna testisivun julkaisu kaatuisi.
+`testit/palvelinsuoja.mjs` vartioi sekä muotoa että sitä ettei suoja
+estä lähetystä tuotannossa: liikaa estävä suoja on yhtä paha kuin
+puuttuva, ja se vika näkyisi vasta siinä että tilastot lakkaavat
+karttumasta.
+
 ## Testisivu
 
 <https://hittispotti-testi.hittispotti.workers.dev>

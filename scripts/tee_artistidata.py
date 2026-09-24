@@ -31,7 +31,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from kotipaikat import suuralue
+from kotipaikat import maakunta
 
 ROOT = Path(__file__).resolve().parent.parent
 LAHDE = ROOT / ".artistit.json"
@@ -100,11 +100,11 @@ def main() -> int:
                         continue
                     arvo = arvo[len(KUVA_ETU):-len(KUVA_PAATE)]
                 rivi[lyhyt] = arvo
-            # Suuralue mukaan valmiiksi laskettuna. Peli tarvitsee sen
+            # Maakunta mukaan valmiiksi laskettuna. Peli tarvitsee sen
             # keltaista ruutua varten, ja vaihtoehto olisi kuljettaa
             # 344 kunnan taulukko selaimeen. Kaksi kenttää per artisti
             # on halvempi kuin koko taulukko kerran.
-            rivi["a"] = suuralue(rivi["p"])
+            rivi["a"] = maakunta(rivi["p"])
             if not rivi["a"]:
                 puutteet.append(f"{v.get('nimi')}: tuntematon kunta "
                                 f"{rivi['p']!r}")

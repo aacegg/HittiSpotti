@@ -363,14 +363,23 @@ yhden arvauksen jälkeen siitä jäi jäljelle kolme neljäsosaa artisteista.
 Kenttä on yhä lähdetiedostossa, joten se saadaan takaisin ilman uutta
 hakukierrosta.
 
-Kotipaikassa vihreä on sama kunta ja keltainen sama suuralue.
-Suuralue on Tilastokeskuksen NUTS 2 -jako (Helsinki-Uusimaa,
-Etelä-Suomi, Länsi-Suomi, Pohjois- ja Itä-Suomi, Ahvenanmaa) eikä itse
-keksitty. Maakunta kokeiltiin ensin eikä se toiminut: 246 artistista
-142 on Uusimaalta ja heistä lähes kaikki Helsingistä, joten "sama
-maakunta mutta eri kunta" jäi harvinaiseksi ja keltaisia tuli vain 5 %
-ruuduista. Karkea "etelä, länsi, itä, pohjoinen" olisi antanut
-enemmän keltaista (19 %) mutta rajat olisivat oma mielipide.
+Kotipaikassa vihreä on sama kunta ja keltainen sama maakunta.
+
+Suuralue (Tilastokeskuksen NUTS 2 -jako) oli välillä käytössä ja se on
+mitattuna parempi: keltaisia 14 % ruuduista vastaan 9 %, ja yhden
+arvauksen jälkeen jäljelle jää 58 % artisteista vastaan 67 %. Se
+kuitenkin vaihdettiin pois, koska **suuralue on tilastokäsite jota ei
+lue missään pelaajalle näkyvässä**. Säännön "eri kunta, sama suuralue"
+ymmärtäminen vaatisi tietämään mikä Länsi-Suomi on. Maakunnan jokainen
+tuntee, ja sääntö jota ei ymmärrä ei auta vaikka se rajaisi joukkoa
+tehokkaammin.
+
+Kolmas vaihtoehto oli "sama tai naapurimaakunta", joka olisi mitattuna
+paras (keltaisia 29 %, jäljelle 53 %) ja sanoina ymmärrettävä. Se
+hylättiin koska se vaatisi käsin kirjoitetun naapuruustaulukon, ja
+sellainen on uusi paikka hiljaiselle virheelle: väärä naapuruus näkyisi
+pelissä vain väärän värisenä ruutuna. Maakunta johdetaan kunnasta
+samasta taulukosta joka on jo olemassa.
 
 Kotipaikka on kunta jossa yhtye perustettiin tai johon sooloartisti
 yhdistetään, ei välttämättä synnyinpaikka: Cheek syntyi Vantaalla mutta

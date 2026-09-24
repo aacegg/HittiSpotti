@@ -147,7 +147,7 @@
    * välimuistissa tyylimuutosten yli, mutta uusi katalogi on eri osoite ja
    * tulee varmasti perille – vanha versio antaisi pelaajalle eri päivän
    * biisit kuin muille. */
-  const KATALOGI_K = 26;
+  const KATALOGI_K = 27;
 
   /* Katalogi on kahdessa osassa, ks. scripts/tee_aanet.py.
    *
@@ -1237,12 +1237,17 @@
     { avain: "j", otsikko: "Jäseniä", luku: true, lahella: 1 },
     { avain: "s", otsikko: "Sukup.",
       osittain: [["Seka", "Mies"], ["Seka", "Nainen"]] },
-    /* Kotipaikka. Vihreä on sama kunta, keltainen sama suuralue.
+    /* Kotipaikka. Vihreä on sama kunta, keltainen sama maakunta.
      *
-     * Suuralue tulee datassa valmiina kenttänä (Tilastokeskuksen NUTS 2
-     * -jako), koska vaihtoehto olisi kuljettaa 344 kunnan taulukko
-     * selaimeen. Sääntö on sama sisältyvyys kuin muissakin keltaisissa:
-     * kunta kuuluu maakuntaan ja maakunta suuralueeseen.
+     * Maakunta eikä suuralue. Suuralue antoi enemmän keltaista (14 %
+     * ruuduista vastaan 9 %) ja rajasi joukkoa tehokkaammin, mutta se
+     * on tilastokäsite jota ei lue missään pelaajalle näkyvässä:
+     * säännön "sama suuralue" ymmärtäminen vaatisi tietämään mikä
+     * Länsi-Suomi on. Maakunnan jokainen tuntee.
+     *
+     * Maakunta tulee datassa valmiina kenttänä, koska vaihtoehto olisi
+     * kuljettaa 344 kunnan taulukko selaimeen. Sääntö on sama
+     * sisältyvyys kuin muissakin keltaisissa: kunta kuuluu maakuntaan.
      *
      * Tämä korvasi laulukielen, joka oli mitattuna heikoin sarake: 211
      * artistia 247:stä lauloi suomeksi, joten yhden arvauksen jälkeen

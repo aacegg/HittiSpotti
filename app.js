@@ -1745,9 +1745,14 @@
 
   /* Monesko arvaus osui, sanana.
    *
-   * "Löysit sen 3 arvauksella" on numeron ja sanan sekamuoto joka lukee
+   * "Ratkesi 3 arvauksella" on numeron ja sanan sekamuoto joka lukee
    * tönkösti. Järjestysluku sanana on se miten ihminen sanoisi asian
-   * ääneen, ja kuusi vaihtoehtoa mahtuu taulukkoon. */
+   * ääneen, ja kuusi vaihtoehtoa mahtuu taulukkoon.
+   *
+   * Verbi on "ratketa" eikä "löytää": löytäminen on esineen etsimistä,
+   * arvauspeli ratkeaa. Samasta syystä häviörivi on "Arvaukset
+   * loppuivat kesken" eikä "Et löytänyt sitä": molemmat puhuvat
+   * pelistä eivätkä pelaajan suorituksesta. */
   const ARTISTI_JARJESTYS = ["", "ensimmäisellä", "toisella", "kolmannella",
     "neljännellä", "viidennellä", "kuudennella"];
 
@@ -1775,7 +1780,7 @@
     el.aPaljastusOtsikko.textContent = artistiTila.voitto ? "Oikein!" : "Ei osunut";
     el.aPaljastusNimi.textContent = artistiTila.oikea.n;
     el.aPaljastusTeksti.textContent = artistiTila.voitto
-      ? `Löysit sen ${ARTISTI_JARJESTYS[n] || n + "."} arvauksella.`
+      ? `Ratkesi ${ARTISTI_JARJESTYS[n] || n + "."} arvauksella.`
       : "Arvaukset loppuivat kesken.";
     /* Sivun oma loppulohko piiloon ruudun ajaksi. Siinä lukee sama asia,
      * ja himmennyksen läpi luettuna se näytti siltä että sama teksti on

@@ -379,18 +379,27 @@ yhtään mahdotonta päivää ei ole. Kumpikaan malli ei ole ihminen:
 molemmat tietävät kaikkien 246 artistin debyyttivuodet ja
 jäsenmäärät, joten ne ovat parhaita tapauksia.
 
-**25 artistilla on kaksoisolento.** Täsmälleen samat viisi tietoa on
-12 ryhmällä, esimerkiksi Elastinen ja Pyhimys, Chisu ja ABREU sekä
-Cledos, ibe ja Bizi. Päivän artistilla on siis 10 prosentin
-todennäköisyydellä joku jolta viisi vihreää ei vielä ratkaise peliä.
-Juuri näistä tulevat ne päivät joissa täydellinenkin pelaaja tarvitsee
-kuusi arvausta.
+**25 artistilla on kaksoisolento, ja se on sallittua.** Täsmälleen
+samat viisi tietoa on 12 ryhmällä, esimerkiksi Elastinen ja Pyhimys,
+Chisu ja ABREU sekä Cledos, ibe ja Bizi. Päivän artistilla on siis
+kymmenen prosentin todennäköisyydellä joku jonka arvaaminen antaa
+viisi vihreää ja silti "väärin".
 
-Tätä ei korjata poistamalla artisteja: he ovat oikeita artisteja ja
-samanlaisuus on totta. Ohjeen sarakevälilehdellä sanotaan se ääneen,
-jottei viisi vihreää ja "väärin" näytä rikkinäiseltä pelilta.
-Kuudes attribuutti katkaisisi siteet, mutta viisi saraketta on jo
-puhelimen leveydellä ahdas.
+Se näyttää ensi silmäyksellä vialta, mutta ei ole: **nimi erottaa
+artistit**, ja pelaaja näkee arvaamansa nimen. Viisi vihreää ja väärin
+kertoo että vastauksella on juuri nuo viisi tietoa eikä se ole tämä
+artisti, mikä kahden hengen ryhmässä ratkaisee pelin kokonaan. Se on
+siis vahva vihje eikä umpikuja, ja mittaus tukee sitä: täydellinen
+pelaaja selviää jokaisesta päivästä kuudella arvauksella.
+
+Kokeiltiin kahta korjausta ja molemmat peruttiin. Aakkosnuoli nimen
+perässä olisi poistanut myös ne 56 paria joita mikään arvaus ei erota,
+mutta nimeen ei haluttu ylimääräistä. Kaksoisolennollisten rajaaminen
+pois päivän artistista olisi ollut näkymätön, mutta se olisi poistanut
+25 artistia vastauksista turhaan.
+
+Ohjeen sarakevälilehdellä asia sanotaan ääneen, jotta pelaaja osaa
+lukea viisi vihreää oikein eikä vikana.
 
 **Paljastusanimaatio.** Uusin rivi kääntyy auki ruutu kerrallaan
 vasemmalta oikealle, ja väri tulee näkyviin käännön mukana. Ruudussa on

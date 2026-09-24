@@ -147,7 +147,7 @@
    * välimuistissa tyylimuutosten yli, mutta uusi katalogi on eri osoite ja
    * tulee varmasti perille – vanha versio antaisi pelaajalle eri päivän
    * biisit kuin muille. */
-  const KATALOGI_K = 30;
+  const KATALOGI_K = 31;
 
   /* Katalogi on kahdessa osassa, ks. scripts/tee_aanet.py.
    *
@@ -1295,7 +1295,6 @@
    * Tämä on vain näyttömuoto. Data, vertailu ja jakoteksti käyttävät
    * arvoa sellaisenaan. */
   const ARTISTI_TAVUT = {
-    "Asikkala": "Asik­kala",
     "Elektroninen": "Elek­tro­ninen",
     "Enonkoski": "Enon­koski",
     "Harjavalta": "Har­ja­valta",
@@ -1329,6 +1328,7 @@
     "Ulkomaat": "Ulko­maat",
     "Utajärvi": "U­ta­järvi",
     "Ylitornio": "Yli­tor­nio",
+    "Ylistaro": "Ylis­taro",
     "Ylöjärvi": "Ylö­järvi",
   };
 

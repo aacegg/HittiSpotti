@@ -100,7 +100,7 @@ MAAKUNNAT = {
         "Seinäjoki", "Lapua", "Kauhava", "Kauhajoki", "Kurikka", "Alavus",
         "Ähtäri", "Ilmajoki", "Jalasjärvi", "Nurmo", "Alajärvi", "Evijärvi",
         "Isojoki", "Karijoki", "Teuva", "Soini", "Vimpeli", "Lappajärvi",
-        "Kuortane", "Ylihärmä", "Alahärmä", "Peräseinäjoki",
+        "Kuortane", "Ylihärmä", "Alahärmä", "Peräseinäjoki", "Ylistaro",
     ],
     "Pohjanmaa": [
         "Vaasa", "Pietarsaari", "Uusikaarlepyy", "Kristiinankaupunki",

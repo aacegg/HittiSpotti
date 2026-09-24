@@ -2286,7 +2286,3 @@ body.sheet-open { overflow: hidden; }
   background: var(--bg-lift);
   padding-top: var(--s5); margin-top: calc(var(--s5) * -1);
 }
-
-/* Aakkosnuoli arvatun nimen perässä. Se on vihje siinä missä ruudutkin,
-   joten se on nimen värinen eikä himmeä. */
-.a-aakkoset { color: var(--t3); font-size: 10px; }

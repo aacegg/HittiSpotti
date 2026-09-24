@@ -27,17 +27,17 @@
        kuvakkeesta kiinni omassa välimuistissaan sitkeämmin kuin mistään
        muusta, eikä pelkkä uusi tiedostosisältö samassa osoitteessa riitä
        vaihtamaan sitä. -->
-  <link rel="icon" href="favicon.svg?v=121" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg?v=122" type="image/svg+xml">
   <!-- iOS ei tue SVG:tä kotinäytön kuvakkeena: SVG:llä se otti sivusta
        ruudunkaappauksen kuvakkeen sijaan. 180 px on iPhonen koko. -->
-  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=121">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=121">
-  <link rel="manifest" href="manifest.webmanifest?v=121">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=122">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=122">
+  <link rel="manifest" href="manifest.webmanifest?v=122">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HittiSpotti">
   <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=121">
+  <link rel="stylesheet" href="style.css?v=122">
 
   <script type="application/ld+json">
   {
@@ -397,8 +397,8 @@
            kaikki tietävät että kyse on kirjaimista; tässä pelaaja ei muuten
            tiedä mitä kolmas ruutu tarkoittaa. -->
       <div class="a-otsikot" aria-hidden="true">
-        <span>Genre</span><span>Jäseniä</span><span>Sukup.</span>
-        <span>Kotoisin</span><span>Debyytti</span><span>Nimi</span>
+        <span>Artisti</span><span>Genre</span><span>Jäseniä</span>
+        <span>Sukup.</span><span>Kotoisin</span><span>Debyytti</span>
       </div>
 
       <ol class="a-rivit" id="a-rivit"></ol>
@@ -724,16 +724,16 @@
            mitään. -->
       <p class="a-ohje-esim-otsikko">Esimerkki: arvasit Kotiteollisuuden</p>
       <div class="a-otsikot" aria-hidden="true">
-        <span>Genre</span><span>Jäseniä</span><span>Sukup.</span>
-        <span>Kotoisin</span><span>Debyytti</span><span>Nimi</span>
+        <span>Artisti</span><span>Genre</span><span>Jäseniä</span>
+        <span>Sukup.</span><span>Kotoisin</span><span>Debyytti</span>
       </div>
       <div class="a-rivi a-ohje-esim" aria-hidden="true">
+        <div class="a-ruutu on-nimi"><span>Kotiteollisuus</span></div>
         <div class="a-ruutu"><span>Metalli</span></div>
         <div class="a-ruutu on-osui"><span>3</span></div>
         <div class="a-ruutu on-osui"><span>Mies</span></div>
-        <div class="a-ruutu on-lahella"><span>Lappeen&shy;ranta</span></div>
+        <div class="a-ruutu on-lahella"><span>Lap&shy;peen&shy;ranta</span></div>
         <div class="a-ruutu on-lahella"><span>1996</span><svg class="a-nuoli" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1.8v7.8M2.6 6.2 6 9.8l3.4-3.6"/></svg></div>
-        <div class="a-ruutu on-kapea"><span>K</span></div>
       </div>
 
       <ul class="a-ohje-lista">
@@ -741,7 +741,7 @@
         <li>Keltainen kotoisin: eri kunta, sama maakunta.</li>
         <li>Keltainen debyytti ja nuoli alas: vuosi on 1991&ndash;1995.</li>
         <li>Harmaa genre: ei metallia.</li>
-        <li>Harmaa nimi: ei ala K:lla.</li>
+        <li>Harmaa artisti: nimi ei ala K:lla.</li>
       </ul>
 
       <p class="a-ohje-loppu">Jäljellä on siis kolmen hengen miesyhtye
@@ -751,16 +751,24 @@
 
     <div id="a-ohje-sarakkeet" role="tabpanel" hidden>
       <dl class="a-ohje-sarake">
+        <dt>Artisti</dt>
+        <dd>Kenet arvasit.</dd>
+        <dd class="a-ohje-tilat">
+          <span class="a-tila">Ei osu</span>
+          <span class="a-tila on-lahella">Sama alkukirjain</span>
+          <span class="a-tila on-osui">Oikea artisti</span>
+        </dd>
+
         <dt>Genre</dt>
-        <dd>Rap, Rock, Pop, Iskelmä, Metalli, Elektroninen, Reggae tai Muu.
-          Yksi kullekin artistille, se joka kuvaa parhaiten.</dd>
+        <dd>Rap, Rock, Pop, Iskelmä, Metalli, Elektroninen, Reggae tai
+          Muu. Yksi kullekin, se joka kuvaa parhaiten.</dd>
         <dd class="a-ohje-tilat">
           <span class="a-tila">Ei osu</span>
           <span class="a-tila on-osui">Osuu</span>
         </dd>
 
         <dt>Jäseniä</dt>
-        <dd>Kokoonpanon koko: Soolo, Duo tai jäsenten lukumäärä.</dd>
+        <dd>Soolo, Duo tai jäsenten lukumäärä.</dd>
         <dd class="a-ohje-tilat">
           <span class="a-tila">Ei osu</span>
           <span class="a-tila on-lahella">Heittää yhdellä</span>
@@ -768,8 +776,7 @@
         </dd>
 
         <dt>Sukup.</dt>
-        <dd>Mies, Nainen tai Seka. Seka tarkoittaa yhtyettä jossa on sekä
-          miehiä että naisia.</dd>
+        <dd>Mies, Nainen tai Seka eli yhtye jossa on molempia.</dd>
         <dd class="a-ohje-tilat">
           <span class="a-tila">Ei osu</span>
           <span class="a-tila on-lahella">Seka ja mies tai nainen</span>
@@ -777,25 +784,15 @@
         </dd>
 
         <dt>Kotoisin</dt>
-        <dd>Kunta jossa yhtye perustettiin tai johon artisti yhdistetään,
-          ei välttämättä synnyinpaikka.</dd>
+        <dd>Kunta johon artisti yhdistetään, ei aina synnyinpaikka.</dd>
         <dd class="a-ohje-tilat">
           <span class="a-tila">Ei osu</span>
           <span class="a-tila on-lahella">Sama maakunta</span>
           <span class="a-tila on-osui">Osuu</span>
         </dd>
 
-        <dt>Nimi</dt>
-        <dd>Artistin nimen ensimmäinen kirjain. Tämän ansiosta kaikki
-          ruudut eivät voi olla vihreitä väärällä arvauksella.</dd>
-        <dd class="a-ohje-tilat">
-          <span class="a-tila">Ei osu</span>
-          <span class="a-tila on-osui">Osuu</span>
-        </dd>
-
         <dt>Debyytti</dt>
-        <dd>Vuosi jolloin artisti julkaisi ensimmäisen levynsä. Nuoli
-          kertoo kumpaan suuntaan oikea vuosi on.</dd>
+        <dd>Ensimmäisen levyn vuosi. Nuoli kertoo suunnan.</dd>
         <dd class="a-ohje-tilat">
           <span class="a-tila">Ei osu</span>
           <span class="a-tila on-lahella">Viiden vuoden sisällä</span>
@@ -808,7 +805,7 @@
            tätä riviä viisi vihreää ja "väärin" näyttää rikkinäiseltä
            pelilta eikä siltä mitä se on. -->
       <p class="a-ohje-loppu">Kahdella artistilla voi olla samat tiedot.
-        Silloin nimen kirjain on se joka erottaa heidät.</p>
+        Silloin erottaa vain nimi, ja sen näet ensimmäisestä ruudusta.</p>
     </div>
 
     <div class="sheet-actions">
@@ -818,7 +815,7 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=121"></script>
+  <script src="app.js?v=122"></script>
 
   <!-- Kävijälaskenta: ei evästeitä, ei henkilötietoja, ei seurantaa yli
        sivustorajojen – siksi tämä ei vaadi suostumusikkunaa. Ladataan

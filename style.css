@@ -2072,29 +2072,32 @@ body.sheet-open { overflow: hidden; }
    sanan leveys, joten "Elektroninen" levitti rivin muita leveämmäksi ja
    rivit menivät eri linjoille. Nollan alaraja antaa tekstin rivittyä
    ruudun sisällä ruudun venyttämisen sijaan. */
-/* Viisi joustavaa saraketta ja yksi kapea. Kapeassa on nimen
-   alkukirjain eli yksi merkki, joten sille riittää 30 px, ja se vie
-   muilta vain reilun pikselin kullekin. */
+/* Nimiruutu kiinteänä ja viisi joustavaa perässä. 56 px riittää
+   kansikuvalle ja nimen alulle, ja se on sen verran kuin viideltä
+   muulta sarakkeelta voi ottaa: alle 50 pikselin leveydessä
+   "Maarianhamina" katkeaa neljälle riville. */
+/* Artistinäkymä saa kapeamman pehmusteen kuin muut näkymät. Kuusi
+   saraketta tarvitsee jokaisen pikselin, ja tässä niitä on kaksikym-
+   mentä: .wrap pehmustaa jo 16 pikselillä, joten sisältö pysyy silti
+   irti ruudun reunasta. Koko näkymä siirtyy yhtä matkaa, joten
+   hakukenttä ja ruudukko pysyvät samassa linjassa. */
+#view-artisti { padding-left: 6px; padding-right: 6px; }
+
 .a-otsikot,
 .a-rivi {
-  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)) 30px;
+  display: grid; grid-template-columns: 56px repeat(5, minmax(0, 1fr));
   gap: 4px;
 }
 .a-otsikot { margin-bottom: 6px; }
+/* Otsikko 9 px eikä 10: "KOTOISIN" ja "DEBYYTTI" ovat kahdeksan
+   merkkiä, eivätkä ne mahdu sarakkeen leveyteen isommalla. */
 .a-otsikot span {
-  font-size: 10px; text-transform: uppercase; letter-spacing: .06em;
+  font-size: 9px; text-transform: uppercase; letter-spacing: .03em;
   color: var(--muted); text-align: center;
 }
 
 .a-rivit { list-style: none; margin: 0; padding: 0; }
 .a-rivit li { margin-bottom: 8px; }
-/* Nimi on rivin selite eikä otsikko: se kertoo mitä arvattiin, ja ruudut
-   ovat se mitä katsotaan. Aiemmin se oli isolla ja valkoisella, jolloin
-   kuusi arvausta luki kuutena otsikkona ruudukoiden välissä. */
-.a-artisti {
-  font-size: 11px; color: var(--muted); margin: 0 0 3px;
-  letter-spacing: .02em;
-}
 /* Kiinteä korkeus eikä aspect-ratio. Neliö tarkoittaa puhelimessa noin
    68 pikselin korkeutta ruutua kohti, eli kuusi arvausta ei mahtunut
    ruudulle läheskään. Matalampi suorakaide vie kolmanneksen vähemmän
@@ -2215,7 +2218,7 @@ body.sheet-open { overflow: hidden; }
 .at-kortti-ylä {
   font-size: 12px; color: var(--dim); margin: 0 0 10px; text-align: center;
 }
-.at-kortti .a-rivi { grid-template-columns: repeat(5, 26px) 20px; justify-content: center; }
+.at-kortti .a-rivi { grid-template-columns: 34px repeat(5, 26px); justify-content: center; }
 .at-kortti .a-ruutu { min-height: 26px; font-size: 0; padding: 0; border-radius: 4px; }
 .at-kortti .a-rivi + .a-rivi { margin-top: 4px; }
 .at-jaa { display: block; width: 100%; margin-top: 18px; }
@@ -2330,5 +2333,33 @@ body.sheet-open { overflow: hidden; }
 }
 .at-vertailu[hidden] { display: none; }
 
-/* Kapea ruutu: yksi merkki keskellä, ei tavutusta eikä pehmustetta. */
-.a-ruutu.on-kapea { padding: 3px 0; font-size: 12px; hyphens: none; }
+/* Rivin ensimmäinen ruutu: arvattu artisti, kuva ja nimi päällekkäin.
+
+   Nimi katkeaa pisteisiin eikä rivity. Ruutu on kapeampi kuin useimmat
+   nimet, ja kolmirivinen nimi kasvattaisi koko ruudukon korkeutta;
+   tunnistamiseen riittää nimen alku ja kuva sen yläpuolella. */
+.a-ruutu.on-nimi {
+  padding: 3px; gap: 3px; font-size: 9px; letter-spacing: 0;
+  hyphens: none; line-height: 1.1;
+}
+.a-ruutu.on-nimi > span {
+  display: block; width: 100%;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.a-nimi-kuva {
+  width: 24px; height: 24px; flex: none;
+  border-radius: 4px; object-fit: cover; display: block;
+}
+
+/* Kapeimmat puhelimet. 320 pikselin ruudulla kuudelle sarakkeelle jää
+   36 pikseliä kullekin, jolloin "Helsinki" katkeaa kahtia ja otsikot
+   "KOTOISIN" ja "DEBYYTTI" menevät päällekkäin. Nimiruutu ja kirjasin
+   kapenevat sen verran että sanat mahtuvat kahdelle riville. */
+@media (max-width: 360px) {
+  .a-otsikot,
+  .a-rivi { grid-template-columns: 48px repeat(5, minmax(0, 1fr)); gap: 3px; }
+  .a-otsikot span { font-size: 8px; letter-spacing: 0; }
+  .a-ruutu { font-size: 10px; padding: 3px 1px; }
+  .a-ruutu.on-nimi { font-size: 8px; padding: 3px 2px; }
+  .a-nimi-kuva { width: 20px; height: 20px; }
+}

@@ -21,14 +21,16 @@ const koodi = `
   return artistiVertaa;`;
 const artistiVertaa = new Function(koodi)();
 const kaikki = JSON.parse(fs.readFileSync("artistit.json", "utf8"));
-/* Alkukirjain johdetaan nimestä kuten pelissäkin: se ei ole datassa
-   vaan lasketaan latauksessa. Ilman tätä kuudes sarake olisi
-   mittauksessa aina tyhjä ja peli näyttäisi vaikeammalta kuin on. */
-kaikki.forEach((a) => { a.kirjain = a.n[0].toUpperCase(); });
 
-// Palaute yhtenä merkkijonona, jotta samanlaiset palautteet niputtuvat.
+/* Palaute yhtenä merkkijonona, jotta samanlaiset palautteet niputtuvat.
+ *
+ * Merkit taulukosta eikä tila[0]:sta: "osui" ja "ohi" alkavat molemmat
+ * o:lla, joten alkukirjain teki vihreästä ja harmaasta saman
+ * palautteen. Lukukentissä ero säilyi nuolen ansiosta, muissa ei, ja
+ * mittaus antoi pelille vähemmän tietoa kuin pelaajalla oikeasti on. */
+const MERKIT = { osui: "V", lahella: "K", ohi: "-" };
 const palaute = (arvaus, oikea) =>
-  artistiVertaa(arvaus, oikea).map((r) => r.tila[0] + r.nuoli).join("|");
+  artistiVertaa(arvaus, oikea).map((r) => MERKIT[r.tila] + r.nuoli).join("|");
 
 // Esilasketaan kaikki palautteet: 246 x 246 on pieni taulukko.
 const idx = new Map(kaikki.map((a, i) => [a.id, i]));

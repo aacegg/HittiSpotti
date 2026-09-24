@@ -147,7 +147,7 @@
    * välimuistissa tyylimuutosten yli, mutta uusi katalogi on eri osoite ja
    * tulee varmasti perille – vanha versio antaisi pelaajalle eri päivän
    * biisit kuin muille. */
-  const KATALOGI_K = 29;
+  const KATALOGI_K = 30;
 
   /* Katalogi on kahdessa osassa, ks. scripts/tee_aanet.py.
    *
@@ -1223,6 +1223,25 @@
    * Pari luetaan kumpaankin suuntaan: arvaus Seka oikean Miehen kohdalla
    * on yhtä lailla osittain oikein kuin toisin päin. */
   const ARTISTI_KENTAT = [
+    /* Arvattu artisti. Rivin ensimmäinen ruutu, ja ainoa jossa lukee
+     * nimi ja näkyy kuva.
+     *
+     * Ruutu on kahdessa tehtävässä yhtä aikaa. Se kertoo kenet
+     * arvattiin, jolloin rivin voi lukea ilman erillistä nimiriviä sen
+     * yläpuolella, ja se on se sarake joka estää kaiken vihreän
+     * väärällä arvauksella: 246 artistista 25:llä on täsmälleen samat
+     * viisi muuta tietoa jonkun toisen kanssa, ja ilman tätä pelaaja
+     * saattoi arvata kaksoisolennon, nähdä viisi vihreää ja saada
+     * "väärin". Mitattuna sellaisia pareja oli 14.
+     *
+     * Keltainen on sama alkukirjain. Se on samaa logiikkaa kuin muut
+     * keltaiset (osa tiedosta osuu), ja se on ainoa tieto joka tästä
+     * ruudusta on irrotettavissa. Sen kanssa yhtään artistiparia ei jää
+     * erottamatta.
+     *
+     * Nimi katkeaa pisteisiin jos se ei mahdu. Kuva riittää
+     * tunnistamiseen siinä missä nimen alku. */
+    { avain: "n", otsikko: "Artisti", nimi: true },
     /* Genressä ei ole osittaista osumaa.
      *
      * Rock ja metalli oli hetken mukana sillä perusteella että metalli on
@@ -1261,19 +1280,6 @@
      * siitä jäi jäljelle 75 % artisteista. Kotipaikasta jää 58 %. */
     { avain: "p", otsikko: "Kotoisin", ylakentta: "a" },
     { avain: "v", otsikko: "Debyytti", luku: true, lahella: 5 },
-    /* Nimen alkukirjain. Kapea sarake, koska sisältö on yksi merkki.
-     *
-     * Tämä on se sarake joka estää kaiken vihreän väärällä
-     * arvauksella. 246 artistista 25:llä on täsmälleen samat viisi
-     * muuta tietoa jonkun toisen kanssa, ja ilman tätä pelaaja saattoi
-     * arvata kaksoisolennon, nähdä viisi vihreää ja saada "väärin".
-     * Mitattuna sellaisia pareja oli 14; alkukirjaimen kanssa yksi
-     * (Ares ja Averagekidluke, jotka ovat molemmat A).
-     *
-     * Ei keltaista: kirjain joko on sama tai ei ole. "Lähellä
-     * aakkosissa" olisi eri sääntö ja tarkoittaisi nuolta, eikä nimeen
-     * haluta nuolta. */
-    { avain: "kirjain", otsikko: "Nimi", kapea: true },
   ];
 
   /* Tavutusvihjeet kahdelle pitkälle arvolle.
@@ -1289,26 +1295,41 @@
    * Tämä on vain näyttömuoto. Data, vertailu ja jakoteksti käyttävät
    * arvoa sellaisenaan. */
   const ARTISTI_TAVUT = {
+    "Asikkala": "Asik­kala",
     "Elektroninen": "Elek­tro­ninen",
+    "Enonkoski": "Enon­koski",
     "Harjavalta": "Har­ja­valta",
     "Haukipudas": "Hau­ki­pudas",
+    "Helsinki": "Hel­sinki",
     "Hämeenlinna": "Hä­meen­linna",
+    "Joroinen": "Jo­roinen",
+    "Juankoski": "Juan­koski",
+    "Jyväskylä": "Jy­väs­kylä",
+    "Kauhajoki": "Kau­ha­joki",
     "Kauniainen": "Kau­ni­ainen",
     "Kemijärvi": "Ke­mi­järvi",
     "Kirkkonummi": "Kirk­ko­nummi",
     "Kuusankoski": "Kuu­san­koski",
     "Lappeenranta": "Lap­peen­ranta",
-    "Maarianhamina": "Maa­rian­hamina",
+    "Lumijoki": "Lu­mi­joki",
+    "Maarianhamina": "Maa­rian­ha­mina",
+    "Metalli": "Me­talli",
+    "Miehikkälä": "Mie­hik­kälä",
     "Outokumpu": "Ou­to­kumpu",
     "Pietarsaari": "Pie­tar­saari",
     "Pyhäranta": "Py­hä­ranta",
+    "Riihimäki": "Rii­hi­mäki",
     "Rovaniemi": "Ro­va­niemi",
     "Seinäjoki": "Sei­nä­joki",
     "Siilinjärvi": "Sii­lin­järvi",
+    "Sodankylä": "So­dan­kylä",
     "Suonenjoki": "Suo­nen­joki",
     "Tohmajärvi": "Toh­ma­järvi",
+    "Toivakka": "Toi­vakka",
+    "Ulkomaat": "Ulko­maat",
     "Utajärvi": "U­ta­järvi",
     "Ylitornio": "Yli­tor­nio",
+    "Ylöjärvi": "Ylö­järvi",
   };
 
   /* Kansikuvan osoitteen kiinteät osat.
@@ -1319,6 +1340,10 @@
    * selaimeen. Sama jako on scripts/tee_artistidata.py:ssä. */
   const ARTISTI_KUVA_ETU = "https://is1-ssl.mzstatic.com/image/thumb/";
   const ARTISTI_KUVA_PAATE = "/300x300bb.jpg";
+  /* Arvausrivin kuva on 24 pikseliä leveä, joten sille haetaan oma
+   * pieni koko. Kuutta 300-pikselistä kansikuvaa ei ole syytä ladata
+   * ruutuun jossa ne näkyvät peukalonkynsinä. */
+  const ARTISTI_KUVA_RIVI = "/100x100bb.jpg";
 
   /* Nuolet piirretään SVG:nä eikä merkkeinä ▲ ja ▼.
    *
@@ -1347,6 +1372,12 @@
       const o = oikea[kentta.avain];
       const teksti = kentta.naytto ? kentta.naytto(a) : String(a);
       if (a === o) return { tila: "osui", teksti, nuoli: "" };
+      /* Nimet ovat listalla ainutkertaisia, joten vihreä yllä tarkoittaa
+       * jo oikeaa artistia. Tässä ratkaistaan vain keltainen. */
+      if (kentta.nimi) {
+        const sama = a[0].toUpperCase() === o[0].toUpperCase();
+        return { tila: sama ? "lahella" : "ohi", teksti, nuoli: "" };
+      }
       if (kentta.luku) {
         const lahella = Math.abs(a - o) <= kentta.lahella;
         return {
@@ -1391,10 +1422,6 @@
         .then((lista) => {
           state.artistit = lista;
           state.artistit.forEach((a) => {
-            /* Alkukirjain omaksi kentäkseen, jotta vertailu kohtelee
-             * sitä kuten muitakin sarakkeita. Isoksi kirjaimeksi, koska
-             * "ibe" ja "Irina" ovat molemmat I. */
-            a.kirjain = a.n[0].toUpperCase();
             const alias = ARTISTI_ALIAKSET[a.n];
             a.haku = normalize(a.n + (alias ? " " + alias : ""));
             /* Toinen avain ilman heittomerkkiä. normalize tekee
@@ -1425,6 +1452,7 @@
     "ABREU": "Anna Abreu",
     "Vesala": "Paula Vesala",
     "Stig": "Stig Dogg",
+    "Robin": "Robin Packalen",
   };
 
   function artistiEhdotukset(teksti) {
@@ -1470,14 +1498,22 @@
       const solut = ruudut.map((r, i) => {
         const luokka = r.tila === "osui" ? " on-osui"
                      : r.tila === "lahella" ? " on-lahella" : "";
+        if (ARTISTI_KENTAT[i].nimi) {
+          /* Kuva vain jos sellainen on. Kuvaton artisti saa saman
+           * ruudun ilman sitä, ja nimelle jää enemmän tilaa. */
+          const osoite = artistiKuvaOsoite(arvaus, ARTISTI_KUVA_RIVI);
+          const kuva = osoite
+            ? `<img class="a-nimi-kuva" src="${escapeHtml(osoite)}" alt="" loading="lazy">`
+            : "";
+          return `<div class="a-ruutu on-nimi${luokka}" style="--i:${i}">`
+            + `${kuva}<span>${escapeHtml(r.teksti)}</span></div>`;
+        }
         const nuoli = ARTISTI_NUOLET[r.nuoli] || "";
         const teksti = ARTISTI_TAVUT[r.teksti] || r.teksti;
-        const kapea = ARTISTI_KENTAT[i].kapea ? " on-kapea" : "";
-        return `<div class="a-ruutu${luokka}${kapea}" style="--i:${i}"><span>${escapeHtml(teksti)}</span>${nuoli}</div>`;
+        return `<div class="a-ruutu${luokka}" style="--i:${i}"><span>${escapeHtml(teksti)}</span>${nuoli}</div>`;
       }).join("");
       const animoi = uusi && rivi === viimeinen ? " on-uusi" : "";
-      return `<li><p class="a-artisti">${escapeHtml(arvaus.n)}</p>
-        <div class="a-rivi${animoi}">${solut}</div></li>`;
+      return `<li><div class="a-rivi${animoi}">${solut}</div></li>`;
     });
     el.aRivit.innerHTML = rivit.join("");
     const jaljella = ARTISTI_ARVAUKSIA - artistiTila.arvaukset.length;
@@ -1738,8 +1774,8 @@
       const solut = artistiVertaa(arvaus, artistiTila.oikea).map((r, i) => {
         const luokka = r.tila === "osui" ? " on-osui"
                      : r.tila === "lahella" ? " on-lahella" : "";
-        const kapea = ARTISTI_KENTAT[i].kapea ? " on-kapea" : "";
-        return `<div class="a-ruutu${luokka}${kapea}"></div>`;
+        const nimi = ARTISTI_KENTAT[i].nimi ? " on-nimi" : "";
+        return `<div class="a-ruutu${luokka}${nimi}"></div>`;
       }).join("");
       return `<div class="a-rivi">${solut}</div>`;
     }).join("");
@@ -1904,9 +1940,8 @@
    *
    * Tyhjä src lataisi sivun itsensä uudestaan ja piirtäisi rikkinäisen
    * kuvan paikalle, joten kuvaelementti piilotetaan sen sijaan. */
-  function artistiKuvaOsoite(artisti) {
-    return artisti && artisti.c
-      ? ARTISTI_KUVA_ETU + artisti.c + ARTISTI_KUVA_PAATE : "";
+  function artistiKuvaOsoite(artisti, paate = ARTISTI_KUVA_PAATE) {
+    return artisti && artisti.c ? ARTISTI_KUVA_ETU + artisti.c + paate : "";
   }
 
   function asetaArtistiKuva(kuvaEl, artisti) {

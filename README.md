@@ -427,52 +427,79 @@ vertailun app.js:stä:
 
 | pelaaja | ratkesi kuudella | keskimäärin |
 |---|---|---|
-| täydellinen (minimoi pahimman jäännösjoukon) | 100 % | 3,7 |
-| satunnainen (arvaa jonkin vihjeisiin sopivan) | 84 % | 4,6 |
+| täydellinen (minimoi pahimman jäännösjoukon) | 100 % | 2,9 |
+| satunnainen (arvaa jonkin vihjeisiin sopivan) | 99,6 % | 3,3 |
 
-Luvut heikkenivät kun kotipaikan keltainen vaihdettiin suuralueesta
-maakuntaan: satunnaisen pelaajan onnistuminen putosi 90 prosentista
-84:ään. Se on ymmärrettävyyden hinta, ks. kotipaikan kohta ylempänä.
+Luvut ovat paremmat kuin aiemmin tähän kirjatut (100 % / 3,7 ja 84 % /
+4,6), ja ero on mittausvirhe eikä pelin muutos. Palautteen avain
+rakennettiin merkkijonosta `tila[0]`, ja "osui" ja "ohi" alkavat
+molemmat o:lla: vihreä ja harmaa menivät samaksi palautteeksi kaikissa
+muissa kuin lukukentissä, joissa nuoli piti ne erillään. Malli pelasi
+siis vähemmällä tiedolla kuin pelaaja oikeasti saa. Korjattu taulukolla
+`{ osui: "V", lahella: "K", ohi: "-" }`.
+
+Sama virhe kosketti kotipaikkavertailua: suuralueen vaihto maakuntaan
+ei maksanut kuutta prosenttiyksikköä, vaan mittari vain kadotti osan
+tiedosta. Ymmärrettävyyden perustelu pätee yhä, hinta oli pienempi.
 
 Täydellinen pelaaja ei tarvitse kertaakaan yli kuutta arvausta, eli
 yhtään mahdotonta päivää ei ole. Kumpikaan malli ei ole ihminen:
 molemmat tietävät kaikkien 246 artistin debyyttivuodet ja
 jäsenmäärät, joten ne ovat parhaita tapauksia.
 
-**Kuudes sarake on nimen alkukirjain.** Se on kapea, koska sisältö on
-yksi merkki, ja se vie muilta sarakkeilta vain reilun pikselin
-kullekin. Vihreä tai harmaa, ei keltaista: kirjain joko on sama tai ei
-ole.
+**Rivin ensimmäinen ruutu on arvattu artisti.** Kuva ja nimi, nimi
+pisteisiin katkaistuna jos se ei mahdu. Malli on Spotle, jossa sama
+ruutu on rivin alussa: kuvasta tunnistaa artistin silloinkin kun
+nimestä näkyy "Sir Elwo...". Ruutu korvasi nimirivin ruudukon
+yläpuolella, joten pystysuuntaa säästyi kuuden arvauksen verran.
 
-Tämä sarake estää kaiken vihreän väärällä arvauksella. Mitattuna
-pareja joissa kaikki ruudut olisivat vihreitä mutta arvaus silti
-väärin oli **14; alkukirjaimen kanssa yksi** (Ares ja Averagekidluke,
-jotka ovat molemmat A). Erottamattomia artisteja on 56 sijaan 8.
+Ruutu on myös vertailtava sarake. Vihreä on oikea artisti, keltainen
+sama alkukirjain, harmaa ei kumpikaan. Tämä on se sarake joka estää
+kaiken vihreän väärällä arvauksella:
 
-Aakkosnuolta ei tullut. Se olisi poistanut viimeisenkin parin, mutta
-nimeen ei haluta nuolta: kirjain riittää siihen mihin sitä tarvitaan.
+| | erottamattomia artisteja | kaikki vihreää mutta väärin |
+|---|---|---|
+| ilman nimiruutua | 25 | 14 paria |
+| nimiruudun kanssa | 0 | 0 |
+
+Aiemmin tässä luki 56 ja 14; myös ne oli mitattu edellä kuvatulla
+rikkinäisellä avaimella. Oikea luku ilman nimiruutua on 25, eli
+täsmälleen ne 25 joilla on kaksoisolento.
+
+Sarake vei tilaa viideltä muulta. Nimiruutu on 56 px, artistinäkymän
+oma pehmuste 6 px ulomman 16:n lisäksi ja otsikot 9 px, jolloin muille
+jää 50 px ruutua kohti eli yhtä paljon kuin ennen tätä saraketta. Alle
+360 pikselin ruuduilla nimiruutu kapenee 48:aan ja kirjasin 10:een,
+koska muuten "Helsinki" katkeaa kahdelle riville. Pitkille kunnille ja
+"Metallille" kirjoitettiin tavutusvihjeet, jotta ne katkeavat
+tavurajalta eivätkä mistä sattuu.
 
 **25 artistilla on kaksoisolento, ja se on sallittua.** Täsmälleen
-samat viisi tietoa on 12 ryhmällä, esimerkiksi Elastinen ja Pyhimys,
-Chisu ja ABREU sekä Cledos, ibe ja Bizi. Päivän artistilla on siis
-kymmenen prosentin todennäköisyydellä joku jonka arvaaminen antaa
-viisi vihreää ja silti "väärin".
+samat viisi muuta tietoa on 12 ryhmällä, esimerkiksi Elastinen ja
+Pyhimys, Chisu ja ABREU sekä Cledos, ibe ja Bizi. Päivän artistilla on
+siis kymmenen prosentin todennäköisyydellä joku jonka arvaaminen antaa
+viisi vihreää.
 
-Se näyttää ensi silmäyksellä vialta, mutta ei ole: **nimi erottaa
-artistit**, ja pelaaja näkee arvaamansa nimen. Viisi vihreää ja väärin
-kertoo että vastauksella on juuri nuo viisi tietoa eikä se ole tämä
-artisti, mikä kahden hengen ryhmässä ratkaisee pelin kokonaan. Se on
-siis vahva vihje eikä umpikuja, ja mittaus tukee sitä: täydellinen
-pelaaja selviää jokaisesta päivästä kuudella arvauksella.
+Se ei ole umpikuja eikä enää edes näytä vialta: nimiruutu jää harmaaksi
+tai keltaiseksi, joten rivi ei ole kauttaaltaan vihreä ja pelaaja näkee
+kenet hän arvasi. Viisi vihreää kertoo että vastauksella on juuri nuo
+viisi tietoa, mikä kahden hengen ryhmässä ratkaisee pelin kokonaan.
 
-Kokeiltiin kahta korjausta ja molemmat peruttiin. Aakkosnuoli nimen
-perässä olisi poistanut myös ne 56 paria joita mikään arvaus ei erota,
-mutta nimeen ei haluttu ylimääräistä. Kaksoisolennollisten rajaaminen
-pois päivän artistista olisi ollut näkymätön, mutta se olisi poistanut
-25 artistia vastauksista turhaan.
+Kokeiltiin kahta muuta korjausta ja molemmat peruttiin. Aakkosnuoli
+nimen perässä olisi ollut ylimääräinen, ja kaksoisolennollisten
+rajaaminen pois päivän artistista olisi poistanut 25 artistia
+vastauksista turhaan.
 
 Ohjeen sarakevälilehdellä asia sanotaan ääneen, jotta pelaaja osaa
 lukea viisi vihreää oikein eikä vikana.
+
+**Robin eikä Robin Packalen.** Artistilistalla lukee se nimi jolla
+artisti tunnetaan, samalla logiikalla kuin ABREU eikä Anna Abreu.
+Haku löytää hänet molemmilla nimillä, koska "Robin Packalen" on
+hakualiaksena. Nimi ei vaikuta päivän kiertoon: arvonta järjestää
+listan MusicBrainz-tunnisteen mukaan, ja se ei muuttunut. Biisipelin
+katalogissa esiintyy yhä molemmat kirjoitusasut, eikä tämä koskenut
+sitä: ArtistiSpotti on eri peli.
 
 **Yksi ja kaksi jäsentä sanoina.** Ruudussa lukee "Soolo" ja "Duo"
 eikä 1 ja 2, koska niin artisteista puhutaan: ne ovat nimiä

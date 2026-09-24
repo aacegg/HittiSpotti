@@ -27,17 +27,17 @@ const vaita = (nimi, ehto, lisa = "") => {
   console.log((ehto ? "OK " : "EI ") + nimi + (lisa ? "  " + lisa : ""));
 };
 
-// a = suuralue, joka tulee datassa kotipaikan rinnalla.
-/* a = maakunta, kirjain = nimen alkukirjain. Molemmat tulevat pelissä
-   johdettuina: maakunta datasta, kirjain nimestä. */
-const tee = (g, j, s, p, v, a = "Uusimaa", kirjain = "A") =>
-  ({ g, j, s, p, v, a, kirjain });
-// Tilat yhtenä merkkijonona: helpompi lukea kuin viisi olioa.
+/* a = maakunta, n = artistin nimi. Molemmat ovat ruudukossa omina
+   sarakkeinaan: nimi on rivin ensimmäinen ruutu. Oletusnimi on eri kuin
+   vastauksen, koska arvaus on useimmissa testeissä väärä artisti. */
+const tee = (g, j, s, p, v, a = "Uusimaa", n = "Bee") =>
+  ({ n, g, j, s, p, v, a });
+// Tilat yhtenä merkkijonona: helpompi lukea kuin kuusi oliota.
 const merkit = { osui: "V", lahella: "K", ohi: "-" };
 const rivi = (arvaus, oikea) =>
   artistiVertaa(arvaus, oikea).map((r) => merkit[r.tila]).join("");
 
-const oikea = tee("Rock", 3, "Mies", "Helsinki", 2012);
+const oikea = tee("Rock", 3, "Mies", "Helsinki", 2012, "Uusimaa", "Aava");
 
 // 1. Täysosuma
 vaita("sama artisti on kauttaaltaan vihreä",
@@ -48,70 +48,75 @@ vaita("sama artisti on kauttaaltaan vihreä",
 const ruutu = (arvaus, oikea, i) => artistiVertaa(arvaus, oikea)[i];
 const soolo = tee("Rock", 1, "Mies", "Helsinki", 2012);
 vaita("yksi jäsen on Soolo",
-  ruutu(soolo, oikea, 1).teksti === "Soolo", ruutu(soolo, oikea, 1).teksti);
+  ruutu(soolo, oikea, 2).teksti === "Soolo", ruutu(soolo, oikea, 2).teksti);
 vaita("kaksi jäsentä on Duo",
-  ruutu(tee("Rock", 2, "Mies", "Helsinki", 2012), oikea, 1).teksti === "Duo");
+  ruutu(tee("Rock", 2, "Mies", "Helsinki", 2012), oikea, 2).teksti === "Duo");
 vaita("kolme jäsentä on luku",
-  ruutu(tee("Rock", 3, "Mies", "Helsinki", 2012), oikea, 1).teksti === "3");
+  ruutu(tee("Rock", 3, "Mies", "Helsinki", 2012), oikea, 2).teksti === "3");
 vaita("Soolo ja Duo ovat keltaisia keskenään",
-  ruutu(tee("Rock", 2, "Mies", "Helsinki", 2012), soolo, 1).tila === "lahella");
+  ruutu(tee("Rock", 2, "Mies", "Helsinki", 2012), soolo, 2).tila === "lahella");
 vaita("sanamuoto ei sekoita nuolta",
-  ruutu(soolo, oikea, 1).nuoli === "▲", ruutu(soolo, oikea, 1).nuoli);
+  ruutu(soolo, oikea, 2).nuoli === "▲", ruutu(soolo, oikea, 2).nuoli);
 
 // 2. Lukukentät
 vaita("jäsenmäärä yhden päässä on keltainen",
-  rivi(tee("Pop", 4, "Nainen", "Turku", 1800, "Varsinais-Suomi"), oikea)[1] === "K");
+  rivi(tee("Pop", 4, "Nainen", "Turku", 1800, "Varsinais-Suomi"), oikea)[2] === "K");
 vaita("jäsenmäärä kahden päässä on musta",
-  rivi(tee("Pop", 5, "Nainen", "Turku", 1800, "Varsinais-Suomi"), oikea)[1] === "-");
+  rivi(tee("Pop", 5, "Nainen", "Turku", 1800, "Varsinais-Suomi"), oikea)[2] === "-");
 vaita("debyytti viiden päässä on keltainen",
-  rivi(tee("Pop", 9, "Nainen", "Turku", 2007, "Varsinais-Suomi"), oikea)[4] === "K");
+  rivi(tee("Pop", 9, "Nainen", "Turku", 2007, "Varsinais-Suomi"), oikea)[5] === "K");
 vaita("debyytti kuuden päässä on musta",
-  rivi(tee("Pop", 9, "Nainen", "Turku", 2006, "Varsinais-Suomi"), oikea)[4] === "-");
+  rivi(tee("Pop", 9, "Nainen", "Turku", 2006, "Varsinais-Suomi"), oikea)[5] === "-");
 
 // 3. Nuoli osoittaa oikeaan suuntaan
 const alas = artistiVertaa(tee("Pop", 9, "Nainen", "Turku", 2020, "Varsinais-Suomi"), oikea);
-vaita("liian suuri luku saa alanuolen", alas[1].nuoli === "▼" && alas[4].nuoli === "▼");
+vaita("liian suuri luku saa alanuolen", alas[2].nuoli === "▼" && alas[5].nuoli === "▼");
 const ylos = artistiVertaa(tee("Pop", 1, "Nainen", "Turku", 1990, "Varsinais-Suomi"), oikea);
-vaita("liian pieni luku saa ylänuolen", ylos[1].nuoli === "▲" && ylos[4].nuoli === "▲");
+vaita("liian pieni luku saa ylänuolen", ylos[2].nuoli === "▲" && ylos[5].nuoli === "▲");
 
 // 4. Osittainen osuma muissa kuin lukukentissä
 vaita("sekayhtye on osittain miesyhtye",
-  rivi(tee("Pop", 9, "Seka", "Turku", 1800, "Varsinais-Suomi"), oikea)[2] === "K");
+  rivi(tee("Pop", 9, "Seka", "Turku", 1800, "Varsinais-Suomi"), oikea)[3] === "K");
 vaita("nainen ei ole osittain mies",
-  rivi(tee("Pop", 9, "Nainen", "Turku", 1800, "Varsinais-Suomi"), oikea)[2] === "-");
-vaita("sama suuralue eri kunta on keltainen",
-  rivi(tee("Pop", 9, "Nainen", "Espoo", 1800, "Uusimaa"), oikea)[3] === "K");
-vaita("eri suuralue on musta",
   rivi(tee("Pop", 9, "Nainen", "Turku", 1800, "Varsinais-Suomi"), oikea)[3] === "-");
+vaita("sama maakunta eri kunta on keltainen",
+  rivi(tee("Pop", 9, "Nainen", "Espoo", 1800, "Uusimaa"), oikea)[4] === "K");
+vaita("eri maakunta on musta",
+  rivi(tee("Pop", 9, "Nainen", "Turku", 1800, "Varsinais-Suomi"), oikea)[4] === "-");
 vaita("sama kunta on vihreä",
-  rivi(tee("Pop", 9, "Nainen", "Helsinki", 1800), oikea)[3] === "V");
+  rivi(tee("Pop", 9, "Nainen", "Helsinki", 1800), oikea)[4] === "V");
 /* Genressä ei ole osittaista osumaa lainkaan: vain täysosuma on vihreä
    ja kaikki muu mustaa. Metalli oli hetken rockin kanssa keltainen, ja
    tämä on se testi joka kaatuu jos sellainen palaa takaisin. */
 vaita("metalli ei ole osittain rock",
-  rivi(tee("Metalli", 9, "Nainen", "Turku", 1800, "Varsinais-Suomi"), oikea)[0] === "-");
+  rivi(tee("Metalli", 9, "Nainen", "Turku", 1800, "Varsinais-Suomi"), oikea)[1] === "-");
 vaita("pop ei ole osittain rock",
-  rivi(tee("Pop", 9, "Nainen", "Turku", 1800, "Varsinais-Suomi"), oikea)[0] === "-");
+  rivi(tee("Pop", 9, "Nainen", "Turku", 1800, "Varsinais-Suomi"), oikea)[1] === "-");
 
-/* Nimen alkukirjain. Tämä on se sarake joka estää kaiken vihreän
-   väärällä arvauksella: kaksi artistia voi jakaa kaikki viisi muuta
-   tietoa, mutta eri nimellä alkava saa tähän harmaan. */
-vaita("sama alkukirjain on vihreä",
-  rivi(tee("Pop", 9, "Nainen", "Turku", 1800, "Varsinais-Suomi", "A"), oikea)[5] === "V");
-vaita("eri alkukirjain on harmaa",
-  rivi(tee("Pop", 9, "Nainen", "Turku", 1800, "Varsinais-Suomi", "B"), oikea)[5] === "-");
-vaita("alkukirjaimessa ei ole keltaista",
-  !rivi(tee("Pop", 9, "Nainen", "Turku", 1800, "Varsinais-Suomi", "B"), oikea)
-    .slice(5).includes("K"));
-/* Kaksoisolento eri kirjaimella: kaikki muu vihreää, nimi harmaa. */
+/* Nimiruutu. Se on rivin ensimmäinen ruutu, ja se on myös se sarake
+   joka estää kaiken vihreän väärällä arvauksella: kaksi artistia voi
+   jakaa kaikki viisi muuta tietoa, mutta ei nimeä. Keltainen tarkoittaa
+   samaa alkukirjainta. */
+vaita("väärä artisti on harmaa",
+  rivi(tee("Pop", 9, "Nainen", "Turku", 1800, "Varsinais-Suomi", "Bee"), oikea)[0] === "-");
+vaita("sama alkukirjain on keltainen",
+  rivi(tee("Pop", 9, "Nainen", "Turku", 1800, "Varsinais-Suomi", "Ahti"), oikea)[0] === "K");
+vaita("alkukirjain ei katso kirjainkokoa",
+  rivi(tee("Pop", 9, "Nainen", "Turku", 1800, "Varsinais-Suomi", "ahti"), oikea)[0] === "K");
+vaita("nimiruudussa ei ole nuolta",
+  artistiVertaa(tee("Pop", 9, "Nainen", "Turku", 1800, "Varsinais-Suomi"), oikea)[0].nuoli === "");
+vaita("nimiruudussa lukee arvattu nimi",
+  artistiVertaa(tee("Pop", 9, "Nainen", "Turku", 1800, "Varsinais-Suomi", "Bee"), oikea)[0].teksti === "Bee");
+/* Kaksoisolento: kaikki muu vihreää, nimi harmaa. Tämä on se rivi jota
+   pelaaja ei saa nähdä kauttaaltaan vihreänä ja silti väärin. */
 vaita("kaksoisolento ei saa kaikkea vihreää",
-  rivi(tee("Rock", 3, "Mies", "Helsinki", 2012, "Uusimaa", "B"), oikea) === "VVVVV-",
-  rivi(tee("Rock", 3, "Mies", "Helsinki", 2012, "Uusimaa", "B"), oikea));
+  rivi(tee("Rock", 3, "Mies", "Helsinki", 2012, "Uusimaa", "Bee"), oikea) === "-VVVVV",
+  rivi(tee("Rock", 3, "Mies", "Helsinki", 2012, "Uusimaa", "Bee"), oikea));
 
 // 5. Osittaisuus toimii kumpaankin suuntaan
-const sekaOikea = tee("Rock", 3, "Seka", "Espoo", 2012);
+const sekaOikea = tee("Rock", 3, "Seka", "Espoo", 2012, "Uusimaa", "Aava");
 vaita("mies on osittain sekayhtye",
-  rivi(tee("Rock", 3, "Mies", "Helsinki", 2012), sekaOikea) === "VVKKVV",
+  rivi(tee("Rock", 3, "Mies", "Helsinki", 2012), sekaOikea) === "-VVKKV",
   rivi(tee("Rock", 3, "Mies", "Helsinki", 2012), sekaOikea));
 
 // 6. Yläkenttä on eri kenttä kuin arvo itse. Jos ne olisivat sama,

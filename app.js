@@ -1274,6 +1274,22 @@
     "Ylitornio": "Yli­tor­nio",
   };
 
+  /* Nuolet piirretään SVG:nä eikä merkkeinä ▲ ja ▼.
+   *
+   * Unicoden kolmiot ovat umpinaisia muotoja ilman vartta, ja ne
+   * piirtyvät eri kokoisina ja eri kohdalla riviä jokaisessa
+   * kirjasimessa. SVG on joka laitteella samanlainen, terävä missä
+   * tahansa koossa ja perii ruudun tekstivärin, joten sama nuoli toimii
+   * sekä tummalla että vaalealla pohjalla.
+   *
+   * Vertailu palauttaa yhä merkin ▲ tai ▼: se on tieto suunnasta, ja
+   * testit sekä vaikeussimulaatio lukevat sen. Tämä taulukko kääntää
+   * sen kuvaksi vasta piirrettäessä. */
+  const ARTISTI_NUOLET = {
+    "▲": '<svg class="a-nuoli" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 10.2V2.4M2.6 5.8 6 2.2l3.4 3.6"/></svg>',
+    "▼": '<svg class="a-nuoli" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1.8v7.8M2.6 6.2 6 9.8l3.4-3.6"/></svg>',
+  };
+
   /* Yksi arvausrivi verrattuna oikeaan vastaukseen.
    *
    * Palauttaa ruudut, ei valmista HTML:ää: samaa vertailua tarvitsee
@@ -1403,7 +1419,7 @@
       const solut = ruudut.map((r, i) => {
         const luokka = r.tila === "osui" ? " on-osui"
                      : r.tila === "lahella" ? " on-lahella" : "";
-        const nuoli = r.nuoli ? `<span class="a-nuoli">${r.nuoli}</span>` : "";
+        const nuoli = ARTISTI_NUOLET[r.nuoli] || "";
         const teksti = ARTISTI_TAVUT[r.teksti] || r.teksti;
         return `<div class="a-ruutu${luokka}" style="--i:${i}"><span>${escapeHtml(teksti)}</span>${nuoli}</div>`;
       }).join("");

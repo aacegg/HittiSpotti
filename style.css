@@ -2113,7 +2113,12 @@ body.sheet-open { overflow: hidden; }
 .a-ruutu.on-lahella { background: var(--t3); color: #0a0908; }
 /* Nuoli numeroruudussa. Kertoo kumpaan suuntaan oikea arvo on, mikä on
    se tieto jonka väri yksin jättäisi antamatta. */
-.a-nuoli { font-size: 11px; opacity: .85; }
+.a-nuoli {
+  width: 11px; height: 11px; flex: none;
+  fill: none; stroke: currentColor; stroke-width: 1.7;
+  stroke-linecap: round; stroke-linejoin: round;
+  opacity: .85;
+}
 
 /* Värien paljastus. Ruutu kääntyy auki reunaltaan, jolloin väri tulee
    näkyviin käännön mukana, ja sarakkeet kääntyvät peräkkäin vasemmalta

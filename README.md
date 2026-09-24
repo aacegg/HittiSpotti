@@ -493,6 +493,31 @@ vastauksista turhaan.
 Ohjeen sarakevälilehdellä asia sanotaan ääneen, jotta pelaaja osaa
 lukea viisi vihreää oikein eikä vikana.
 
+**Debyyttivuosi rajataan katalogilla.** Vuosi johdetaan
+MusicBrainzin julkaisuvuosista, ja se osuu osalla artisteista vuosia
+liian myöhään, koska MusicBrainz tuntee heistä vain tuoreimmat
+julkaisut. Korelonista siellä oli kaksi vuoden 2026 julkaisua, vaikka
+katalogissa on häneltä biisi vuodelta 2023.
+
+Jos artistilta on katalogissa biisi vuodelta X, hän oli julkaissut
+viimeistään X:ssä, joten katalogin varhaisin vuosi on debyytin yläraja
+(`debyyttivuosi()` scripts/hae_artistit.py:ssä). Alaspäin se ei korjaa:
+katalogi alkaa monella vuosikymmeniä uran jälkeen. Sääntö korjasi 22
+artistin vuoden, pahimpana Reijo Taipale 1991 -> 1962.
+
+**Kuudella artistilla sääntö oli pakko ohittaa**, koska katalogin oma
+vuosi on väärä: Erin, Chisu, Antti Tuisku, Happoradio, Jari Sillanpää
+ja PMMP. Näiden varhaisin biisi on levyltä jolle Apple antaa
+päivämäärän 2001-07-23, ja se päivä on merkitty vuodeksi 2001 vaikka
+levy on 2011 (Erin: Hunningolla, Chisu: Alkovi, Antti Tuisku: Kaunis
+kaaos). Jari Sillanpään 1991 on mahdoton, koska ura alkoi 1995. Näille
+kuudelle jäi MusicBrainzin vuosi ja ne on merkitty käsin korjatuiksi.
+
+Sama Applen päivämäärä osuu **15 katalogin biisiin**, eli biisipelin
+julkaisuvuosi on niiden kohdalla todennäköisesti väärä.
+`scripts/vuodet_musicbrainz.py` on tehty juuri tätä varten, mutta näitä
+15:tä ei ole vielä ajettu sen läpi.
+
 **Robin eikä Robin Packalen.** Artistilistalla lukee se nimi jolla
 artisti tunnetaan, samalla logiikalla kuin ABREU eikä Anna Abreu.
 Haku löytää hänet molemmilla nimillä, koska "Robin Packalen" on

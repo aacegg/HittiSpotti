@@ -159,6 +159,25 @@ def etsi_artisti(nimi: str):
     return None, None
 
 
+def debyyttivuosi(rivi, mb_vuodet):
+    """Debyytti: MusicBrainzin varhaisin julkaisu, rajattuna katalogilla.
+
+    MusicBrainz tuntee osasta artisteja vain tuoreimmat julkaisut,
+    jolloin debyytti asettuu vuosia liian myöhään. Korelonilta siellä
+    on kaksi vuoden 2026 julkaisua, vaikka katalogissa on häneltä biisi
+    vuodelta 2023, ja Reijo Taipaleella ero oli 29 vuotta.
+
+    Katalogin varhaisin biisi on todiste siitä että artisti oli
+    julkaissut viimeistään silloin, joten se on debyytin yläraja.
+    Alaspäin se ei korjaa: MusicBrainz tuntee levyjä joita katalogissa
+    ei ole, ja Vesa-Matti Loirin kaltaisilla katalogi alkaa vuosikymmeniä
+    uran jälkeen.
+    """
+    ehdokkaat = [v for v in (min(mb_vuodet) if mb_vuodet else None,
+                             rivi.get("eka")) if v]
+    return min(ehdokkaat) if ehdokkaat else None
+
+
 def julkaisuvuodet(mbid: str):
     """Artistin omien julkaisujen vuodet.
 
@@ -573,8 +592,10 @@ def main() -> int:
         for i, k in enumerate(kesken, 1):
             vuodet = julkaisuvuodet(tiedot[k]["mbid"])
             tiedot[k]["julkaisuvuodet"] = vuodet
-            if vuodet and "debyytti" not in (tiedot[k].get("kasin") or []):
-                tiedot[k]["debyytti"] = min(vuodet)
+            if "debyytti" not in (tiedot[k].get("kasin") or []):
+                v = debyyttivuosi(tiedot[k], vuodet)
+                if v:
+                    tiedot[k]["debyytti"] = v
             print(f"  {i}/{len(kesken)}  {tiedot[k]['nimi']}: "
                   f"{len(vuodet) if vuodet else 0} julkaisua "
                   f"{min(vuodet) if vuodet else '?'}-{max(vuodet) if vuodet else '?'}",
@@ -666,7 +687,7 @@ def main() -> int:
             vuodet = julkaisuvuodet(mb["id"])
             tiedot[k]["julkaisuvuodet"] = vuodet
             if "debyytti" not in (tiedot[k].get("kasin") or []):
-                tiedot[k]["debyytti"] = min(vuodet) if vuodet else None
+                tiedot[k]["debyytti"] = debyyttivuosi(tiedot[k], vuodet)
             print(f"  {i}/{len(kesken)}  {nimi} -> {mb.get('name')} "
                   f"({mb.get('type')}, {tiedot[k]['debyytti']}, "
                   f"{len(tiedot[k]['tagit'])} tagia)", file=sys.stderr)

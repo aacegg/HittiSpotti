@@ -198,13 +198,16 @@ def main() -> int:
     tila["tulokset"] = tulokset
     VALIMUISTI.write_text(json.dumps(tila), encoding="utf-8")
 
-    varmat, epavarmat = [], []
+    varmat, epavarmat, vanhemmat = [], [], []
     for s in pelattavat:
         t = tulokset.get(str(s["id"])) or {}
         v = t.get("vuosi")
-        if not v or not s.get("year") or v > s["year"] - MERKITTAVA:
+        if not v or not s.get("year"):
             continue
-        (varmat if t["tila"] == "kesto täsmää" else epavarmat).append((s, t))
+        if v <= s["year"] - MERKITTAVA:
+            (varmat if t["tila"] == "kesto täsmää" else epavarmat).append((s, t))
+        elif v >= s["year"] + MERKITTAVA and t["tila"] == "kesto täsmää":
+            vanhemmat.append((s, t))
 
     print(f"\nVUOSI LIIAN UUSI, KESTO TÄSMÄÄ: {len(varmat)}")
     print("Sama äänite, vanhempi ensijulkaisu. Nämä voi korjata.\n")
@@ -217,6 +220,18 @@ def main() -> int:
         e = t["ehdokas"]
         print(f"  {s['year']} -> {t['vuosi']}  {s['artist']} – {s['title']}")
         print(f"        MusicBrainz: {e['artisti']} – {e['nimi']} · {e['kesto']}s")
+
+    # Toinen suunta erikseen, koska se ei ole yhtä varma.
+    print(f"\nVUOSI LIIAN VANHA, KESTO TÄSMÄÄ: {len(vanhemmat)}")
+    print("Katalogi väittää äänitettä vanhemmaksi kuin MusicBrainzin")
+    print("varhaisin julkaisu. Tämä EI yksin todista katalogia vääräksi:")
+    print("MusicBrainzista puuttuu vanhoja suomalaisia julkaisuja, jolloin")
+    print("sen varhaisin on liian uusi. Varma tapaus on se, jossa Applen")
+    print("julkaisupäivä on selvästi virheellinen, kuten 2001-07-23, joka")
+    print("osuu 15 katalogin biisiin eri artisteilta. Siksi näitä ei")
+    print("korjata automaattisesti.\n")
+    for s_, t in sorted(vanhemmat, key=lambda x: x[1]["vuosi"] - x[0]["year"], reverse=True):
+        print(f"  {s_['year']} -> {t['vuosi']}  {s_['artist']} – {s_['title']}")
 
     if a.korjaa and varmat:
         idx = {s["id"]: s for s in songs}

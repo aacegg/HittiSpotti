@@ -427,8 +427,12 @@ vertailun app.js:stä:
 
 | pelaaja | ratkesi kuudella | keskimäärin |
 |---|---|---|
-| täydellinen (minimoi pahimman jäännösjoukon) | 100 % | 3,5 |
-| satunnainen (arvaa jonkin vihjeisiin sopivan) | 90 % | 4,3 |
+| täydellinen (minimoi pahimman jäännösjoukon) | 100 % | 3,7 |
+| satunnainen (arvaa jonkin vihjeisiin sopivan) | 84 % | 4,6 |
+
+Luvut heikkenivät kun kotipaikan keltainen vaihdettiin suuralueesta
+maakuntaan: satunnaisen pelaajan onnistuminen putosi 90 prosentista
+84:ään. Se on ymmärrettävyyden hinta, ks. kotipaikan kohta ylempänä.
 
 Täydellinen pelaaja ei tarvitse kertaakaan yli kuutta arvausta, eli
 yhtään mahdotonta päivää ei ole. Kumpikaan malli ei ole ihminen:

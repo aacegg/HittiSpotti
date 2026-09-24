@@ -147,7 +147,7 @@
    * välimuistissa tyylimuutosten yli, mutta uusi katalogi on eri osoite ja
    * tulee varmasti perille – vanha versio antaisi pelaajalle eri päivän
    * biisit kuin muille. */
-  const KATALOGI_K = 25;
+  const KATALOGI_K = 26;
 
   /* Katalogi on kahdessa osassa, ks. scripts/tee_aanet.py.
    *
@@ -305,6 +305,7 @@
     aEhdotukset: $("#a-ehdotukset"),
     aJaljella: $("#a-jaljella"),
     aLoppu: $("#a-loppu"),
+    aKuva: $("#a-kuva"),
     aLoppuOtsikko: $("#a-loppu-otsikko"),
     aLoppuTeksti: $("#a-loppu-teksti"),
     aTulokset: $("#a-tulokset"),
@@ -1274,6 +1275,15 @@
     "Ylitornio": "Yli­tor­nio",
   };
 
+  /* Kansikuvan osoitteen kiinteät osat.
+   *
+   * artistit.json:ssa on vain keskiosa, koska kaikki 245 osoitetta
+   * alkavat ja päättyvät samalla tavalla. Kokonaisina ne
+   * kaksinkertaistivat tiedoston, ja se ladataan jokaisen pelaajan
+   * selaimeen. Sama jako on scripts/tee_artistidata.py:ssä. */
+  const ARTISTI_KUVA_ETU = "https://is1-ssl.mzstatic.com/image/thumb/";
+  const ARTISTI_KUVA_PAATE = "/300x300bb.jpg";
+
   /* Nuolet piirretään SVG:nä eikä merkkeinä ▲ ja ▼.
    *
    * Unicoden kolmiot ovat umpinaisia muotoja ilman vartta, ja ne
@@ -1435,6 +1445,12 @@
     el.aArvaus.hidden = artistiTila.ohi;
     if (artistiTila.ohi) {
       const n = artistiTila.arvaukset.length;
+      /* Kuva vain jos sellainen on. Tyhjä src lataisi sivun itsensä
+       * uudestaan ja piirtäisi rikkinäisen kuvan paikalle. */
+      const kuva = artistiTila.oikea.c ? ARTISTI_KUVA_ETU + artistiTila.oikea.c
+        + ARTISTI_KUVA_PAATE : "";
+      el.aKuva.hidden = !kuva;
+      if (kuva && el.aKuva.getAttribute("src") !== kuva) el.aKuva.src = kuva;
       el.aLoppuOtsikko.textContent = artistiTila.voitto ? "Oikein!" : "Ei osunut";
       el.aLoppuTeksti.textContent = artistiTila.voitto
         ? `Päivän artisti oli ${artistiTila.oikea.n}. Arvauksia ${n}/${ARTISTI_ARVAUKSIA}.`

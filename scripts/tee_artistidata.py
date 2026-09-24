@@ -55,6 +55,21 @@ KENTAT = [
     ("v", "debyytti"),
 ]
 
+# Valinnaiset kentät. Kuva puuttuu Jean Sibeliukselta, koska klassisen
+# musiikin levyt on kreditoitu esittäjille eikä säveltäjälle. Yksi
+# puuttuva kuva ei saa estää koko tiedoston kirjoittamista, joten nämä
+# eivät ole KENTAT-listassa.
+VALINNAISET = [
+    ("c", "kuva"),
+]
+
+# Kansikuvan osoitteesta tallennetaan vain keskiosa. Kaikki 245 osoitetta
+# alkavat ja päättyvät samalla tavalla, ja kokonaisina ne kaksinkertaistivat
+# tiedoston: 32 kt -> 64 kt. Karsittuna kenttä on noin puolet siitä.
+# Peli kokoaa osoitteen takaisin, ks. app.js:n ARTISTI_KUVA_ETU.
+KUVA_ETU = "https://is1-ssl.mzstatic.com/image/thumb/"
+KUVA_PAATE = "/300x300bb.jpg"
+
 
 def main() -> int:
     tiedot = json.loads(LAHDE.read_text(encoding="utf-8"))
@@ -71,6 +86,20 @@ def main() -> int:
                 break
             rivi[lyhyt] = arvo
         else:
+            for lyhyt, pitka in VALINNAISET:
+                arvo = v.get(pitka)
+                if not arvo:
+                    continue
+                if lyhyt == "c":
+                    if not (arvo.startswith(KUVA_ETU) and arvo.endswith(KUVA_PAATE)):
+                        # Tuntematon muoto: jätetään pois kokonaan eikä
+                        # tallenneta puolikasta osoitetta jota peli ei
+                        # osaa koota takaisin.
+                        print(f"OUTO KUVAOSOITE, jätetään pois: {v.get('nimi')}",
+                              file=sys.stderr)
+                        continue
+                    arvo = arvo[len(KUVA_ETU):-len(KUVA_PAATE)]
+                rivi[lyhyt] = arvo
             # Suuralue mukaan valmiiksi laskettuna. Peli tarvitsee sen
             # keltaista ruutua varten, ja vaihtoehto olisi kuljettaa
             # 344 kunnan taulukko selaimeen. Kaksi kenttää per artisti

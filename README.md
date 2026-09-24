@@ -401,6 +401,28 @@ pois päivän artistista olisi ollut näkymätön, mutta se olisi poistanut
 Ohjeen sarakevälilehdellä asia sanotaan ääneen, jotta pelaaja osaa
 lukea viisi vihreää oikein eikä vikana.
 
+**Artistin kuva paljastuksessa.** Kun päivä on ratkennut, loppulohkossa
+on kuva artistista. Se on **levynkansi eikä valokuva**: iTunesin
+hakurajapinta ei palauta artistikuvia lainkaan, ja Wikipedian kuvista
+iso osa on suomalaisilla artisteilla epävapaita eli niitä ei saa
+käyttää muualla. Kansi on sama lähde ja sama käyttötapa kuin
+biisipelin kansikuvat, joten tästä ei synny uutta kysymystä
+mihinkään. Käytännössä kansi on usein kuva artistista itsestään, koska
+suomalainen pop ja rap käyttää kansissa artistikuvaa.
+
+Hakutulos kelpaa vain jos `artistName` täsmää normalisoituna. Ilman
+sitä "Ahti" saisi kuvan keneltä tahansa jonka levyn nimessä sana
+esiintyy, ja väärä kuva olisi hiljainen vika: se näyttää oikealta
+kunnes joku tuntee artistin. 246 artistista 245 sai kuvan. Ilman jäi
+Jean Sibelius, koska klassisen musiikin levyt on kreditoitu esittäjille
+eikä säveltäjälle, eikä sellaista pidä väkisin etsiä.
+
+Osoitteesta tallennetaan vain keskiosa: kaikki 245 alkavat ja päättyvät
+samalla tavalla, ja kokonaisina ne kasvattivat `artistit.json`:in
+32 kilotavusta 64:ään. Karsittuna se on 51 kt. Peli kokoaa osoitteen
+takaisin, ks. `ARTISTI_KUVA_ETU` app.js:ssä ja `KUVA_ETU`
+`scripts/tee_artistidata.py`:ssä.
+
 **Paljastusanimaatio.** Uusin rivi kääntyy auki ruutu kerrallaan
 vasemmalta oikealle, ja väri tulee näkyviin käännön mukana. Ruudussa on
 jo lopullinen värinsä, joten mitään ei vaihdeta kesken animaation.

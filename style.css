@@ -2291,3 +2291,13 @@ body.sheet-open { overflow: hidden; }
   background: var(--bg-lift);
   padding-top: var(--s5); margin-top: calc(var(--s5) * -1);
 }
+
+/* Päivän artistin kuva paljastuksessa. Neliö pyöristetyin kulmin kuten
+   ruudutkin, ei ympyrä: kansikuva on neliö, ja ympyrä leikkaisi siitä
+   reunat pois. */
+.a-kuva {
+  display: block; width: 104px; height: 104px;
+  margin: 0 auto 14px; border-radius: 12px;
+  border: 1px solid var(--line); object-fit: cover;
+}
+.a-kuva[hidden] { display: none; }

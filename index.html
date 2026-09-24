@@ -423,6 +423,10 @@
       </div>
 
       <div class="a-loppu" id="a-loppu" hidden>
+        <!-- Kuva on levynkansi eikä valokuva, ks. scripts/hae_artistikuvat.py.
+             loading="lazy" ei auta tässä: kuva on ruudulla heti kun lohko
+             paljastuu, joten se haetaan normaalisti. -->
+        <img class="a-kuva" id="a-kuva" alt="" hidden>
         <h3 id="a-loppu-otsikko"></h3>
         <p id="a-loppu-teksti"></p>
         <button type="button" class="btn btn-accent" id="a-tulokset">Tulokset</button>

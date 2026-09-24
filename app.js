@@ -332,6 +332,7 @@
     atVoitto: $("#at-voitto"),
     atPutki: $("#at-putki"),
     atPisin: $("#at-pisin"),
+    atVertailu: $("#at-vertailu"),
     atJakauma: $("#at-jakauma"),
     atKorttiYla: $("#at-kortti-ylä"),
     atKorttiRivit: $("#at-kortti-rivit"),
@@ -1610,6 +1611,62 @@
     }
   }
 
+  /* Miten muut pärjäsivät samalla artistilla.
+   *
+   * Palvelin palauttaa raa'at luvut (montako pelasi, montako ratkaisi
+   * milläkin arvauksella, montako ei ratkaissut) ja peli laskee niistä
+   * esityksen. Sama periaate kuin biisipelissä: kun palvelin ei päätä
+   * esitystapaa, sitä voi muuttaa julkaisematta Workeria. */
+  function artistiVertailuTeksti(d, omatArvaukset, voitto) {
+    if (!d || !d.n) return "";
+    const muita = d.n - 1;
+    if (muita < ARTISTI_VERTAILU_RAJA) {
+      // Liian pieni otos keskiarvoksi. Järjestysluku on silti tietoa.
+      return d.n === 1 ? "Olit päivän ensimmäinen pelaaja."
+        : `Olit päivän ${d.n}. pelaaja.`;
+    }
+    /* Omat luvut pois vertailusta: pelaaja ei vertaa itseään itseensä.
+     * Oma tulos on jo kirjattu palvelimelle kun tämä haetaan. */
+    const korit = d.g.slice();
+    if (voitto && korit[omatArvaukset - 1]) korit[omatArvaukset - 1] -= 1;
+    const epa = voitto ? d.epa : Math.max(0, d.epa - 1);
+
+    const ratkaisi = korit.reduce((a, b) => a + b, 0);
+    const osuus = Math.round((100 * ratkaisi) / muita);
+    const summa = korit.reduce((a, b, i) => a + b * (i + 1), 0);
+    const ka = ratkaisi ? (summa / ratkaisi).toFixed(1).replace(".", ",") : null;
+
+    const alku = `Muista ${osuus} % ratkaisi artistin`
+      + (ka ? `, keskimäärin ${ka} arvauksella.` : ".");
+    if (!voitto) return alku;
+    /* Nopeampi kuin: ne jotka tarvitsivat enemmän arvauksia, plus ne
+     * jotka eivät ratkaisseet lainkaan. Oman korin sisällä olevia ei
+     * lasketa kummallekaan puolelle, koska he olivat yhtä nopeita. */
+    const hitaammat = korit.slice(omatArvaukset).reduce((a, b) => a + b, 0) + epa;
+    return `${alku} Olit nopeampi kuin ${Math.round((100 * hitaammat) / muita)} %.`;
+  }
+
+  /* Monesko pelaaja näkee ensimmäisenä keskiarvon. Sama luku ja sama
+   * peruste kuin biisipelissä: kymmenen on pieni otos, mutta vertailu
+   * kymmeneen on kiinnostavampi kuin pelkkä järjestysluku. */
+  const ARTISTI_VERTAILU_RAJA = 10;
+
+  let artistiVertailuVuoro = 0;
+
+  async function paivitaArtistiVertailu() {
+    const e = el.atVertailu;
+    e.hidden = true;
+    if (!artistiTila.pvm || !artistiTila.ohi) return;
+    const vuoro = ++artistiVertailuVuoro;
+    const d = await haeArtisti(artistiTila.pvm);
+    // Hidas vastaus ei saa kirjoittaa toisen päivän näkymän päälle.
+    if (vuoro !== artistiVertailuVuoro || state.view !== "artistitulos") return;
+    const teksti = artistiVertailuTeksti(
+      d, artistiTila.arvaukset.length, artistiTila.voitto);
+    e.textContent = teksti;
+    e.hidden = !teksti;
+  }
+
   function piirraArtistiTulos() {
     const s = artistiTilastot();
     const n = artistiTila.arvaukset.length;
@@ -1670,6 +1727,7 @@
     if (!artistiTila.ohi) { await avaaArtisti(); return; }
     show("artistitulos");
     piirraArtistiTulos();
+    paivitaArtistiVertailu();
   }
 
   /* Päivän artistin avaaminen. Palauttaa kesken jääneen sarjan samasta

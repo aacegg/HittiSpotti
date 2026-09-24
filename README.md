@@ -508,6 +508,15 @@ Mitä pitää ratkaista ennen kuin koodia kirjoitetaan:
   koska ne ovat jo pelaajien selaimissa; artistipeli sai etuliitteen
   `artisti:`. Tilastojen nollaus ja keskeneräisten siivous käyvät
   molemmat pelit läpi `PELIT`-listan kautta.
+- ~~Vertailu muihin pelaajiin.~~ **tehty.** Tulosnäkymässä lukee miten
+  muut pärjäsivät samalla artistilla: ratkaisuprosentti, keskimääräinen
+  arvausmäärä ja se kuinka monta prosenttia oli hitaampia. Alle
+  kymmenen muun otoksella näytetään vain järjestysluku, koska
+  keskiarvo viidestä ei kerro mitään. Palvelin palauttaa raa'at luvut
+  ja peli laskee esityksen, joten esitystapaa voi muuttaa julkaisematta
+  Workeria. Pelaajan oma tulos vähennetään vertailujoukosta: hän ei
+  vertaa itseään itseensä. Laskenta on testattu,
+  ks. `testit/artistivertailu.mjs`.
 - ~~Palvelimen `/paiva`~~ **tehty.** Artistipelillä on oma taulu
   `paiva_artisti` ja omat päätepisteet `POST /artisti` ja
   `GET /artisti?p=`. Oma taulu eikä sarake `paiva`-tauluun, koska

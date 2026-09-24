@@ -2313,3 +2313,11 @@ body.sheet-open { overflow: hidden; }
 }
 .a-paljastus-teksti { color: var(--muted); font-size: 13px; margin: 0; }
 .a-paljastus .a-kuva { width: 128px; height: 128px; margin-bottom: 16px; }
+
+/* Päivän vertailu tulosnäkymässä. Sama sävy kuin biisipelin vastaavalla:
+   tieto muista on lisätietoa eikä oma tulos. */
+.at-vertailu {
+  margin: 14px 0 0; font-size: 13px; line-height: 1.45;
+  color: var(--muted); text-align: center;
+}
+.at-vertailu[hidden] { display: none; }

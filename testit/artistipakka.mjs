@@ -19,13 +19,19 @@ const koodi = `
   ${pala(/const ARTISTI_EPOCH = [\s\S]*?const ARTISTI_GAP = \d+;/)}
   ${pala(/function artistiDayIndex\(key\) \{[\s\S]*?\n  \}/)}
   ${pala(/const artistiPakat = new Map\(\);/)}
+  ${pala(/function artistiVastausjoukko\(lista\) \{[\s\S]*?\n  \}/)}
   ${pala(/function artistiPakka\(cycle\) \{[\s\S]*?\n  \}/)}
   ${pala(/function paivanArtisti\(key\) \{[\s\S]*?\n  \}/)}
-  return { paivanArtisti, artistiDayIndex, artistiPakka };
+  return { paivanArtisti, artistiDayIndex, artistiPakka, artistiVastausjoukko };
 `.replace("ARTISTIT", JSON.stringify(artistit));
-const { paivanArtisti, artistiDayIndex } = new Function(koodi)();
+const { paivanArtisti, artistiDayIndex, artistiVastausjoukko } = new Function(koodi)();
 
-const N = artistit.length;
+/* Kierron pituus on vastausjoukko eikä koko lista. Osa artisteista on
+   rajattu pois päivän artistista, koska heillä on kaksoisolento: joku
+   jolla on täsmälleen samat viisi tietoa. Sellainen vastaus antaisi
+   pelaajalle viisi vihreää väärästä arvauksesta. */
+const vastaukset = artistiVastausjoukko(artistit);
+const N = vastaukset.length;
 const pvm = (i) => {
   const d = new Date(Date.UTC(2026, 8, 24) + i * 86400000);
   return d.toISOString().slice(0, 10);
@@ -50,8 +56,25 @@ const kierros = new Set();
 for (let i = 0; i < N; i++) kierros.add(paivanArtisti(pvm(i)).id);
 vaita(`kierros ${N} päivää ilman toistoja`, kierros.size === N, `${kierros.size}/${N}`);
 
-// 4. Jokainen artisti tulee vuoroon
-vaita("jokainen artisti kerran kierrossa", kierros.size === artistit.length);
+// 4. Jokainen vastausjoukon artisti tulee vuoroon, eikä yksikään muu
+vaita("jokainen vastaus kerran kierrossa", kierros.size === vastaukset.length,
+      `${kierros.size}/${vastaukset.length} (koko lista ${artistit.length})`);
+const sallitut = new Set(vastaukset.map((a) => a.id));
+vaita("kierrossa ei ole rajattuja artisteja",
+      [...kierros].every((id) => sallitut.has(id)));
+
+/* Vastausjoukossa ei saa olla kaksoisolentoja. Tämä on se vartija joka
+   kaatuu jos rajaus katoaa tai jos uusi artisti tuo mukanaan parin. */
+const profiilit = new Map();
+for (const a of vastaukset) {
+  const k = [a.g, a.j, a.s, a.p, a.v].join("|");
+  profiilit.set(k, (profiilit.get(k) || 0) + 1);
+}
+const parit = [...profiilit.values()].filter((n) => n > 1).length;
+vaita("vastausjoukossa ei ole kaksoisolentoja", parit === 0, `${parit} paria`);
+vaita("rajattuja on vain se määrä jolla on kaksoisolento",
+      artistit.length - vastaukset.length === 25,
+      `${artistit.length - vastaukset.length} rajattu`);
 
 // 5. Sauma: lyhin väli saman artistin toistoon
 const nahty = new Map();

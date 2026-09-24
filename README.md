@@ -371,26 +371,39 @@ vertailun app.js:stä:
 
 | pelaaja | ratkesi kuudella | keskimäärin |
 |---|---|---|
-| täydellinen (minimoi pahimman jäännösjoukon) | 100 % | 3,5 |
-| satunnainen (arvaa jonkin vihjeisiin sopivan) | 90 % | 4,3 |
+| täydellinen (minimoi pahimman jäännösjoukon) | 100 % | 3,4 |
+| satunnainen (arvaa jonkin vihjeisiin sopivan) | 92 % | 4,2 |
 
 Täydellinen pelaaja ei tarvitse kertaakaan yli kuutta arvausta, eli
 yhtään mahdotonta päivää ei ole. Kumpikaan malli ei ole ihminen:
 molemmat tietävät kaikkien 246 artistin debyyttivuodet ja
 jäsenmäärät, joten ne ovat parhaita tapauksia.
 
-**25 artistilla on kaksoisolento.** Täsmälleen samat viisi tietoa on
-12 ryhmällä, esimerkiksi Elastinen ja Pyhimys, Chisu ja ABREU sekä
-Cledos, ibe ja Bizi. Päivän artistilla on siis 10 prosentin
-todennäköisyydellä joku jolta viisi vihreää ei vielä ratkaise peliä.
-Juuri näistä tulevat ne päivät joissa täydellinenkin pelaaja tarvitsee
-kuusi arvausta.
+**Kaksoisolennolliset eivät voi olla päivän artisti.** 246 artistista
+25:llä on täsmälleen samat viisi tietoa jonkun toisen kanssa. Jos
+sellainen olisi vastaus, pelaaja voisi arvata kaksoisolennon, nähdä
+viisi vihreää ja saada silti "väärin": sääntöjen mukaista mutta
+rikkinäiseltä näyttävää. Kaksoisolento on ainoa tapa saada viisi
+vihreää väärällä arvauksella, joten rajaus poistaa tilanteen kokonaan.
 
-Tätä ei korjata poistamalla artisteja: he ovat oikeita artisteja ja
-samanlaisuus on totta. Ohjeen sarakevälilehdellä sanotaan se ääneen,
-jottei viisi vihreää ja "väärin" näytä rikkinäiseltä pelilta.
-Kuudes attribuutti katkaisisi siteet, mutta viisi saraketta on jo
-puhelimen leveydellä ahdas.
+Rajaus koskee vain arvontaa. Kaikki 246 pysyvät haettavina ja
+arvattavina, eikä pelaaja huomaa rajausta mistään: kaksoisolento on
+hänelle yhä kelvollinen arvaus joka kertoo saman kuin mikä tahansa
+muu. Vastausjoukko on 221 ja kierto sen mittainen.
+
+Harkittiin myös nimeä kuudentena vihjeenä, eli nuolta joka kertoo onko
+oikea artisti aakkosissa myöhemmin. Se olisi poistanut myös ne 56
+paria joita mikään arvaus ei erota, mutta nimeen ei haluttu ylimääräistä.
+Coin flip kahden jäljellä olevan välillä on eri asia kuin viisi
+vihreää ja väärin: se maksaa arvauksen muttei näytä vialta.
+
+Rajatut 12 ryhmää: Elastinen ja Pyhimys, Ruudolf ja Lord Est,
+Skandaali ja Redrama, Adi L Hasla ja Tippa-T, Cledos ja ibe ja Bizi,
+Sliki ja HesaÄijä, William ja Melo, Ares ja Averagekidluke, Chisu ja
+ABREU, Vesala ja Erin, Aliisa Syrjä ja Pehmoaino, Tuomari Nurmio ja
+Maukka Perusjätkä. Lähes kaikki ovat helsinkiläisiä sooloartisteja
+joilla on sama debyyttivuosi, eli siteet syntyvät siitä mihin
+katalogi on tiheimmillään.
 
 **Paljastusanimaatio.** Uusin rivi kääntyy auki ruutu kerrallaan
 vasemmalta oikealle, ja väri tulee näkyviin käännön mukana. Ruudussa on

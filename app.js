@@ -147,7 +147,7 @@
    * välimuistissa tyylimuutosten yli, mutta uusi katalogi on eri osoite ja
    * tulee varmasti perille – vanha versio antaisi pelaajalle eri päivän
    * biisit kuin muille. */
-  const KATALOGI_K = 23;
+  const KATALOGI_K = 24;
 
   /* Katalogi on kahdessa osassa, ks. scripts/tee_aanet.py.
    *
@@ -1159,10 +1159,36 @@
 
   const artistiPakat = new Map();
 
+  /* Vastausjoukko: ne artistit jotka voivat olla päivän artisti.
+   *
+   * Pienempi kuin koko lista. Kahdellakymmenelläviidellä artistilla on
+   * täsmälleen samat viisi tietoa jonkun toisen kanssa (Elastinen ja
+   * Pyhimys, Chisu ja ABREU, Cledos ja ibe ja Bizi, ja niin edelleen),
+   * ja jos sellainen olisi päivän artisti, pelaaja voisi arvata sen
+   * kaksoisolennon, nähdä viisi vihreää ja saada silti "väärin". Se on
+   * sääntöjen mukaista mutta näyttää rikkinäiseltä pelilta.
+   *
+   * Kaksoisolento on ainoa tapa saada viisi vihreää väärällä
+   * arvauksella, joten rajaus poistaa tilanteen kokonaan.
+   *
+   * Vain arvonta rajataan. Kaikki 246 artistia pysyvät haettavina ja
+   * arvattavina, joten pelaaja ei huomaa rajausta mistään: hänelle
+   * kaksoisolento on yhä kelvollinen arvaus joka kertoo saman kuin
+   * mikä tahansa muu. */
+  function artistiVastausjoukko(lista) {
+    const monta = new Map();
+    for (const a of lista) {
+      const avain = [a.g, a.j, a.s, a.p, a.v].join("|");
+      monta.set(avain, (monta.get(avain) || 0) + 1);
+    }
+    return lista.filter((a) => monta.get([a.g, a.j, a.s, a.p, a.v].join("|")) === 1);
+  }
+
   function artistiPakka(cycle) {
     const valmis = artistiPakat.get(cycle);
     if (valmis) return valmis;
-    const lista = state.artistit.slice().sort((a, b) => (a.id < b.id ? -1 : 1));
+    const lista = artistiVastausjoukko(state.artistit)
+      .slice().sort((a, b) => (a.id < b.id ? -1 : 1));
     const order = shuffled(lista, hashString(`artisti:${ARTISTI_SEKOITUS}:${cycle}`));
     const n = order.length;
     if (cycle > 0 && n >= 3 * ARTISTI_GAP) {
@@ -1183,7 +1209,9 @@
   }
 
   function paivanArtisti(key) {
-    const n = state.artistit.length;
+    /* Kierron pituus on vastausjoukko eikä koko lista, muuten pakasta
+     * luettaisiin sen loppupäästä ohi. */
+    const n = artistiPakka(0).length;
     if (!n) return null;
     const day = artistiDayIndex(key);
     return artistiPakka(Math.floor(day / n))[((day % n) + n) % n];

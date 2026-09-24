@@ -20,6 +20,7 @@ const koodi = `
   return { artistiVertaa, ARTISTI_KENTAT, artistiVertailuTeksti };
 `;
 const { artistiVertaa, ARTISTI_KENTAT, artistiVertailuTeksti } = new Function(koodi)();
+const artistit = JSON.parse(fs.readFileSync("artistit.json", "utf8"));
 
 let ok = true;
 const vaita = (nimi, ehto, lisa = "") => {
@@ -95,14 +96,18 @@ vaita("pop ei ole osittain rock",
 
 /* Nimiruutu. Se on rivin ensimmäinen ruutu, ja se on myös se sarake
    joka estää kaiken vihreän väärällä arvauksella: kaksi artistia voi
-   jakaa kaikki viisi muuta tietoa, mutta ei nimeä. Keltainen tarkoittaa
-   samaa alkukirjainta. */
+   jakaa kaikki viisi muuta tietoa, mutta ei nimeä. Vihreä tai harmaa,
+   ei keltaista. */
 vaita("väärä artisti on harmaa",
   rivi(tee("Pop", 9, "Nainen", "Turku", 1800, "Varsinais-Suomi", "Bee"), oikea)[0] === "-");
-vaita("sama alkukirjain on keltainen",
-  rivi(tee("Pop", 9, "Nainen", "Turku", 1800, "Varsinais-Suomi", "Ahti"), oikea)[0] === "K");
-vaita("alkukirjain ei katso kirjainkokoa",
-  rivi(tee("Pop", 9, "Nainen", "Turku", 1800, "Varsinais-Suomi", "ahti"), oikea)[0] === "K");
+/* Alkukirjain ei anna keltaista. Se oli hetken mukana, mutta teki
+   pelistä liian helpon: jokainen arvaus olisi rajannut joukkoa myös
+   nimen perusteella. Tämä on se testi joka kaatuu jos se palaa. */
+vaita("sama alkukirjain ei riitä keltaiseen",
+  rivi(tee("Pop", 9, "Nainen", "Turku", 1800, "Varsinais-Suomi", "Ahti"), oikea)[0] === "-");
+vaita("nimiruudussa ei ole keltaista lainkaan",
+  !artistit.some((g) => artistit.some((o) =>
+    artistiVertaa(g, o)[0].tila === "lahella")));
 vaita("nimiruudussa ei ole nuolta",
   artistiVertaa(tee("Pop", 9, "Nainen", "Turku", 1800, "Varsinais-Suomi"), oikea)[0].nuoli === "");
 vaita("nimiruudussa lukee arvattu nimi",

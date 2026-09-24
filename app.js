@@ -1234,10 +1234,11 @@
      * saattoi arvata kaksoisolennon, nähdä viisi vihreää ja saada
      * "väärin". Mitattuna sellaisia pareja oli 14.
      *
-     * Keltainen on sama alkukirjain. Se on samaa logiikkaa kuin muut
-     * keltaiset (osa tiedosta osuu), ja se on ainoa tieto joka tästä
-     * ruudusta on irrotettavissa. Sen kanssa yhtään artistiparia ei jää
-     * erottamatta.
+     * Vihreä tai harmaa, ei keltaista. Sama alkukirjain oli hetken
+     * keltainen, mutta se teki pelistä liian helpon: 246 artistista
+     * jokainen arvaus rajasi joukkoa myös nimen perusteella, ja
+     * satunnainen pelaaja ratkaisi päivän lähes aina. Nimiruudun
+     * tehtävä on kertoa kenet arvasit, ei vihjata vastauksesta.
      *
      * Nimi katkeaa pisteisiin jos se ei mahdu. Kuva riittää
      * tunnistamiseen siinä missä nimen alku. */
@@ -1372,12 +1373,6 @@
       const o = oikea[kentta.avain];
       const teksti = kentta.naytto ? kentta.naytto(a) : String(a);
       if (a === o) return { tila: "osui", teksti, nuoli: "" };
-      /* Nimet ovat listalla ainutkertaisia, joten vihreä yllä tarkoittaa
-       * jo oikeaa artistia. Tässä ratkaistaan vain keltainen. */
-      if (kentta.nimi) {
-        const sama = a[0].toUpperCase() === o[0].toUpperCase();
-        return { tila: sama ? "lahella" : "ohi", teksti, nuoli: "" };
-      }
       if (kentta.luku) {
         const lahella = Math.abs(a - o) <= kentta.lahella;
         return {

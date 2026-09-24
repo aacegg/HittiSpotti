@@ -427,8 +427,8 @@ vertailun app.js:stä:
 
 | pelaaja | ratkesi kuudella | keskimäärin |
 |---|---|---|
-| täydellinen (minimoi pahimman jäännösjoukon) | 100 % | 2,9 |
-| satunnainen (arvaa jonkin vihjeisiin sopivan) | 99,6 % | 3,3 |
+| täydellinen (minimoi pahimman jäännösjoukon) | 100 % | 3,0 |
+| satunnainen (arvaa jonkin vihjeisiin sopivan) | 99,0 % | 3,4 |
 
 Luvut ovat paremmat kuin aiemmin tähän kirjatut (100 % / 3,7 ja 84 % /
 4,6), ja ero on mittausvirhe eikä pelin muutos. Palautteen avain
@@ -453,18 +453,24 @@ ruutu on rivin alussa: kuvasta tunnistaa artistin silloinkin kun
 nimestä näkyy "Sir Elwo...". Ruutu korvasi nimirivin ruudukon
 yläpuolella, joten pystysuuntaa säästyi kuuden arvauksen verran.
 
-Ruutu on myös vertailtava sarake. Vihreä on oikea artisti, keltainen
-sama alkukirjain, harmaa ei kumpikaan. Tämä on se sarake joka estää
-kaiken vihreän väärällä arvauksella:
+Ruutu on myös vertailtava sarake: vihreä on oikea artisti, harmaa ei
+ole. Tämä on se sarake joka estää kaiken vihreän väärällä arvauksella:
 
 | | erottamattomia artisteja | kaikki vihreää mutta väärin |
 |---|---|---|
-| ilman nimiruutua | 25 | 14 paria |
+| ilman nimiruutua | 25 | 18 paria |
 | nimiruudun kanssa | 0 | 0 |
 
 Aiemmin tässä luki 56 ja 14; myös ne oli mitattu edellä kuvatulla
-rikkinäisellä avaimella. Oikea luku ilman nimiruutua on 25, eli
-täsmälleen ne 25 joilla on kaksoisolento.
+rikkinäisellä avaimella. Oikea luku ilman nimiruutua on 25 artistia,
+eli täsmälleen ne joilla on kaksoisolento.
+
+**Keltainen samasta alkukirjaimesta kokeiltiin ja poistettiin.** Se
+teki pelistä liian helpon. Koneellisesti mitattuna ero oli pieni
+(täydellinen pelaaja 2,9 arvausta vastaan 3,0), mutta malli ei mittaa
+sitä mistä on kyse: ihmiselle alkukirjain on iso vihje, koska
+artistien nimet muistetaan nimenomaan alkukirjaimesta. Nimiruudun
+tehtävä on kertoa kenet arvasit, ei vihjata vastauksesta.
 
 Sarake vei tilaa viideltä muulta. Nimiruutu on 56 px, artistinäkymän
 oma pehmuste 6 px ulomman 16:n lisäksi ja otsikot 9 px, jolloin muille

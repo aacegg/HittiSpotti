@@ -40,6 +40,21 @@ const oikea = tee("Rock", 3, "Mies", "Helsinki", 2012);
 vaita("sama artisti on kauttaaltaan vihreä",
   rivi(oikea, oikea) === "VVVVV", rivi(oikea, oikea));
 
+/* Näyttömuoto: yksi ja kaksi ovat sanoja, muut lukuja. Vertailu
+   laskee silti luvulla, joten Soolo ja Duo ovat keltaisia keskenään. */
+const ruutu = (arvaus, oikea, i) => artistiVertaa(arvaus, oikea)[i];
+const soolo = tee("Rock", 1, "Mies", "Helsinki", 2012);
+vaita("yksi jäsen on Soolo",
+  ruutu(soolo, oikea, 1).teksti === "Soolo", ruutu(soolo, oikea, 1).teksti);
+vaita("kaksi jäsentä on Duo",
+  ruutu(tee("Rock", 2, "Mies", "Helsinki", 2012), oikea, 1).teksti === "Duo");
+vaita("kolme jäsentä on luku",
+  ruutu(tee("Rock", 3, "Mies", "Helsinki", 2012), oikea, 1).teksti === "3");
+vaita("Soolo ja Duo ovat keltaisia keskenään",
+  ruutu(tee("Rock", 2, "Mies", "Helsinki", 2012), soolo, 1).tila === "lahella");
+vaita("sanamuoto ei sekoita nuolta",
+  ruutu(soolo, oikea, 1).nuoli === "▲", ruutu(soolo, oikea, 1).nuoli);
+
 // 2. Lukukentät
 vaita("jäsenmäärä yhden päässä on keltainen",
   rivi(tee("Pop", 4, "Nainen", "Turku", 1800, "Länsi-Suomi"), oikea)[1] === "K");

@@ -1234,7 +1234,14 @@
      * ne ovat eri asioita. Mitattuna se toi 0,2 keltaista peliin, eli
      * koko hyöty tuli niistä kahdesta joista ei voi olla eri mieltä. */
     { avain: "g", otsikko: "Genre" },
-    { avain: "j", otsikko: "Jäseniä", luku: true, lahella: 1 },
+    /* Yksi ja kaksi sanoina. Niin artisteista puhutaan: "soolo" ja
+     * "duo" ovat nimiä kokoonpanolle, eivät lukumääriä. Kolmesta
+     * ylöspäin sanaa ei ole, joten siitä eteenpäin luku on luku.
+     *
+     * Vain näyttömuoto. Vertailu, nuoli ja "lähellä" laskevat luvulla
+     * kuten ennenkin, joten Soolo ja Duo ovat keltaisia keskenään. */
+    { avain: "j", otsikko: "Jäseniä", luku: true, lahella: 1,
+      naytto: (v) => (v === 1 ? "Soolo" : v === 2 ? "Duo" : String(v)) },
     { avain: "s", otsikko: "Sukup.",
       osittain: [["Seka", "Mies"], ["Seka", "Nainen"]] },
     /* Kotipaikka. Vihreä on sama kunta, keltainen sama maakunta.
@@ -1325,12 +1332,13 @@
     return ARTISTI_KENTAT.map((kentta) => {
       const a = arvaus[kentta.avain];
       const o = oikea[kentta.avain];
-      if (a === o) return { tila: "osui", teksti: String(a), nuoli: "" };
+      const teksti = kentta.naytto ? kentta.naytto(a) : String(a);
+      if (a === o) return { tila: "osui", teksti, nuoli: "" };
       if (kentta.luku) {
         const lahella = Math.abs(a - o) <= kentta.lahella;
         return {
           tila: lahella ? "lahella" : "ohi",
-          teksti: String(a),
+          teksti,
           nuoli: a < o ? "▲" : "▼",   // nuoli osoittaa oikeaan suuntaan
         };
       }
@@ -1340,7 +1348,7 @@
         && arvaus[kentta.ylakentta] === oikea[kentta.ylakentta];
       const osittain = sama || (kentta.osittain || []).some(
         ([x, y]) => (a === x && o === y) || (a === y && o === x));
-      return { tila: osittain ? "lahella" : "ohi", teksti: String(a), nuoli: "" };
+      return { tila: osittain ? "lahella" : "ohi", teksti, nuoli: "" };
     });
   }
 

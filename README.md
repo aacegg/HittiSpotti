@@ -461,6 +461,13 @@ pois päivän artistista olisi ollut näkymätön, mutta se olisi poistanut
 Ohjeen sarakevälilehdellä asia sanotaan ääneen, jotta pelaaja osaa
 lukea viisi vihreää oikein eikä vikana.
 
+**Yksi ja kaksi jäsentä sanoina.** Ruudussa lukee "Soolo" ja "Duo"
+eikä 1 ja 2, koska niin artisteista puhutaan: ne ovat nimiä
+kokoonpanolle eivätkä lukumääriä. Kolmesta ylöspäin sanaa ei ole,
+joten siitä eteenpäin luku on luku. Vain näyttömuoto: vertailu, nuoli
+ja "lähellä" laskevat luvulla, joten Soolo ja Duo ovat keltaisia
+keskenään.
+
 **Artistin kuva paljastuksessa.** Kun päivä on ratkennut, ruudulle
 aukeaa paljastusruutu jossa on artistin kuva, nimi ja tulos.
 Se sulkeutuu rastista, taustaklikkauksesta tai Escapesta, ja alta

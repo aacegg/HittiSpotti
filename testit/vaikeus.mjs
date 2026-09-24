@@ -18,13 +18,9 @@ const pala = (h) => { const m = src.match(h); if (!m) throw new Error("ei löyty
 const koodi = `
   ${pala(/const ARTISTI_KENTAT = \[[\s\S]*?\n  \];/)}
   ${pala(/function artistiVertaa\(arvaus, oikea\) \{[\s\S]*?\n  \}/)}
-  ${pala(/function artistiVastausjoukko\(lista\) \{[\s\S]*?\n  \}/)}
-  return { artistiVertaa, artistiVastausjoukko };`;
-const { artistiVertaa, artistiVastausjoukko } = new Function(koodi)();
+  return artistiVertaa;`;
+const artistiVertaa = new Function(koodi)();
 const kaikki = JSON.parse(fs.readFileSync("artistit.json", "utf8"));
-/* Arvataan koko listasta mutta mitataan vain ne jotka voivat olla
-   vastaus: kaksoisolennolliset on rajattu päivän artistista pois. */
-const vastaukset = artistiVastausjoukko(kaikki);
 
 // Palaute yhtenä merkkijonona, jotta samanlaiset palautteet niputtuvat.
 const palaute = (arvaus, oikea) =>
@@ -69,9 +65,8 @@ for (const tapa of ["taydellinen", "satunnainen"]) {
   const toistot = tapa === "satunnainen" ? 20 : 1;
   const jakauma = new Map();
   let summa = 0, n = 0;
-  const vastausIdx = vastaukset.map((a) => kaikki.indexOf(a));
   for (let t = 0; t < toistot; t++) {
-    for (const i of vastausIdx) {
+    for (let i = 0; i < kaikki.length; i++) {
       const k = pelaa(i, tapa);
       jakauma.set(k, (jakauma.get(k) || 0) + 1);
       summa += Math.min(k, 20); n++;

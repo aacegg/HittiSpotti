@@ -2301,3 +2301,15 @@ body.sheet-open { overflow: hidden; }
   border: 1px solid var(--line); object-fit: cover;
 }
 .a-kuva[hidden] { display: none; }
+
+/* Paljastusruutu. Rasti on omalla rivillään oikeassa reunassa, koska
+   ruudulla ei ole otsikkoriviä: artistin nimi on sisältöä eikä
+   ruudun nimi. */
+.a-paljastus { text-align: center; }
+.a-paljastus-head { justify-content: flex-end; margin-bottom: 0; }
+.a-paljastus-otsikko { font-size: 22px; margin: 0 0 2px; }
+.a-paljastus-nimi {
+  font-size: 17px; font-weight: 600; color: var(--t1); margin: 0 0 8px;
+}
+.a-paljastus-teksti { color: var(--muted); font-size: 13px; margin: 0; }
+.a-paljastus .a-kuva { width: 128px; height: 128px; margin-bottom: 16px; }

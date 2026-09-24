@@ -401,8 +401,16 @@ pois päivän artistista olisi ollut näkymätön, mutta se olisi poistanut
 Ohjeen sarakevälilehdellä asia sanotaan ääneen, jotta pelaaja osaa
 lukea viisi vihreää oikein eikä vikana.
 
-**Artistin kuva paljastuksessa.** Kun päivä on ratkennut, loppulohkossa
-on kuva artistista. Se on **levynkansi eikä valokuva**: iTunesin
+**Artistin kuva paljastuksessa.** Kun päivä on ratkennut, ruudulle
+aukeaa paljastusruutu jossa on artistin kuva, nimi ja tulos.
+Se sulkeutuu rastista, taustaklikkauksesta tai Escapesta, ja alta
+paljastuu pelin oma loppulohko, joten mitään ei hukkaudu. Ruutu aukeaa
+itsestään vain siinä hetkessä kun päivä ratkeaa: jo pelatun päivän
+avaaminen uudestaan ei räpsäytä vastausta ruudulle ennen kuin pelaaja
+on ehtinyt katsoa omaa ruudukkoaan. Sama kuva on myös tulosnäkymässä,
+josta sen löytää ruudun sulkemisen jälkeen.
+
+Kuva itse. Se on **levynkansi eikä valokuva**: iTunesin
 hakurajapinta ei palauta artistikuvia lainkaan, ja Wikipedian kuvista
 iso osa on suomalaisilla artisteilla epävapaita eli niitä ei saa
 käyttää muualla. Kansi on sama lähde ja sama käyttötapa kuin

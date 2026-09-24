@@ -423,10 +423,6 @@
       </div>
 
       <div class="a-loppu" id="a-loppu" hidden>
-        <!-- Kuva on levynkansi eikä valokuva, ks. scripts/hae_artistikuvat.py.
-             loading="lazy" ei auta tässä: kuva on ruudulla heti kun lohko
-             paljastuu, joten se haetaan normaalisti. -->
-        <img class="a-kuva" id="a-kuva" alt="" hidden>
         <h3 id="a-loppu-otsikko"></h3>
         <p id="a-loppu-teksti"></p>
         <button type="button" class="btn btn-accent" id="a-tulokset">Tulokset</button>
@@ -437,6 +433,7 @@
          luvut eivät kohtaa biisipelin tilastojen kanssa missään. -->
     <section id="view-artisti-tulos" class="view view-artisti" hidden>
       <div class="a-ylä">
+        <img class="a-kuva" id="at-kuva" alt="" hidden>
         <h2 class="a-nimi" id="at-otsikko"></h2>
         <p class="a-pvm" id="at-teksti"></p>
       </div>
@@ -672,6 +669,26 @@
     <ul class="uutta" id="uutta-lista"></ul>
     <div class="sheet-actions">
       <button type="button" class="btn btn-accent btn-wide" id="uutta-ok">Pelaamaan</button>
+    </div>
+  </aside>
+
+  <!-- Paljastusruutu. Aukeaa itsestään kun päivä ratkeaa, ja sen alla
+       pelin oma loppulohko säilyy, joten rastilla sulkeminen ei hukkaa
+       mitään. -->
+  <div class="sheet-scrim" id="a-paljastus-scrim" hidden></div>
+  <aside class="sheet sheet-keski a-paljastus" id="a-paljastus-sheet" hidden
+         tabindex="-1" role="dialog" aria-modal="true"
+         aria-labelledby="a-paljastus-otsikko">
+    <div class="sheet-head a-paljastus-head">
+      <button type="button" class="iconbtn" id="a-paljastus-close" aria-label="Sulje">✕</button>
+    </div>
+    <!-- Kuva on levynkansi eikä valokuva, ks. scripts/hae_artistikuvat.py. -->
+    <img class="a-kuva" id="a-paljastus-kuva" alt="" hidden>
+    <h2 class="a-paljastus-otsikko" id="a-paljastus-otsikko"></h2>
+    <p class="a-paljastus-nimi" id="a-paljastus-nimi"></p>
+    <p class="a-paljastus-teksti" id="a-paljastus-teksti"></p>
+    <div class="sheet-actions">
+      <button type="button" class="btn btn-accent btn-wide" id="a-paljastus-ok">Tulokset</button>
     </div>
   </aside>
 

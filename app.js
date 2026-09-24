@@ -305,7 +305,15 @@
     aEhdotukset: $("#a-ehdotukset"),
     aJaljella: $("#a-jaljella"),
     aLoppu: $("#a-loppu"),
-    aKuva: $("#a-kuva"),
+    aPaljastusSheet: $("#a-paljastus-sheet"),
+    aPaljastusScrim: $("#a-paljastus-scrim"),
+    aPaljastusClose: $("#a-paljastus-close"),
+    aPaljastusOk: $("#a-paljastus-ok"),
+    aPaljastusKuva: $("#a-paljastus-kuva"),
+    aPaljastusOtsikko: $("#a-paljastus-otsikko"),
+    aPaljastusNimi: $("#a-paljastus-nimi"),
+    aPaljastusTeksti: $("#a-paljastus-teksti"),
+    atKuva: $("#at-kuva"),
     aLoppuOtsikko: $("#a-loppu-otsikko"),
     aLoppuTeksti: $("#a-loppu-teksti"),
     aTulokset: $("#a-tulokset"),
@@ -641,6 +649,8 @@
       el.uuttaScrim.hidden = true;
       el.aOhjeSheet.hidden = true;
       el.aOhjeScrim.hidden = true;
+      el.aPaljastusSheet.hidden = true;
+      el.aPaljastusScrim.hidden = true;
       el.body.classList.remove("sheet-open");
     }
     /* Ääni kuuluu vain peliin. openRound pysäyttää soiton kierrosten välillä
@@ -1445,12 +1455,6 @@
     el.aArvaus.hidden = artistiTila.ohi;
     if (artistiTila.ohi) {
       const n = artistiTila.arvaukset.length;
-      /* Kuva vain jos sellainen on. Tyhjä src lataisi sivun itsensä
-       * uudestaan ja piirtäisi rikkinäisen kuvan paikalle. */
-      const kuva = artistiTila.oikea.c ? ARTISTI_KUVA_ETU + artistiTila.oikea.c
-        + ARTISTI_KUVA_PAATE : "";
-      el.aKuva.hidden = !kuva;
-      if (kuva && el.aKuva.getAttribute("src") !== kuva) el.aKuva.src = kuva;
       el.aLoppuOtsikko.textContent = artistiTila.voitto ? "Oikein!" : "Ei osunut";
       el.aLoppuTeksti.textContent = artistiTila.voitto
         ? `Päivän artisti oli ${artistiTila.oikea.n}. Arvauksia ${n}/${ARTISTI_ARVAUKSIA}.`
@@ -1463,6 +1467,7 @@
         el.aLoppu.hidden = true;
         artistiLoppuAjastin = setTimeout(() => {
           el.aLoppu.hidden = false;
+          avaaArtistiPaljastus();
         }, ARTISTI_PALJASTUS_MS);
       } else {
         el.aLoppu.hidden = false;
@@ -1608,6 +1613,7 @@
   function piirraArtistiTulos() {
     const s = artistiTilastot();
     const n = artistiTila.arvaukset.length;
+    asetaArtistiKuva(el.atKuva, artistiTila.oikea);
     el.atOtsikko.textContent = artistiTila.voitto ? "Oikein!" : "Ei osunut";
     el.atTeksti.textContent = artistiTila.voitto
       ? `Päivän artisti oli ${artistiTila.oikea.n}. Arvauksia ${n}/${ARTISTI_ARVAUKSIA}.`
@@ -1735,6 +1741,57 @@
   el.aEhdotukset.addEventListener("click", (e) => {
     const li = e.target.closest("li[data-i]");
     if (li) valitseArtisti(artistiEhdokkaat[Number(li.dataset.i)]);
+  });
+
+  /* Artistin kuvan osoite, tai tyhjä jos kuvaa ei ole.
+   *
+   * Tyhjä src lataisi sivun itsensä uudestaan ja piirtäisi rikkinäisen
+   * kuvan paikalle, joten kuvaelementti piilotetaan sen sijaan. */
+  function artistiKuvaOsoite(artisti) {
+    return artisti && artisti.c
+      ? ARTISTI_KUVA_ETU + artisti.c + ARTISTI_KUVA_PAATE : "";
+  }
+
+  function asetaArtistiKuva(kuvaEl, artisti) {
+    const osoite = artistiKuvaOsoite(artisti);
+    kuvaEl.hidden = !osoite;
+    if (osoite && kuvaEl.getAttribute("src") !== osoite) kuvaEl.src = osoite;
+  }
+
+  /* Paljastusruutu. Aukeaa itsestään kun päivä ratkeaa, ja vain silloin:
+   * jo pelatun päivän avaaminen uudestaan ei saa räpsäyttää vastausta
+   * ruudulle ennen kuin pelaaja on ehtinyt katsoa omaa ruudukkoaan. */
+  function avaaArtistiPaljastus() {
+    const n = artistiTila.arvaukset.length;
+    asetaArtistiKuva(el.aPaljastusKuva, artistiTila.oikea);
+    el.aPaljastusOtsikko.textContent = artistiTila.voitto ? "Oikein!" : "Ei osunut";
+    el.aPaljastusNimi.textContent = artistiTila.oikea.n;
+    el.aPaljastusTeksti.textContent = artistiTila.voitto
+      ? `Ratkesi ${n} arvauksella.`
+      : `Et löytänyt sitä ${ARTISTI_ARVAUKSIA} arvauksella.`;
+    /* Sivun oma loppulohko piiloon ruudun ajaksi. Siinä lukee sama asia,
+     * ja himmennyksen läpi luettuna se näytti siltä että sama teksti on
+     * vahingossa kahdesti. Se palaa kun ruutu suljetaan, joten rastilla
+     * sulkeminen ei hukkaa mitään. */
+    el.aLoppu.hidden = true;
+    el.aPaljastusScrim.hidden = false;
+    el.aPaljastusSheet.hidden = false;
+    el.body.classList.add("sheet-open");
+    el.aPaljastusSheet.focus({ preventScroll: true });
+  }
+
+  function suljeArtistiPaljastus() {
+    el.aPaljastusSheet.hidden = true;
+    el.aPaljastusScrim.hidden = true;
+    el.body.classList.remove("sheet-open");
+    if (artistiTila.ohi) el.aLoppu.hidden = false;
+  }
+
+  el.aPaljastusClose.addEventListener("click", suljeArtistiPaljastus);
+  el.aPaljastusScrim.addEventListener("click", suljeArtistiPaljastus);
+  el.aPaljastusOk.addEventListener("click", () => {
+    suljeArtistiPaljastus();
+    avaaArtistiTulos();
   });
 
   /* Ohjeruutu.
@@ -3356,6 +3413,7 @@
     else if (!el.installSheet.hidden) suljeAsennusohje();
     else if (!el.uuttaSheet.hidden) suljeUutta();
     else if (!el.aOhjeSheet.hidden) suljeArtistiOhje();
+    else if (!el.aPaljastusSheet.hidden) suljeArtistiPaljastus();
     else el.body.classList.remove("sheet-open");
   }
 

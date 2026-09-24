@@ -2311,7 +2311,9 @@ body.sheet-open { overflow: hidden; }
 .a-paljastus-nimi {
   font-size: 17px; font-weight: 600; color: var(--t1); margin: 0 0 8px;
 }
-.a-paljastus-teksti { color: var(--muted); font-size: 13px; margin: 0; }
+/* Väli nappiin: teksti oli kiinni napissa, jolloin se luki kuin
+   napin selitteenä eikä pelin tuloksena. */
+.a-paljastus-teksti { color: var(--muted); font-size: 13px; margin: 0 0 20px; }
 .a-paljastus .a-kuva { width: 128px; height: 128px; margin-bottom: 16px; }
 
 /* Päivän vertailu tulosnäkymässä. Sama sävy kuin biisipelin vastaavalla:

@@ -1629,21 +1629,15 @@
      * Oma tulos on jo kirjattu palvelimelle kun tämä haetaan. */
     const korit = d.g.slice();
     if (voitto && korit[omatArvaukset - 1]) korit[omatArvaukset - 1] -= 1;
-    const epa = voitto ? d.epa : Math.max(0, d.epa - 1);
 
     const ratkaisi = korit.reduce((a, b) => a + b, 0);
-    const osuus = Math.round((100 * ratkaisi) / muita);
-    const summa = korit.reduce((a, b, i) => a + b * (i + 1), 0);
-    const ka = ratkaisi ? (summa / ratkaisi).toFixed(1).replace(".", ",") : null;
-
-    const alku = `Muista ${osuus} % ratkaisi artistin`
-      + (ka ? `, keskimäärin ${ka} arvauksella.` : ".");
-    if (!voitto) return alku;
-    /* Nopeampi kuin: ne jotka tarvitsivat enemmän arvauksia, plus ne
-     * jotka eivät ratkaisseet lainkaan. Oman korin sisällä olevia ei
-     * lasketa kummallekaan puolelle, koska he olivat yhtä nopeita. */
-    const hitaammat = korit.slice(omatArvaukset).reduce((a, b) => a + b, 0) + epa;
-    return `${alku} Olit nopeampi kuin ${Math.round((100 * hitaammat) / muita)} %.`;
+    if (!ratkaisi) return "Kukaan muu ei ratkaissut artistia.";
+    /* Keskiarvo lasketaan vain ratkaisseista. Ratkaisemattomalle ei ole
+     * arvausmäärää jonka voisi laskea mukaan: hän käytti kuusi mutta ei
+     * osunut, eikä se ole sama asia kuin kuudella osunut. */
+    const ka = (korit.reduce((a, b, i) => a + b * (i + 1), 0) / ratkaisi)
+      .toFixed(1).replace(".", ",");
+    return `Muut arvasivat keskimäärin ${ka} arvauksella.`;
   }
 
   /* Monesko pelaaja näkee ensimmäisenä keskiarvon. Sama luku ja sama

@@ -509,10 +509,10 @@ Mitä pitää ratkaista ennen kuin koodia kirjoitetaan:
   `artisti:`. Tilastojen nollaus ja keskeneräisten siivous käyvät
   molemmat pelit läpi `PELIT`-listan kautta.
 - ~~Vertailu muihin pelaajiin.~~ **tehty.** Tulosnäkymässä lukee miten
-  muut pärjäsivät samalla artistilla: ratkaisuprosentti, keskimääräinen
-  arvausmäärä ja se kuinka monta prosenttia oli hitaampia. Alle
-  kymmenen muun otoksella näytetään vain järjestysluku, koska
-  keskiarvo viidestä ei kerro mitään. Palvelin palauttaa raa'at luvut
+  muut pärjäsivät samalla artistilla: "Muut arvasivat keskimäärin 3,6
+  arvauksella." Yksi luku eikä kolmea, koska tulosnäkymässä on jo omat
+  tilastot ja arvausjakauma. Alle kymmenen muun otoksella näytetään
+  vain järjestysluku, koska keskiarvo viidestä ei kerro mitään. Palvelin palauttaa raa'at luvut
   ja peli laskee esityksen, joten esitystapaa voi muuttaa julkaisematta
   Workeria. Pelaajan oma tulos vähennetään vertailujoukosta: hän ei
   vertaa itseään itseensä. Laskenta on testattu,

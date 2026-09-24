@@ -112,25 +112,30 @@ vaita("pieni otos saa järjestysluvun",
   V({ n: 5, g: [0,1,2,1,0,0], epa: 1 }, 3, true) === "Olit päivän 5. pelaaja.");
 
 /* Sata muuta pelaajaa: 90 ratkaisi, 10 ei. Oma kolmannella osunut tulos
-   on luvuissa mukana, joten sen on kadottava vertailusta. */
-const iso = { n: 101, g: [2, 10, 30, 30, 15, 4], epa: 10 };
-const teksti = V(iso, 3, true);
-vaita("iso otos: ratkaisuprosentti ilman omaa",
-  teksti.includes("90 %"), teksti);
-vaita("iso otos: keskiarvo ilman omaa", teksti.includes("3,6"), teksti);
-/* Kolmannella osunutta hitaampia ovat 4., 5. ja 6. arvauksella
-   osuneet (30+15+4) sekä ne jotka eivät ratkaisseet (10) = 59. */
-vaita("iso otos: nopeampi kuin -osuus", teksti.includes("59 %"), teksti);
+   on luvuissa mukana, joten sen on kadottava vertailusta.
 
-vaita("ensimmäisellä osunut on nopeampi kuin lähes kaikki",
-  V(iso, 1, true).includes("99 %"), V(iso, 1, true));
-vaita("hävinneelle ei kerrota nopeutta",
-  !V(iso, 6, false).includes("nopeampi"), V(iso, 6, false));
-vaita("hävinneen oma tulos poistuu epäonnistuneista",
-  V(iso, 6, false).includes("91 %"), V(iso, 6, false));
+   Keskiarvo ilman omaa: korit [2,10,29,30,15,4], summa
+   2+20+87+120+75+24 = 328, ratkaisseita 90, eli 3,64 -> "3,6". */
+const iso = { n: 101, g: [2, 10, 30, 30, 15, 4], epa: 10 };
+vaita("keskiarvo lasketaan ilman omaa tulosta",
+  V(iso, 3, true) === "Muut arvasivat keskimäärin 3,6 arvauksella.", V(iso, 3, true));
+/* Ensimmäisellä osunut poistaa yhden nopeimmasta korista, joten muiden
+   keskiarvo nousee: korit [1,10,30,30,15,4], summa 330, ratkaisseita
+   90, eli 3,67 -> "3,7". */
+vaita("oma tulos poistuu myös ykköskorista",
+  V(iso, 1, true) === "Muut arvasivat keskimäärin 3,7 arvauksella.", V(iso, 1, true));
+vaita("hävinneellä keskiarvo on kaikista ratkaisseista",
+  V(iso, 6, false) === "Muut arvasivat keskimäärin 3,6 arvauksella.", V(iso, 6, false));
 vaita("jos kukaan ei ratkaissut, keskiarvoa ei väitetä",
-  V({ n: 21, g: [0,0,0,0,0,0], epa: 21 }, 6, false) === "Muista 0 % ratkaisi artistin.",
+  V({ n: 21, g: [0,0,0,0,0,0], epa: 21 }, 6, false)
+    === "Kukaan muu ei ratkaissut artistia.",
   V({ n: 21, g: [0,0,0,0,0,0], epa: 21 }, 6, false));
+/* Ratkaisemattomat eivät kuulu keskiarvoon: he käyttivät kuusi mutta
+   eivät osuneet, eikä se ole sama asia kuin kuudella osunut. */
+vaita("ratkaisemattomat eivät nosta keskiarvoa",
+  V({ n: 21, g: [0, 20, 0, 0, 0, 0], epa: 0 }, 2, true)
+    === V({ n: 41, g: [0, 20, 0, 0, 0, 0], epa: 20 }, 2, true),
+  V({ n: 41, g: [0, 20, 0, 0, 0, 0], epa: 20 }, 2, true));
 
 console.log(ok ? "\nLÄPI" : "\nVIRHEITÄ");
 process.exit(ok ? 0 : 1);

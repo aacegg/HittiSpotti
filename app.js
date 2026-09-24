@@ -1718,24 +1718,53 @@
       return;
     }
     el.aEhdotukset.innerHTML = lista.map((a, i) =>
-      `<li class="suggestion" role="option" data-i="${i}"><span class="s-title">${escapeHtml(a.n)}</span></li>`
+      `<li class="suggestion${i === artistiValittu ? " is-active" : ""}"
+        role="option" aria-selected="${i === artistiValittu}"
+        data-i="${i}"><span class="s-title">${escapeHtml(a.n)}</span></li>`
     ).join("");
     el.aEhdotukset.hidden = false;
     artistiEhdokkaat = lista;
+    /* Valittu rivi näkyviin jos lista on vierittynyt. Ilman tätä
+     * nuolinäppäin siirtää korostusta listan ulkopuolelle eikä mikään
+     * ruudulla muutu. */
+    const aktiivinen = el.aEhdotukset.querySelector(".is-active");
+    if (aktiivinen) aktiivinen.scrollIntoView({ block: "nearest" });
   }
 
   let artistiEhdokkaat = [];
+  /* Nuolinäppäimillä valittu rivi. -1 tarkoittaa ettei mitään ole
+   * valittu, jolloin Enter ottaa listan ensimmäisen. */
+  let artistiValittu = -1;
 
   el.aInput.addEventListener("input", () => {
+    // Uusi hakusana, uusi lista: vanha valinta osoittaisi väärään riviin.
+    artistiValittu = -1;
     piirraArtistiEhdotukset(artistiEhdotukset(el.aInput.value));
   });
 
   el.aInput.addEventListener("keydown", (e) => {
+    const n = artistiEhdokkaat.length;
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      if (!n) return;
+      e.preventDefault();
+      /* Kierto listan yli molempiin suuntiin. Alusta ylös päin hyppää
+       * viimeiseen, mikä on nopein tapa päästä listan loppuun. */
+      const suunta = e.key === "ArrowDown" ? 1 : -1;
+      artistiValittu = ((artistiValittu + suunta) % n + n) % n;
+      piirraArtistiEhdotukset(artistiEhdokkaat);
+      return;
+    }
+    if (e.key === "Escape") {
+      el.aEhdotukset.hidden = true;
+      artistiValittu = -1;
+      return;
+    }
     if (e.key !== "Enter") return;
     e.preventDefault();
-    /* Enter valitsee listan ensimmäisen. Pelaaja kirjoittaa nimen
-     * harvoin täsmälleen oikein, ja ilman tätä Enter ei tekisi mitään. */
-    if (artistiEhdokkaat.length) valitseArtisti(artistiEhdokkaat[0]);
+    /* Enter ottaa nuolilla valitun rivin, tai listan ensimmäisen jos
+     * mitään ei ole valittu. Pelaaja kirjoittaa nimen harvoin
+     * täsmälleen oikein, ja ilman jälkimmäistä Enter ei tekisi mitään. */
+    if (n) valitseArtisti(artistiEhdokkaat[artistiValittu >= 0 ? artistiValittu : 0]);
   });
 
   el.aEhdotukset.addEventListener("click", (e) => {
@@ -1859,6 +1888,7 @@
     el.aInput.value = "";
     el.aEhdotukset.hidden = true;
     artistiEhdokkaat = [];
+    artistiValittu = -1;
     artistiArvaa(a);
   }
 

@@ -74,6 +74,30 @@ vaita(`artisteja riittää saumakorjaukseen (n >= 3*GAP)`, N >= 3 * GAP, `${N} >
 const menneet = paivanArtisti("2026-01-01");
 vaita("ennen aloituspäivää ei kaadu", !!menneet && !!menneet.n, menneet && menneet.n);
 
+/* 7. Testipäivän ohitus ei saa toimia tuotannossa.
+      Siellä se olisi tapa kurkata tulevat päivät etukäteen, ja koko
+      pelin idea on että kaikilla on sama artisti samana päivänä. */
+const testipaiva = new Function("location", "dayKey",
+  pala(/  function artistiTestipaiva\(\) \{[\s\S]*?\n  \}/)
+  + "; return artistiTestipaiva;");
+const aja = (hostname, haku) =>
+  testipaiva({ hostname, search: haku }, () => "2027-01-01")();
+
+for (const host of ["hittispotti.fi", "www.hittispotti.fi"]) {
+  vaita(`tuotanto ${host} ei tottele päivää`,
+        aja(host, "?artisti=2026-12-24") === "");
+  vaita(`tuotanto ${host} ei tottele satunnaista`,
+        aja(host, "?artisti=satunnainen") === "");
+}
+vaita("testisivu tottelee päivää",
+      aja("hittispotti-testi.hittispotti.workers.dev", "?artisti=2026-12-24")
+        === "2026-12-24");
+vaita("localhost tottelee päivää",
+      aja("localhost", "?artisti=2026-12-24") === "2026-12-24");
+vaita("ilman parametria ei ohitusta", aja("localhost", "") === "");
+vaita("kelvoton päivä ei kelpaa", aja("localhost", "?artisti=abc") === "");
+vaita("vaillinainen päivä ei kelpaa", aja("localhost", "?artisti=2026-12") === "");
+
 console.log(`\nEnsimmäiset 10 päivää:`);
 for (let i = 0; i < 10; i++) {
   const a = paivanArtisti(pvm(i));

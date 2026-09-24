@@ -1724,12 +1724,41 @@
     paivitaArtistiVertailu();
   }
 
+  /* Testipäivä osoiteriviltä: ?artisti=2026-10-05 tai ?artisti=satunnainen.
+   *
+   * Päivän artistin voi pelata vain kerran, joten kehittäjä ei pääse
+   * kokeilemaan peliä uudestaan ennen seuraavaa vuorokautta. Tämä avaa
+   * jonkin muun päivän artistin.
+   *
+   * Ei toimi tuotannossa. Siellä se olisi tapa kurkata tulevat päivät
+   * etukäteen, ja koko pelin idea on että kaikilla on sama artisti
+   * samana päivänä. Testisivu ja localhost ovat kehitysosoitteita,
+   * hittispotti.fi ei.
+   *
+   * Tulos tallentuu sen päivän avaimelle jota pelataan, joten oikean
+   * päivän tulos säilyy koskemattomana. */
+  function artistiTestipaiva() {
+    const tuotanto = location.hostname === "hittispotti.fi"
+      || location.hostname.endsWith(".hittispotti.fi");
+    if (tuotanto) return "";
+    const arvo = new URLSearchParams(location.search).get("artisti") || "";
+    if (/^\d{4}-\d{2}-\d{2}$/.test(arvo)) return arvo;
+    if (arvo === "satunnainen") {
+      /* Satunnainen päivä koko kierron sisältä. Ei tämän päivän
+       * ympäriltä, koska silloin samat artistit toistuisivat. */
+      const d = new Date();
+      d.setDate(d.getDate() + Math.floor(Math.random() * 400));
+      return dayKey(d);
+    }
+    return "";
+  }
+
   /* Päivän artistin avaaminen. Palauttaa kesken jääneen sarjan samasta
    * kohdasta, koska päivä on sama ja arvaukset on jo nähty. */
   async function avaaArtisti() {
     show("artisti");
     await lataaArtistit();
-    const pvm = todayKey();
+    const pvm = artistiTestipaiva() || todayKey();
     if (artistiTila.pvm !== pvm) {
       artistiTila.pvm = pvm;
       artistiTila.oikea = paivanArtisti(pvm);
@@ -1750,7 +1779,9 @@
           || artistiTila.arvaukset.length >= ARTISTI_ARVAUKSIA;
       }
     }
-    el.aPvm.textContent = todayPretty();
+    // Päivämäärä seuraa pelattavaa päivää eikä kelloa, jotta
+    // testipäivää pelatessa näkee mitä päivää pelaa.
+    el.aPvm.textContent = keyToDate(pvm).toLocaleDateString("fi-FI");
     el.aInput.value = "";
     el.aEhdotukset.hidden = true;
     piirraArtistiRivit();

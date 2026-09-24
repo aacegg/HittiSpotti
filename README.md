@@ -45,6 +45,27 @@ python3 -m http.server 8000
 
 Avaa sitten <http://localhost:8000>. Mikä tahansa muu staattinen palvelin (esim. `npx serve`) käy yhtä hyvin.
 
+## Toisen päivän artistin pelaaminen
+
+Päivän artistin voi pelata vain kerran, joten kehittäjä ei pääse
+kokeilemaan peliä uudestaan ennen seuraavaa vuorokautta. Osoiteriviltä
+voi avata jonkin muun päivän:
+
+    ?artisti=2026-12-24     tietty päivä
+    ?artisti=satunnainen    satunnainen päivä kierron sisältä
+
+Esimerkiksi
+<https://hittispotti-testi.hittispotti.workers.dev/?artisti=satunnainen>.
+
+**Ei toimi tuotannossa.** Siellä se olisi tapa kurkata tulevat päivät
+etukäteen, ja koko pelin idea on että kaikilla on sama artisti samana
+päivänä. Ohitus on sallittu vain kun isäntä ei ole `hittispotti.fi`
+eikä sen aliverkkotunnus, ja `testit/artistipakka.mjs` vartioi sitä.
+
+Tulos tallentuu sen päivän avaimelle jota pelataan, joten oikean päivän
+tulos säilyy koskemattomana. Tilastoihin testipäivä kyllä kirjautuu,
+mutta testisivulla tilastot ovat selaimen omat eivätkä mene minnekään.
+
 ## Paikallinen kehitys ei kirjoita tilastoihin
 
 `app.js` osoittaa tuotannon tilastopalvelimeen myös localhostissa.

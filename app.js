@@ -1743,6 +1743,14 @@
     if (li) valitseArtisti(artistiEhdokkaat[Number(li.dataset.i)]);
   });
 
+  /* Monesko arvaus osui, sanana.
+   *
+   * "Löysit sen 3 arvauksella" on numeron ja sanan sekamuoto joka lukee
+   * tönkösti. Järjestysluku sanana on se miten ihminen sanoisi asian
+   * ääneen, ja kuusi vaihtoehtoa mahtuu taulukkoon. */
+  const ARTISTI_JARJESTYS = ["", "ensimmäisellä", "toisella", "kolmannella",
+    "neljännellä", "viidennellä", "kuudennella"];
+
   /* Artistin kuvan osoite, tai tyhjä jos kuvaa ei ole.
    *
    * Tyhjä src lataisi sivun itsensä uudestaan ja piirtäisi rikkinäisen
@@ -1767,8 +1775,8 @@
     el.aPaljastusOtsikko.textContent = artistiTila.voitto ? "Oikein!" : "Ei osunut";
     el.aPaljastusNimi.textContent = artistiTila.oikea.n;
     el.aPaljastusTeksti.textContent = artistiTila.voitto
-      ? `Ratkesi ${n} arvauksella.`
-      : `Et löytänyt sitä ${ARTISTI_ARVAUKSIA} arvauksella.`;
+      ? `Löysit sen ${ARTISTI_JARJESTYS[n] || n + "."} arvauksella.`
+      : "Arvaukset loppuivat kesken.";
     /* Sivun oma loppulohko piiloon ruudun ajaksi. Siinä lukee sama asia,
      * ja himmennyksen läpi luettuna se näytti siltä että sama teksti on
      * vahingossa kahdesti. Se palaa kun ruutu suljetaan, joten rastilla

@@ -465,12 +465,22 @@ Aiemmin tässä luki 56 ja 14; myös ne oli mitattu edellä kuvatulla
 rikkinäisellä avaimella. Oikea luku ilman nimiruutua on 25 artistia,
 eli täsmälleen ne joilla on kaksoisolento.
 
-**Keltainen samasta alkukirjaimesta kokeiltiin ja poistettiin.** Se
-teki pelistä liian helpon. Koneellisesti mitattuna ero oli pieni
-(täydellinen pelaaja 2,9 arvausta vastaan 3,0), mutta malli ei mittaa
-sitä mistä on kyse: ihmiselle alkukirjain on iso vihje, koska
-artistien nimet muistetaan nimenomaan alkukirjaimesta. Nimiruudun
-tehtävä on kertoa kenet arvasit, ei vihjata vastauksesta.
+**Keltainen samasta alkukirjaimesta poistettiin ja palautettiin.**
+Ensin se tuntui tekevän pelistä liian helpon, ja kone tuki sitä:
+täydellinen pelaaja ratkaisi 2,9 arvauksella sen kanssa ja 3,0 ilman.
+
+Sitten peliä pelattiin. Kaksikymmentä peliä, voittoprosentti 40.
+Koneen ja ihmisen ero on juuri tässä: malli tietää kaikkien 246
+artistin debyyttivuodet ja kotipaikat, joten sille jäljellä on vain
+päättely, ja päättelyssä alkukirjain on marginaalinen. Ihmiselle
+vaikea osa on keksiä nimi, ja siinä alkukirjain kaventaa joukon
+246:sta noin kahdeksaan (25 kirjainta, mediaani 8 artistia
+kirjaimelle). Se on pelin ainoa vihje muistille, ja siksi se on
+takaisin.
+
+Tästä jäi opetus mittaamisesta: `testit/vaikeus.mjs` mittaa
+informaatiota, ei vaikeutta. Se kertoo onko peli ratkaistavissa, ei
+onko se ihmiselle ratkaistava.
 
 Sarake vei tilaa viideltä muulta. Nimiruutu on 56 px, artistinäkymän
 oma pehmuste 6 px ulomman 16:n lisäksi ja otsikot 9 px, jolloin muille

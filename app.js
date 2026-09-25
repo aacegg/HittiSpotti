@@ -1236,11 +1236,12 @@
      * saattoi arvata kaksoisolennon, nähdä viisi vihreää ja saada
      * "väärin". Mitattuna sellaisia pareja oli 14.
      *
-     * Vihreä tai harmaa, ei keltaista. Sama alkukirjain oli hetken
-     * keltainen, mutta se teki pelistä liian helpon: 246 artistista
-     * jokainen arvaus rajasi joukkoa myös nimen perusteella, ja
-     * satunnainen pelaaja ratkaisi päivän lähes aina. Nimiruudun
-     * tehtävä on kertoa kenet arvasit, ei vihjata vastauksesta.
+     * Keltainen on sama alkukirjain. Se otettiin hetkeksi pois, koska
+     * kone ratkaisi pelin sen kanssa lähes aina, mutta kone ei ole
+     * pelaaja: se tietää kaikkien 246 artistin debyyttivuodet ja
+     * kotipaikat, ja sille jäljellä on vain päättely. Ihmiselle vaikea
+     * osa on keksiä nimi, ja alkukirjain kaventaa sen 246:sta noin
+     * kahdeksaan. Siksi se on tässä pelin ainoa vihje muistille.
      *
      * Nimi katkeaa pisteisiin jos se ei mahdu. Kuva riittää
      * tunnistamiseen siinä missä nimen alku. */
@@ -1375,6 +1376,12 @@
       const o = oikea[kentta.avain];
       const teksti = kentta.naytto ? kentta.naytto(a) : String(a);
       if (a === o) return { tila: "osui", teksti, nuoli: "" };
+      /* Nimet ovat listalla ainutkertaisia, joten vihreä yllä tarkoittaa
+       * jo oikeaa artistia. Tässä ratkaistaan vain keltainen. */
+      if (kentta.nimi) {
+        const sama = a[0].toUpperCase() === o[0].toUpperCase();
+        return { tila: sama ? "lahella" : "ohi", teksti, nuoli: "" };
+      }
       if (kentta.luku) {
         const lahella = Math.abs(a - o) <= kentta.lahella;
         return {

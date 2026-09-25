@@ -312,8 +312,10 @@
     aPaljastusKuva: $("#a-paljastus-kuva"),
     aPaljastusOtsikko: $("#a-paljastus-otsikko"),
     aPaljastusNimi: $("#a-paljastus-nimi"),
+    aPaljastusRivi: $("#a-paljastus-rivi"),
     aPaljastusTeksti: $("#a-paljastus-teksti"),
     atKuva: $("#at-kuva"),
+    atRivi: $("#at-rivi"),
     aLoppuOtsikko: $("#a-loppu-otsikko"),
     aLoppuTeksti: $("#a-loppu-teksti"),
     aTulokset: $("#a-tulokset"),
@@ -1731,6 +1733,7 @@
     el.atTeksti.textContent = artistiTila.voitto
       ? `Päivän artisti oli ${artistiTila.oikea.n}. Arvauksia ${n}/${ARTISTI_ARVAUKSIA}.`
       : `Päivän artisti oli ${artistiTila.oikea.n}.`;
+    piirraArtistiVastaus(el.atRivi, artistiTila.oikea);
 
     /* Putki näytetään nollana, jos viimeisin ratkaistu päivä ei ole tämä
      * eikä eilinen. Luku on tallessa muuttumattomana, mutta katkennutta
@@ -1948,11 +1951,32 @@
   /* Paljastusruutu. Aukeaa itsestään kun päivä ratkeaa, ja vain silloin:
    * jo pelatun päivän avaaminen uudestaan ei saa räpsäyttää vastausta
    * ruudulle ennen kuin pelaaja on ehtinyt katsoa omaa ruudukkoaan. */
+  /* Oikean artistin tiedot omalla rivillään. Ruudukko kertoo vain mikä
+   * arvauksissa osui, joten hävinnyt ei näe vastauksen tietoja mistään.
+   *
+   * Harmaana ja ilman nuolia: väri ja nuoli tarkoittavat pelissä
+   * vertailua arvaukseen, eikä tässä verrata mihinkään. Nimi jätetään
+   * pois, koska se lukee jo isolla tämän yläpuolella.
+   *
+   * Tavutusvihjeet ovat mukana, koska ruudut ovat tässä yhtä kapeat
+   * kuin pelissäkin. */
+  function piirraArtistiVastaus(el_, artisti) {
+    if (!el_ || !artisti) return;
+    el_.innerHTML = ARTISTI_KENTAT
+      .filter((kentta) => !kentta.nimi)
+      .map((kentta) => {
+        const arvo = artisti[kentta.avain];
+        const teksti = kentta.naytto ? kentta.naytto(arvo) : String(arvo);
+        return `<div class="a-ruutu"><span>${escapeHtml(ARTISTI_TAVUT[teksti] || teksti)}</span></div>`;
+      }).join("");
+  }
+
   function avaaArtistiPaljastus() {
     const n = artistiTila.arvaukset.length;
     asetaArtistiKuva(el.aPaljastusKuva, artistiTila.oikea);
     el.aPaljastusOtsikko.textContent = artistiTila.voitto ? "Oikein!" : "Ei osunut";
     el.aPaljastusNimi.textContent = artistiTila.oikea.n;
+    piirraArtistiVastaus(el.aPaljastusRivi, artistiTila.oikea);
     el.aPaljastusTeksti.textContent = artistiTila.voitto
       ? `Ratkesi ${ARTISTI_JARJESTYS[n] || n + "."} arvauksella.`
       : "Arvaukset loppuivat kesken.";

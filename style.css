@@ -2333,6 +2333,15 @@ body.sheet-open { overflow: hidden; }
 }
 .at-vertailu[hidden] { display: none; }
 
+/* Oikean artistin tiedot paljastuksessa ja tulosnäkymässä. Viisi
+   saraketta eikä kuusi: nimiruutu jää pois, koska nimi lukee jo isolla
+   sen yläpuolella. Omat leveydet, koska tämä ei ole arvausruudukon
+   rivi eikä sen kanssa tarvitse olla linjassa. */
+.a-vastaus { margin: 18px 0 4px; }
+.a-vastaus .a-otsikot,
+.a-vastaus .a-rivi { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.a-vastaus .a-ruutu { min-height: 44px; }
+
 /* Rivin ensimmäinen ruutu: arvattu artisti, kuva ja nimi päällekkäin.
 
    Nimi katkeaa pisteisiin eikä rivity. Ruutu on kapeampi kuin useimmat

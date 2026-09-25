@@ -9,12 +9,16 @@
 #
 # Nimi on avain. Katalogin biisimäärä ja vuodet haetaan niille jotka
 # katalogista löytyvät, mutta puuttuminen ei ole este.
+22-Pistepirkko
 ABREU
 Adi L Hasla
 Ahti
 Aikakone
 Aknestik
+Aliisa Syrjä
 ALMA
+Amorphis
+ANI
 Anna Eriksson
 Anna Hanski
 Anna Puu
@@ -33,15 +37,19 @@ Aurora
 Averagekidluke
 Axel Kala
 Bat & Ryyd
+Battle Beast
 Beast in Black
 Behm
 Benjamin
 BESS
+Bizi
 Blind Channel
 Bomfunk MC's
 Brädi
 Cheek
+Children of Bodom
 Chisu
+Chorale
 Cledos
 CMX
 Costee
@@ -50,11 +58,17 @@ Danny
 Darude
 Dave Lindholm
 Dingo
+DJ FKU
+DJ Oku Luukkainen
+Don Huonot
+Ege Zulu
 Egotrippi
 Eino Grön
 Elastinen
 Ellinoora
 Elokuu
+Elonkerjuu
+Emma & Matilda
 Eppu Normaali
 Erika Vikman
 Erin
@@ -62,16 +76,21 @@ Etta
 Evelina
 Fintelligens
 Frederik
+Freeman
 Fröbelin Palikat
 Gasellit
 Gettomasa
+Gracias
 Haloo Helsinki!
+Hanoi Rocks
 Happoradio
+Hassisen Kone
 Hausmylly
 Hector
 Heikki Kuula
 HesaÄijä
 HIM
+HUGO
 Hurriganes
 ibe
 Ida Paul & Kalle Lindroth
@@ -81,13 +100,17 @@ Isac Elliot
 Ismo Alanko
 J. Karjalainen
 Jami Faltin
+Janji
 Jari Sillanpää
+Jean Sibelius
 Jenni Vartiainen
 Jesse Kaikuranta
+Jippu
 Joe L
 Johanna Kurkela
 Jonna Tervomaa
 Jonne Aaron
+Jore & Zpoppa
 Juha Tapio
 Juice Leskinen
 Jukka Poika
@@ -95,6 +118,7 @@ Juno
 Justimus
 JVG
 Kaija Koo
+KAJ
 Kake Randelin
 Kari Tapio
 Karri Koira
@@ -107,9 +131,11 @@ Kirka
 Klamydia
 Kolmas Nainen
 Komiat
+Korelon
 Korpiklaani
 Kotiteollisuus
 Kube
+Kuningasidea
 Kuumaa
 Käärijä
 Laila Kinnunen
@@ -118,6 +144,7 @@ Laura Voutilainen
 Lauri Haav
 Lauri Tähkä
 Lauri Tähkä & Elonkerjuu
+Lea Laven
 Leevi and the Leavings
 Lord Est
 Lordi
@@ -125,14 +152,20 @@ Lukas Leon
 Maija Vilkkumaa
 Mamba
 Marion Rung
+Mariska
 Martti Servo & Napander
 Matti ja Teppo
 Maukka Perusjätkä
 Meiju Suvas
 Melo
+Michael Monroe
 Mikael Gabriel
+Mikko Alatalo
+Mikko Harju
 Miljoonasade
 Mirella
+MKDMSK
+Mokoma
 Mouhous
 Movetron
 Musta Barbaari
@@ -140,19 +173,25 @@ Mäkki
 Neljä Ruusua
 Neljänsuora
 Nelli Matula
+Neon 2
 Nightwish
 Nikke Ankara
+Nopsajalka
 Nylon Beat
 Olavi Uusivirta
 Olavi Virta
+Olli Halonen
 Paleface
 Paperi T
 Pariisin Kevät
 Pasi ja Anssi
+Pate Mustajärvi
 Paula Koivuniemi
 Pave Maijanen
+Peer Günt
 Pehmoaino
 Pelle Miljoona
+Pete Parkkonen
 Petri Nygård
 Pikku G
 PMMP
@@ -161,8 +200,10 @@ Popeda
 Portion Boys
 Pyhimys
 Raappana
+Ramses II
 Rauli Badding Somerjoki
 Redrama
+Reijo Taipale
 Reino Nordin
 Ressu Redford
 Robin
@@ -171,10 +212,17 @@ Ruudolf
 Samuli Edelmann
 Samuli Putro
 Sanni
+Sara Bee
+Scandinavian Music Group
 Sexmane
+Sielun Veljet
+Sir Elwoodin Hiljaiset Värit
 Skandaali
+Sliki
+SMC Lähiörotat
 Sonata Arctica
 Spekti
+Stam1na
 Stella
 Stepa
 Stig
@@ -184,6 +232,7 @@ Suvi Teräsniska
 Taiska
 Tapani Kansa
 Tapio Rautavaara
+Tarja
 Tauski
 Teflon Brothers
 Tehosekoitin
@@ -204,54 +253,14 @@ Vesa-Matti Loiri
 Vesala
 Vesta
 Vesterinen Yhtyeineen
+Viikate
 VIIVI
+Ville Valo
+VilleGalle
 Virve Rosti
 Waldo's People
+William
 Yksi Totuus
 Yö
 Yölintu
 Zen Café
-Pete Parkkonen
-KAJ
-Jore & Zpoppa
-Bizi
-Emma & Matilda
-Sara Bee
-ANI
-Aliisa Syrjä
-Olli Halonen
-William
-Sliki
-Korelon
-DJ FKU
-Janji
-Amorphis
-Children of Bodom
-Battle Beast
-Tarja
-Ville Valo
-Michael Monroe
-Hanoi Rocks
-Elonkerjuu
-Neon 2
-Mariska
-Mikko Alatalo
-Pate Mustajärvi
-Don Huonot
-Hassisen Kone
-Sielun Veljet
-Scandinavian Music Group
-Sir Elwoodin Hiljaiset Värit
-Viikate
-Mokoma
-Stam1na
-Gracias
-Mikko Harju
-Jippu
-Lea Laven
-Reijo Taipale
-Peer Günt
-22-Pistepirkko
-HUGO
-Ege Zulu
-Jean Sibelius

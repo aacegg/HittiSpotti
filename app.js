@@ -4000,6 +4000,8 @@
        * kuvan alla luki että kuva ei paljasta biisejä, vaikka se listaa ne. */
       const osat = [state.mode === "daily"
         ? "Kuva ei paljasta biisejä, joten sen voi lähettää kenelle vain."
+        : state.mode === "haaste"
+        ? "Kuva ei paljasta biisejä. Kopioi linkki, niin kaverit pääsevät samaan haasteeseen."
         : "Kuvassa näkyvät biisit. Vapaassa pelissä ne ovat jokaisella eri."];
       if (el.shareNative.hidden) osat.push("Tallenna painamalla kuvaa pitkään.");
       el.shareNote.textContent = osat.join(" ");

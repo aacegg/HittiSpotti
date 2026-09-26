@@ -2276,7 +2276,7 @@
     if (state.mode !== "haaste" || !h) return;
     store.set(AVAIN.biisi.haaste(h.koodi), {
       kierros: h.kierros,
-      pisteet: h.pisteet,
+      kierrokset: h.kierrokset,
       at: state.at,
       rounds: state.rounds.map((r) => ({
         id: r.song.id, step: r.step, guesses: r.guesses,
@@ -2314,14 +2314,17 @@
     state.mode = "haaste";
     state.haaste = {
       ...h, kierros,
-      pisteet: Array.isArray(tallennettu && tallennettu.pisteet)
-        ? tallennettu.pisteet.slice(0, h.kierroksia) : [],
+      /* Jokaiselta pelatulta kierrokselta pisteet ja se mitkä viidestä
+       * tunnistettiin. Osumat tarvitaan lopun jakokuvaan, jossa on rivi
+       * kierrosta kohti. */
+      kierrokset: Array.isArray(tallennettu && tallennettu.kierrokset)
+        ? tallennettu.kierrokset.slice(0, h.kierroksia) : [],
     };
     state.results = [];
     state.rounds = palautaHaasteRounds(tallennettu, biisit) || biisit.map(newRound);
     state.at = tallennettu && Number.isInteger(tallennettu.at)
       && tallennettu.at < state.rounds.length ? tallennettu.at : 0;
-    state.score = state.haaste.pisteet.reduce((a, b) => a + (b || 0), 0)
+    state.score = haasteAiemmat(state.haaste)
       + state.rounds.reduce((a, r) => a + r.points, 0);
     await varmistaAanet(state.rounds.map((r) => r.song));
     if (state.rounds.every((r) => r.finished)) {
@@ -2342,7 +2345,10 @@
   function paataHaasteKierros() {
     const h = state.haaste;
     if (!h) return;
-    h.pisteet[h.kierros] = state.rounds.reduce((summa, r) => summa + r.points, 0);
+    h.kierrokset[h.kierros] = {
+      pisteet: state.rounds.reduce((summa, r) => summa + r.points, 0),
+      ratkaistut: state.rounds.map((r) => !!r.solved),
+    };
     persistHaaste();
   }
 
@@ -2356,6 +2362,11 @@
   function unohdaHaaste(koodi) {
     if (koodi) store.remove(AVAIN.biisi.haaste(koodi));
   }
+
+  /* Aiempien kierrosten pisteet yhteensä. Kesken oleva kierros ei ole
+   * listassa, joten tähän lisätään aina käynnissä olevan kierroksen omat. */
+  const haasteAiemmat = (h) => (h && h.kierrokset || [])
+    .reduce((summa, k) => summa + ((k && k.pisteet) || 0), 0);
 
   const haasteViimeinen = () => !!state.haaste
     && state.haaste.kierros + 1 >= state.haaste.kierroksia;
@@ -3516,6 +3527,9 @@
         <div class="r-points${r.solved ? "" : " zero"}">${r.solved ? "+" + fmt(r.points) : "0"}</div>`;
       el.resultsList.appendChild(li);
     });
+    /* Haasteessa jaetaan vasta lopputulos. Yksi kierros ei ole tulos vaan
+     * välivaihe, ja kaveria vastaan merkitsee koko haasteen summa. */
+    el.shareBtn.hidden = !!haaste && !haasteViimeinen();
     piilotaJako();
     valmisteleKuva();
     el.againBtn.textContent = daily ? "Vapaa peli"
@@ -3649,6 +3663,11 @@
     const s = { ...defaultStats(), ...store.get(AVAIN.biisi.stats, {}) };
     const eilen = new Date(); eilen.setDate(eilen.getDate() - 1);
     const putki = (s.lastDaily === todayKey() || s.lastDaily === dayKey(eilen)) ? s.streak : 0;
+    const h = state.haaste;
+    if (state.mode === "haaste" && h) {
+      const kaikki = h.kierrokset.flatMap((k) => k.ratkaistut || []);
+      return `${kaikki.filter(Boolean).length}/${kaikki.length} tunnistettu`;
+    }
     const osumat = state.results.filter((r) => r.solved).length;
     const osat = [`${osumat}/${state.results.length} tunnistettu`];
     if (state.mode === "daily" && putki > 1) osat.push(`putki ${putki} päivää`);
@@ -3663,21 +3682,39 @@
     const reuna = 92;
     pohja(g, KUVA, KUVA);
     const h = state.haaste;
-    let y = otsikko(g, reuna, state.mode === "haaste" && h
-      ? `Kaverihaaste ${h.koodi} · kierros ${h.kierros + 1}/${h.kierroksia}`
+    const haaste = state.mode === "haaste" && h;
+    let y = otsikko(g, reuna, haaste
+      ? `Kaverihaaste ${h.koodi} · ${h.kierroksia} ${h.kierroksia === 1 ? "kierros" : "kierrosta"}`
       : `Päivän biisit · ${dateLine(keyToDate(state.dayKey || todayKey()))}`);
 
-    // Yksi rivi biisiä kohti, viisi ruutua eli viisi pätkän pituutta.
     y += 74;
     const koko = 62, vali = 16;
-    state.results.forEach((r) => {
-      STEPS.forEach((_, i) => {
-        const osuma = i === r.step && r.solved;
-        const kaytetty = i < r.step || (i === r.step && !r.solved);
-        ruutu(g, reuna + i * (koko + vali), y, koko, osuma ? "#5ecf9a" : kaytetty ? "#3a332c" : null);
+    if (haaste) {
+      /* Haasteessa rivi on kierros eikä biisi: viisi ruutua kertoo monta
+       * viidestä tunnistettiin, ja perässä kierroksen pisteet. Biisikohtaiset
+       * rivit olisivat kolmella kierroksella viisitoista riviä, eikä kukaan
+       * lue niitä chatista. */
+      h.kierrokset.forEach((k, i) => {
+        (k.ratkaistut || []).forEach((osui, j) => {
+          ruutu(g, reuna + j * (koko + vali), y, koko, osui ? "#5ecf9a" : "#3a332c");
+        });
+        g.font = `700 40px ${NAYTA}`;
+        g.fillStyle = "#8a8073";
+        g.fillText(`${i + 1}. kierros  ${fmt(k.pisteet || 0)} p`,
+          reuna + 5 * (koko + vali) + 20, y + koko - 16);
+        y += koko + vali;
       });
-      y += koko + vali;
-    });
+    } else {
+      // Päivän pelissä rivi on biisi, viisi ruutua eli viisi pätkän pituutta.
+      state.results.forEach((r) => {
+        STEPS.forEach((_, i) => {
+          const osuma = i === r.step && r.solved;
+          const kaytetty = i < r.step || (i === r.step && !r.solved);
+          ruutu(g, reuna + i * (koko + vali), y, koko, osuma ? "#5ecf9a" : kaytetty ? "#3a332c" : null);
+        });
+        y += koko + vali;
+      });
+    }
     alaosa(g, reuna, KUVA, KUVA, yhteenveto());
     return c;
   }

@@ -450,6 +450,13 @@ kuten vapaassa pelissä. Syy on sama: haasteen biisit ovat kaikille
 samat, joten nimet paljastava kuva pilaisi sarjan siltä jolle sen
 lähettää.
 
+**Jaettavaa on vasta kun haaste on pelattu.** Yksi kierros ei ole
+tulos vaan välivaihe, ja kaveria vastaan merkitsee koko haasteen
+summa, joten Jaa tulos -nappi on piilossa siihen asti. Kuvassa on rivi
+kierrosta kohti: viisi ruutua kertoo monta viidestä tunnistettiin ja
+perässä on kierroksen pisteet. Biisikohtaiset rivit olisivat kolmella
+kierroksella viisitoista riviä, eikä kukaan lue niitä chatista.
+
 Haasteen tulokset eivät mene päivän eivätkä vapaan pelin tilastoihin.
 Se on oma pelimuotonsa, ja sen tulos on se mitä kaverille näytetään.
 

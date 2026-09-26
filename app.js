@@ -2399,9 +2399,13 @@
   /* Linkki kopioidaan heti luonnin yhteydessä, koska se on ainoa syy tehdä
    * haaste: ilman linkkiä kaverit eivät pääse mukaan. Jos leikepöytä ei ole
    * käytettävissä, linkki on yhä osoiterivillä ja tuloksissa. */
-  async function luoHaaste() {
+  /* Uusi siemenluku joka kerta, eli jokainen haaste on eri biisit. Samoilla
+   * asetuksilla luotu haaste on siis uusi peli eikä sama uudestaan, ja niitä
+   * voi tehdä peräkkäin niin monta kuin jaksaa. */
+  async function luoHaaste(kierroksia = haasteValinta.kierroksia,
+                           kaudet = haasteValinta.kaudet) {
     const siemen = Math.floor(Math.random() * HAASTE_SIEMEN_MAX);
-    const h = lueHaaste(haasteKoodi(siemen, haasteValinta.kierroksia, haasteValinta.kaudet));
+    const h = lueHaaste(haasteKoodi(siemen, kierroksia, kaudet));
     if (!h) return;
     suljeHaasteRuutu();
     closeDrawer();
@@ -3477,7 +3481,9 @@
     el.resultsSub.textContent = daily ? `${yhteenveto} Uusi sarja huomenna.`
       : haaste
         ? `${yhteenveto} Tältä kierrokselta ${fmt(kierrosPisteet)} pistettä.`
-          + (haasteViimeinen() ? " Haaste on pelattu." : "")
+          + (haasteViimeinen()
+            ? ` Haaste on pelattu, yhteensä ${fmt(state.score)} pistettä.`
+            : "")
       : yhteenveto;
     el.resultsList.innerHTML = "";
     state.results.forEach((r) => {
@@ -3500,7 +3506,7 @@
     piilotaJako();
     valmisteleKuva();
     el.againBtn.textContent = daily ? "Vapaa peli"
-      : haaste ? (haasteViimeinen() ? "Vapaa peli" : "Seuraava kierros")
+      : haaste ? (haasteViimeinen() ? "Uusi haaste" : "Seuraava kierros")
       : "Uusi sarja";
   }
 
@@ -4704,9 +4710,14 @@
       piirraHaasteValinnat();
     });
     el.againBtn.addEventListener("click", () => {
-      if (state.mode === "haaste" && !haasteViimeinen()) {
+      if (state.mode === "haaste") {
         stopPlayback();
-        seuraavaHaasteKierros();
+        /* Kesken haasteen nappi vie seuraavaan kierrokseen, lopussa se
+         * tekee uuden haasteen samoilla asetuksilla mutta uusilla
+         * biiseillä. Näin ketju jatkuu eikä pelaajan tarvitse käydä
+         * valikossa joka kerta. */
+        if (haasteViimeinen()) luoHaaste(state.haaste.kierroksia, state.haaste.kaudet);
+        else seuraavaHaasteKierros();
         return;
       }
       go("free");

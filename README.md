@@ -453,6 +453,13 @@ lähettää.
 Haasteen tulokset eivät mene päivän eivätkä vapaan pelin tilastoihin.
 Se on oma pelimuotonsa, ja sen tulos on se mitä kaverille näytetään.
 
+Viimeisen kierroksen jälkeen nappi tekee uuden haasteen samoilla
+asetuksilla mutta uudella siemenluvulla, eli uusilla biiseillä. Näin
+haastetta voi pelata peräkkäin niin kauan kuin jaksaa käymättä
+valikossa. Pituuden katto on viisi kierrosta yhtä linkkiä kohti, koska
+linkki on myös kutsu: kaverin pitää tietää mihin hän lähtee, ja 25
+biisiä on jo pitkä istunto.
+
 Yksi rajoitus on tiedossa: jos katalogiin lisätään biisejä kesken
 haasteen, sekoitus muuttuu ja vanha linkki antaa eri sarjan. Haaste on
 tarkoitettu saman päivän kisailuun, joten sillä ei ole väliä.

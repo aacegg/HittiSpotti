@@ -2250,6 +2250,20 @@ body.sheet-open { overflow: hidden; }
 .at-jaa { display: block; width: 100%; margin-top: 18px; }
 .at-takaisin { display: block; width: 100%; margin-top: 8px; }
 
+/* Kaverihaasteen asetusruutu. Kierros- ja vuosikymmennapit ovat samat
+   kchipit kuin valikossa, joten tässä on vain otsikot ja välistys. */
+.haaste-lead { margin: 0 0 18px; font-size: 14px; line-height: 1.5; color: var(--muted); }
+.haaste-otsikko {
+  margin: 0 0 2px; font-size: 13px; font-weight: 700; color: var(--text);
+  letter-spacing: .02em;
+}
+.haaste-apu { margin: 0 0 8px; font-size: 12px; color: var(--dim); line-height: 1.4; }
+/* Levyn sisällä napit ovat jo levyn pehmusteen sisässä, joten kaudet-
+   ruudukon oma sivupehmuste on tässä turha. Kierrosnapit ovat viisi lyhyttä
+   lukua, joten ne mahtuvat yhdelle riville. */
+#haaste-sheet .kaudet { margin-bottom: 18px; padding: 0; }
+#haaste-kierrokset { grid-template-columns: repeat(5, 1fr); }
+
 /* ArtistiSpotin ohjenappi ja ohjeruutu.
    Nappi on otsikkolohkon oikeassa reunassa eikä oman rivinsä varassa,
    jotta se ei vie tilaa ruudukolta. */

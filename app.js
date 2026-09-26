@@ -256,7 +256,7 @@
      * mitä biisejä arvauspelissä sattuu olemaan. Ladataan vasta kun
      * peliin mennään, jottei biisipelin avaus hidastu. */
     artistit: [],
-    mode: "daily",        // "daily" | "free"
+    mode: "daily",        // "daily" | "free" | "haaste"
     /* Vapaan pelin vuosikymmenrajaus: lista KAUDET-avaimia. Tyhjä lista
      * tarkoittaa koko katalogia, ja niin tarkoittaa myös täysi lista, koska
      * ne ovat sama joukko biisejä.
@@ -268,6 +268,10 @@
      * ei voinut ilmaista, koska neljän jäljelle jäävän valitseminen vaatii
      * neljä valintaa yhtä aikaa. */
     kaudet: [],
+    /* Kesken oleva kaverihaaste: koodi, siemen, kierrosten määrä, monesko
+     * kierros on menossa ja aiempien kierrosten pisteet. null muissa
+     * pelimuodoissa. */
+    haaste: null,
     dayKey: null,         // minkä päivän sarja on auki – ei kellosta, ks. startDaily
     rounds: [],           // biisikohtaiset tilat, päivän pelissä viisi
     at: 0,                // mikä niistä on auki
@@ -438,6 +442,12 @@
     shareCopyImg: $("#share-copy-img"),
     shareCopyLink: $("#share-copy-link"),
     againBtn: $("#results-again-btn"),
+    haasteSheet: $("#haaste-sheet"),
+    haasteScrim: $("#haaste-scrim"),
+    haasteClose: $("#haaste-close"),
+    haasteLuo: $("#haaste-luo"),
+    haasteKierrokset: $("#haaste-kierrokset"),
+    haasteKaudet: $("#haaste-kaudet"),
     statGrid: $("#stat-grid"),
     resetBtn: $("#reset-stats-btn"),
     toast: $("#toast"),
@@ -580,6 +590,7 @@
       tulos: (pvm) => `daily:${pvm}`,
       kesken: (pvm) => `daily:${pvm}:kesken`,
       vertailu: (pvm) => `paivavertailu:${pvm}`,
+      haaste: (koodi) => `haaste:${koodi}`,
       stats: "stats",
     },
     artisti: {
@@ -2178,6 +2189,236 @@
     }
   }
 
+  /* ---------- Kaverihaaste ----------
+   *
+   * Sama biisisarja kaikille, jotka avaavat saman linkin. Pelaaja valitsee
+   * kierrosten määrän ja halutessaan vuosikymmenet, peli arpoo siemenluvun
+   * ja kokoaa niistä koodin osoiteriville. Kaveri avaa linkin ja saa
+   * täsmälleen samat biisit samassa järjestyksessä.
+   *
+   * Ei palvelinta, ei tunnuksia, ei tietokantaa: linkki ON pelin tila.
+   * Arvonta on jo valmiiksi deterministinen (shuffled + mulberry32), joten
+   * kaverin selain laskee saman sarjan omin voimin. Tulokset vertaillaan
+   * siellä missä kaveritkin ovat, eli samassa keskustelussa johon linkki
+   * lähetettiin, aivan kuten Wordlen ruudukot.
+   *
+   * Koodi on kolme base36-lukua väliviivoilla: siemen, kierrosten määrä ja
+   * vuosikymmenten bittimaski. Lyhyt, luettava ääneen ja kirjoitettavissa
+   * käsin, ja epäkelpo koodi tunnistetaan ilman palvelinta.
+   *
+   * Yksi rajoitus on syytä tietää: jos katalogiin lisätään biisejä kesken
+   * haasteen, sekoitus muuttuu ja vanha linkki antaa eri sarjan. Haaste on
+   * tarkoitettu saman päivän kisailuun, joten sillä ei ole väliä.
+   */
+  const HAASTE_KIERROKSET = [1, 2, 3, 4, 5];
+  const HAASTE_SIEMEN_MAX = 36 ** 5;
+
+  function haasteKoodi(siemen, kierroksia, kaudet) {
+    const bitit = KAUDET.reduce(
+      (b, k, i) => b | (kaudet.includes(k.avain) ? 1 << i : 0), 0);
+    return [siemen.toString(36), kierroksia.toString(36), bitit.toString(36)].join("-");
+  }
+
+  /* Palauttaa haasteen tai null. Null myös silloin kun koodi on muodoltaan
+   * oikea mutta arvot mahdottomia: kirjoitusvirhe linkissä ei saa aloittaa
+   * peliä jossa on nolla kierrosta. */
+  function lueHaaste(koodi) {
+    const osat = String(koodi || "").trim().toLowerCase().split("-");
+    if (osat.length !== 3) return null;
+    const [siemen, kierroksia, bitit] = osat.map((o) => parseInt(o, 36));
+    if (!Number.isInteger(siemen) || siemen < 0 || siemen >= HAASTE_SIEMEN_MAX) return null;
+    if (!HAASTE_KIERROKSET.includes(kierroksia)) return null;
+    if (!Number.isInteger(bitit) || bitit < 0 || bitit >= (1 << KAUDET.length)) return null;
+    const kaudet = KAUDET.filter((_, i) => bitit & (1 << i)).map((k) => k.avain);
+    return { koodi: haasteKoodi(siemen, kierroksia, kaudet), siemen, kierroksia, kaudet };
+  }
+
+  /* Haasteen biisit: yksi jokaiselta tasolta jokaiselle kierrokselle.
+   *
+   * Lista järjestetään tunnisteen mukaan ennen sekoitusta, jotta sarja ei
+   * riipu siitä missä järjestyksessä katalogi sattuu olemaan tiedostossa.
+   * Jokaiselle tasolle oma siemenluku, muuten sama sekoitus toistuisi
+   * viidellä tasolla samassa järjestyksessä.
+   *
+   * Jos valituista vuosikymmenistä ei löydy tasolta tarpeeksi biisejä,
+   * rajaus jätetään sen tason osalta väliin. Sama sääntö kuin vapaassa
+   * pelissä: vajaa vuosikymmen ei saa jättää sarjaa vajaaksi. */
+  function haasteBiisit(h) {
+    const valitut = KAUDET.filter((k) => h.kaudet.includes(k.avain));
+    const kelpaa = (s) => !valitut.length
+      || (s.year && valitut.some((k) => s.year >= k.alku && s.year <= k.loppu));
+    return TIER_CYCLE.map((tier) => {
+      const kaikki = state.pool.filter((s) => s.tier === tier);
+      const rajattu = kaikki.filter(kelpaa);
+      const lista = rajattu.length >= h.kierroksia ? rajattu : kaikki;
+      return shuffled(lista.slice().sort((a, b) => a.id - b.id),
+                      h.siemen * 10 + tier).slice(0, h.kierroksia);
+    });
+  }
+
+  /* Yhden kierroksen viisikko, helpoimmasta vaikeimpaan. */
+  function haasteKierros(h, kierros) {
+    return haasteBiisit(h).map((tasonBiisit) => tasonBiisit[kierros]).filter(Boolean);
+  }
+
+  /* Haasteen eteneminen tallennetaan koodin alle.
+   *
+   * Viisi kierrosta on 25 biisiä, eikä sitä pelata yhdeltä istumalta.
+   * Puhelimen selain pudottaa taustalle jääneen välilehden muistista, ja
+   * ilman tallennusta haaste alkaisi silloin alusta: pelaaja olisi jo
+   * nähnyt vastaukset, ja kaverin kanssa vertailtava tulos olisi pilalla.
+   *
+   * Tallennus tarkistaa biisien tunnisteet palauttaessaan. Jos katalogi on
+   * vaihtunut niin että haasteen sarja on eri, kesken jäänyt kierros
+   * hylätään mieluummin kuin jatketaan väärillä biiseillä. */
+  function persistHaaste() {
+    const h = state.haaste;
+    if (state.mode !== "haaste" || !h) return;
+    store.set(AVAIN.biisi.haaste(h.koodi), {
+      kierros: h.kierros,
+      pisteet: h.pisteet,
+      at: state.at,
+      rounds: state.rounds.map((r) => ({
+        id: r.song.id, step: r.step, guesses: r.guesses,
+        finished: r.finished, solved: r.solved, points: r.points,
+      })),
+    });
+  }
+
+  function palautaHaasteRounds(tallennettu, biisit) {
+    if (!tallennettu || !Array.isArray(tallennettu.rounds)
+      || tallennettu.rounds.length !== biisit.length) return null;
+    const rounds = [];
+    for (let i = 0; i < biisit.length; i++) {
+      const t = tallennettu.rounds[i];
+      if (!t || String(t.id) !== String(biisit[i].id)) return null;
+      rounds.push({ ...newRound(biisit[i]), step: t.step, guesses: t.guesses || [],
+                    finished: !!t.finished, solved: !!t.solved, points: t.points || 0 });
+    }
+    return rounds;
+  }
+
+  async function startHaaste(h) {
+    const tallennettu = store.get(AVAIN.biisi.haaste(h.koodi), null);
+    const kierros = tallennettu && Number.isInteger(tallennettu.kierros)
+      ? Math.min(Math.max(tallennettu.kierros, 0), h.kierroksia - 1) : 0;
+    const biisit = haasteKierros(h, kierros);
+    /* Vajaa kierros tarkoittaa että katalogista ei saa viittä biisiä tällä
+     * rajauksella. Silloin haastetta ei voi pelata reilusti, ja on parempi
+     * sanoa se kuin antaa neljän biisin sarja. */
+    if (biisit.length < DAILY_COUNT) {
+      toast("Haastetta ei voi koota tällä rajauksella.");
+      await startDaily();
+      return;
+    }
+    state.mode = "haaste";
+    state.haaste = {
+      ...h, kierros,
+      pisteet: Array.isArray(tallennettu && tallennettu.pisteet)
+        ? tallennettu.pisteet.slice(0, h.kierroksia) : [],
+    };
+    state.results = [];
+    state.rounds = palautaHaasteRounds(tallennettu, biisit) || biisit.map(newRound);
+    state.at = tallennettu && Number.isInteger(tallennettu.at)
+      && tallennettu.at < state.rounds.length ? tallennettu.at : 0;
+    state.score = state.haaste.pisteet.reduce((a, b) => a + (b || 0), 0)
+      + state.rounds.reduce((a, r) => a + r.points, 0);
+    await varmistaAanet(state.rounds.map((r) => r.song));
+    if (state.rounds.every((r) => r.finished)) {
+      collectResults();
+      paataHaasteKierros();
+      renderResults();
+      show("results");
+      return;
+    }
+    show("game");
+    openRound();
+    state.rounds.forEach((r) => prefetch(r.song));
+  }
+
+  /* Kierroksen pisteet kierroslistaan. Lista kasvaa vasta kierroksen
+   * päätyttyä, jotta kesken jäänyt kierros ei jätä puolikkaita pisteitä
+   * yhteissummaan. */
+  function paataHaasteKierros() {
+    const h = state.haaste;
+    if (!h) return;
+    h.pisteet[h.kierros] = state.rounds.reduce((summa, r) => summa + r.points, 0);
+    persistHaaste();
+  }
+
+  const haasteViimeinen = () => !!state.haaste
+    && state.haaste.kierros + 1 >= state.haaste.kierroksia;
+
+  async function seuraavaHaasteKierros() {
+    const h = state.haaste;
+    if (!h || haasteViimeinen()) return;
+    h.kierros += 1;
+    state.at = 0;
+    state.results = [];
+    state.rounds = haasteKierros(h, h.kierros).map(newRound);
+    persistHaaste();
+    await varmistaAanet(state.rounds.map((r) => r.song));
+    show("game");
+    openRound();
+    state.rounds.forEach((r) => prefetch(r.song));
+  }
+
+  /* Asetusruutu. Valinnat elävät vain ruudun auki ollessa: haaste on
+   * kertaluontoinen, eikä edellisen haasteen pituus ole oletus seuraavalle
+   * sen enempää kuin edellisen pelin pisteet. */
+  let haasteValinta = { kierroksia: 3, kaudet: [] };
+
+  function piirraHaasteValinnat() {
+    el.haasteKierrokset.querySelectorAll("[data-kierroksia]").forEach((b) => {
+      const on = Number(b.dataset.kierroksia) === haasteValinta.kierroksia;
+      b.classList.toggle("is-on", on);
+      b.setAttribute("aria-pressed", String(on));
+    });
+    el.haasteKaudet.querySelectorAll("[data-hkausi]").forEach((b) => {
+      const on = haasteValinta.kaudet.includes(b.dataset.hkausi);
+      b.classList.toggle("is-on", on);
+      b.setAttribute("aria-pressed", String(on));
+    });
+  }
+
+  function avaaHaasteRuutu() {
+    haasteValinta = { kierroksia: 3, kaudet: [] };
+    piirraHaasteValinnat();
+    el.haasteScrim.hidden = false;
+    el.haasteSheet.hidden = false;
+    el.body.classList.add("sheet-open");
+    el.haasteSheet.focus({ preventScroll: true });
+  }
+
+  function suljeHaasteRuutu() {
+    el.haasteSheet.hidden = true;
+    el.haasteScrim.hidden = true;
+    el.body.classList.remove("sheet-open");
+  }
+
+  /* Linkki kopioidaan heti luonnin yhteydessä, koska se on ainoa syy tehdä
+   * haaste: ilman linkkiä kaverit eivät pääse mukaan. Jos leikepöytä ei ole
+   * käytettävissä, linkki on yhä osoiterivillä ja tuloksissa. */
+  async function luoHaaste() {
+    const siemen = Math.floor(Math.random() * HAASTE_SIEMEN_MAX);
+    const h = lueHaaste(haasteKoodi(siemen, haasteValinta.kierroksia, haasteValinta.kaudet));
+    if (!h) return;
+    suljeHaasteRuutu();
+    closeDrawer();
+    stopPlayback();
+    try {
+      await navigator.clipboard.writeText(haasteOsoite(h.koodi));
+      toast("Haasteen linkki kopioitu. Lähetä se kavereille.");
+    } catch {
+      toast("Haaste luotu. Linkin saa tuloksista.");
+    }
+    if (history.replaceState) {
+      history.replaceState(null, "", `?haaste=${h.koodi}`);
+    }
+    track("haaste-luotu");
+    await startHaaste(h);
+  }
+
   function dailySongs(key) {
     const day = dayIndex(key);
     const picked = [];
@@ -2605,6 +2846,9 @@
   const progressKey = (key) => AVAIN.biisi.kesken(key);
 
   function persistDaily() {
+    /* Sama kutsu molemmille tallentaville pelimuodoille: kutsupaikkoja on
+     * kymmenkunta, eikä kumpikaan niistä tiedä kumpaa peliä pelataan. */
+    if (state.mode === "haaste") { persistHaaste(); return; }
     if (state.mode !== "daily" || !state.dayKey) return;
     store.set(progressKey(state.dayKey), {
       at: state.at,
@@ -2716,10 +2960,14 @@
      * ei huomaa mitä on valinnut, ja ihmettelee miksi kaikki biisit ovat
      * vanhoja. */
     const rajaus = kausiNimi();
+    const h = state.haaste;
     el.modeLabel.textContent = state.mode === "daily" ? "Päivän biisit"
+      : state.mode === "haaste" ? "Kaverihaaste"
       : rajaus || "Vapaa peli";
     el.modeSub.textContent = state.mode === "daily"
       ? dateLine(keyToDate(state.dayKey || todayKey()))
+      : state.mode === "haaste" && h
+        ? `kierros ${h.kierros + 1}/${h.kierroksia}${rajaus ? " · " + rajaus : ""}`
       : rajaus ? "vapaa peli" : "";
     el.scoreLabel.textContent = `${fmt(state.score)} p`;
     // Koko sivun elävä väri on soivan biisin vaikeustaso.
@@ -2891,6 +3139,7 @@
     if (state.rounds.every((x) => x.finished)) {
       collectResults();
       if (state.mode === "daily") saveDaily();
+      else if (state.mode === "haaste") paataHaasteKierros();
       else saveFree();
     } else {
       persistDaily();
@@ -3208,6 +3457,7 @@
 
   function renderResults() {
     const daily = state.mode === "daily";
+    const haaste = state.mode === "haaste" ? state.haaste : null;
     /* Vertailu piiloon heti ja haku käyntiin. Vanha teksti kuuluu edelliseen
      * sarjaan, eikä se saa jäädä näkyviin vapaan pelin tuloksiin eikä
      * eilisen lukuihin sillä aikaa kun uudet haetaan. */
@@ -3216,10 +3466,19 @@
     const solved = state.results.filter((r) => r.solved).length;
     el.resultsTitle.textContent = daily
       ? `Päivän biisit, ${dateLine(keyToDate(state.dayKey || todayKey()))}`
+      : haaste ? `Kaverihaaste, kierros ${haaste.kierros + 1}/${haaste.kierroksia}`
       : kausiNimi() || "Vapaa peli";
     el.resultsScore.textContent = fmt(state.score);
     const yhteenveto = resultSummary(solved, daily ? DAILY_COUNT : state.results.length);
-    el.resultsSub.textContent = daily ? `${yhteenveto} Uusi sarja huomenna.` : yhteenveto;
+    /* Haasteessa pisteluku on koko haasteen summa, joten kierroksen oma
+     * tulos kerrotaan tässä. Muuten pelaaja ei tiedä miten juuri tämä
+     * kierros meni, ja juuri sitä hän kaverilta kysyy. */
+    const kierrosPisteet = state.results.reduce((summa, r) => summa + r.points, 0);
+    el.resultsSub.textContent = daily ? `${yhteenveto} Uusi sarja huomenna.`
+      : haaste
+        ? `${yhteenveto} Tältä kierrokselta ${fmt(kierrosPisteet)} pistettä.`
+          + (haasteViimeinen() ? " Haaste on pelattu." : "")
+      : yhteenveto;
     el.resultsList.innerHTML = "";
     state.results.forEach((r) => {
       const s = r.song || state.byId.get(String(r.id)) || { title: "?", artist: "?", art: "", year: "" };
@@ -3240,7 +3499,9 @@
     });
     piilotaJako();
     valmisteleKuva();
-    el.againBtn.textContent = daily ? "Vapaa peli" : "Uusi sarja";
+    el.againBtn.textContent = daily ? "Vapaa peli"
+      : haaste ? (haasteViimeinen() ? "Vapaa peli" : "Seuraava kierros")
+      : "Uusi sarja";
   }
 
   /* ---------- Tuloskuva ----------
@@ -3269,7 +3530,11 @@
     if (document.fonts && document.fonts.ready) {
       try { await document.fonts.ready; } catch { /* varafontilla mennään */ }
     }
-    return state.mode === "daily" ? neliokuva() : listakuva(await lataaKannet());
+    /* Vapaassa pelissä kannet saa näyttää, koska jokaisen sarja on eri.
+     * Päivän biisit ja haaste ovat kaikille samat, joten niissä pelkät
+     * neliöt: nimet paljastava kuva pilaisi sarjan siltä jolle sen
+     * lähettää. */
+    return state.mode === "free" ? listakuva(await lataaKannet()) : neliokuva();
   }
 
   /* Kannet erikseen CORS-tilassa. Sivulla olevat img-elementit on ladattu
@@ -3378,7 +3643,10 @@
     const g = c.getContext("2d");
     const reuna = 92;
     pohja(g, KUVA, KUVA);
-    let y = otsikko(g, reuna, `Päivän biisit · ${dateLine(keyToDate(state.dayKey || todayKey()))}`);
+    const h = state.haaste;
+    let y = otsikko(g, reuna, state.mode === "haaste" && h
+      ? `Kaverihaaste ${h.koodi} · kierros ${h.kierros + 1}/${h.kierroksia}`
+      : `Päivän biisit · ${dateLine(keyToDate(state.dayKey || todayKey()))}`);
 
     // Yksi rivi biisiä kohti, viisi ruutua eli viisi pätkän pituutta.
     y += 74;
@@ -3761,9 +4029,14 @@
     }
   }
 
+  const haasteOsoite = (koodi) => `${jaettavaOsoite()}?haaste=${koodi}`;
+
   async function kopioiLinkki() {
     try {
-      await navigator.clipboard.writeText(jaettavaOsoite());
+      /* Haasteessa linkki on kutsu samaan sarjaan, ei osoite etusivulle.
+       * Juuri se on koko jakamisen pointti. */
+      await navigator.clipboard.writeText(state.mode === "haaste" && state.haaste
+        ? haasteOsoite(state.haaste.koodi) : jaettavaOsoite());
       toast("Linkki kopioitu leikepöydälle.");
     } catch {
       toast("Kopiointi ei onnistunut.");
@@ -4299,6 +4572,7 @@
     }
     closeDrawer();
     stopPlayback();
+    if (target === "haaste") { avaaHaasteRuutu(); return; }
     if (target === "daily") await startDaily();
     else if (target === "free") await startFree();
     else if (target === "artisti") await avaaArtisti();
@@ -4409,7 +4683,34 @@
     el.uuttaScrim.addEventListener("click", suljeUutta);
     el.uuttaOk.addEventListener("click", suljeUutta);
     // Rajaus elää tilassa, joten "uusi sarja" saa sen mukaansa itsestään.
-    el.againBtn.addEventListener("click", () => go("free"));
+    /* Sama nappi, eri merkitys pelimuodon mukaan: haasteessa se vie
+     * seuraavaan kierrokseen, muualla vapaaseen peliin. */
+    el.haasteClose.addEventListener("click", suljeHaasteRuutu);
+    el.haasteScrim.addEventListener("click", suljeHaasteRuutu);
+    el.haasteLuo.addEventListener("click", () => { luoHaaste(); });
+    el.haasteKierrokset.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-kierroksia]");
+      if (!b) return;
+      haasteValinta.kierroksia = Number(b.dataset.kierroksia);
+      piirraHaasteValinnat();
+    });
+    el.haasteKaudet.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-hkausi]");
+      if (!b) return;
+      const k = b.dataset.hkausi;
+      haasteValinta.kaudet = haasteValinta.kaudet.includes(k)
+        ? haasteValinta.kaudet.filter((x) => x !== k)
+        : haasteValinta.kaudet.concat(k);
+      piirraHaasteValinnat();
+    });
+    el.againBtn.addEventListener("click", () => {
+      if (state.mode === "haaste" && !haasteViimeinen()) {
+        stopPlayback();
+        seuraavaHaasteKierros();
+        return;
+      }
+      go("free");
+    });
     el.resetBtn.addEventListener("click", resetStats);
 
     document.addEventListener("keydown", (e) => {
@@ -4455,7 +4756,12 @@
     try {
       await loadCatalog();
       refreshDrawer();
-      await startDaily();    // sivu avautuu suoraan päivän peliin
+      /* Haastelinkki avaa haasteen, muuten sivu avautuu päivän peliin.
+       * Kelvoton koodi ei kaada mitään vaan putoaa päivän peliin: linkki
+       * kulkee chatissa ja voi katketa matkalla. */
+      const haaste = lueHaaste(new URLSearchParams(location.search).get("haaste"));
+      if (haaste) await startHaaste(haaste);
+      else await startDaily();
     } catch (err) {
       console.error(err);
       el.loadingText.textContent = loadErrorText(err);

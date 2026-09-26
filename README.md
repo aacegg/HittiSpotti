@@ -417,6 +417,46 @@ värejä ilman kertojaa siitä mitä ne tarkoittavat. Sen jälkeen se aukeaa
 vain napista, ja tieto nähdystä on avaimessa `artisti:ohje-nahty`, joka
 ei katoa tilastojen nollauksessa.
 
+**Kaverihaaste: sama sarja linkin takana.** Pelaaja valitsee kierrosten
+määrän (1-5, yksi kierros on viisi biisiä) ja halutessaan vuosikymmenet.
+Peli arpoo siemenluvun ja kokoaa koodin, joka menee osoiteriville:
+`hittispotti.fi/?haaste=3ecvu-2-c`. Kaveri avaa linkin ja saa
+täsmälleen samat biisit samassa järjestyksessä.
+
+Pyyntö tuli pelaajalta: "Olis ihan mahtavaa, jos sivuille sais lisättyä
+sellasen, et voi kisailla kavereiden kans samat biisit. Päivän biisit
+toki sopii tähän, mut joskus vois hakata ennemmänki kerralla."
+
+**Ei palvelinta eikä tunnuksia: linkki ON pelin tila.** Arvonta oli jo
+valmiiksi deterministinen, joten kaverin selain laskee saman sarjan
+omin voimin. Tulokset vertaillaan siellä missä kaveritkin ovat, eli
+samassa keskustelussa johon linkki lähetettiin, kuten Wordlen
+ruudukot. Tämä oli myös ainoa muoto joka ei vaadi tilejä, odottelua
+eikä tietosuojatekstejä.
+
+Koodi on kolme base36-lukua väliviivoilla: siemen, kierrosten määrä ja
+vuosikymmenten bittimaski. Epäkelpo koodi tunnistetaan ilman
+palvelinta ja putoaa päivän peliin, koska linkki kulkee chatissa ja voi
+katketa matkalla.
+
+Eteneminen tallennetaan koodin alle: viisi kierrosta on 25 biisiä eikä
+sitä pelata yhdeltä istumalta. Tallennus tarkistaa biisien tunnisteet
+palauttaessaan, ja jos katalogi on vaihtunut niin että sarja on eri,
+kesken jäänyt kierros hylätään mieluummin kuin jatketaan väärillä
+biiseillä.
+
+Tuloskuvassa näkyvät pelkät neliöt kuten päivän pelissä, ei kansia
+kuten vapaassa pelissä. Syy on sama: haasteen biisit ovat kaikille
+samat, joten nimet paljastava kuva pilaisi sarjan siltä jolle sen
+lähettää.
+
+Haasteen tulokset eivät mene päivän eivätkä vapaan pelin tilastoihin.
+Se on oma pelimuotonsa, ja sen tulos on se mitä kaverille näytetään.
+
+Yksi rajoitus on tiedossa: jos katalogiin lisätään biisejä kesken
+haasteen, sekoitus muuttuu ja vanha linkki antaa eri sarjan. Haaste on
+tarkoitettu saman päivän kisailuun, joten sillä ei ole väliä.
+
 **Idea, ei päätetty: unlimited omana sivunaan.** ArtistiSpotti voisi
 joskus saada rajattoman version omaan osoitteeseensa. Päivän peli
 pysyisi silloin täällä pelimuotona ja unlimited olisi erillinen.

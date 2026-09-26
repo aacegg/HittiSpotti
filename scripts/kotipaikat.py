@@ -24,10 +24,25 @@ kummin päin tahansa, joten pelin kannalta ero ei näy, mutta lista saa
 sanoa sen mitä ihminen kirjoittaisi.
 """
 
-# Ulkomaalaisen kotipaikan maakunta. Peliin ei tarvita maakohtaista
-# erottelua: artistit ovat suomalaisia, ja ulkomailla syntynyt on tässä
-# sarakkeessa yksinkertaisesti "muualta".
+# Ulkomaalaisen kotipaikan maakunta.
+#
+# Ruudussa lukee maa ("Ruotsi"), ei sana "Ulkomaat": maa on se tieto
+# jonka pelaaja tunnistaa, ja se on yhtä tarkka kuin kunta on
+# suomalaisella. Maakunnaksi jää silti ULKOMAAT, joten keltainen
+# tarkoittaa kahdella ulkomaalaisella "molemmat muualta", samaan tapaan
+# kuin kahdella uusimaalaisella "sama maakunta".
+#
+# Maa lisätään tähän kun se ensimmäisen kerran tulee vastaan, samasta
+# syystä kuin puuttuva kunta: tuntematon arvo pysäyttää datan
+# rakentamisen eikä livahda peliin väärän värisenä ruutuna.
 ULKOMAAT = "Ulkomaat"
+
+MAAT = [
+    "Ruotsi", "Viro", "Venäjä", "Norja", "Tanska", "Saksa", "Britannia",
+    "Yhdysvallat", "Kanada", "Alankomaat", "Ranska", "Espanja", "Italia",
+    "Puola", "Unkari", "Kongon demokraattinen tasavalta", "Somalia",
+    "Turkki", "Kreikka", "Islanti", "Irlanti", "Australia", "Brasilia",
+]
 
 MAAKUNNAT = {
     "Uusimaa": [
@@ -132,6 +147,8 @@ MAAKUNNAT = {
         "Keminmaa", "Tervola", "Ylitornio", "Pello", "Sirkka",
     ],
     "Ahvenanmaa": ["Maarianhamina", "Jomala", "Finström", "Lemland"],
+    # Ulkomaat: ruudussa lukee maa, maakuntana ULKOMAAT.
+    ULKOMAAT: MAAT + [ULKOMAAT],
 }
 
 # Suuralueet eli Tilastokeskuksen NUTS 2 -jako. Pelissä keltainen ruutu
@@ -183,8 +200,6 @@ def maakunta(kunta: str):
     tehdään, ja kaikki nykyiset kutsujat pysähtyvät siihen.
     """
     kunta = (kunta or "").strip()
-    if kunta == ULKOMAAT:
-        return ULKOMAAT
     return KUNNAT.get(kunta)
 
 

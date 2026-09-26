@@ -591,7 +591,8 @@ ne olisi juuri arvattu. `prefers-reduced-motion` ottaa liikkeen pois.
 **Päätetyt asiat 22.9.2026:**
 
 - Artistijoukko: ne joilla on katalogissa vähintään kolme biisiä, eli
-  **206 artistia**. Kierto 7 kuukautta.
+  **206 artistia**. Kierto 7 kuukautta. (Lista on sittemmin käsin
+  kuratoitu ja kasvanut 255 artistiin, eli kierto on 8,4 kuukautta.)
 - **Kuusi arvausta**, ei Spotlen kymmentä.
 - Attribuutit: **genre, kokoonpano (soolo/duo/yhtye), sukupuoli,
   debyyttivuosi, laulukieli**. Maa pudotettiin, koska kaikki ovat

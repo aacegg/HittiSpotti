@@ -2142,14 +2142,32 @@ body.sheet-open { overflow: hidden; }
 }
 .a-rivi { perspective: 420px; }
 .a-rivi.on-uusi .a-ruutu {
-  animation: a-paljasta .32s ease-out both;
-  animation-delay: calc(var(--i) * .11s);
+  animation: a-paljasta .38s ease-out both;
+  animation-delay: calc(var(--i) * .13s);
 }
-/* Nimiruudun toinen käännös. Se kääntyi jo rivin mukana harmaana, ja
-   tämä on se hetki jossa väri tulee: joko vihreä tai keltainen. Oma
-   luokkansa eikä --i-viive, koska tämä käännös alkaa vasta kun koko
-   rivi on kääntynyt, ja ajastin app.js:ssä päättää milloin. */
-.a-ruutu.on-kaanny { animation: a-paljasta .32s ease-out both; }
+
+/* Nimiruudun toinen käännös: koko ympäri eikä reunalta auki.
+
+   Kaksi asiaa oli pielessä. Sääntö oli väljempi kuin rivin oma
+   (.a-rivi.on-uusi .a-ruutu voittaa .a-ruutu.on-kaanny), joten
+   animaatio ei vaihtunut lainkaan, ja koska sama animaatio oli jo
+   ajettu loppuun, luokan lisäys vain vaihtoi värin kerralla. Se näytti
+   nykäykseltä eikä käännökseltä.
+
+   Nyt tässä on oma nimensä ja oma kestonsa, ja valitsin on riittävän
+   tarkka. Ruutu kääntyy 0 -> 90 -> 0 astetta, eli väri vaihtuu siinä
+   kohdassa jossa ruutu on särmällään eikä sitä näy. Sama liike kuin
+   Wordlen ruuduissa. */
+@keyframes a-nimi-kaanny {
+  0%   { transform: rotateX(0); }
+  50%  { transform: rotateX(90deg); }
+  100% { transform: rotateX(0); }
+}
+.a-rivi .a-ruutu.on-kaanny,
+.a-rivi.on-uusi .a-ruutu.on-kaanny {
+  animation: a-nimi-kaanny .55s ease-in-out both;
+  animation-delay: 0s;
+}
 
 .a-loppu.on-uusi { animation: a-loppu-esiin .35s ease-out both; }
 @keyframes a-loppu-esiin {
@@ -2160,7 +2178,8 @@ body.sheet-open { overflow: hidden; }
    Väri on tieto, animaatio on koriste, eikä tieto saa riippua siitä. */
 @media (prefers-reduced-motion: reduce) {
   .a-rivi.on-uusi .a-ruutu,
-  .a-ruutu.on-kaanny,
+  .a-rivi .a-ruutu.on-kaanny,
+  .a-rivi.on-uusi .a-ruutu.on-kaanny,
   .a-loppu.on-uusi { animation: none; }
 }
 

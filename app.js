@@ -1485,7 +1485,7 @@
   }
 
   /* Rivin paljastus: kuusi ruutua, joista viimeinen alkaa kääntyä
-   * 5 * 110 ms kohdalla ja kääntyy 320 ms. Luvut ovat tässä yhdessä
+   * 5 * 130 ms kohdalla ja kääntyy 380 ms. Luvut ovat tässä yhdessä
    * paikassa, koska sekä loppulohkon odotus, nimiruudun toinen käännös
    * että tyylitiedoston ajoitus nojaavat niihin.
    *
@@ -1497,14 +1497,15 @@
    *
    * Harmaa nimiruutu ei käänny toista kertaa. Siinä ei ole mitään
    * paljastettavaa, ja turha käännös lupaisi jotain mitä ei tule. */
-  const ARTISTI_RIVI_MS = 5 * 110 + 320;
+  const ARTISTI_RIVI_MS = 5 * 130 + 380;
   const ARTISTI_NIMI_VIIVE_MS = 140;
-  const ARTISTI_NIMI_MS = 320;
+  const ARTISTI_NIMI_MS = 550;
   /* Pieni tauko nimiruudun käännön jälkeen: ilman sitä paljastusruutu
    * nousee juuri kun väri tulee näkyviin, ja peittää sen. */
   const ARTISTI_TAUKO_MS = 180;
   let artistiLoppuAjastin = 0;
   let artistiNimiAjastin = 0;
+  let artistiVariAjastin = 0;
 
   /* uusi = kutsu tulee juuri tehdystä arvauksesta. Vain silloin viimeinen
    * rivi animoidaan ja loppulohko odottaa animaation ohi: kesken jääneen
@@ -1513,6 +1514,7 @@
   function piirraArtistiRivit(uusi = false) {
     clearTimeout(artistiLoppuAjastin);
     clearTimeout(artistiNimiAjastin);
+    clearTimeout(artistiVariAjastin);
     const viimeinen = artistiTila.arvaukset.length - 1;
     /* Nimiruudun väri jätetään pois vain juuri arvatulta riviltä, ja
      * vain jos väriä on. Kesken jääneen pelin avaaminen piirtää rivit
@@ -1549,7 +1551,14 @@
       const ruutu = el.aRivit.querySelector("li:last-child .a-ruutu.on-nimi");
       artistiNimiAjastin = setTimeout(() => {
         if (!ruutu) return;
-        ruutu.classList.add(nimiJaljessa, "on-kaanny");
+        ruutu.classList.add("on-kaanny");
+        /* Väri vasta käännön puolivälissä, jolloin ruutu on
+         * särmällään eikä sitä näy. Jos se lisättäisiin heti, väri
+         * olisi näkyvissä ennen kääntymistä ja käännös näyttäisi
+         * turhalta. */
+        artistiVariAjastin = setTimeout(() => {
+          ruutu.classList.add(nimiJaljessa);
+        }, ARTISTI_NIMI_MS / 2);
       }, ARTISTI_RIVI_MS + ARTISTI_NIMI_VIIVE_MS);
     }
     const jaljella = ARTISTI_ARVAUKSIA - artistiTila.arvaukset.length;

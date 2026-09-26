@@ -800,32 +800,23 @@
    * poistuminen ei hävitä mitään. */
   const freeStarted = () => state.mode === "free" && sarjaAloitettu();
 
-  /* Uusi-merkki valikossa.
+  /* Uutta-merkki valikossa.
    *
-   * Merkki katoaa kun pelimuotoa on kerran pelattu: se on kutsu kokeilemaan,
-   * eikä kutsua tarvitse toistaa sille joka on jo käynyt. Lisäksi jokaisella
-   * on päivä jonka jälkeen merkki katoaa kaikilta, myös niiltä jotka eivät
-   * koskaan kokeilleet. Muuten "uusi" jäisi lukemaan vuodeksi, ja silloin se
-   * ei enää tarkoita mitään.
+   * Merkki näkyy päivämäärään asti kaikille, myös niille jotka ovat jo
+   * kokeilleet. Ensin se katosi kokeilun jälkeen, mutta uusi pelimuoto ei
+   * ole kokeilun jälkeen enää uusi vain sille itselleen: rivi saa erottua
+   * muutaman päivän julkaisun jälkeen, koska juuri silloin siitä
+   * puhutaan ja juuri silloin kaveri kysyy mikä se on.
    *
    * Päivä on pelin oma vuorokausiraja (todayKey) eikä selaimen paikallinen,
    * jotta se vaihtuu samaan aikaan kuin päivän biisit. Vertailu on
    * tekstivertailu, koska YYYY-MM-DD järjestyy oikein sellaisenaan. */
-  const UUSI_ASTI = { artisti: "2026-11-30", haaste: "2026-11-30" };
-  const uusiAvain = (muoto) => `uusi-kokeiltu:${muoto}`;
-
-  function merkitseKokeilluksi(muoto) {
-    if (!UUSI_ASTI[muoto] || store.get(uusiAvain(muoto), 0)) return;
-    store.set(uusiAvain(muoto), 1);
-    paivitaUusiMerkit();
-  }
+  const UUSI_ASTI = { artisti: "2026-10-05", haaste: "2026-10-05" };
 
   function paivitaUusiMerkit() {
     document.querySelectorAll("[data-uusi]").forEach((m) => {
       const muoto = m.dataset.uusi;
-      m.hidden = !UUSI_ASTI[muoto]
-        || todayKey() > UUSI_ASTI[muoto]
-        || !!store.get(uusiAvain(muoto), 0);
+      m.hidden = !UUSI_ASTI[muoto] || todayKey() > UUSI_ASTI[muoto];
     });
   }
 
@@ -4660,10 +4651,10 @@
     }
     closeDrawer();
     stopPlayback();
-    if (target === "haaste") { merkitseKokeilluksi("haaste"); avaaHaasteRuutu(); return; }
+    if (target === "haaste") { avaaHaasteRuutu(); return; }
     if (target === "daily") await startDaily();
     else if (target === "free") await startFree();
-    else if (target === "artisti") { merkitseKokeilluksi("artisti"); await avaaArtisti(); }
+    else if (target === "artisti") await avaaArtisti();
     else if (target === "artistitulos") await avaaArtistiTulos();
     else if (target === "stats") show("stats");
     else if (target === "help") show("help");
@@ -4869,7 +4860,7 @@
        * Kelvoton koodi ei kaada mitään vaan putoaa päivän peliin: linkki
        * kulkee chatissa ja voi katketa matkalla. */
       const haaste = lueHaaste(new URLSearchParams(location.search).get("haaste"));
-      if (haaste) { merkitseKokeilluksi("haaste"); await startHaaste(haaste); }
+      if (haaste) await startHaaste(haaste);
       else await startDaily();
     } catch (err) {
       console.error(err);

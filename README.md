@@ -417,15 +417,17 @@ värejä ilman kertojaa siitä mitä ne tarkoittavat. Sen jälkeen se aukeaa
 vain napista, ja tieto nähdystä on avaimessa `artisti:ohje-nahty`, joka
 ei katoa tilastojen nollauksessa.
 
-**Uusi-merkki valikossa.** Uudet pelimuodot ovat valikossa samannäköisinä
-riveinä kuin vanhat, eikä mikään kertonut että ne ovat uusia. Merkki on
-tasojen punaoranssi eikä pelin oma keltainen: keltainen on valinnan ja
-soivan biisin väri, ja siinä värissä merkki lukisi "tämä on valittuna".
+**Uutta-merkki valikossa.** Uudet pelimuodot ovat valikossa
+samannäköisinä riveinä kuin vanhat, eikä mikään kertonut että ne ovat
+uusia. Merkki on tasojen punaoranssi eikä pelin oma keltainen:
+keltainen on valinnan ja soivan biisin väri, ja siinä värissä merkki
+lukisi "tämä on valittuna".
 
-Merkki katoaa kun pelimuotoa on kerran kokeiltu, koska se on kutsu
-eikä kutsua tarvitse toistaa sille joka on jo käynyt. Lisäksi
-jokaisella on päivä jonka jälkeen se katoaa kaikilta: muuten "uusi"
-jäisi lukemaan vuodeksi eikä tarkoittaisi enää mitään.
+Merkki näkyy päivämäärään asti kaikille. Ensin se katosi kokeilun
+jälkeen, mutta rivi saa erottua muutaman päivän julkaisun jälkeen myös
+kokeilleelle: juuri silloin pelimuodosta puhutaan ja juuri silloin
+kaveri kysyy mikä se on. Päivä (`UUSI_ASTI` app.js:ssä) tarkistetaan
+julkaisun yhteydessä.
 
 **Kaverihaaste: sama sarja linkin takana.** Pelaaja valitsee kierrosten
 määrän (1-5, yksi kierros on viisi biisiä) ja halutessaan vuosikymmenet.

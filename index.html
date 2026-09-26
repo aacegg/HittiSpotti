@@ -27,17 +27,17 @@
        kuvakkeesta kiinni omassa välimuistissaan sitkeämmin kuin mistään
        muusta, eikä pelkkä uusi tiedostosisältö samassa osoitteessa riitä
        vaihtamaan sitä. -->
-  <link rel="icon" href="favicon.svg?v=139" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg?v=140" type="image/svg+xml">
   <!-- iOS ei tue SVG:tä kotinäytön kuvakkeena: SVG:llä se otti sivusta
        ruudunkaappauksen kuvakkeen sijaan. 180 px on iPhonen koko. -->
-  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=139">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=139">
-  <link rel="manifest" href="manifest.webmanifest?v=139">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=140">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=140">
+  <link rel="manifest" href="manifest.webmanifest?v=140">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HittiSpotti">
   <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=139">
+  <link rel="stylesheet" href="style.css?v=140">
 
   <script type="application/ld+json">
   {
@@ -73,7 +73,7 @@
       </button>
 
       <button type="button" class="navitem" data-go="artisti">
-        <span class="navitem-name">ArtistiSpotti</span>
+        <span class="navitem-name">ArtistiSpotti<span class="uusi" data-uusi="artisti" hidden>uusi</span></span>
         <span class="navitem-note" id="nav-artisti-note">arvaa päivän artisti</span>
       </button>
 
@@ -106,7 +106,7 @@
       </div>
 
       <button type="button" class="navitem" data-go="haaste">
-        <span class="navitem-name">Kaverihaaste</span>
+        <span class="navitem-name">Kaverihaaste<span class="uusi" data-uusi="haaste" hidden>uusi</span></span>
         <span class="navitem-note">samat biisit kaverin kanssa</span>
       </button>
 
@@ -880,7 +880,7 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=139"></script>
+  <script src="app.js?v=140"></script>
 
   <!-- Kävijälaskenta: ei evästeitä, ei henkilötietoja, ei seurantaa yli
        sivustorajojen – siksi tämä ei vaadi suostumusikkunaa. Ladataan

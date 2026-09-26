@@ -380,6 +380,26 @@ a.navitem { color: inherit; text-decoration: none; }
   font-weight: 700;
   letter-spacing: -.02em;
 }
+/* Uusi-merkki valikossa.
+   Väri on tasojen punaoranssi eikä pelin oma keltainen: keltainen on
+   valinnan ja soivan biisin väri, ja jos merkki olisi sitä, se lukisi
+   "tämä on valittuna". Merkki katoaa kun pelimuotoa on kerran pelattu,
+   eikä se palaa. */
+.uusi {
+  display: inline-block;
+  margin-left: var(--s2);
+  padding: 1px 7px 2px;
+  border-radius: 999px;
+  background: var(--t5);
+  color: #17120a;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  vertical-align: 2px;
+}
+.uusi[hidden] { display: none; }
+
 .navitem-note { display: block; margin-top: var(--s1); font-size: var(--f2); color: var(--dim); }
 .navitem:hover .navitem-name { color: var(--live); }
 .navitem.is-active .navitem-name { color: var(--live); }

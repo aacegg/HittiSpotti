@@ -2346,6 +2346,17 @@
     persistHaaste();
   }
 
+  /* Pelatun haasteen tallennus pois. Kesken jäänyt haaste on tarpeen
+   * jatkamista varten, pelattu ei ole enää mitään: linkki toimii yhä, mutta
+   * sen avaaminen aloittaa saman sarjan alusta.
+   *
+   * Ilman tätä joka pelattu haaste jättäisi rivin selaimen tallennustilaan,
+   * eikä mikään koskaan poistaisi niitä. Sadan haasteen jälkeen siellä olisi
+   * sata riviä joita kukaan ei lue. */
+  function unohdaHaaste(koodi) {
+    if (koodi) store.remove(AVAIN.biisi.haaste(koodi));
+  }
+
   const haasteViimeinen = () => !!state.haaste
     && state.haaste.kierros + 1 >= state.haaste.kierroksia;
 
@@ -3143,8 +3154,10 @@
     if (state.rounds.every((x) => x.finished)) {
       collectResults();
       if (state.mode === "daily") saveDaily();
-      else if (state.mode === "haaste") paataHaasteKierros();
-      else saveFree();
+      else if (state.mode === "haaste") {
+        paataHaasteKierros();
+        if (haasteViimeinen()) unohdaHaaste(state.haaste.koodi);
+      } else saveFree();
     } else {
       persistDaily();
     }
@@ -4735,7 +4748,23 @@
   /* Kesken jäänyt sarja on tarpeeton heti kun sen päivä on vaihtunut: sitä ei
    * enää pääse pelaamaan, koska päivän peli avaa aina kuluvan päivän sarjan.
    * Siivotaan, ettei localStorageen jää päivä päivältä kasvavaa jäämää. */
+  /* Kesken jääneitä haasteita pidetään viisi tuoreinta.
+   *
+   * Haaste ei vanhene päivämäärän mukaan kuten päivän sarja, joten sille ei
+   * ole samaa siivousta. Viisi riittää: useampaa haastetta ei pidetä kesken
+   * yhtä aikaa, ja vanhin katoaa vasta kun kuudes aloitetaan. Järjestys on
+   * tallennusjärjestys, jonka localStorage säilyttää. */
+  const HAASTEITA_MUISTISSA = 5;
+
+  function siivoaHaasteet() {
+    const avaimet = store.keys()
+      .filter((k) => omaAvain("biisi", k) && k.startsWith("haaste:"));
+    avaimet.slice(0, Math.max(0, avaimet.length - HAASTEITA_MUISTISSA))
+      .forEach((k) => store.remove(k));
+  }
+
   function pruneProgress() {
+    siivoaHaasteet();
     const tag = ":kesken";
     for (const peli of PELIT) {
       const a = AVAIN[peli];

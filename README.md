@@ -460,6 +460,12 @@ valikossa. Pituuden katto on viisi kierrosta yhtä linkkiä kohti, koska
 linkki on myös kutsu: kaverin pitää tietää mihin hän lähtee, ja 25
 biisiä on jo pitkä istunto.
 
+Linkki ei vanhene eikä sitä tarvitse siivota mistään: mitään ei
+tallenneta palvelimelle, koska palvelinta ei ole. Vuoden vanha linkki
+avaa yhä haasteen. Selaimen tallennustilaan jää kesken jääneen
+haasteen eteneminen, ja siitä pidetään viisi tuoreinta; pelattu haaste
+poistetaan heti, koska jatkettavaa ei enää ole.
+
 Yksi rajoitus on tiedossa: jos katalogiin lisätään biisejä kesken
 haasteen, sekoitus muuttuu ja vanha linkki antaa eri sarjan. Haaste on
 tarkoitettu saman päivän kisailuun, joten sillä ei ole väliä.

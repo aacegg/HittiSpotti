@@ -1484,11 +1484,27 @@
     return pisteet.slice(0, 8).map((x) => x[1]);
   }
 
-  /* Paljastuksen kesto: viimeinen ruutu alkaa kääntyä 4 * 110 ms kohdalla
-   * ja kääntyy 320 ms. Luku on tässä yhtenä paikkana, koska sekä
-   * loppulohkon odotus että tyylitiedoston ajoitus nojaavat siihen. */
-  const ARTISTI_PALJASTUS_MS = 4 * 110 + 320;
+  /* Rivin paljastus: kuusi ruutua, joista viimeinen alkaa kääntyä
+   * 5 * 110 ms kohdalla ja kääntyy 320 ms. Luvut ovat tässä yhdessä
+   * paikassa, koska sekä loppulohkon odotus, nimiruudun toinen käännös
+   * että tyylitiedoston ajoitus nojaavat niihin.
+   *
+   * Nimiruutu kääntyy kahdesti. Ensimmäisellä kierroksella se on
+   * harmaa kuten kaikki muutkin, ja vasta rivin jälkeen se kääntyy
+   * uudestaan ja näyttää värinsä. Ilman tätä koko animaatio oli turha:
+   * nimiruutu on rivin ensimmäinen, joten se kertoi lopputuloksen
+   * ennen kuin muut ruudut olivat ehtineet kääntyä.
+   *
+   * Harmaa nimiruutu ei käänny toista kertaa. Siinä ei ole mitään
+   * paljastettavaa, ja turha käännös lupaisi jotain mitä ei tule. */
+  const ARTISTI_RIVI_MS = 5 * 110 + 320;
+  const ARTISTI_NIMI_VIIVE_MS = 140;
+  const ARTISTI_NIMI_MS = 320;
+  /* Pieni tauko nimiruudun käännön jälkeen: ilman sitä paljastusruutu
+   * nousee juuri kun väri tulee näkyviin, ja peittää sen. */
+  const ARTISTI_TAUKO_MS = 180;
   let artistiLoppuAjastin = 0;
+  let artistiNimiAjastin = 0;
 
   /* uusi = kutsu tulee juuri tehdystä arvauksesta. Vain silloin viimeinen
    * rivi animoidaan ja loppulohko odottaa animaation ohi: kesken jääneen
@@ -1496,13 +1512,22 @@
    * uudestaan kuin ne olisi juuri arvattu. */
   function piirraArtistiRivit(uusi = false) {
     clearTimeout(artistiLoppuAjastin);
+    clearTimeout(artistiNimiAjastin);
     const viimeinen = artistiTila.arvaukset.length - 1;
+    /* Nimiruudun väri jätetään pois vain juuri arvatulta riviltä, ja
+     * vain jos väriä on. Kesken jääneen pelin avaaminen piirtää rivit
+     * valmiina. */
+    let nimiJaljessa = null;
     const rivit = artistiTila.arvaukset.map((arvaus, rivi) => {
       const ruudut = artistiVertaa(arvaus, artistiTila.oikea);
       const solut = ruudut.map((r, i) => {
-        const luokka = r.tila === "osui" ? " on-osui"
-                     : r.tila === "lahella" ? " on-lahella" : "";
+        let luokka = r.tila === "osui" ? " on-osui"
+                   : r.tila === "lahella" ? " on-lahella" : "";
         if (ARTISTI_KENTAT[i].nimi) {
+          if (uusi && rivi === viimeinen && luokka) {
+            nimiJaljessa = luokka.trim();
+            luokka = "";
+          }
           /* Kuva vain jos sellainen on. Kuvaton artisti saa saman
            * ruudun ilman sitä, ja nimelle jää enemmän tilaa. */
           const osoite = artistiKuvaOsoite(arvaus, ARTISTI_KUVA_RIVI);
@@ -1520,6 +1545,13 @@
       return `<li><div class="a-rivi${animoi}">${solut}</div></li>`;
     });
     el.aRivit.innerHTML = rivit.join("");
+    if (nimiJaljessa) {
+      const ruutu = el.aRivit.querySelector("li:last-child .a-ruutu.on-nimi");
+      artistiNimiAjastin = setTimeout(() => {
+        if (!ruutu) return;
+        ruutu.classList.add(nimiJaljessa, "on-kaanny");
+      }, ARTISTI_RIVI_MS + ARTISTI_NIMI_VIIVE_MS);
+    }
     const jaljella = ARTISTI_ARVAUKSIA - artistiTila.arvaukset.length;
     el.aJaljella.textContent = artistiTila.ohi
       ? ""
@@ -1540,7 +1572,8 @@
         artistiLoppuAjastin = setTimeout(() => {
           el.aLoppu.hidden = false;
           avaaArtistiPaljastus();
-        }, ARTISTI_PALJASTUS_MS);
+        }, ARTISTI_RIVI_MS + (nimiJaljessa
+          ? ARTISTI_NIMI_VIIVE_MS + ARTISTI_NIMI_MS + ARTISTI_TAUKO_MS : 0));
       } else {
         el.aLoppu.hidden = false;
       }

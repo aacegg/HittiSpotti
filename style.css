@@ -2145,6 +2145,12 @@ body.sheet-open { overflow: hidden; }
   animation: a-paljasta .32s ease-out both;
   animation-delay: calc(var(--i) * .11s);
 }
+/* Nimiruudun toinen käännös. Se kääntyi jo rivin mukana harmaana, ja
+   tämä on se hetki jossa väri tulee: joko vihreä tai keltainen. Oma
+   luokkansa eikä --i-viive, koska tämä käännös alkaa vasta kun koko
+   rivi on kääntynyt, ja ajastin app.js:ssä päättää milloin. */
+.a-ruutu.on-kaanny { animation: a-paljasta .32s ease-out both; }
+
 .a-loppu.on-uusi { animation: a-loppu-esiin .35s ease-out both; }
 @keyframes a-loppu-esiin {
   from { opacity: 0; transform: translateY(6px); }
@@ -2154,6 +2160,7 @@ body.sheet-open { overflow: hidden; }
    Väri on tieto, animaatio on koriste, eikä tieto saa riippua siitä. */
 @media (prefers-reduced-motion: reduce) {
   .a-rivi.on-uusi .a-ruutu,
+  .a-ruutu.on-kaanny,
   .a-loppu.on-uusi { animation: none; }
 }
 

@@ -104,7 +104,7 @@ vaita("vaillinainen päivä ei kelpaa", aja("localhost", "?artisti=2026-12") ===
  * testiajo paljasti tulevat artistit sille joka ajoi testin, ja se on
  * pelin ylläpitäjä eli juuri se ihminen joka haluaa pelata itsekin.
  * Järjestys jouduttiin siksi arpomaan kerran uusiksi ennen julkaisua
- * (ARTISTI_SEKOITUS 1 -> 2 -> 3 -> 4 -> 5). Väitteet todistavat järjestyksen
+ * (ARTISTI_SEKOITUS 1 -> ... -> 6). Väitteet todistavat järjestyksen
  * ominaisuudet, eikä niihin tarvita yhtään nimeä. */
 /* 8. Pelattavat päivät: tämä päivä ja viisi edellistä, ei yhtään tulevaa.
       Tuleva päivä listalla olisi tapa nähdä huomisen artisti etukäteen. */

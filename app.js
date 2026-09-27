@@ -1190,14 +1190,14 @@
    * Lista järjestetään tunnisteen mukaan ennen sekoitusta, jottei
    * artistit.json:in rivijärjestys vaikuta arvontaan. */
   const ARTISTI_EPOCH = Date.UTC(2026, 8, 24);   // 24.9.2026
-  /* 5: järjestys arvottiin uusiksi neljästi ennen julkaisua. Ensin koska
+  /* 6: järjestys arvottiin uusiksi viidesti ennen julkaisua. Ensin koska
    * kehityksen aikana testiajot tulostivat tulevien päivien artistit ja
-   * ylläpitäjä ehti nähdä ne, sitten kolmesti ylläpitäjän pyynnöstä.
+   * ylläpitäjä ehti nähdä ne, sitten neljästi ylläpitäjän pyynnöstä.
    * Muutos oli haitaton vain siksi, ettei yksikään oikea pelaaja ollut
    * vielä pelannut: julkaisun jälkeen tämän luvun vaihtaminen vaihtaa jo
    * pelattujen päivien oikeat vastaukset, ja pelaajan tallentamat
    * arvaukset näyttäisivät väärää lopputulosta. */
-  const ARTISTI_SEKOITUS = 5;
+  const ARTISTI_SEKOITUS = 6;
   /* Sauman suoja, sama idea kuin biisipakan GAP. Kierroksen loppu ja
    * seuraavan alku ovat päiviä peräkkäin, joten ilman tätä sama artisti
    * voisi tulla kahtena peräkkäisenä päivänä vaikka kierto on 247

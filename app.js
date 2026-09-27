@@ -1190,14 +1190,14 @@
    * Lista järjestetään tunnisteen mukaan ennen sekoitusta, jottei
    * artistit.json:in rivijärjestys vaikuta arvontaan. */
   const ARTISTI_EPOCH = Date.UTC(2026, 8, 24);   // 24.9.2026
-  /* 3: järjestys arvottiin uusiksi kahdesti ennen julkaisua. Ensin koska
+  /* 4: järjestys arvottiin uusiksi kolmesti ennen julkaisua. Ensin koska
    * kehityksen aikana testiajot tulostivat tulevien päivien artistit ja
-   * ylläpitäjä ehti nähdä ne, sitten ylläpitäjän pyynnöstä uudelleen.
+   * ylläpitäjä ehti nähdä ne, sitten kahdesti ylläpitäjän pyynnöstä.
    * Muutos oli haitaton vain siksi, ettei yksikään oikea pelaaja ollut
    * vielä pelannut: julkaisun jälkeen tämän luvun vaihtaminen vaihtaa jo
    * pelattujen päivien oikeat vastaukset, ja pelaajan tallentamat
    * arvaukset näyttäisivät väärää lopputulosta. */
-  const ARTISTI_SEKOITUS = 3;
+  const ARTISTI_SEKOITUS = 4;
   /* Sauman suoja, sama idea kuin biisipakan GAP. Kierroksen loppu ja
    * seuraavan alku ovat päiviä peräkkäin, joten ilman tätä sama artisti
    * voisi tulla kahtena peräkkäisenä päivänä vaikka kierto on 247
@@ -2140,10 +2140,11 @@
     const MARGIN = 8, VAHIN = 120, ENINTAAN = 360, KUOLLUT = 12;
     const alla = alaraja - lohko.bottom - MARGIN;
     const ylla = lohko.top - ylaraja - MARGIN;
-    let suunta = artistiListanSuunta;
-    if (suunta === null) suunta = ylla > alla ? "ylos" : "alas";
-    else if (suunta === "alas" && alla < VAHIN && ylla > alla) suunta = "ylos";
-    else if (suunta === "ylos" && ylla < VAHIN && alla > ylla) suunta = "alas";
+    /* Aina alas. Hakukenttä on ruudukon yläpuolella, joten alla on tilaa,
+     * eikä listan tarvitse enää kääntyä. Ylös avautuva lista oli
+     * puhelimessa se joka hyppi: se lyheni kohti kenttää kirjoittaessa. */
+    void ylla;
+    const suunta = "alas";
     artistiListanSuunta = suunta;
     lista.classList.toggle("is-up", suunta === "ylos");
     const uusi = Math.max(VAHIN, Math.min(Math.floor(suunta === "ylos" ? ylla : alla), ENINTAAN));

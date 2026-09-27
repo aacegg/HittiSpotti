@@ -21,7 +21,7 @@
        Ilman tätä päivitetty kuva (scripts/tee_jakokuva.js) ei näkyisi
        jaetuissa linkeissä, vaan vanha luku jäisi elämään välimuisteihin.
        Numero kulkee muiden ?v=-merkintöjen mukana julkaisussa. -->
-  <meta property="og:image" content="https://hittispotti.fi/jakokuva.jpg?v=161">
+  <meta property="og:image" content="https://hittispotti.fi/jakokuva.jpg?v=162">
   <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -32,17 +32,17 @@
        kuvakkeesta kiinni omassa välimuistissaan sitkeämmin kuin mistään
        muusta, eikä pelkkä uusi tiedostosisältö samassa osoitteessa riitä
        vaihtamaan sitä. -->
-  <link rel="icon" href="favicon.svg?v=161" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg?v=162" type="image/svg+xml">
   <!-- iOS ei tue SVG:tä kotinäytön kuvakkeena: SVG:llä se otti sivusta
        ruudunkaappauksen kuvakkeen sijaan. 180 px on iPhonen koko. -->
-  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=161">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=161">
-  <link rel="manifest" href="manifest.webmanifest?v=161">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=162">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=162">
+  <link rel="manifest" href="manifest.webmanifest?v=162">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HittiSpotti">
   <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=161">
+  <link rel="stylesheet" href="style.css?v=162">
 
   <script type="application/ld+json">
   {
@@ -419,6 +419,28 @@
            skriptistä, ks. piirraArtistiPaivat. -->
       <div class="a-paivat" id="a-paivat" role="group" aria-label="Pelattavat päivät"></div>
 
+      <!-- Hakukenttä ruudukon yläpuolella, kuten Spotlessa. Kenttä oli ennen
+           ruudukon alla, ja puhelimessa se jäi näppäimistön taakse: selain
+           vieritti sivua kirjoittaessa, ja ehdotuslista joko jatkui
+           näppäimistön alle tai avautui ylös ja lyheni kohti kenttää. Kun
+           kenttä on ruudun yläosassa, lista mahtuu aina sen ja näppäimistön
+           väliin eikä sivua tarvitse vierittää. Loppurivi (tulos ja
+           Tulokset-nappi) tulee samaan kohtaan kun peli päättyy. -->
+      <div class="a-arvaus" id="a-arvaus">
+        <label class="sr-only" for="a-input">Arvaa artisti</label>
+        <input id="a-input" class="input" type="text" autocomplete="off"
+               autocapitalize="off" autocorrect="off" spellcheck="false"
+               enterkeyhint="go" placeholder="Arvaa artisti">
+        <ul class="suggestions" id="a-ehdotukset" role="listbox" hidden></ul>
+        <p class="a-jaljella" id="a-jaljella"></p>
+      </div>
+
+      <div class="a-loppu" id="a-loppu" hidden>
+        <h3 id="a-loppu-otsikko"></h3>
+        <p id="a-loppu-teksti"></p>
+        <button type="button" class="btn btn-accent" id="a-tulokset">Tulokset</button>
+      </div>
+
       <!-- Sarakeotsikot ruudukon yllä. Wordlessa niitä ei tarvita, koska
            kaikki tietävät että kyse on kirjaimista; tässä pelaaja ei muuten
            tiedä mitä kolmas ruutu tarkoittaa. -->
@@ -439,20 +461,6 @@
         <li><i class="a-merkki on-osui"></i>Osuu</li>
       </ul>
 
-      <div class="a-arvaus" id="a-arvaus">
-        <label class="sr-only" for="a-input">Arvaa artisti</label>
-        <input id="a-input" class="input" type="text" autocomplete="off"
-               autocapitalize="off" autocorrect="off" spellcheck="false"
-               enterkeyhint="go" placeholder="Arvaa artisti">
-        <ul class="suggestions" id="a-ehdotukset" role="listbox" hidden></ul>
-        <p class="a-jaljella" id="a-jaljella"></p>
-      </div>
-
-      <div class="a-loppu" id="a-loppu" hidden>
-        <h3 id="a-loppu-otsikko"></h3>
-        <p id="a-loppu-teksti"></p>
-        <button type="button" class="btn btn-accent" id="a-tulokset">Tulokset</button>
-      </div>
     </section>
 
     <!-- ArtistiSpotin tulosnäkymä. Omat tilastot ja oma jakoteksti:
@@ -903,7 +911,7 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=161"></script>
+  <script src="app.js?v=162"></script>
 
   <!-- Kävijälaskenta: ei evästeitä, ei henkilötietoja, ei seurantaa yli
        sivustorajojen – siksi tämä ei vaadi suostumusikkunaa. Ladataan

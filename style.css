@@ -2256,10 +2256,10 @@ body.sheet-open { overflow: hidden; }
 .a-merkki.on-osui { background: var(--t1); }
 .a-merkki.on-lahella { background: var(--t3); }
 
-.a-arvaus { position: relative; margin-top: 18px; }
+.a-arvaus { position: relative; margin: 0 0 16px; }
 .a-jaljella { color: var(--dim); font-size: 12px; margin: 8px 0 0; text-align: center; }
 
-.a-loppu { text-align: center; margin-top: 20px; }
+.a-loppu { text-align: center; margin: 0 0 16px; }
 .a-loppu h3 { font-size: 19px; margin: 0 0 6px; }
 .a-loppu p { color: var(--muted); margin: 0 0 16px; }
 

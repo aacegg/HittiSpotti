@@ -106,5 +106,25 @@ vaita("vaillinainen päivä ei kelpaa", aja("localhost", "?artisti=2026-12") ===
  * Järjestys jouduttiin siksi arpomaan kerran uusiksi ennen julkaisua
  * (ARTISTI_SEKOITUS 1 -> 2). Väitteet todistavat järjestyksen
  * ominaisuudet, eikä niihin tarvita yhtään nimeä. */
+/* 8. Pelattavat päivät: tämä päivä ja viisi edellistä, ei yhtään tulevaa.
+      Tuleva päivä listalla olisi tapa nähdä huomisen artisti etukäteen. */
+const paivatFn = (host, haku, tanaan) => new Function("location", "todayKey", `
+  const pad = (n) => String(n).padStart(2, "0");
+  const dayKey = (d) => \`\${d.getFullYear()}-\${pad(d.getMonth() + 1)}-\${pad(d.getDate())}\`;
+  const keyToDate = (key) => { const [y, m, d] = key.split("-").map(Number); return new Date(y, m - 1, d); };
+  ${pala(/  function artistiTestipaiva\(\) \{[\s\S]*?\n  \}/)}
+  ${pala(/  const ARTISTI_MENNEET = \d+;/)}
+  let artistiTestiMuisti = null;
+  ${pala(/  function artistiTanaan\(\) \{[\s\S]*?\n  \}/)}
+  ${pala(/  function artistiPaivat\(\) \{[\s\S]*?\n  \}/)}
+  return artistiPaivat();`)({ hostname: host, search: haku }, () => tanaan);
+const lista = paivatFn("hittispotti.fi", "", "2026-10-01");
+vaita("kuusi päivää", lista.length === 6, lista.join(" "));
+vaita("viimeinen on tämä päivä", lista[5] === "2026-10-01");
+vaita("ensimmäinen on viisi päivää sitten, kuun vaihteen yli", lista[0] === "2026-09-26");
+vaita("ei tulevia päiviä", lista.every((p) => p <= "2026-10-01"));
+vaita("tuotannossa testipäivä ei siirrä listaa",
+  paivatFn("hittispotti.fi", "?artisti=2027-01-10", "2026-10-01")[5] === "2026-10-01");
+
 console.log(ok ? "\nLÄPI" : "\nHYLÄTTY");
 process.exit(ok ? 0 : 1);

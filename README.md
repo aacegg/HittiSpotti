@@ -540,6 +540,26 @@ Täydellinen pelaaja ei tarvitse kertaakaan yli viittä arvausta, eli
 yhtään mahdotonta päivää ei ole: jos artistia ei löydä, syy on muistissa
 eikä vihjeissä.
 
+**Viisi edellistä päivää ovat pelattavissa.** Ruudukon yllä on
+kuuden pallon rivi: viisi edellistä päivää ja tämä päivä. Pelattu päivä
+näyttää artistin kuvan vihreällä (ratkesi) tai punaisella (ei ratkennut)
+reunalla, pelaamaton kysymysmerkin. Idea on Spotlen Rewindistä, mutta rivi
+on samassa näkymässä eikä omana pelimuotonaan, jotta lisäpelit näkyvät heti
+oman pelin jälkeen.
+
+Kolme sääntöä, ja jokaisella on syy:
+
+- **Tulevia päiviä ei ole.** Lista lasketaan tästä päivästä taaksepäin, ja
+  avaus hylkää kaiken listan ulkopuolisen. Tuleva päivä olisi tapa nähdä
+  huomisen artisti.
+- **Tilastot ja putki tulevat vain tämän päivän pelistä.** Muuten putken
+  voisi paikata jälkikäteen, ja voittoprosentti mittaisi sitä montako vanhaa
+  päivää on jaksanut pelata.
+- **Menneen päivän tulosta ei lähetetä palvelimelle.** Palvelin hylkää yli
+  kahden vuorokauden takaiset päivät joka tapauksessa, ja myöhään pelaavat
+  vääristäisivät päivän lukuja. Vertailurivi näytetään silti, mutta silloin
+  omaa tulosta ei vähennetä luvuista, koska se ei ole niissä.
+
 **Rivin ensimmäinen ruutu on arvattu artisti.** Kuva ja nimi, nimi
 pisteisiin katkaistuna jos se ei mahdu. Malli on Spotle, jossa sama
 ruutu on rivin alussa: kuvasta tunnistaa artistin silloinkin kun

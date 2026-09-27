@@ -16,7 +16,7 @@ const koodi = `
   ${pala(/const ARTISTI_KENTAT = \[[\s\S]*?\n  \];/)}
   ${pala(/function artistiVertaa\(arvaus, oikea\) \{[\s\S]*?\n  \}/)}
   ${pala(/  const ARTISTI_VERTAILU_RAJA = \d+;/)}
-  ${pala(/  function artistiVertailuTeksti\(d, omatArvaukset, voitto\) \{[\s\S]*?\n  \}/)}
+  ${pala(/  function artistiVertailuTeksti\(d, omatArvaukset, voitto, mukana = true\) \{[\s\S]*?\n  \}/)}
   return { artistiVertaa, ARTISTI_KENTAT, artistiVertailuTeksti };
 `;
 const { artistiVertaa, ARTISTI_KENTAT, artistiVertailuTeksti } = new Function(koodi)();
@@ -179,6 +179,18 @@ vaita("ratkaisemattomat eivät nosta keskiarvoa",
   V({ n: 21, g: [0, 20, 0, 0, 0, 0], epa: 0 }, 2, true)
     === V({ n: 41, g: [0, 20, 0, 0, 0, 0], epa: 20 }, 2, true),
   V({ n: 41, g: [0, 20, 0, 0, 0, 0], epa: 20 }, 2, true));
+
+/* 9. Mennyt päivä: pelaajan tulosta ei lähetetty, joten sitä ei ole
+      luvuissa eikä mitään saa vähentää. Järjestyslukua ei näytetä, koska
+      pelaaja ei ole päivän N. pelaaja jos hänen pelinsä ei ole luvuissa. */
+const M = (d, n, voitto) => artistiVertailuTeksti(d, n, voitto, false);
+vaita("mennyt päivä: pieni otos ei anna järjestyslukua",
+  M({ n: 5, g: [0,1,2,1,0,0,0], epa: 1 }, 3, true) === "");
+vaita("mennyt päivä: omaa ei vähennetä",
+  M({ n: 10, g: [0,0,10,0,0,0,0], epa: 0 }, 3, true) === "Muut arvasivat keskimäärin 3,0 arvauksella.",
+  M({ n: 10, g: [0,0,10,0,0,0,0], epa: 0 }, 3, true));
+vaita("mennyt päivä: kukaan ei ratkaissut",
+  M({ n: 12, g: [0,0,0,0,0,0,0], epa: 12 }, 3, false) === "Kukaan ei ratkaissut artistia.");
 
 console.log(ok ? "\nLÄPI" : "\nVIRHEITÄ");
 process.exit(ok ? 0 : 1);

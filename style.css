@@ -2085,6 +2085,35 @@ body.sheet-open { overflow: hidden; }
 .a-nimi { font-size: 22px; margin: 0; letter-spacing: .01em; }
 .a-pvm { color: var(--dim); font-size: 13px; margin: 4px 0 0; }
 
+/* Päivärivi: tämä päivä ja viisi edellistä. Kuusi palloa mahtuu 320 px
+   leveälle ruudulle ilman vieritystä: 6 x 44 px + väleinä 5 x 6 px. */
+.a-paivat {
+  display: flex; justify-content: center; gap: 6px;
+  margin: -6px 0 16px;
+}
+.a-paiva {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  min-width: 44px; padding: 0; border: 0; background: none;
+  color: var(--dim); font: inherit; cursor: pointer;
+}
+.a-paiva-pallo {
+  display: grid; place-items: center; overflow: hidden;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--line); border: 2px solid transparent;
+  color: var(--muted); font-weight: 700; font-size: 16px;
+}
+.a-paiva-pallo img { width: 100%; height: 100%; object-fit: cover; }
+.a-paiva-nimi { font-size: 11px; }
+.a-paiva.on-ratkesi .a-paiva-pallo { border-color: var(--t1); }
+.a-paiva.on-ei .a-paiva-pallo { border-color: var(--t5); }
+.a-paiva.on-kesken .a-paiva-pallo { border-color: var(--t3); border-style: dashed; }
+/* Valittu päivä: vaalea rengas pallon ympärillä ja nimi kirkkaana. Rengas
+   on box-shadow eikä reuna, koska reunan väri kertoo jo tuloksen. */
+.a-paiva.on-valittu .a-paiva-pallo { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--text); }
+.a-paiva.on-valittu .a-paiva-nimi { color: var(--text); font-weight: 700; }
+.a-paiva:focus-visible { outline: none; }
+.a-paiva:focus-visible .a-paiva-pallo { outline: 2px solid var(--live); outline-offset: 3px; }
+
 /* Viisi saraketta, sama ruudukko otsikoille ja riveille, jotta ne
    pysyvät kohdakkain kaikilla ruudun leveyksillä.
 

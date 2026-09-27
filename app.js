@@ -232,7 +232,7 @@
      * samalla tavalla korostettuna, mikään ei enää erottuisi: korostus
      * toimii vain niin kauan kuin sitä on yksi. */
     kohdat: [
-      "<b>UUSI PELI: ArtistiSpotti.</b> Arvaa päivän artisti seitsemällä yrityksellä, uusi artisti joka päivä",
+      "<b>UUSI PELI: ArtistiSpotti.</b> Arvaa päivän artisti seitsemällä yrityksellä. Uusi artisti joka päivä, ja viisi edellistä päivää voi pelata jälkikäteen",
       "<b>Kaverihaaste</b> antaa samat biisit sinulle ja kavereillesi. Valitse kierrosten määrä, lähetä linkki ja vertailkaa pisteitä",
       "<b>144 uutta biisiä</b>, nyt yhteensä 1 888 arvattavaa",
     ],
@@ -296,6 +296,7 @@
   const el = {
     body: document.body,
     aPvm: $("#a-pvm"),
+    aPaivat: $("#a-paivat"),
     aRivit: $("#a-rivit"),
     aArvaus: $("#a-arvaus"),
     aInput: $("#a-input"),
@@ -1655,7 +1656,11 @@
       voitto: artistiTila.voitto,
     });
     if (artistiTila.ohi) store.remove(AVAIN.artisti.kesken(artistiTila.pvm));
-    if (artistiTila.ohi && !jo) kirjaaArtistiTilastot();
+    /* Tilastot ja putki vain tämän päivän pelistä. Jos menneet päivät
+     * laskettaisiin, putken voisi paikata jälkikäteen ja voittoprosentti
+     * kertoisi lähinnä montako vanhaa päivää on jaksanut pelata. Mennyt
+     * päivä näkyy päivärivillä ja omana tuloksenaan. */
+    if (artistiTila.ohi && !jo && artistiTila.pvm === artistiTanaan()) kirjaaArtistiTilastot();
   }
 
   function artistiArvaa(artisti) {
@@ -1670,7 +1675,13 @@
     }
     tallennaArtisti();
     piirraArtistiRivit(true);
-    if (artistiTila.ohi) {
+    // Kesken-merkintä päiväriville heti, tulos vasta paljastuksessa.
+    if (!artistiTila.ohi) piirraArtistiPaivat();
+    /* Menneen päivän tulosta ei lähetetä. Palvelin hylkää yli kahden
+     * vuorokauden takaiset päivät joka tapauksessa, ja myöhästyneet
+     * pelaajat vääristäisivät päivän lukuja, koska he pelaavat tietäen
+     * että ovat jo kerran nähneet vihjeitä. */
+    if (artistiTila.ohi && artistiTila.pvm === artistiTanaan()) {
       /* Arvauksia 1-6 jos ratkesi, 0 jos ei. Palvelin ei saa pisteitä
        * lainkaan: artistipelissä niitä ei ole. */
       lahetaArtisti(artistiTila.pvm,
@@ -1786,8 +1797,20 @@
    * milläkin arvauksella, montako ei ratkaissut) ja peli laskee niistä
    * esityksen. Sama periaate kuin biisipelissä: kun palvelin ei päätä
    * esitystapaa, sitä voi muuttaa julkaisematta Workeria. */
-  function artistiVertailuTeksti(d, omatArvaukset, voitto) {
+  /* mukana kertoo onko pelaajan oma tulos palvelimen luvuissa. Tämän
+   * päivän pelissä on, mennyttä päivää pelattaessa ei (sitä ei lähetetä).
+   * Silloin mitään ei vähennetä eikä järjestyslukua näytetä: "olit päivän
+   * 3. pelaaja" ei pidä paikkaansa jos oma peli ei ole luvuissa. */
+  function artistiVertailuTeksti(d, omatArvaukset, voitto, mukana = true) {
     if (!d || !d.n) return "";
+    if (!mukana) {
+      if (d.n < ARTISTI_VERTAILU_RAJA) return "";
+      const ratk = d.g.reduce((a, b) => a + b, 0);
+      if (!ratk) return "Kukaan ei ratkaissut artistia.";
+      const k = (d.g.reduce((a, b, i) => a + b * (i + 1), 0) / ratk)
+        .toFixed(1).replace(".", ",");
+      return `Muut arvasivat keskimäärin ${k} arvauksella.`;
+    }
     const muita = d.n - 1;
     if (muita < ARTISTI_VERTAILU_RAJA) {
       // Liian pieni otos keskiarvoksi. Järjestysluku on silti tietoa.
@@ -1824,8 +1847,10 @@
     const d = await haeArtisti(artistiTila.pvm);
     // Hidas vastaus ei saa kirjoittaa toisen päivän näkymän päälle.
     if (vuoro !== artistiVertailuVuoro || state.view !== "artistitulos") return;
+    const mukana = artistiTila.pvm === artistiTanaan()
+      || !!store.get(AVAIN.artisti.vertailu(artistiTila.pvm), null);
     const teksti = artistiVertailuTeksti(
-      d, artistiTila.arvaukset.length, artistiTila.voitto);
+      d, artistiTila.arvaukset.length, artistiTila.voitto, mukana);
     e.textContent = teksti;
     e.hidden = !teksti;
   }
@@ -1889,7 +1914,7 @@
   async function avaaArtistiTulos() {
     await lataaArtistit();
     if (!artistiTila.pvm) await avaaArtisti();
-    if (!artistiTila.ohi) { await avaaArtisti(); return; }
+    if (!artistiTila.ohi) { await avaaArtisti(artistiTila.pvm); return; }
     show("artistitulos");
     piirraArtistiTulos();
     paivitaArtistiVertailu();
@@ -1924,13 +1949,84 @@
     return "";
   }
 
+  /* Pelattavat päivät: tämä päivä ja viisi edellistä.
+   *
+   * Yksi peli päivässä loppuu nopeasti, ja moni haluaa pelata heti
+   * toisen. Menneet päivät ovat valmista sisältöä: artisti arvotaan
+   * päivämäärästä, joten jokaisella menneellä päivällä on jo oma
+   * artistinsa, sama kaikille. Viisi riittää, ja artistijärjestys takaa
+   * 61 päivän välin toistoon, joten kaikki kuusi ovat eri artisteja.
+   *
+   * Tulevia päiviä ei ole listalla, eikä niihin pääse edes kutsumalla
+   * avaaArtisti-funktiota tulevalla päivällä: se hylkää kaiken mikä ei
+   * ole listalla. Tuleva päivä olisi tapa kurkata huomisen artisti.
+   *
+   * Testipäivä (?artisti=, vain kehitysosoitteissa) toimii tämän päivän
+   * sijasta, jotta rivin voi kokeilla millä päivällä tahansa. Se luetaan
+   * kerran ja muistetaan: "satunnainen" arpoisi joka kutsulla eri päivän,
+   * ja rivi ja pelattava päivä menisivät ristiin. */
+  const ARTISTI_MENNEET = 5;
+  let artistiTestiMuisti = null;
+
+  function artistiTanaan() {
+    if (artistiTestiMuisti === null) artistiTestiMuisti = artistiTestipaiva();
+    return artistiTestiMuisti || todayKey();
+  }
+
+  function artistiPaivat() {
+    const perus = keyToDate(artistiTanaan());
+    return Array.from({ length: ARTISTI_MENNEET + 1 }, (_, i) => {
+      const d = new Date(perus);
+      d.setDate(d.getDate() - (ARTISTI_MENNEET - i));
+      return dayKey(d);
+    });
+  }
+
+  /* Päivärivi. Pelattu päivä näyttää artistin kuvan ja värin (vihreä
+   * ratkesi, punainen ei), pelaamaton kysymysmerkin. Kuva paljastaa
+   * vastauksen, joten se näytetään vasta kun päivä on pelattu loppuun,
+   * ja päivitys tehdään vasta paljastusruudun auetessa eikä viimeisen
+   * arvauksen hetkellä: muuten rivi kertoisi tuloksen ennen kuin
+   * ruudukon animaatio ehtii. */
+  function piirraArtistiPaivat() {
+    if (!el.aPaivat) return;
+    const tanaan = artistiTanaan();
+    el.aPaivat.innerHTML = artistiPaivat().map((pvm) => {
+      const tulos = store.get(AVAIN.artisti.tulos(pvm), null);
+      const kesken = !tulos && store.get(AVAIN.artisti.kesken(pvm), null);
+      const d = keyToDate(pvm);
+      const nimi = pvm === tanaan ? "Tänään" : `${d.getDate()}.${d.getMonth() + 1}.`;
+      let sisalto = "?", luokka = "", tila = "pelaamatta";
+      if (tulos) {
+        const a = paivanArtisti(pvm);
+        const kuva = artistiKuvaOsoite(a, ARTISTI_KUVA_RIVI);
+        sisalto = kuva ? `<img src="${kuva}" alt="" loading="lazy">`
+                       : escapeHtml(a.n.slice(0, 1));
+        luokka = tulos.voitto ? " on-ratkesi" : " on-ei";
+        tila = tulos.voitto ? "ratkaistu" : "ei ratkennut";
+      } else if (kesken) {
+        luokka = " on-kesken";
+        tila = "kesken";
+      }
+      const valittu = pvm === artistiTila.pvm;
+      return `<button type="button" class="a-paiva${luokka}${valittu ? " on-valittu" : ""}"
+        data-pvm="${pvm}" aria-pressed="${valittu}"
+        aria-label="${nimi === "Tänään" ? "Tänään" : d.toLocaleDateString("fi-FI")}, ${tila}">
+        <span class="a-paiva-pallo">${sisalto}</span>
+        <span class="a-paiva-nimi">${nimi}</span></button>`;
+    }).join("");
+  }
+
   /* Päivän artistin avaaminen. Palauttaa kesken jääneen sarjan samasta
-   * kohdasta, koska päivä on sama ja arvaukset on jo nähty. */
-  async function avaaArtisti() {
+   * kohdasta, koska päivä on sama ja arvaukset on jo nähty.
+   *
+   * Ilman päivää avautuu tämä päivä: valikon ArtistiSpotti on aina
+   * tämän päivän peli, vaikka edellisellä kerralla olisi pelattu mennyttä. */
+  async function avaaArtisti(valinta) {
     show("artisti");
     asetaHaasteOsoite(null);
     await lataaArtistit();
-    const pvm = artistiTestipaiva() || todayKey();
+    const pvm = artistiPaivat().includes(valinta) ? valinta : artistiTanaan();
     if (artistiTila.pvm !== pvm) {
       artistiTila.pvm = pvm;
       artistiTila.oikea = paivanArtisti(pvm);
@@ -1957,6 +2053,7 @@
     el.aInput.value = "";
     el.aEhdotukset.hidden = true;
     piirraArtistiRivit();
+    piirraArtistiPaivat();
     /* Ensimmäisellä käynnillä säännöt aukeavat itsestään. Pelkkä
      * kysymysmerkki jäisi huomaamatta, ja ruudukko ilman selitystä on
      * viisi saraketta värejä ilman kertojaa siitä mitä ne tarkoittavat. */
@@ -2078,6 +2175,7 @@
   }
 
   function avaaArtistiPaljastus() {
+    piirraArtistiPaivat();
     const n = artistiTila.arvaukset.length;
     asetaArtistiKuva(el.aPaljastusKuva, artistiTila.oikea);
     el.aPaljastusOtsikko.textContent = artistiTila.voitto ? "Oikein!" : "Ei osunut";
@@ -2151,6 +2249,12 @@
   }
 
   el.aOhje.addEventListener("click", avaaArtistiOhje);
+
+  // Päivärivi: painettu päivä avautuu pelattavaksi tai tulokseksi.
+  el.aPaivat.addEventListener("click", (e) => {
+    const nappi = e.target.closest("[data-pvm]");
+    if (nappi && nappi.dataset.pvm !== artistiTila.pvm) avaaArtisti(nappi.dataset.pvm);
+  });
   el.aOhjeClose.addEventListener("click", suljeArtistiOhje);
   el.aOhjeOk.addEventListener("click", suljeArtistiOhje);
   el.aOhjeScrim.addEventListener("click", suljeArtistiOhje);

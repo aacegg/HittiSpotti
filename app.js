@@ -446,6 +446,15 @@
     haasteScrim: $("#haaste-scrim"),
     haasteClose: $("#haaste-close"),
     haasteLuo: $("#haaste-luo"),
+    kutsuSheet: $("#kutsu-sheet"),
+    kutsuScrim: $("#kutsu-scrim"),
+    kutsuTitle: $("#kutsu-title"),
+    kutsuClose: $("#kutsu-close"),
+    kutsuLinkki: $("#kutsu-linkki"),
+    kutsuJaa: $("#kutsu-jaa"),
+    kutsuKopioi: $("#kutsu-kopioi"),
+    kutsuPelaa: $("#kutsu-pelaa"),
+    kutsuAvaa: $("#kutsu-avaa"),
     haasteKierrokset: $("#haaste-kierrokset"),
     haasteKaudet: $("#haaste-kaudet"),
     statGrid: $("#stat-grid"),
@@ -665,6 +674,8 @@
       el.aOhjeScrim.hidden = true;
       el.aPaljastusSheet.hidden = true;
       el.aPaljastusScrim.hidden = true;
+      el.kutsuSheet.hidden = true;
+      el.kutsuScrim.hidden = true;
       el.body.classList.remove("sheet-open");
     }
     /* Ääni kuuluu vain peliin. openRound pysäyttää soiton kierrosten välillä
@@ -2686,14 +2697,60 @@
     suljeHaasteRuutu();
     closeDrawer();
     stopPlayback();
-    try {
-      await navigator.clipboard.writeText(haasteOsoite(h.koodi));
-      toast("Haasteen linkki kopioitu. Lähetä se kavereille.");
-    } catch {
-      toast("Haaste luotu. Linkin saa tuloksista.");
-    }
     track("haaste-luotu");
     await startHaaste(h);
+    /* Kutsuruutu vasta kun haaste on käynnissä: startHaaste vaihtaa
+     * näkymää, ja näkymän vaihto sulkee avoimet ruudut. Jos haastetta ei
+     * voitu koota, peli on päivän pelissä eikä kutsua näytetä. */
+    if (state.mode === "haaste" && state.haaste) avaaKutsu(true);
+  }
+
+  /* Kutsuruutu: linkki näkyvissä, jako puhelimen omalla jakovalikolla ja
+   * kopiointi. Uusi haaste sanoo "Haaste luotu", otsikkorivin Kutsu-napista
+   * avattuna "Kutsu kavereita". */
+  function avaaKutsu(uusi) {
+    if (!state.haaste) return;
+    el.kutsuTitle.textContent = uusi ? "Haaste luotu" : "Kutsu kavereita";
+    el.kutsuLinkki.value = haasteOsoite(state.haaste.koodi);
+    // Jakovalikko vain jos selain tarjoaa sen (puhelimet kyllä, osa
+    // työpöytäselaimista ei). Ilman sitä kopiointi on ainoa nappi.
+    el.kutsuJaa.hidden = !navigator.share;
+    el.kutsuScrim.hidden = false;
+    el.kutsuSheet.hidden = false;
+    el.body.classList.add("sheet-open");
+    el.kutsuSheet.focus({ preventScroll: true });
+  }
+
+  function suljeKutsu() {
+    el.kutsuSheet.hidden = true;
+    el.kutsuScrim.hidden = true;
+    el.body.classList.remove("sheet-open");
+  }
+
+  async function kopioiKutsu() {
+    const linkki = el.kutsuLinkki.value;
+    try {
+      await navigator.clipboard.writeText(linkki);
+      toast("Linkki kopioitu. Lähetä se kavereille.");
+    } catch {
+      // Leikepöytä ei käytössä: valitaan linkki kentästä, jolloin sen voi
+      // kopioida itse eikä mikään jää pelaajan arvattavaksi.
+      el.kutsuLinkki.focus();
+      el.kutsuLinkki.select();
+      toast("Kopioi linkki kentästä.");
+    }
+  }
+
+  async function jaaKutsu() {
+    try {
+      await navigator.share({
+        title: "HittiSpotti-kaverihaaste",
+        text: "Haastan sinut HittiSpottiin! Samat biisit meille molemmille, kumpi tunnistaa nopeammin?",
+        url: el.kutsuLinkki.value,
+      });
+    } catch (e) {
+      if (!e || e.name !== "AbortError") kopioiKutsu();
+    }
   }
 
   function dailySongs(key) {
@@ -3240,6 +3297,7 @@
      * vanhoja. */
     const rajaus = kausiNimi();
     const h = state.haaste;
+    el.kutsuAvaa.hidden = state.mode !== "haaste";
     el.modeLabel.textContent = state.mode === "daily" ? "Päivän biisit"
       : state.mode === "haaste" ? "Kaverihaaste"
       : rajaus || "Vapaa peli";
@@ -5042,6 +5100,12 @@
     el.haasteClose.addEventListener("click", suljeHaasteRuutu);
     el.haasteScrim.addEventListener("click", suljeHaasteRuutu);
     el.haasteLuo.addEventListener("click", () => { luoHaaste(); });
+    el.kutsuAvaa.addEventListener("click", () => avaaKutsu(false));
+    el.kutsuClose.addEventListener("click", suljeKutsu);
+    el.kutsuScrim.addEventListener("click", suljeKutsu);
+    el.kutsuPelaa.addEventListener("click", suljeKutsu);
+    el.kutsuKopioi.addEventListener("click", kopioiKutsu);
+    el.kutsuJaa.addEventListener("click", jaaKutsu);
     el.haasteKierrokset.addEventListener("click", (e) => {
       const b = e.target.closest("[data-kierroksia]");
       if (!b) return;

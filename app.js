@@ -2665,9 +2665,16 @@
     ].join(" · ") + `, kierros ${k.kierros + 1}/${k.h.kierroksia}`;
   }
 
-  /* Aiempien kierrosten pisteet yhteensä. Kesken oleva kierros ei ole
-   * listassa, joten tähän lisätään aina käynnissä olevan kierroksen omat. */
+  /* Käynnissä olevaa kierrosta edeltävien kierrosten pisteet yhteensä.
+   * Käynnissä olevan kierroksen pisteet lisätään aina sen biiseistä.
+   *
+   * Vain edeltävät, ei koko listaa: kierros kirjataan listaan heti kun se
+   * päättyy (paataHaasteKierros), joten palautettaessa päättynyt kierros
+   * on sekä listassa että biiseissä. Koko listan summa laski sen kahdesti,
+   * ja pelatun haasteen avaaminen uudelleen näytti tuplapisteet (yhden
+   * kierroksen haasteessa 2 900 + 2 900 = 5 800). */
   const haasteAiemmat = (h) => (h && h.kierrokset || [])
+    .slice(0, h ? h.kierros : 0)
     .reduce((summa, k) => summa + ((k && k.pisteet) || 0), 0);
 
   const haasteViimeinen = () => !!state.haaste

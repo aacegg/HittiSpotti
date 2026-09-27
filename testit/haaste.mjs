@@ -157,5 +157,15 @@ vaita("haasteen vuosikymmen omasta valinnasta", nimet(["1990"]) === "1990-luku",
 vaita("vapaan pelin valinta ei vuoda haasteeseen", nimet([]) === "", nimet([]));
 vaita("ilman parametria vapaan pelin valinta", nimet() === "2020-luku", nimet());
 
+/* 11. Pisteet palautettaessa. Päättynyt kierros on sekä kierroslistassa
+ *     että biiseissä, joten listasta saa laskea vain edeltävät kierrokset.
+ *     Aiemmin pelatun haasteen avaaminen uudelleen näytti tuplapisteet. */
+const aiemmat = new Function(pala(/  const haasteAiemmat = [\s\S]*?;\n/) + "; return haasteAiemmat;")();
+vaita("ensimmäisellä kierroksella ei aiempia",
+  aiemmat({ kierros: 0, kierrokset: [{ pisteet: 2900 }] }) === 0);
+vaita("toisella kierroksella vain ensimmäinen",
+  aiemmat({ kierros: 1, kierrokset: [{ pisteet: 2900 }, { pisteet: 1000 }] }) === 2900);
+vaita("ilman haastetta nolla", aiemmat(null) === 0);
+
 console.log(ok ? "\nLÄPI" : "\nHYLÄTTY");
 process.exit(ok ? 0 : 1);

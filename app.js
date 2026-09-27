@@ -207,44 +207,25 @@
    * 50-80-luku on nimeltä eikä "yhden vuosikymmenen", koska se on se jota
    * oikeasti pyydettiin, ja esimerkki opettaa ominaisuuden kerralla. */
   const UUTTA = {
-    /* Tunnus vaihdettu b-kirjaimella, vaikka sisältö on sama.
-     *
-     * Ensimmäisessä julkaisussa tiedote merkittiin nähdyksi näytettäessä, ja
-     * service workerin vaihtuminen latasi sivun sekuntia myöhemmin. Jokainen
-     * sinä aikana käynyt on siis merkitty nähneeksi lukematta yhtään riviä.
-     * Vanhalla tunnuksella he eivät näkisi tätä enää koskaan.
-     *
-     * Vaihto näyttää tiedotteen toistamiseen niille harvoille jotka ehtivät
-     * sen oikeasti lukea, eli niille joilla ei ollut service workeria
-     * lainkaan. Se on pienempi haitta kuin se että ominaisuus jää kertomatta
-     * niille joilta se vietiin alta. */
-    /* c-kierros: b poltti tiedotteen jokaiselta jonka tallennustila oli
-     * sillä hetkellä tyhjä, koska tyhjää pidettiin uutena pelaajana.
-     * Heidät tavoittaa vain uudella tunnuksella. */
-    /* Luvut korjattu v114:n jälkeen ilman tunnuksen vaihtoa. Ne jotka
-     * ovat jo lukeneet tiedotteen eivät näe sitä uudestaan, ja he näkivät
-     * hieman vanhentuneet luvut kerran; se on pienempi haitta kuin
-     * kolmas pakotettu näyttö kaikille. Ne jotka eivät ole vielä
-     * nähneet saavat oikeat luvut. */
-    id: "2026-09-19c",
-    /* Tiedote lakkaa näkymästä kokonaan tästä päivästä alkaen, eikä sitä
-     * voi enää tulla kenellekään. Tämä julkaisu on maanantaina vanha uutinen:
-     * uudet biisit ovat silloin jo päivän pelissä, ja lukitus on ohi.
-     *
-     * Vanheneminen on päivämäärä eikä käsin poistaminen, koska käsin
-     * poistaminen vaatii muistamista ja uuden julkaisun juuri oikeana
-     * päivänä. Päivä hoitaa sen itsestään myös siinä tapauksessa etten ole
-     * paikalla. Vertailu on tekstivertailu, koska YYYY-MM-DD järjestyy
-     * oikein sellaisenaan, ja se käyttää pelin omaa vuorokausirajaa
-     * (todayKey) eikä selaimen paikallista, jotta se vaihtuu samaan aikaan
-     * kuin päivän biisitkin. */
-    loppuu: "2026-09-21",
+    /* Uusi tunnus, koska tiedote on kokonaan uusi. Vanhan nähneet saavat
+     * tämän kerran, eikä kukaan näe sitä kahdesti. */
+    id: "2026-09-27-artistispotti",
+    /* Tiedote vanhenee itsestään. Kaksi uutta pelimuotoa on uutinen sillä
+     * viikolla kun ne ilmestyvät, ei kuukautta myöhemmin. Sama päivä kuin
+     * valikon uutta-merkeillä (UUSI_ASTI), jotta ne katoavat yhdessä eikä
+     * toinen jää kertomaan uutuudesta jota toinen ei enää mainosta. */
+    loppuu: "2026-10-05",
+    /* Tärkein ensin. ArtistiSpotti on kokonaan uusi peli eikä sitä löydä
+     * pelaamalla biisipeliä: se on valikossa oma rivinsä. Kaverihaaste on
+     * toisena, koska sekin on uusi rivi valikossa. Biisimäärän huomaa
+     * pelaamalla, joten se on viimeisenä. */
     kohdat: [
-      "<b>Valitse useampi vuosikymmen kerralla</b> vapaassa pelissä, tai jätä vaikka 50-80-luku pois",
-      "<b>198 uutta biisiä</b>, nyt yhteensä 1 744",
-      "<b>163 biisin</b> vaikeustaso korjattu pelidatan perusteella",
+      "<b>ArtistiSpotti</b> on uusi peli samalla sivulla: arvaa päivän artisti kuudella yrityksellä, uusi artisti joka päivä",
+      "<b>Kaverihaaste</b> antaa samat biisit sinulle ja kavereillesi. Valitse kierrosten määrä, lähetä linkki ja vertailkaa pisteitä",
+      "<b>88 uutta biisiä</b> ja 56 vanhaa takaisin peliin, nyt yhteensä 1 887 arvattavaa",
     ],
   };
+
 
   // ---------- Tila ----------
   const state = {

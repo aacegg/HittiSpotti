@@ -21,7 +21,7 @@
        Ilman tätä päivitetty kuva (scripts/tee_jakokuva.js) ei näkyisi
        jaetuissa linkeissä, vaan vanha luku jäisi elämään välimuisteihin.
        Numero kulkee muiden ?v=-merkintöjen mukana julkaisussa. -->
-  <meta property="og:image" content="https://hittispotti.fi/jakokuva.jpg?v=169">
+  <meta property="og:image" content="https://hittispotti.fi/jakokuva.jpg?v=170">
   <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -32,17 +32,17 @@
        kuvakkeesta kiinni omassa välimuistissaan sitkeämmin kuin mistään
        muusta, eikä pelkkä uusi tiedostosisältö samassa osoitteessa riitä
        vaihtamaan sitä. -->
-  <link rel="icon" href="favicon.svg?v=169" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg?v=170" type="image/svg+xml">
   <!-- iOS ei tue SVG:tä kotinäytön kuvakkeena: SVG:llä se otti sivusta
        ruudunkaappauksen kuvakkeen sijaan. 180 px on iPhonen koko. -->
-  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=169">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=169">
-  <link rel="manifest" href="manifest.webmanifest?v=169">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=170">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=170">
+  <link rel="manifest" href="manifest.webmanifest?v=170">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HittiSpotti">
   <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=169">
+  <link rel="stylesheet" href="style.css?v=170">
 
   <script type="application/ld+json">
   {
@@ -510,7 +510,10 @@
       </div>
 
       <button type="button" class="btn btn-accent at-jaa" id="at-jaa">Jaa tulos</button>
-      <button type="button" class="btn at-takaisin" data-go="artisti">Takaisin ruudukkoon</button>
+      <!-- Teksti asetetaan skriptistä tilanteen mukaan, ks. piirraArtistiTulos.
+           Ei data-go="artisti": se avaa aina tämän päivän, ja nappi vei
+           tämän päivän peliin vaikka katsottiin menneen päivän tulosta. -->
+      <button type="button" class="btn at-takaisin" id="at-takaisin">Näytä arvaukset</button>
     </section>
 
     <section id="view-stats" class="view" hidden>
@@ -962,7 +965,7 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=169"></script>
+  <script src="app.js?v=170"></script>
 
   <!-- Kävijälaskenta: ei evästeitä, ei henkilötietoja, ei seurantaa yli
        sivustorajojen – siksi tämä ei vaadi suostumusikkunaa. Ladataan

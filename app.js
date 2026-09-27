@@ -343,6 +343,7 @@
     atKorttiYla: $("#at-kortti-ylä"),
     atKorttiRivit: $("#at-kortti-rivit"),
     atJaa: $("#at-jaa"),
+    atTakaisin: $("#at-takaisin"),
     views: {
       game: $("#view-game"),
       results: $("#view-results"),
@@ -1889,6 +1890,16 @@
       : `Päivän artisti oli ${artistiTila.oikea.n}.`;
     piirraArtistiVastaus(el.atRivi, artistiTila.oikea);
 
+    /* Paluunapin teksti. Nappi vie saman päivän ruudukkoon, jonka yllä on
+     * päivärivi, eli se on myös reitti muihin päiviin. Jos viidestä
+     * edellisestä päivästä on pelaamattomia, nappi sanoo sen: lisäpeli on
+     * juuri se mitä pelaaja tulossivulla etsii. Kun kaikki on pelattu, nappi
+     * kertoo mitä se oikeasti näyttää. "Takaisin ruudukkoon" ei kertonut
+     * kumpaakaan, eikä sana ruudukko sano pelaajalle mitään. */
+    const pelaamatta = artistiPaivat().some((pvm) =>
+      pvm !== artistiTila.pvm && !store.get(AVAIN.artisti.tulos(pvm), null));
+    el.atTakaisin.textContent = pelaamatta ? "Pelaa edellisiä päiviä" : "Näytä arvaukset";
+
     /* Putki näytetään nollana, jos viimeisin ratkaistu päivä ei ole tämä
      * eikä eilinen. Luku on tallessa muuttumattomana, mutta katkennutta
      * putkea ei saa näyttää elävänä. */
@@ -2350,6 +2361,8 @@
 
   el.aTulokset.addEventListener("click", () => { avaaArtistiTulos(); });
   el.atJaa.addEventListener("click", () => { jaaArtisti(); });
+  // Sama päivä jonka tulosta katsotaan, ei tämä päivä.
+  el.atTakaisin.addEventListener("click", () => { avaaArtisti(artistiTila.pvm); });
 
   function valitseArtisti(a) {
     if (!a) return;

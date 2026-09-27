@@ -147,7 +147,7 @@
    * välimuistissa tyylimuutosten yli, mutta uusi katalogi on eri osoite ja
    * tulee varmasti perille – vanha versio antaisi pelaajalle eri päivän
    * biisit kuin muille. */
-  const KATALOGI_K = 43;
+  const KATALOGI_K = 44;
 
   /* Katalogi on kahdessa osassa, ks. scripts/tee_aanet.py.
    *
@@ -222,7 +222,7 @@
      * toisena, koska sekin on uusi rivi valikossa. Biisimäärän huomaa
      * pelaamalla, joten se on viimeisenä.
      *
-     * 143 = 87 uutta biisiä katalogiin + 56 täytteistä peliin nostettua.
+     * 144 = 88 uutta biisiä katalogiin + 56 täytteistä peliin nostettua.
      * Pelaajalle ne ovat sama asia, joten luku on yksi.
      *
      * Ensimmäinen kohta alkaa sanoilla "UUSI PELI:" eivätkä muut ala
@@ -234,7 +234,7 @@
     kohdat: [
       "<b>UUSI PELI: ArtistiSpotti.</b> Arvaa päivän artisti seitsemällä yrityksellä, uusi artisti joka päivä",
       "<b>Kaverihaaste</b> antaa samat biisit sinulle ja kavereillesi. Valitse kierrosten määrä, lähetä linkki ja vertailkaa pisteitä",
-      "<b>143 uutta biisiä</b>, nyt yhteensä 1 887 arvattavaa",
+      "<b>144 uutta biisiä</b>, nyt yhteensä 1 888 arvattavaa",
     ],
   };
 

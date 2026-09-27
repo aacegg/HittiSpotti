@@ -1,0 +1,78 @@
+# Julkaisee tilastopalvelimen (palvelin/index.js) Cloudflaren Workeriksi.
+#
+# Oma tiedostonsa eikä osa julkaise.yml:ää, koska nämä ovat eri asioita:
+# julkaise.yml vie sivuston staattiset tiedostot, tämä vie Workerin jossa
+# on D1-sidonta. Yhdessä tiedostossa toisen kaatuminen estäisi toisen,
+# vaikka sivusto toimii ilman palvelinta ja palvelin ilman sivustoa.
+#
+# Liipaisin on polkurajattu: tämä ei aja jokaisella julkaisulla vaan vain
+# silloin kun palvelimen koodi on oikeasti muuttunut. Turha uudelleenjulkaisu
+# ei riko mitään, mutta se sotkisi lokin josta pitää nähdä milloin palvelin
+# viimeksi vaihtui.
+#
+# Vaatii repon asetuksissa (Settings -> Secrets and variables -> Actions)
+# samat kaksi salaisuutta kuin julkaise.yml, ja lisäksi yhden:
+#   CLOUDFLARE_API_TOKEN   malli "Edit Cloudflare Workers"
+#   CLOUDFLARE_ACCOUNT_ID
+#   CLOUDFLARE_D1_ID       tietokannan id, Cloudflare -> D1 -> hittispotti
+#
+# Miksi D1:n id on salaisuus eikä wrangler.tomlissa: repo on julkinen.
+# Id ei yksin riitä mihinkään ilman tunnusta, mutta se kertoo ulkopuoliselle
+# mitä tilillä on, eikä siitä ole mitään hyötyä kenellekään muulle.
+name: Julkaise palvelin
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "palvelin/**"
+      - ".github/workflows/palvelin.yml"
+  # Käsiajo: tällä voi uusia epäonnistuneen ajon tai julkaista palvelimen
+  # ilman että palvelimen koodiin tarvitsee koskea. Näkyy GitHubin
+  # Actions-välilehdellä vasta kun tämä tiedosto on mainissa.
+  workflow_dispatch:
+
+concurrency:
+  group: palvelin
+  cancel-in-progress: true
+
+jobs:
+  palvelin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # wrangler.tomlissa on paikanvaraaja, koska oikea id ei kuulu
+      # julkiseen repoon. Korvaus tehdään vasta ajossa, eikä muutos päädy
+      # mihinkään: ajo saa oman kertakäyttöisen kopion puusta.
+      #
+      # Tarkistus ennen korvausta on siksi, että ilman sitä wrangler
+      # yrittäisi sitoa tietokannan nimeltä "TÄYTÄ_TÄHÄN" ja virhe tulisi
+      # vasta Cloudflarelta muodossa jota ei yhdistä puuttuvaan
+      # salaisuuteen.
+      - name: Aseta tietokannan id
+        env:
+          D1_ID: ${{ secrets.CLOUDFLARE_D1_ID }}
+        run: |
+          if [ -z "$D1_ID" ]; then
+            echo "Salaisuus CLOUDFLARE_D1_ID puuttuu repon asetuksista." >&2
+            echo "Cloudflare -> Storage & Databases -> D1 -> hittispotti -> Database ID" >&2
+            exit 1
+          fi
+          python3 - <<'PY'
+          import os, pathlib
+          p = pathlib.Path("palvelin/wrangler.toml")
+          teksti = p.read_text(encoding="utf-8")
+          if "TÄYTÄ_TÄHÄN" not in teksti:
+              raise SystemExit("wrangler.tomlissa ei ole paikanvaraajaa, tarkista tiedosto")
+          p.write_text(teksti.replace("TÄYTÄ_TÄHÄN", os.environ["D1_ID"]), encoding="utf-8")
+          PY
+
+      - name: Julkaise Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: palvelin
+          wranglerVersion: "4"
+          command: deploy

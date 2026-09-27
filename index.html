@@ -21,7 +21,7 @@
        Ilman tätä päivitetty kuva (scripts/tee_jakokuva.js) ei näkyisi
        jaetuissa linkeissä, vaan vanha luku jäisi elämään välimuisteihin.
        Numero kulkee muiden ?v=-merkintöjen mukana julkaisussa. -->
-  <meta property="og:image" content="https://hittispotti.fi/jakokuva.jpg?v=167">
+  <meta property="og:image" content="https://hittispotti.fi/jakokuva.jpg?v=168">
   <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -32,17 +32,17 @@
        kuvakkeesta kiinni omassa välimuistissaan sitkeämmin kuin mistään
        muusta, eikä pelkkä uusi tiedostosisältö samassa osoitteessa riitä
        vaihtamaan sitä. -->
-  <link rel="icon" href="favicon.svg?v=167" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg?v=168" type="image/svg+xml">
   <!-- iOS ei tue SVG:tä kotinäytön kuvakkeena: SVG:llä se otti sivusta
        ruudunkaappauksen kuvakkeen sijaan. 180 px on iPhonen koko. -->
-  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=167">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=167">
-  <link rel="manifest" href="manifest.webmanifest?v=167">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=168">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=168">
+  <link rel="manifest" href="manifest.webmanifest?v=168">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HittiSpotti">
   <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=167">
+  <link rel="stylesheet" href="style.css?v=168">
 
   <script type="application/ld+json">
   {
@@ -774,16 +774,33 @@
        puhelimen omalla jakovalikolla tai kopioida niin monta kertaa kuin
        tarvitsee. -->
   <div class="sheet-scrim" id="kutsu-scrim" hidden></div>
-  <aside class="sheet sheet-keski" id="kutsu-sheet" hidden tabindex="-1"
+  <aside class="sheet sheet-keski kutsu" id="kutsu-sheet" hidden tabindex="-1"
          role="dialog" aria-modal="true" aria-labelledby="kutsu-title">
     <div class="sheet-head">
-      <h2 class="sheet-title" id="kutsu-title">Haaste luotu</h2>
+      <span class="kutsu-merkki">Kaverihaaste</span>
       <button type="button" class="iconbtn" id="kutsu-close" aria-label="Sulje">✕</button>
     </div>
-    <p class="haaste-lead">Lähetä linkki kavereille. Kaikki linkin avaajat saavat
-      samat biisit, ja pisteitä voi verrata haasteen lopussa.</p>
+    <h2 class="kutsu-otsikko" id="kutsu-title">Haaste on <em>valmis!</em></h2>
+    <p class="kutsu-tiedot" id="kutsu-tiedot"></p>
+    <p class="haaste-lead">Lähetä linkki kavereille. Kaikki saavat samat biisit,
+      ja lopuksi verrataan kokonaispisteitä.</p>
+
+    <!-- Esikatselu siitä miltä linkki näyttää kaverin chatissa: sama kuva
+         ja otsikko jotka haaste/index.html antaa chatille. Raaka osoite oli
+         lomakkeen näköinen eikä kertonut mitä on lähettämässä. -->
+    <figure class="kutsu-kortti" aria-hidden="true">
+      <img id="kutsu-kuva" alt="" width="1200" height="630">
+      <figcaption>
+        <b>Sinut on haastettu! – HittiSpotti</b>
+        <span>hittispotti.fi</span>
+      </figcaption>
+    </figure>
+    <p class="kutsu-kortti-selite">Tältä linkki näyttää kaverin chatissa.</p>
+
+    <!-- Osoite näkyy vain jos kopiointi ei onnistu: silloin se valitaan
+         tähän itse kopioitavaksi. -->
     <input class="input kutsu-linkki" id="kutsu-linkki" type="text" readonly
-           aria-label="Haasteen linkki">
+           aria-label="Haasteen linkki" hidden>
     <div class="sheet-actions">
       <button type="button" class="btn btn-accent btn-wide" id="kutsu-jaa">Jaa linkki</button>
       <button type="button" class="btn" id="kutsu-kopioi">Kopioi linkki</button>
@@ -939,7 +956,7 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=167"></script>
+  <script src="app.js?v=168"></script>
 
   <!-- Kävijälaskenta: ei evästeitä, ei henkilötietoja, ei seurantaa yli
        sivustorajojen – siksi tämä ei vaadi suostumusikkunaa. Ladataan

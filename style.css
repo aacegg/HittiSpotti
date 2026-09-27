@@ -880,6 +880,59 @@ h2.big, .big {
 .kutsu-nappi[hidden] { display: none; }
 /* Kutsulinkki näkyvissä kokonaan: pelaaja näkee mitä on lähettämässä, ja
    jos kopiointi ei onnistu, linkin voi valita kentästä itse. */
+/* Kutsuruutu. Sama ilme kuin kaverin näkemä esikatselukuva (haastekuva.jpg):
+   punainen merkki, iso otsikko ja keltainen korostus. Ruutu on kutsu eikä
+   lomake, joten raakaa osoitetta ei näytetä, vaan se miltä linkki näyttää
+   perillä. */
+.kutsu .sheet-head { align-items: center; }
+.kutsu-merkki {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--t5);
+  color: #0a0908;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.kutsu-otsikko {
+  margin: var(--s3) 0 var(--s2);
+  font-family: var(--display);
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -.03em;
+  line-height: 1.05;
+}
+.kutsu-otsikko em { font-style: normal; color: var(--t3); }
+.kutsu-tiedot {
+  margin: 0 0 var(--s3);
+  color: var(--text);
+  font-size: var(--f2);
+  font-weight: 600;
+}
+.kutsu-kortti {
+  margin: var(--s4) 0 var(--s2);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+}
+.kutsu-kortti img { display: block; width: 100%; height: auto; }
+.kutsu-kortti figcaption {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 10px 12px 12px;
+  font-size: var(--f2);
+}
+.kutsu-kortti figcaption b { color: var(--text); font-weight: 700; }
+.kutsu-kortti figcaption span { color: var(--dim); font-size: var(--f1); }
+.kutsu-kortti-selite {
+  margin: 0 0 var(--s4);
+  color: var(--dim);
+  font-size: var(--f1);
+  text-align: center;
+}
+.kutsu-linkki[hidden] { display: none; }
 .kutsu-linkki {
   width: 100%;
   margin: 0 0 var(--s4);

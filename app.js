@@ -454,6 +454,8 @@
     kutsuJaa: $("#kutsu-jaa"),
     kutsuKopioi: $("#kutsu-kopioi"),
     kutsuPelaa: $("#kutsu-pelaa"),
+    kutsuTiedot: $("#kutsu-tiedot"),
+    kutsuKuva: $("#kutsu-kuva"),
     kutsuAvaa: $("#kutsu-avaa"),
     haasteKierrokset: $("#haaste-kierrokset"),
     haasteKaudet: $("#haaste-kaudet"),
@@ -2710,8 +2712,17 @@
    * avattuna "Kutsu kavereita". */
   function avaaKutsu(uusi) {
     if (!state.haaste) return;
-    el.kutsuTitle.textContent = uusi ? "Haaste luotu" : "Kutsu kavereita";
-    el.kutsuLinkki.value = haasteOsoite(state.haaste.koodi);
+    const h = state.haaste;
+    el.kutsuTitle.innerHTML = uusi ? "Haaste on <em>valmis!</em>" : "Kutsu <em>kaverit</em>";
+    el.kutsuTiedot.textContent = [
+      `${h.kierroksia} ${h.kierroksia === 1 ? "kierros" : "kierrosta"}`,
+      `${h.kierroksia * DAILY_COUNT} biisiä`,
+      kausiNimi(h.kaudet) || "kaikki vuosikymmenet",
+    ].join(" · ");
+    el.kutsuLinkki.value = haasteOsoite(h.koodi);
+    el.kutsuLinkki.hidden = true;
+    // Kuva haetaan vasta kun ruutu avataan: se ei kuulu pelin avaukseen.
+    if (!el.kutsuKuva.getAttribute("src")) el.kutsuKuva.src = "haastekuva.jpg";
     // Jakovalikko vain jos selain tarjoaa sen (puhelimet kyllä, osa
     // työpöytäselaimista ei). Ilman sitä kopiointi on ainoa nappi.
     el.kutsuJaa.hidden = !navigator.share;
@@ -2733,8 +2744,9 @@
       await navigator.clipboard.writeText(linkki);
       toast("Linkki kopioitu. Lähetä se kavereille.");
     } catch {
-      // Leikepöytä ei käytössä: valitaan linkki kentästä, jolloin sen voi
-      // kopioida itse eikä mikään jää pelaajan arvattavaksi.
+      // Leikepöytä ei käytössä: näytetään linkki ja valitaan se, jolloin
+      // sen voi kopioida itse eikä mikään jää pelaajan arvattavaksi.
+      el.kutsuLinkki.hidden = false;
       el.kutsuLinkki.focus();
       el.kutsuLinkki.select();
       toast("Kopioi linkki kentästä.");

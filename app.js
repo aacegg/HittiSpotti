@@ -2083,13 +2083,73 @@
         role="option" aria-selected="${i === artistiValittu}"
         data-i="${i}"><span class="s-title">${escapeHtml(a.n)}</span></li>`
     ).join("");
+    // Suunta valitaan uudestaan vain listan auetessa, ks. alla.
+    if (el.aEhdotukset.hidden) artistiListanSuunta = null;
     el.aEhdotukset.hidden = false;
     artistiEhdokkaat = lista;
+    sijoitaArtistiEhdotukset();
     /* Valittu rivi näkyviin jos lista on vierittynyt. Ilman tätä
      * nuolinäppäin siirtää korostusta listan ulkopuolelle eikä mikään
-     * ruudulla muutu. */
+     * ruudulla muutu. Vain listaa vieritetään, ei sivua: scrollIntoView
+     * liikuttaisi myös taustalla olevaa sivua, sama syy kuin biisipelin
+     * scrollActiveIntoView:ssa. */
     const aktiivinen = el.aEhdotukset.querySelector(".is-active");
-    if (aktiivinen) aktiivinen.scrollIntoView({ block: "nearest" });
+    if (aktiivinen) {
+      const l = el.aEhdotukset.getBoundingClientRect();
+      const r = aktiivinen.getBoundingClientRect();
+      if (r.top < l.top) el.aEhdotukset.scrollTop -= l.top - r.top;
+      else if (r.bottom > l.bottom) el.aEhdotukset.scrollTop += r.bottom - l.bottom;
+    }
+  }
+
+  /* Artistihaun ehdotuslistan paikka ja korkeus.
+   *
+   * Lista avautui aina kentän alle ilman korkeusrajaa. Puhelimessa kenttä
+   * on ruudukon alla ja näppäimistö peittää alaosan, joten lista jatkui
+   * näkyvän alueen ohi. Absoluuttisesti sijoitettukin lista pidentää
+   * sivua, ja sivun korkeus vaihteli siksi osumien määrän mukaan:
+   * mitattuna 733 px kahdeksalla osumalla ja 578 px yhdellä. Kun sivu
+   * lyheni kesken kirjoittamisen, selain nykäisi vierityksen uuteen
+   * paikkaan, eli sivu hyppi joka merkillä. Osa ehdotuksista jäi lisäksi
+   * näppäimistön alle.
+   *
+   * Sama ratkaisu kuin biisipelin placeSuggestions: lista avautuu sille
+   * puolelle jolla on enemmän tilaa, ja sen korkeus rajataan näkyvään
+   * alueeseen. Silloin lista ei koskaan ulotu näkyvän alueen ohi, eikä
+   * sivun korkeus riipu osumien määrästä. Suunta pidetään kun lista on
+   * auki, koska näppäimistön avautuminen muuttaa tiloja kesken
+   * kirjoittamisen ja lista loikkisi muuten puolelta toiselle. */
+  let artistiListanSuunta = null, artistiListanKorkeus = 0;
+
+  function sijoitaArtistiEhdotukset() {
+    const lista = el.aEhdotukset;
+    if (lista.hidden) {
+      artistiListanSuunta = null; artistiListanKorkeus = 0;
+      lista.classList.remove("is-up"); lista.style.maxHeight = "";
+      return;
+    }
+    const vv = window.visualViewport;
+    const nakyvaYla = vv ? vv.offsetTop : 0;
+    const alaraja = nakyvaYla + (vv ? vv.height : window.innerHeight);
+    const palkki = el.bar ? el.bar.getBoundingClientRect().bottom : 0;
+    const ylaraja = Math.max(nakyvaYla, palkki);
+    // Alas avautuva lista alkaa lohkon alta (kentän ja "jäljellä"-rivin),
+    // ylös avautuva päättyy kentän yläreunaan.
+    const lohko = el.aArvaus.getBoundingClientRect();
+    const MARGIN = 8, VAHIN = 120, ENINTAAN = 360, KUOLLUT = 12;
+    const alla = alaraja - lohko.bottom - MARGIN;
+    const ylla = lohko.top - ylaraja - MARGIN;
+    let suunta = artistiListanSuunta;
+    if (suunta === null) suunta = ylla > alla ? "ylos" : "alas";
+    else if (suunta === "alas" && alla < VAHIN && ylla > alla) suunta = "ylos";
+    else if (suunta === "ylos" && ylla < VAHIN && alla > ylla) suunta = "alas";
+    artistiListanSuunta = suunta;
+    lista.classList.toggle("is-up", suunta === "ylos");
+    const uusi = Math.max(VAHIN, Math.min(Math.floor(suunta === "ylos" ? ylla : alla), ENINTAAN));
+    if (Math.abs(uusi - artistiListanKorkeus) >= KUOLLUT) {
+      artistiListanKorkeus = uusi;
+      lista.style.maxHeight = uusi + "px";
+    }
   }
 
   let artistiEhdokkaat = [];
@@ -3870,19 +3930,20 @@
     return osat.join("  ·  ");
   }
 
-  /* Haasteen jakokuvan otsikko. Vuosikymmenet kuuluvat mukaan, koska
-   * "haaste 90-luvulta" on eri kisa kuin koko katalogi, ja kuvaa katsova
-   * kaveri haluaa tietää kumpaa pelattiin. Pitkä monivalinta ("1990-,
-   * 2000- ja 2010-luku") ei mahdu koodin kanssa samalle riville, joten
-   * koodi jää silloin pois: vuosikymmenet kertovat katsojalle enemmän kuin
-   * koodi, jota ei kuvasta voi käyttää mihinkään. Fontti on sama jolla
+  /* Haasteen jakokuvan otsikko.
+   *
+   * Ei haasteen koodia: kuvasta sitä ei voi käyttää mihinkään, koska
+   * haasteeseen pääsee vain linkillä, ja katsojalle se on merkkijonoa.
+   * Vuosikymmenet kuuluvat mukaan, koska "haaste 90-luvulta" on eri kisa
+   * kuin koko katalogi. Jos pitkä monivalinta ("1950–80-, 1990- ja
+   * 2000-luku") ei mahdu riville, kierrosten määrä jää pois: kuvan rivit
+   * kertovat sen jo ("1. kierros", "2. kierros"...). Fontti on sama jolla
    * otsikko() piirtää alarivin. */
   function haasteKuvaOtsikko(g, h, tila) {
     const kierr = `${h.kierroksia} ${h.kierroksia === 1 ? "kierros" : "kierrosta"}`;
     const rajaus = kausiNimi(h.kaudet);
-    const vaihtoehdot = rajaus
-      ? [`Kaverihaaste ${h.koodi} · ${kierr} · ${rajaus}`, `Kaverihaaste · ${kierr} · ${rajaus}`]
-      : [`Kaverihaaste ${h.koodi} · ${kierr}`];
+    if (!rajaus) return `Kaverihaaste · ${kierr}`;
+    const vaihtoehdot = [`Kaverihaaste · ${kierr} · ${rajaus}`, `Kaverihaaste · ${rajaus}`];
     g.font = `400 34px ${NAYTA}`;
     return vaihtoehdot.find((t) => g.measureText(t).width <= tila)
       || vaihtoehdot[vaihtoehdot.length - 1];
@@ -4927,6 +4988,7 @@
     if (window.visualViewport) {
       window.visualViewport.addEventListener("resize", updateSearchMode);
       window.visualViewport.addEventListener("scroll", updateSearchMode);
+      window.visualViewport.addEventListener("resize", sijoitaArtistiEhdotukset);
     }
     window.addEventListener("resize", updateSearchMode);
     el.nextBtn.addEventListener("click", nextRound);

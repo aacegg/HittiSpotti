@@ -1871,8 +1871,13 @@
     const d = await haeArtisti(artistiTila.pvm);
     // Hidas vastaus ei saa kirjoittaa toisen päivän näkymän päälle.
     if (vuoro !== artistiVertailuVuoro || state.view !== "artistitulos") return;
-    const mukana = artistiTila.pvm === artistiTanaan()
-      || !!store.get(AVAIN.artisti.vertailu(artistiTila.pvm), null);
+    /* Sama periaate kuin biisipelin vertailuTeksti:ssä. Oma tulos on
+     * palvelimen luvuissa vain jos se lähetettiin (sija tallessa) ja luvut
+     * ovat sen jälkeen haetut (pelaajia vähintään sijan verran). Palvelin
+     * pitää vastausta minuutin välimuistissa, joten heti pelin jälkeen
+     * luvut voivat olla vanhemmat kuin oma tulos. */
+    const sija = (store.get(AVAIN.artisti.vertailu(artistiTila.pvm), null) || {}).sija;
+    const mukana = !!d && Number.isInteger(sija) && d.n >= sija;
     const teksti = artistiVertailuTeksti(
       d, artistiTila.arvaukset.length, artistiTila.voitto, mukana);
     e.textContent = teksti;
@@ -4640,14 +4645,27 @@
       if (sija === 1) return "Olit päivän ensimmäinen pelaaja!";
       return sija ? `Olit päivän ${sija}. pelaaja.` : "";
     }
-    const muita = d.n - 1;
-    const ka = Math.round((d.summa - omat) / muita);
+    /* Onko oma tulos palvelimen luvuissa? Palvelin tallentaa vastauksensa
+     * välimuistiin minuutiksi, joten heti pelin jälkeen haetut luvut voivat
+     * olla ajalta ennen omaa tulosta. Aiemmin oma tulos vähennettiin aina:
+     * jos sitä ei ollut luvuissa, muiden määrä jäi yhden liian pieneksi ja
+     * pelaaja joka oli kaikkia parempi näki "parempi kuin 101 %", ja
+     * keskiarvo laski liian pieneksi.
+     *
+     * Sija on palvelimen pelaajamäärä sillä hetkellä kun oma tulos
+     * kirjattiin, ja määrä vain kasvaa. Jos luvuissa on vähintään sijan
+     * verran pelaajia, oma tulos on mukana. Ilman sijaa (lähetys ei
+     * onnistunut) sitä ei ole. */
+    const mukana = Number.isInteger(sija) && d.n >= sija;
+    const muita = d.n - (mukana ? 1 : 0);
+    const ka = Math.round((d.summa - (mukana ? omat : 0)) / muita);
     /* Korit ovat 500 pisteen levyisiä, joten oman korin sisällä olevia ei
      * lasketa kummallekaan puolelle. Alaspäin pyöristäminen on rehellisempi
      * kuin puolittaminen: "parempi kuin 78 %" ei saa olla liioiteltu. */
     const omaKori = Math.min(Math.floor(omat / KORI), d.k.length - 1);
     const alle = d.k.slice(0, omaKori).reduce((a, b) => a + b, 0);
-    const osuus = Math.round((100 * alle) / muita);
+    // Raja varmuuden vuoksi: yli sadan prosentin osuus on aina virhe.
+    const osuus = Math.min(100, Math.round((100 * alle) / muita));
     /* Ei sanaa "tänään". Sarja joka aloitetaan ennen keskiyötä ja pelataan
      * loppuun sen jälkeen kuuluu edelliselle päivälle, ja silloin "tänään"
      * olisi väärin. Päivä lukee joka tapauksessa tulossivun otsikossa, joten

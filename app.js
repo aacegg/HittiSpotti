@@ -4132,7 +4132,16 @@
     }
   }
 
-  const haasteOsoite = (koodi) => `${jaettavaOsoite()}?haaste=${koodi}`;
+  /* Kutsulinkki menee haaste/-sivun kautta, joka antaa chatin
+   * esikatselulle omat tietonsa ja siirtää heti etusivulle samalla
+   * koodilla. Etusivun osoitteella esikatselu näytti etusivun otsikon, eikä
+   * vastaanottaja voinut tietää että häntä haastetaan. Ks. haaste/index.html.
+   *
+   * URL-rakentimella eikä merkkijonoja liittämällä: jaettavaOsoite voi
+   * päättyä tiedostonimeen (/index.html), jolloin liitetty polku menisi
+   * sen perään. */
+  const haasteOsoite = (koodi) =>
+    `${new URL("haaste/", jaettavaOsoite()).href}?haaste=${koodi}`;
 
   async function kopioiLinkki() {
     try {

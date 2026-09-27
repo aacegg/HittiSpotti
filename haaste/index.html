@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0a0908">
+  <title>Sinut on haastettu! – HittiSpotti</title>
+  <!-- Kaverihaasteen kutsulinkki: https://hittispotti.fi/haaste/?haaste=KOODI
+
+       MIKSI OMA SIVU
+
+       Haastelinkki oli ennen muotoa /?haaste=KOODI, eli etusivu. Chatissa
+       sen esikatselu näytti etusivun otsikon ja kuvan, eikä vastaanottaja
+       voinut tietää, että häntä haastetaan. Esikatselun rakentaa chatin
+       palvelin lukemalla sivun HTML:n, eikä se aja JavaScriptiä eikä näe
+       mitä peli tekisi koodilla. Staattisella sivustolla eri esikatselu
+       vaatii siis eri HTML-tiedoston.
+
+       Tämä sivu ei ole peli. Se antaa esikatselulle omat tietonsa ja siirtää
+       selaimen heti etusivulle samalla koodilla. Kaikki haasteen logiikka
+       pysyy app.js:ssä yhdessä paikassa, ja vanhat /?haaste=-linkit
+       toimivat yhä, koska etusivu lukee koodin kuten ennenkin.
+
+       Siirto on JavaScriptillä eikä meta refreshillä tarkoituksella: osa
+       esikatselupalvelimista seuraa meta refreshiä ja lukisi silloin
+       etusivun tiedot, eli juuri sen mitä tällä sivulla korjataan.
+
+       og:url puuttuu tarkoituksella. Se on esikatselun kanoninen osoite, ja
+       osa palveluista vie kortista painettaessa siihen eikä jaettuun
+       linkkiin. Koodi jäisi silloin matkalla pois. -->
+  <meta name="robots" content="noindex">
+  <link rel="canonical" href="https://hittispotti.fi/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="HittiSpotti">
+  <meta property="og:locale" content="fi_FI">
+  <meta property="og:title" content="Sinut on haastettu! – HittiSpotti">
+  <meta property="og:description" content="Kaveri haastoi sinut HittiSpottiin. Samat biisit teille molemmille: tunnista nopeammin ja voita.">
+  <!-- Kuva: scripts/tee_jakokuva.js. Versio kulkee muiden ?v=-merkintöjen
+       mukana samasta syystä kuin index.html:ssä. -->
+  <meta property="og:image" content="https://hittispotti.fi/haastekuva.jpg?v=153">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="HittiSpotti-kaverihaaste: Sinut on haastettu!">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" href="../favicon.svg?v=153" type="image/svg+xml">
+
+  <script>
+    /* Sivuston juuri johdetaan omasta osoitteesta eikä kirjoiteta, jotta
+       sama tiedosto toimii tuotannossa ja testisivulla. Kattaa muodot
+       /haaste/, /haaste ja /haaste/index.html. Kysely ja ankkuri kulkevat
+       sellaisenaan, eli koodi ei muutu matkalla. */
+    (function () {
+      var juuri = location.pathname.replace(/haaste\/?(index\.html)?$/, "");
+      location.replace(juuri + location.search + location.hash);
+    })();
+  </script>
+  <style>
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center;
+      background: #0a0908; color: #8a8073; font: 16px/1.5 system-ui, sans-serif; }
+    a { color: #f2ebdf; }
+  </style>
+</head>
+<body>
+  <p>Avataan haastetta… <a href="../">Avaa HittiSpotti</a></p>
+</body>
+</html>

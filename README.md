@@ -213,6 +213,8 @@ Jos jokin esikuuntelun URL vanhenee, peli hakee sen pelin aikana automaattisesti
 
 GitHub Pages käskee selainta pitämään tiedostot välimuistissa kymmenen minuuttia. Siksi `index.html` viittaa tyyleihin ja koodiin versionumerolla (`style.css?v=2`, `app.js?v=2`). **Kasvata numeroa aina kun muutat `style.css`- tai `app.js`-tiedostoa**, niin selaimet hakevat uuden version heti.
 
+Numero on kolmessa tiedostossa: `index.html`, `sw.js` (myös `VERSIO`) ja `haaste/index.html`. Viimeinen on kaverihaasteen kutsusivu, jossa numero on esikatselukuvan osoitteessa. Sen unohtaminen ei riko peliä, mutta chatit näyttävät silloin vanhaa kutsukuvaa. Kuvat `jakokuva.jpg` ja `haastekuva.jpg` piirretään uusiksi komennolla `node scripts/tee_jakokuva.js`, ja se kannattaa ajaa aina kun katalogi muuttuu, koska jakokuvassa lukee biisimäärä.
+
 ## Rakenne
 
 ```

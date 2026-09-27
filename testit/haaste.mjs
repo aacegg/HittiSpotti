@@ -95,5 +95,33 @@ vaita("vuosikymmenrajaus puree",
   ulkona.length === 0 || vajaat.length > 0,
   `${ulkona.length} rajauksen ulkopuolelta, vajaita tasoja ${vajaat.length}`);
 
+/* 8. Kutsulinkki kulkee haaste/-sivun kautta ja päätyy etusivulle samalla
+ *    koodilla. Jos tämä hajoaa, linkki joko näyttää chatissa etusivun
+ *    esikatselun (vastaanottaja ei tiedä olevansa haastettu) tai koodi
+ *    putoaa matkalla ja kaveri päätyy päivän peliin eri biiseihin. */
+const osoite = (juuri) => new Function("jaettavaOsoite",
+  pala(/  const haasteOsoite = [\s\S]*?;\n/) + "; return haasteOsoite;")(() => juuri);
+vaita("kutsulinkki haaste/-sivulle",
+  osoite("https://hittispotti.fi/")("abc-3-0") === "https://hittispotti.fi/haaste/?haaste=abc-3-0",
+  osoite("https://hittispotti.fi/")("abc-3-0"));
+vaita("kutsulinkki kun osoite päättyy tiedostoon",
+  osoite("https://hittispotti.fi/index.html")("abc-3-0") === "https://hittispotti.fi/haaste/?haaste=abc-3-0");
+
+const sivu = fs.readFileSync("haaste/index.html", "utf8");
+const ohjaus = sivu.match(/<script>([\s\S]*?)<\/script>/)[1];
+for (const polku of ["/haaste/", "/haaste", "/haaste/index.html"]) {
+  let minne = null;
+  new Function("location", ohjaus)({
+    pathname: polku, search: "?haaste=abc-3-0", hash: "",
+    replace: (u) => { minne = u; },
+  });
+  vaita(`ohjaus ${polku} säilyttää koodin`, minne === "/?haaste=abc-3-0", String(minne));
+}
+const meta = (nimi) => (sivu.match(new RegExp(`property="${nimi}" content="([^"]*)"`)) || [])[1];
+vaita("esikatselu kertoo haasteesta", /haastettu/i.test(meta("og:title") || ""), meta("og:title"));
+const kuva = (meta("og:image") || "").replace(/^https:\/\/hittispotti\.fi\//, "").replace(/\?.*$/, "");
+vaita("esikatselukuva on olemassa", !!kuva && fs.existsSync(kuva), kuva);
+vaita("ei og:url:ia joka pudottaisi koodin", !/property="og:url"/.test(sivu));
+
 console.log(ok ? "\nLÄPI" : "\nHYLÄTTY");
 process.exit(ok ? 0 : 1);

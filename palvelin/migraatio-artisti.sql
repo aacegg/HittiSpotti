@@ -1,5 +1,12 @@
--- Päivän artisti -pelin koosteet. Aja kerran olemassa olevaan kantaan:
---   npx wrangler d1 execute hittispotti --remote --file=palvelin/migraatio-artisti.sql
+-- Päivän artisti -pelin koosteet. Aja kerran olemassa olevaan kantaan.
+-- Wrangler etsii wrangler.tomlin työhakemistosta, joten komento ajetaan
+-- palvelin-hakemistossa:
+--   cd palvelin
+--   npx wrangler d1 execute hittispotti --remote --file=migraatio-artisti.sql
+--   npx wrangler deploy
+--
+-- Taulun luonti on IF NOT EXISTS, joten komennon voi ajaa uudestaan
+-- vahingossa ilman että mitään menee rikki.
 --
 -- OMA TAULU EIKÄ SARAKE paiva-TAULUUN
 --

@@ -111,6 +111,21 @@
         <button type="button" class="kchip" data-kausi="2020" aria-pressed="false" aria-label="2020-luku">2020-luku</button>
       </div>
 
+      <!-- Yksi teksti, ei nimeä ja selitettä. Rivillä luki ennen "Uusi sarja"
+           ja sen perässä "aloita sarja alusta", eli sama asia kahdesti eri
+           sanoin. Menetettävät pisteet kerrottiin myös tässä, mutta ne ovat
+           yhä varmistuksessa jonka nappi avaa, eli varoitus ei kadonnut vaan
+           siirtyi sinne missä se on ajankohtainen.
+
+           Paikka on vuosikymmennappien alla eikä vapaan pelin otsikon alla.
+           Rivi ilmestyy vasta kun vapaa sarja on käynnissä, ja sarja alkaa
+           juuri vuosikymmennapin painalluksesta valikon ollessa auki. Napin
+           yläpuolelle ilmestyessään rivi työntäisi napit alaspäin sormen
+           alta. Alapuolella ryhmä pysyy koossa ja mikään ei liiku. -->
+      <button type="button" class="navitem navitem-sub" id="free-reset" data-go="refree" hidden>
+        <span class="navitem-name">Aloita peli alusta</span>
+      </button>
+
       <button type="button" class="navitem" data-go="artisti">
         <span class="navitem-name">ArtistiSpotti<span class="uusi" data-uusi="artisti" hidden>uutta</span></span>
         <span class="navitem-note" id="nav-artisti-note">arvaa päivän artisti</span>
@@ -119,15 +134,6 @@
       <button type="button" class="navitem" data-go="haaste">
         <span class="navitem-name">Kaverihaaste<span class="uusi" data-uusi="haaste" hidden>uutta</span></span>
         <span class="navitem-note">samat biisit kaverin kanssa</span>
-      </button>
-
-      <!-- Yksi teksti, ei nimeä ja selitettä. Rivillä luki ennen "Uusi sarja"
-           ja sen perässä "aloita sarja alusta", eli sama asia kahdesti eri
-           sanoin. Menetettävät pisteet kerrottiin myös tässä, mutta ne ovat
-           yhä varmistuksessa jonka nappi avaa, eli varoitus ei kadonnut vaan
-           siirtyi sinne missä se on ajankohtainen. -->
-      <button type="button" class="navitem navitem-sub" id="free-reset" data-go="refree" hidden>
-        <span class="navitem-name">Aloita peli alusta</span>
       </button>
 
       <hr class="drawer-rule">

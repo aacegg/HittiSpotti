@@ -751,8 +751,14 @@
       if (el.tierBar.parentElement !== el.stage.parentElement) {
         el.stage.parentElement.insertBefore(el.tierBar, el.stage);
       }
-      const vapaa = el.drawer.querySelector('[data-go="free"]');
-      if (el.freeReset.parentElement !== vapaa.parentElement) vapaa.after(el.freeReset);
+      /* Paikka tarkistetaan naapurista eikä vanhemmasta. Vanhempi kertoo
+       * vain onko rivi valikossa, ei missä kohtaa: kun Kaverihaaste
+       * lisättiin HTML:ssä vuosikymmenten ja tämän rivin väliin, tarkistus
+       * meni läpi ja rivi jäi Kaverihaasteen alle, eli näytti kuuluvan
+       * siihen. Vuosikymmennappien perään eikä vapaan pelin otsikon perään,
+       * ks. perustelu index.html:ssä. */
+      const kaudet = el.drawer.querySelector("#kaudet");
+      if (el.freeReset.previousElementSibling !== kaudet) kaudet.after(el.freeReset);
     }
     if (kiskoon) piirraPisteet();
   }

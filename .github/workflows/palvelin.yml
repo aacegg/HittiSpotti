@@ -11,14 +11,19 @@
 # viimeksi vaihtui.
 #
 # Vaatii repon asetuksissa (Settings -> Secrets and variables -> Actions)
-# samat kaksi salaisuutta kuin julkaise.yml, ja lisäksi yhden:
+# tasan samat kaksi salaisuutta kuin julkaise.yml, ei yhtään uutta:
 #   CLOUDFLARE_API_TOKEN   malli "Edit Cloudflare Workers"
 #   CLOUDFLARE_ACCOUNT_ID
-#   CLOUDFLARE_D1_ID       tietokannan id, Cloudflare -> D1 -> hittispotti
 #
-# Miksi D1:n id on salaisuus eikä wrangler.tomlissa: repo on julkinen.
-# Id ei yksin riitä mihinkään ilman tunnusta, mutta se kertoo ulkopuoliselle
-# mitä tilillä on, eikä siitä ole mitään hyötyä kenellekään muulle.
+# Tietokannan id ei ole kummassakaan eikä wrangler.tomlissa, koska repo on
+# julkinen. Se haetaan ajossa Cloudflaren rajapinnasta tietokannan nimellä,
+# samalla tunnuksella jolla julkaisu joka tapauksessa tehdään. Id on siis
+# johdettavissa siitä mitä tässä jo on, eikä sitä tarvitse tallettaa
+# kolmanteen paikkaan josta se voi vanhentua.
+#
+# Jos tunnukselta puuttuu D1:n lukuoikeus, haku kaatuu ja sen voi ohittaa
+# lisäämällä salaisuuden CLOUDFLARE_D1_ID (Cloudflare -> D1 -> hittispotti
+# -> Database ID). Silloin rajapintaa ei kutsuta lainkaan.
 name: Julkaise palvelin
 
 on:
@@ -46,26 +51,54 @@ jobs:
       # julkiseen repoon. Korvaus tehdään vasta ajossa, eikä muutos päädy
       # mihinkään: ajo saa oman kertakäyttöisen kopion puusta.
       #
-      # Tarkistus ennen korvausta on siksi, että ilman sitä wrangler
-      # yrittäisi sitoa tietokannan nimeltä "TÄYTÄ_TÄHÄN" ja virhe tulisi
-      # vasta Cloudflarelta muodossa jota ei yhdistä puuttuvaan
-      # salaisuuteen.
+      # Id haetaan nimellä rajapinnasta, jotta sitä ei tarvitse tallettaa
+      # käsin mihinkään. Tietokannan nimi luetaan wrangler.tomlista eikä
+      # kirjoiteta tähän, jotta nimen vaihtuessa ei ole kahta totuutta.
+      #
+      # Id ei ole salaisuus samalla tavalla kuin tunnus, mutta se piilotetaan
+      # lokista silti: julkisen repon ajolokit näkyvät kaikille, eikä tilin
+      # sisäisiä tunnisteita ole syytä julkaista ilman hyötyä.
       - name: Aseta tietokannan id
         env:
+          TUNNUS: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          TILI: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           D1_ID: ${{ secrets.CLOUDFLARE_D1_ID }}
         run: |
-          if [ -z "$D1_ID" ]; then
-            echo "Salaisuus CLOUDFLARE_D1_ID puuttuu repon asetuksista." >&2
-            echo "Cloudflare -> Storage & Databases -> D1 -> hittispotti -> Database ID" >&2
-            exit 1
-          fi
           python3 - <<'PY'
-          import os, pathlib
-          p = pathlib.Path("palvelin/wrangler.toml")
-          teksti = p.read_text(encoding="utf-8")
+          import json, os, pathlib, re, sys, urllib.request
+
+          toml = pathlib.Path("palvelin/wrangler.toml")
+          teksti = toml.read_text(encoding="utf-8")
           if "TÄYTÄ_TÄHÄN" not in teksti:
-              raise SystemExit("wrangler.tomlissa ei ole paikanvaraajaa, tarkista tiedosto")
-          p.write_text(teksti.replace("TÄYTÄ_TÄHÄN", os.environ["D1_ID"]), encoding="utf-8")
+              sys.exit("wrangler.tomlissa ei ole paikanvaraajaa, tarkista tiedosto")
+
+          nimi = re.search(r'^database_name\s*=\s*"([^"]+)"', teksti, re.M)
+          if not nimi:
+              sys.exit("wrangler.tomlista ei löydy database_namea")
+          nimi = nimi.group(1)
+
+          tunnus = os.environ["D1_ID"].strip()
+          if not tunnus:
+              tili = os.environ["TILI"]
+              osoite = (f"https://api.cloudflare.com/client/v4/accounts/{tili}"
+                        f"/d1/database?name={nimi}")
+              pyynto = urllib.request.Request(
+                  osoite, headers={"Authorization": "Bearer " + os.environ["TUNNUS"]})
+              try:
+                  with urllib.request.urlopen(pyynto, timeout=30) as v:
+                      data = json.load(v)
+              except Exception as e:
+                  sys.exit(f"D1-haku epäonnistui ({e}). Jos tunnukselta puuttuu D1:n "
+                           f"lukuoikeus, lisää salaisuus CLOUDFLARE_D1_ID.")
+              osumat = [d for d in data.get("result") or [] if d.get("name") == nimi]
+              if len(osumat) != 1:
+                  sys.exit(f"Tietokantaa {nimi} ei löytynyt yksikäsitteisesti "
+                           f"({len(osumat)} osumaa).")
+              tunnus = osumat[0]["uuid"]
+
+          print(f"::add-mask::{tunnus}")
+          toml.write_text(teksti.replace("TÄYTÄ_TÄHÄN", tunnus), encoding="utf-8")
+          print(f"Tietokanta {nimi} sidottu.")
           PY
 
       - name: Julkaise Worker

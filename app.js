@@ -2714,11 +2714,11 @@
   function avaaHaasteRuutu() {
     haasteValinta = { kierroksia: 3, kaudet: [] };
     piirraHaasteValinnat();
-    /* Kesken oleva haaste ylimpänä. Silloin "Luo haaste" ei ole enää
-     * korostettu, jotta ruudussa on yksi pääpainike eikä kaksi. */
+    /* Kesken oleva haaste ylimpänä, painettavana korttina. Kortti on
+     * reunallinen eikä täytetty, joten "Luo haaste" saa pysyä ruudun
+     * pääpainikkeena. */
     const kesken = keskenHaaste();
     el.haasteKesken.hidden = !kesken;
-    el.haasteLuo.classList.toggle("btn-accent", !kesken);
     if (kesken) el.haasteKeskenTeksti.textContent = keskenKuvaus(kesken);
     el.haasteScrim.hidden = false;
     el.haasteSheet.hidden = false;

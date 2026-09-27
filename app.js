@@ -2532,6 +2532,11 @@
     const h = state.haaste;
     if (state.mode !== "haaste" || !h) return;
     store.set(AVAIN.biisi.haaste(h.koodi), {
+      /* valmis: haaste on pelattu loppuun. Tallennus jää silloin talteen,
+       * jotta saman linkin avaaminen näyttää lopputuloksen eikä aloita
+       * alusta. aika: siivoaHaasteet pitää tuoreimmat. */
+      valmis: !!h.valmis,
+      aika: Date.now(),
       kierros: h.kierros,
       kierrokset: h.kierrokset,
       at: state.at,
@@ -2597,9 +2602,10 @@
     }
     state.mode = "haaste";
     asetaHaasteOsoite(h.koodi);
-    store.set(AVAIN.biisi.haasteKesken, h.koodi);
+    const valmis = !!(tallennettu && tallennettu.valmis);
+    if (!valmis) store.set(AVAIN.biisi.haasteKesken, h.koodi);
     state.haaste = {
-      ...h, kierros,
+      ...h, kierros, valmis,
       /* Jokaiselta pelatulta kierrokselta pisteet ja se mitkä viidestä
        * tunnistettiin. Osumat tarvitaan lopun jakokuvaan, jossa on rivi
        * kierrosta kohti. */
@@ -2618,6 +2624,7 @@
       paataHaasteKierros();
       renderResults();
       show("results");
+      if (valmis) toast("Olet jo pelannut tämän haasteen. Tässä tuloksesi.");
       return;
     }
     show("game");
@@ -2638,27 +2645,14 @@
     persistHaaste();
   }
 
-  /* Pelatun haasteen tallennus pois. Kesken jäänyt haaste on tarpeen
-   * jatkamista varten, pelattu ei ole enää mitään: linkki toimii yhä, mutta
-   * sen avaaminen aloittaa saman sarjan alusta.
-   *
-   * Ilman tätä joka pelattu haaste jättäisi rivin selaimen tallennustilaan,
-   * eikä mikään koskaan poistaisi niitä. Sadan haasteen jälkeen siellä olisi
-   * sata riviä joita kukaan ei lue. */
-  function unohdaHaaste(koodi) {
-    if (koodi) store.remove(AVAIN.biisi.haaste(koodi));
-    if (koodi && store.get(AVAIN.biisi.haasteKesken, null) === koodi) {
-      store.remove(AVAIN.biisi.haasteKesken);
-    }
-  }
-
   /* Kesken oleva haaste: koodi, asetukset ja kierros, tai null. Loppuun
-   * pelattu haaste unohdetaan (unohdaHaaste), joten sitä ei tarjota. */
+   * pelattu haaste on merkitty valmiiksi, joten sitä ei tarjota. */
   function keskenHaaste() {
     const koodi = store.get(AVAIN.biisi.haasteKesken, null);
     const h = koodi ? lueHaaste(koodi) : null;
     if (!h) return null;
     const t = store.get(AVAIN.biisi.haaste(koodi), null);
+    if (t && t.valmis) return null;
     const kierros = t && Number.isInteger(t.kierros)
       ? Math.min(Math.max(t.kierros, 0), h.kierroksia - 1) : 0;
     return { h, kierros };
@@ -3534,8 +3528,17 @@
       collectResults();
       if (state.mode === "daily") saveDaily();
       else if (state.mode === "haaste") {
+        if (haasteViimeinen()) {
+          /* Pelattu haaste merkitään valmiiksi eikä poisteta. Poistettuna
+           * saman linkin avaaminen aloitti haasteen alusta, ja sen sai
+           * pelata uudelleen ja parantaa tulosta ennen kaverin kanssa
+           * vertaamista. */
+          state.haaste.valmis = true;
+          if (store.get(AVAIN.biisi.haasteKesken, null) === state.haaste.koodi) {
+            store.remove(AVAIN.biisi.haasteKesken);
+          }
+        }
         paataHaasteKierros();
-        if (haasteViimeinen()) unohdaHaaste(state.haaste.koodi);
       } else saveFree();
     } else {
       persistDaily();
@@ -5232,12 +5235,24 @@
    * yhtä aikaa, ja vanhin katoaa vasta kun kuudes aloitetaan. Järjestys on
    * tallennusjärjestys, jonka localStorage säilyttää. */
   const HAASTEITA_MUISTISSA = 5;
+  /* Pelattuja haasteita muistetaan enemmän: niiden tehtävä on estää saman
+   * haasteen pelaaminen uudelleen, ja linkki voi tulla vastaan viikkojen
+   * päästä samasta chatista. Viisikymmentä riviä on muutama kymmenen
+   * kilotavua. */
+  const PELATTUJA_MUISTISSA = 50;
 
   function siivoaHaasteet() {
-    const avaimet = store.keys()
-      .filter((k) => omaAvain("biisi", k) && k.startsWith("haaste:"));
-    avaimet.slice(0, Math.max(0, avaimet.length - HAASTEITA_MUISTISSA))
-      .forEach((k) => store.remove(k));
+    const rivit = store.keys()
+      .filter((k) => omaAvain("biisi", k) && k.startsWith("haaste:"))
+      .map((k) => ({ k, t: store.get(k, null) || {} }));
+    /* Järjestys aikaleimasta. Vanhoissa tallennuksissa sitä ei ole, ja ne
+     * ovat silloin vanhimpia. */
+    const vanhimmasta = (a, b) => (a.t.aika || 0) - (b.t.aika || 0);
+    const karsi = (lista, raja) => lista.sort(vanhimmasta)
+      .slice(0, Math.max(0, lista.length - raja))
+      .forEach((r) => store.remove(r.k));
+    karsi(rivit.filter((r) => !r.t.valmis), HAASTEITA_MUISTISSA);
+    karsi(rivit.filter((r) => r.t.valmis), PELATTUJA_MUISTISSA);
   }
 
   function pruneProgress() {

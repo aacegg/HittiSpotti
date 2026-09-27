@@ -193,19 +193,21 @@
    *
    * Tärkein kohta on ensimmäisenä. Tiedote silmäillään ylhäältä alas ja
    * suljetaan, eikä viimeistä riviä lue kaikki. Ensimmäisenä on siksi se
-   * jota ei löydä itse: vuosikymmenten monivalinta, koska napit näyttävät
-   * ulospäin täsmälleen samalta kuin ennenkin. Biisimäärän huomaa
-   * pelaamalla, vaikeustasot huomaa pelaamalla, tämän ei.
+   * jota ei löydä itse, ja viimeisenä se jonka huomaa pelaamalla.
    *
    * Jokainen kohta alkaa lihavoinnilla ja jatkuu tarkennuksella, jotta listan
    * voi silmäillä lihavoinnit lukemalla. Lihavointi ei silti saa määrätä
-   * lauseen rakennetta: ensimmäisestä kohdasta tuli kerran "Monta
-   * vuosikymmentä kerralla vapaassa pelissä, tai yksi kokonaan pois", joka
-   * alkoi lihavoinnilla mutta ei kertonut kenellekään mitään. Lause ensin,
-   * lihavointi sen alkuun.
+   * lauseen rakennetta: erään aiemman tiedotteen ensimmäisestä kohdasta tuli
+   * kerran "Monta vuosikymmentä kerralla vapaassa pelissä, tai yksi kokonaan
+   * pois", joka alkoi lihavoinnilla mutta ei kertonut kenellekään mitään.
+   * Lause ensin, lihavointi sen alkuun.
    *
-   * 50-80-luku on nimeltä eikä "yhden vuosikymmenen", koska se on se jota
-   * oikeasti pyydettiin, ja esimerkki opettaa ominaisuuden kerralla. */
+   * Tiedote kertoo pelaajan näkökulmasta eikä muutoslistana. Siksi ei
+   * mainita että ArtistiSpotti on "samalla sivulla" (tietenkin se on, linkki
+   * on valikossa), eikä eritellä uusia biisejä ja täytteistä peliin
+   * nostettuja: nostettu biisi on pelaajalle yhtä uusi kuin vasta lisätty,
+   * koska hän ei ole nähnyt sitä arvattavana kertaakaan. Yksi luku siis,
+   * summana. */
   const UUTTA = {
     /* Uusi tunnus, koska tiedote on kokonaan uusi. Vanhan nähneet saavat
      * tämän kerran, eikä kukaan näe sitä kahdesti. */
@@ -218,11 +220,14 @@
     /* Tärkein ensin. ArtistiSpotti on kokonaan uusi peli eikä sitä löydä
      * pelaamalla biisipeliä: se on valikossa oma rivinsä. Kaverihaaste on
      * toisena, koska sekin on uusi rivi valikossa. Biisimäärän huomaa
-     * pelaamalla, joten se on viimeisenä. */
+     * pelaamalla, joten se on viimeisenä.
+     *
+     * 143 = 87 uutta biisiä katalogiin + 56 täytteistä peliin nostettua.
+     * Pelaajalle ne ovat sama asia, joten luku on yksi. */
     kohdat: [
-      "<b>ArtistiSpotti</b> on uusi peli samalla sivulla: arvaa päivän artisti kuudella yrityksellä, uusi artisti joka päivä",
+      "<b>ArtistiSpotti</b> on uusi peli: arvaa päivän artisti kuudella yrityksellä, uusi artisti joka päivä",
       "<b>Kaverihaaste</b> antaa samat biisit sinulle ja kavereillesi. Valitse kierrosten määrä, lähetä linkki ja vertailkaa pisteitä",
-      "<b>88 uutta biisiä</b> ja 56 vanhaa takaisin peliin, nyt yhteensä 1 887 arvattavaa",
+      "<b>143 uutta biisiä</b>, nyt yhteensä 1 887 arvattavaa",
     ],
   };
 

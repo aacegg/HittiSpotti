@@ -891,8 +891,9 @@ h2.big, .big {
    jos kopiointi ei onnistu, linkin voi valita kentästä itse. */
 /* Kutsuruutu. Sama ilme kuin kaverin näkemä esikatselukuva (haastekuva.jpg):
    punainen merkki, iso otsikko ja keltainen korostus. Ruutu on kutsu eikä
-   lomake, joten raakaa osoitetta ei näytetä, vaan se miltä linkki näyttää
-   perillä. */
+   lomake, joten raakaa osoitetta ei näytetä. Esikatselu siitä miltä linkki
+   näyttää chatissa oli täällä hetken, mutta se oli turha: pelaaja tietää
+   mitä on lähettämässä. */
 .kutsu .sheet-head { align-items: center; }
 .kutsu-merkki {
   display: inline-block;
@@ -919,27 +920,6 @@ h2.big, .big {
   color: var(--text);
   font-size: var(--f2);
   font-weight: 600;
-}
-.kutsu-kortti {
-  margin: var(--s4) 0 var(--s2);
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--bg);
-}
-.kutsu-kortti img { display: block; width: 100%; height: auto; }
-.kutsu-kortti figcaption {
-  display: flex; flex-direction: column; gap: 2px;
-  padding: 10px 12px 12px;
-  font-size: var(--f2);
-}
-.kutsu-kortti figcaption b { color: var(--text); font-weight: 700; }
-.kutsu-kortti figcaption span { color: var(--dim); font-size: var(--f1); }
-.kutsu-kortti-selite {
-  margin: 0 0 var(--s4);
-  color: var(--dim);
-  font-size: var(--f1);
-  text-align: center;
 }
 .kutsu-linkki[hidden] { display: none; }
 .kutsu-linkki {

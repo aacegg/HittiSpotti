@@ -456,7 +456,6 @@
     kutsuKopioi: $("#kutsu-kopioi"),
     kutsuPelaa: $("#kutsu-pelaa"),
     kutsuTiedot: $("#kutsu-tiedot"),
-    kutsuKuva: $("#kutsu-kuva"),
     kutsuAvaa: $("#kutsu-avaa"),
     haasteKierrokset: $("#haaste-kierrokset"),
     haasteKaudet: $("#haaste-kaudet"),
@@ -2724,8 +2723,6 @@
     ].join(" · ");
     el.kutsuLinkki.value = haasteOsoite(h.koodi);
     el.kutsuLinkki.hidden = true;
-    // Kuva haetaan vasta kun ruutu avataan: se ei kuulu pelin avaukseen.
-    if (!el.kutsuKuva.getAttribute("src")) el.kutsuKuva.src = "haastekuva.jpg";
     // Jakovalikko vain jos selain tarjoaa sen (puhelimet kyllä, osa
     // työpöytäselaimista ei). Ilman sitä kopiointi on ainoa nappi.
     el.kutsuJaa.hidden = !navigator.share;

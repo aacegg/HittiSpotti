@@ -865,7 +865,16 @@ h2.big, .big {
 #mode-sub { font-size: var(--f2); color: var(--dim); }
 /* Kutsu-nappi kaverihaasteen otsikkorivillä: pieni ja hiljainen, mutta
    aina saatavilla. Pelin väri kertoo että se on painettava. */
+/* Pisteet ja Kutsu-nappi oikeassa reunassa. Ryhmä ei kutistu eikä
+   rivity, joten nappi pysyy aina samassa kohdassa. */
+.meta-oikea {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+}
 .kutsu-nappi {
+  flex: none;
   align-self: center;
   padding: 3px 10px;
   border: 1px solid var(--live);

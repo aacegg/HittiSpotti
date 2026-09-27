@@ -1890,16 +1890,6 @@
       : `Päivän artisti oli ${artistiTila.oikea.n}.`;
     piirraArtistiVastaus(el.atRivi, artistiTila.oikea);
 
-    /* Paluunapin teksti. Nappi vie saman päivän ruudukkoon, jonka yllä on
-     * päivärivi, eli se on myös reitti muihin päiviin. Jos viidestä
-     * edellisestä päivästä on pelaamattomia, nappi sanoo sen: lisäpeli on
-     * juuri se mitä pelaaja tulossivulla etsii. Kun kaikki on pelattu, nappi
-     * kertoo mitä se oikeasti näyttää. "Takaisin ruudukkoon" ei kertonut
-     * kumpaakaan, eikä sana ruudukko sano pelaajalle mitään. */
-    const pelaamatta = artistiPaivat().some((pvm) =>
-      pvm !== artistiTila.pvm && !store.get(AVAIN.artisti.tulos(pvm), null));
-    el.atTakaisin.textContent = pelaamatta ? "Pelaa edellisiä päiviä" : "Näytä arvaukset";
-
     /* Putki näytetään nollana, jos viimeisin ratkaistu päivä ei ole tämä
      * eikä eilinen. Luku on tallessa muuttumattomana, mutta katkennutta
      * putkea ei saa näyttää elävänä. */

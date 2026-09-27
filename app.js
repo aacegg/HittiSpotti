@@ -1928,6 +1928,7 @@
    * kohdasta, koska päivä on sama ja arvaukset on jo nähty. */
   async function avaaArtisti() {
     show("artisti");
+    asetaHaasteOsoite(null);
     await lataaArtistit();
     const pvm = artistiTestipaiva() || todayKey();
     if (artistiTila.pvm !== pvm) {
@@ -2343,6 +2344,33 @@
     return rounds;
   }
 
+  /* Osoiterivillä on haasteen koodi vain haasteen aikana.
+   *
+   * Koodi kirjoitettiin osoitteeseen haastetta aloitettaessa, mutta mikään
+   * ei poistanut sitä kun pelaaja siirtyi päivän peliin tai muualle.
+   * Välilehti jäi osoitteeseen ?haaste=KOODI, ja kun selain latasi sen
+   * uudelleen (Chromen avaaminen pitkän tauon jälkeen, puhelimen taustalle
+   * jääneen välilehden palautus, päivitys), peli luki koodin ja avasi
+   * haasteen vaikka pelaaja oli lopettanut sen päiviä sitten.
+   *
+   * Nyt jokainen pelimuoto asettaa osoitteen itse: haaste koodin kanssa,
+   * muut ilman. Haasteen eteneminen on tallessa koodin alla, joten koodin
+   * poistaminen osoitteesta ei hävitä mitään. Muut kyselyparametrit (kuten
+   * testisivun ?artisti=) jäävät ennalleen. */
+  function asetaHaasteOsoite(koodi) {
+    if (!history.replaceState) return;
+    const u = new URL(location.href);
+    if (koodi) {
+      if (u.searchParams.get("haaste") === koodi) return;
+      u.searchParams.set("haaste", koodi);
+    } else if (u.searchParams.has("haaste")) {
+      u.searchParams.delete("haaste");
+    } else {
+      return;
+    }
+    history.replaceState(history.state, "", u.pathname + u.search + u.hash);
+  }
+
   async function startHaaste(h) {
     const tallennettu = store.get(AVAIN.biisi.haaste(h.koodi), null);
     const kierros = tallennettu && Number.isInteger(tallennettu.kierros)
@@ -2357,6 +2385,7 @@
       return;
     }
     state.mode = "haaste";
+    asetaHaasteOsoite(h.koodi);
     state.haaste = {
       ...h, kierros,
       /* Jokaiselta pelatulta kierrokselta pisteet ja se mitkä viidestä
@@ -2482,9 +2511,6 @@
       toast("Haasteen linkki kopioitu. Lähetä se kavereille.");
     } catch {
       toast("Haaste luotu. Linkin saa tuloksista.");
-    }
-    if (history.replaceState) {
-      history.replaceState(null, "", `?haaste=${h.koodi}`);
     }
     track("haaste-luotu");
     await startHaaste(h);
@@ -2881,6 +2907,7 @@
     const key = todayKey();
     const done = store.get(AVAIN.biisi.tulos(key), null);
     state.mode = "daily";
+    asetaHaasteOsoite(null);
     state.dayKey = key;
     if (done) {
       state.results = done.results.map((r) => ({ ...r, song: state.byId.get(String(r.id)) }));
@@ -2954,6 +2981,7 @@
      * talleteta, koska satunnaisuus riittää eikä toistoa käytännössä ehdi
      * huomata yhden istunnon aikana. */
     state.mode = "free";
+    asetaHaasteOsoite(null);
     state.results = [];
     state.score = 0;
     state.rounds = TIER_CYCLE.map((t) => newRound(pickFreeSong(t)));

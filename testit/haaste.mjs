@@ -123,5 +123,25 @@ const kuva = (meta("og:image") || "").replace(/^https:\/\/hittispotti\.fi\//, ""
 vaita("esikatselukuva on olemassa", !!kuva && fs.existsSync(kuva), kuva);
 vaita("ei og:url:ia joka pudottaisi koodin", !/property="og:url"/.test(sivu));
 
+/* 9. Osoiterivin koodi seuraa pelimuotoa. Jos koodi jää osoitteeseen
+ *    haasteesta lähdettäessä, selain avaa haasteen uudelleen aina kun
+ *    välilehti ladataan uudelleen, vaikka pelaaja lopetti sen päiviä sitten. */
+const asetaOsoite = (alku, koodi) => {
+  let tulos = null;
+  const history = { state: null, replaceState: (_s, _t, u) => { tulos = u; } };
+  new Function("history", "location",
+    pala(/  function asetaHaasteOsoite\(koodi\) \{[\s\S]*?\n  \}/) + "; return asetaHaasteOsoite;"
+  )(history, { href: alku })(koodi);
+  return tulos;
+};
+vaita("haasteesta lähtiessä koodi pois osoitteesta",
+  asetaOsoite("https://hittispotti.fi/?haaste=abc-3-0", null) === "/");
+vaita("muut parametrit säilyvät",
+  asetaOsoite("https://t.dev/?haaste=abc-3-0&artisti=2026-12-24", null) === "/?artisti=2026-12-24");
+vaita("haasteeseen tultaessa koodi osoitteeseen",
+  asetaOsoite("https://hittispotti.fi/", "abc-3-0") === "/?haaste=abc-3-0");
+vaita("ilman haastetta osoitteeseen ei kosketa",
+  asetaOsoite("https://hittispotti.fi/", null) === null);
+
 console.log(ok ? "\nLÄPI" : "\nHYLÄTTY");
 process.exit(ok ? 0 : 1);

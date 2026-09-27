@@ -2415,12 +2415,17 @@ body.sheet-open { overflow: hidden; }
   flex: none; width: 16px; height: 16px;
   fill: none; stroke: var(--live); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
 }
-/* Väliotsikko jatkamisen ja uuden luonnin välissä, viivat molemmin puolin. */
-.haaste-tai {
-  display: flex; align-items: center; gap: var(--s3);
-  margin: var(--s4) 0 var(--s3); color: var(--dim); font-size: var(--f2);
+/* Uuden haasteen väliotsikko, kun kesken oleva haaste on yllä. Sama koko
+   kuin ruudun otsikkotekstillä, jotta se luetaan otsikoksi eikä linkiksi. */
+.haaste-uusi {
+  margin: var(--s5) 0 var(--s4);
+  padding-top: var(--s4);
+  border-top: 1px solid var(--line);
+  font-family: var(--display);
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text);
 }
-.haaste-tai::before, .haaste-tai::after { content: ""; flex: 1; height: 1px; background: var(--line); }
 #haaste-kierrokset { grid-template-columns: repeat(5, 1fr); }
 
 /* ArtistiSpotin ohjenappi ja ohjeruutu.

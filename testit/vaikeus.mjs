@@ -8,18 +8,29 @@
  *   satunnainen  tietää attribuutit mutta arvaa vain jonkin joka sopii
  *                tähänastisiin vihjeisiin
  *
- * Kumpikaan ei ole ihminen. Ihminen ei muista 246 artistin debyyttivuosia,
- * joten molemmat ovat parhaita tapauksia: jos nämä eivät mahdu kuuteen,
- * ihminen ei varmasti mahdu.
+ * Kumpikaan ei ole ihminen. Ihminen ei muista kaikkien artistien
+ * debyyttivuosia, joten molemmat ovat parhaita tapauksia: jos nämä eivät
+ * mahdu arvausten määrään, ihminen ei varmasti mahdu.
+ *
+ * Toiseen suuntaan tämä ei todista mitään, ja se on syytä muistaa ennen
+ * kuin tämän luvun perusteella kiristää peliä. Kuuden arvauksen pelissä
+ * malli ratkaisi 99-100 %, oikeat pelit noin 40 %. Ero ei ole mallin
+ * virhe vaan sen rajoitus: malli mittaa paljonko tietoa vihjeissä on,
+ * ihmisen pullonkaula on muistaa se nimi johon tieto osoittaa. Siksi
+ * arvausten määrä on seitsemän vaikka tämä sanoo kuuden riittävän.
  */
 import fs from "node:fs";
 const src = fs.readFileSync("app.js", "utf8");
 const pala = (h) => { const m = src.match(h); if (!m) throw new Error("ei löytynyt " + h); return m[0]; };
 const koodi = `
   ${pala(/const ARTISTI_KENTAT = \[[\s\S]*?\n  \];/)}
+  ${pala(/const ARTISTI_ARVAUKSIA = \d+;/)}
   ${pala(/function artistiVertaa\(arvaus, oikea\) \{[\s\S]*?\n  \}/)}
-  return artistiVertaa;`;
-const artistiVertaa = new Function(koodi)();
+  return { artistiVertaa, ARTISTI_ARVAUKSIA };`;
+/* Arvausten määrä luetaan pelistä eikä kirjoiteta tähän: luku on
+ * muuttunut kerran, ja tänne kopioituna testi kertoisi sen jälkeen
+ * ratkaisuprosentin väärälle pelille. */
+const { artistiVertaa, ARTISTI_ARVAUKSIA } = new Function(koodi)();
 const kaikki = JSON.parse(fs.readFileSync("artistit.json", "utf8"));
 
 /* Palaute yhtenä merkkijonona, jotta samanlaiset palautteet niputtuvat.
@@ -78,7 +89,8 @@ for (const tapa of ["taydellinen", "satunnainen"]) {
       summa += Math.min(k, 20); n++;
     }
   }
-  const alle6 = [...jakauma].filter(([k]) => k <= 6).reduce((a, [, v]) => a + v, 0);
+  const ratkesi = [...jakauma].filter(([k]) => k <= ARTISTI_ARVAUKSIA)
+    .reduce((a, [, v]) => a + v, 0);
   console.log(`\n== ${tapa} pelaaja (${n} peliä) ==`);
   const avaimet = [...jakauma.keys()].sort((a, b) => a - b);
   for (const k of avaimet) {
@@ -86,6 +98,6 @@ for (const tapa of ["taydellinen", "satunnainen"]) {
     console.log(`  ${k === 99 ? "yli 20" : k} arvausta: ${osuus.toFixed(1).padStart(5)} % `
       + "#".repeat(Math.round(osuus / 2)));
   }
-  console.log(`  ratkesi kuudella: ${(100 * alle6 / n).toFixed(1)} %`);
+  console.log(`  ratkesi ${ARTISTI_ARVAUKSIA} arvauksella: ${(100 * ratkesi / n).toFixed(1)} %`);
   console.log(`  keskimäärin ${(summa / n).toFixed(2)} arvausta`);
 }

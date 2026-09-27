@@ -301,10 +301,10 @@ artistijoukkoa ei johdeta biisikatalogista. Tämä on kirjattu tähän
 siksi, että se on jouduttu sanomaan kolmesti.
 
 Seuraus, joka on helppo unohtaa: **artistipelissä ei ole pisteitä
-lainkaan.** Tulos on se monellako arvauksella artisti ratkesi, 1-6 tai
+lainkaan.** Tulos on se monellako arvauksella artisti ratkesi, 1-7 tai
 ei lainkaan. Pisteytys olisi lainaa biisipelistä eikä toisi mitään.
 
-**Ulkoasu.** Ruudukko on viisi saraketta kuusi riviä, sarakeotsikot
+**Ulkoasu.** Ruudukko on viisi saraketta seitsemän riviä, sarakeotsikot
 yllä ja väriselite alla. Selite on siksi, että keltainen ei kerro
 itsestään mitään: pelaaja näkee värin muttei tiedä tarkoittaako se
 lähellä vai väärin. Ruutu on matala suorakaide eikä neliö, jotta koko
@@ -312,8 +312,8 @@ peli mahtuu puhelimen ruudulle kerralla.
 
 Spotle.io tekee saman toisin: yksi arvaus kerrallaan, kuusi isoa korttia
 kahdella rivillä, otsikko jokaisessa kortissa. Se on selkeä yhdelle
-arvaukselle mutta vaatii vierittämistä kuudelle, ja sarakeotsikko
-kuudesti toistettuna olisi kohinaa. Selite ja korttien pyöreys ovat
+arvaukselle mutta vaatii vierittämistä seitsemälle, ja sarakeotsikko
+seitsemästi toistettuna olisi kohinaa. Selite ja korttien pyöreys ovat
 sieltä lainattuja, asettelu ei.
 
 **Keltainen tarkoittaa osittaista osumaa, myös muissa kuin
@@ -340,9 +340,11 @@ iskelmä harkittiin ja hylättiin: iskelmäkorissa ovat Olavi Virta,
 Annikki Tähti ja Reijo Taipale, eikä keltainen popin kohdalla osoittaisi
 pelaajaa oikeaan vaan väärään suuntaan.
 
-Muutoksen jälkeen keltaisia on kuuden arvauksen pelissä keskimäärin 2,8
-aiemman 1,7 sijaan, ja ilman yhtään keltaista jää 12 % peleistä aiemman
-21 %:n sijaan. Vertailu on testattu, ks. `testit/artistivertailu.mjs`.
+Muutoksen jälkeen keltaisia on pelissä keskimäärin 2,8 aiemman 1,7
+sijaan, ja ilman yhtään keltaista jää 12 % peleistä aiemman 21 %:n
+sijaan. Luvut ovat ajalta jolloin arvauksia oli kuusi; seitsemäs arvaus
+nostaa niitä hieman eikä muuta johtopäätöstä. Vertailu on testattu, ks.
+`testit/artistivertailu.mjs`.
 
 **Attribuuttien mitattu teho.** Kuinka suuri osa artisteista sopii yhä
 vastaukseksi sen jälkeen kun yksi satunnainen arvaus on annettu ja
@@ -401,7 +403,7 @@ skenen tekijöille mutta silti arvaus. Jos joku niistä osoittautuu
 vääräksi, korjaus on yksi rivi `scripts/kotipaikat-lista.txt`:ään ja
 `kayta_lista.py`-ajo.
 
-Keltaisia on nyt kuuden arvauksen pelissä keskimäärin 3,3, ja ilman
+Keltaisia on nyt keskimäärin 3,3 arvausta kohti laskettuna, ja ilman
 yhtään keltaista jää 7 % peleistä. Lähtötilanne oli 1,7 ja 21 %.
 
 **Säännöt ovat pelin omassa näkymässä.** Otsikon oikeassa reunassa on
@@ -493,14 +495,32 @@ tarkoitettu saman päivän kisailuun, joten sillä ei ole väliä.
 joskus saada rajattoman version omaan osoitteeseensa. Päivän peli
 pysyisi silloin täällä pelimuotona ja unlimited olisi erillinen.
 
-**Kuusi arvausta riittää, mitattuna.** `testit/vaikeus.mjs` pelaa
-jokaisen 246 päivän läpi kahdella pelaajamallilla, jotka lukevat
-vertailun app.js:stä:
+**Arvauksia on seitsemän, ja simulaatio oli siitä eri mieltä.**
+`testit/vaikeus.mjs` pelaa jokaisen päivän läpi kahdella
+pelaajamallilla, jotka lukevat vertailun app.js:stä:
 
 | pelaaja | ratkesi kuudella | keskimäärin |
 |---|---|---|
-| täydellinen (minimoi pahimman jäännösjoukon) | 100 % | 3,0 |
-| satunnainen (arvaa jonkin vihjeisiin sopivan) | 99,0 % | 3,4 |
+| täydellinen (minimoi pahimman jäännösjoukon) | 100 % | 2,9 |
+| satunnainen (arvaa jonkin vihjeisiin sopivan) | 99,4 % | 3,3 |
+
+Näiden perusteella kuusi arvausta oli reilusti riittävä. Oikeat pelit
+kertoivat muuta: noin 40 % ratkesi. Ero ei ole mittausvirhe vaan
+mittarin rajoitus, ja se on hyvä muistaa ennen kuin näitä lukuja käyttää
+uudestaan johonkin päätökseen. Malli mittaa **kuinka paljon tietoa
+vihjeissä on**, ja tietoa on yllin kyllin. Ihmisen pullonkaula on
+**muistaa se nimi johon tieto osoittaa**: jäljellä on kolme 1990-luvulla
+debytoinutta tamperelaista rap-artistia, ja pelaaja keksii niistä
+kaksi. Malli ei koskaan ole siinä tilanteessa, koska se tietää kaikkien
+255 artistin tiedot ulkoa.
+
+Siksi arvausten määrä nostettiin seitsemään vaikka simulaatio sanoi
+kuuden riittävän. Seitsemäs arvaus ei anna lisää tietoa, se antaa yhden
+nimen lisää: juuri sen mitä ihmiseltä loppuu kesken. Vastaavasti
+simulaation luku on nyt 99,9 % eikä 99,4 %, mikä kertoo muutoksesta
+tasan sen verran kuin malli siitä pystyy kertomaan, eli ei juuri
+mitään. Yksi päivän peli päivässä tarkoittaa myös ettei pelaaja voi
+harjoitella itseään paremmaksi kovin nopeasti.
 
 Luvut ovat paremmat kuin aiemmin tähän kirjatut (100 % / 3,7 ja 84 % /
 4,6), ja ero on mittausvirhe eikä pelin muutos. Palautteen avain
@@ -514,16 +534,16 @@ Sama virhe kosketti kotipaikkavertailua: suuralueen vaihto maakuntaan
 ei maksanut kuutta prosenttiyksikköä, vaan mittari vain kadotti osan
 tiedosta. Ymmärrettävyyden perustelu pätee yhä, hinta oli pienempi.
 
-Täydellinen pelaaja ei tarvitse kertaakaan yli kuutta arvausta, eli
-yhtään mahdotonta päivää ei ole. Kumpikaan malli ei ole ihminen:
-molemmat tietävät kaikkien 246 artistin debyyttivuodet ja
-jäsenmäärät, joten ne ovat parhaita tapauksia.
+Täydellinen pelaaja ei tarvitse kertaakaan yli viittä arvausta, eli
+yhtään mahdotonta päivää ei ole: jos artistia ei löydä, syy on muistissa
+eikä vihjeissä.
 
 **Rivin ensimmäinen ruutu on arvattu artisti.** Kuva ja nimi, nimi
 pisteisiin katkaistuna jos se ei mahdu. Malli on Spotle, jossa sama
 ruutu on rivin alussa: kuvasta tunnistaa artistin silloinkin kun
 nimestä näkyy "Sir Elwo...". Ruutu korvasi nimirivin ruudukon
-yläpuolella, joten pystysuuntaa säästyi kuuden arvauksen verran.
+yläpuolella, joten pystysuuntaa säästyi yhden rivin verran jokaiselta
+arvaukselta.
 
 Ruutu on myös vertailtava sarake: vihreä on oikea artisti, harmaa ei
 ole. Tämä on se sarake joka estää kaiken vihreän väärällä arvauksella:
@@ -687,8 +707,8 @@ ne olisi juuri arvattu. `prefers-reduced-motion` ottaa liikkeen pois.
 - **Genre on yksi per artisti eikä osittaista osumaa ole**, eli vihreä
   tai punainen. Spotlessa artistilla on useita genrejä ja yhteinen genre
   antaa keltaisen. Seuraus: väärä arvaus kertoo genrestä vähemmän, joten
-  muut attribuutit kantavat enemmän. Kannattaa testata riittääkö kuusi
-  arvausta kun peli on pystyssä.
+  muut attribuutit kantavat enemmän. Testattu kun peli oli pystyssä,
+  ks. arvausten määrä alempana.
 
 **Datan tila:** ks. `scripts/hae_artistit.py` ja `.artistit.json`.
 206/206 löytyy MusicBrainzista, debyyttivuosi 201:lle, tyyppi 205:lle

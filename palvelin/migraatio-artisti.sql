@@ -40,13 +40,14 @@ CREATE TABLE IF NOT EXISTS paiva_artisti (
   -- lue-muokkaa-kirjoita. Sama tapa kuin paiva-taulun k0..k12.
   --
   -- Keskiarvoa varten ei tarvita omaa summa-saraketta: arvausten summa on
-  -- 1*g1 + 2*g2 + ... + 6*g6, joten se lasketaan koreista. Biisipelissä
+  -- 1*g1 + 2*g2 + ... + 7*g7, joten se lasketaan koreista. Biisipelissä
   -- summa tarvitaan, koska pisteet eivät ole johdettavissa koreista.
   g1  INTEGER NOT NULL DEFAULT 0,   -- ratkesi ensimmäisellä arvauksella
   g2  INTEGER NOT NULL DEFAULT 0,
   g3  INTEGER NOT NULL DEFAULT 0,
   g4  INTEGER NOT NULL DEFAULT 0,
   g5  INTEGER NOT NULL DEFAULT 0,
-  g6  INTEGER NOT NULL DEFAULT 0,   -- ratkesi vasta viimeisellä
-  epa INTEGER NOT NULL DEFAULT 0    -- ei ratkennut kuudella arvauksella
+  g6  INTEGER NOT NULL DEFAULT 0,
+  g7  INTEGER NOT NULL DEFAULT 0,   -- ratkesi vasta viimeisellä
+  epa INTEGER NOT NULL DEFAULT 0    -- ei ratkennut lainkaan
 );

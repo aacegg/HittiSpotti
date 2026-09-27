@@ -225,7 +225,7 @@
      * 143 = 87 uutta biisiä katalogiin + 56 täytteistä peliin nostettua.
      * Pelaajalle ne ovat sama asia, joten luku on yksi. */
     kohdat: [
-      "<b>ArtistiSpotti</b> on uusi peli: arvaa päivän artisti kuudella yrityksellä, uusi artisti joka päivä",
+      "<b>ArtistiSpotti</b> on uusi peli: arvaa päivän artisti seitsemällä yrityksellä, uusi artisti joka päivä",
       "<b>Kaverihaaste</b> antaa samat biisit sinulle ja kavereillesi. Valitse kierrosten määrä, lähetä linkki ja vertailkaa pisteitä",
       "<b>143 uutta biisiä</b>, nyt yhteensä 1 887 arvattavaa",
     ],
@@ -1221,10 +1221,24 @@
     return artistiPakka(Math.floor(day / n))[((day % n) + n) % n];
   }
 
-  /* Arvauksia päivässä. Wordlessa kuusi, ja sama luku toimii tässä:
-   * viidellä attribuutilla kuusi arvausta riittää päättelyyn mutta ei
-   * tee siitä varmaa. */
-  const ARTISTI_ARVAUKSIA = 6;
+  /* Arvauksia päivässä.
+   *
+   * Oli kuusi, Wordlen mukaan. Simulaatio (testit/vaikeus.mjs) sanoi
+   * kuuden riittävän hyvin: täydellinen pelaaja ratkaisee 100 % ja
+   * vihjeitä seuraava satunnainenkin 99,4 %. Oikeat pelit kertoivat
+   * muuta, noin 40 % ratkesi.
+   *
+   * Ristiriita ei ole simulaation virhe vaan sen rajoitus. Malli tietää
+   * jokaisen artistin genren, jäsenmäärän, kotipaikan ja debyyttivuoden
+   * ulkoa, joten sille jäljellä oleva joukko on aina täsmällinen lista.
+   * Ihminen tietää vihjeistä yhtä paljon mutta ei muista kaikkia 255
+   * artistia, joten hänen pullonkaulansa on mieleen palauttaminen eikä
+   * päättely. Siihen seitsemäs arvaus auttaa ja simulaatiossa se ei
+   * näy: mallille se on turha rivi, ihmiselle yksi nimi lisää.
+   *
+   * Seitsemän on siis tahallaan eri luku kuin Wordlessa, koska tässä
+   * arvausavaruus on nimilista eikä viisikirjaimiset sanat. */
+  const ARTISTI_ARVAUKSIA = 7;
 
   /* Numeroattribuutin "lähellä" -raja. Jäsenmäärässä yksi ja
    * debyyttivuodessa viisi: molemmat ovat sen verran lähellä, että
@@ -1659,7 +1673,12 @@
       putki: 0,        // peräkkäisiä ratkaistuja päiviä
       pisin: 0,
       viimeisin: "",   // viimeisin RATKAISTU päivä, putken jatkoa varten
-      jakauma: [0, 0, 0, 0, 0, 0],
+      /* Pituus vakiosta eikä käsin kirjoitettuna: arvausten määrä on
+       * muuttunut kerran (kuudesta seitsemään), ja käsin kirjoitettu
+       * taulukko jäisi siinä vanhaan mittaan. Vanhat tallenteet eivät
+       * silti kaadu, koska artistiTilastot rakentaa jakauman aina
+       * oikean mittaisena. */
+      jakauma: Array(ARTISTI_ARVAUKSIA).fill(0),
     };
   }
 
@@ -1764,8 +1783,8 @@
     const ratkaisi = korit.reduce((a, b) => a + b, 0);
     if (!ratkaisi) return "Kukaan muu ei ratkaissut artistia.";
     /* Keskiarvo lasketaan vain ratkaisseista. Ratkaisemattomalle ei ole
-     * arvausmäärää jonka voisi laskea mukaan: hän käytti kuusi mutta ei
-     * osunut, eikä se ole sama asia kuin kuudella osunut. */
+     * arvausmäärää jonka voisi laskea mukaan: hän käytti kaikki mutta ei
+     * osunut, eikä se ole sama asia kuin viimeisellä osunut. */
     const ka = (korit.reduce((a, b, i) => a + b * (i + 1), 0) / ratkaisi)
       .toFixed(1).replace(".", ",");
     return `Muut arvasivat keskimäärin ${ka} arvauksella.`;
@@ -1992,14 +2011,14 @@
    *
    * "Ratkesi 3 arvauksella" on numeron ja sanan sekamuoto joka lukee
    * tönkösti. Järjestysluku sanana on se miten ihminen sanoisi asian
-   * ääneen, ja kuusi vaihtoehtoa mahtuu taulukkoon.
+   * ääneen, ja seitsemän vaihtoehtoa mahtuu taulukkoon.
    *
    * Verbi on "ratketa" eikä "löytää": löytäminen on esineen etsimistä,
    * arvauspeli ratkeaa. Samasta syystä häviörivi on "Arvaukset
    * loppuivat kesken" eikä "Et löytänyt sitä": molemmat puhuvat
    * pelistä eivätkä pelaajan suorituksesta. */
   const ARTISTI_JARJESTYS = ["", "ensimmäisellä", "toisella", "kolmannella",
-    "neljännellä", "viidennellä", "kuudennella"];
+    "neljännellä", "viidennellä", "kuudennella", "seitsemännellä"];
 
   /* Artistin kuvan osoite, tai tyhjä jos kuvaa ei ole.
    *

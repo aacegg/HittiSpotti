@@ -57,11 +57,11 @@ function paivaKelpaa(k) {
   return Number.isFinite(ero) && ero < 2 * 86400 * 1000;
 }
 
-/* Päivän artistin tulos. Arvauksia 1-6 jos ratkesi, 0 jos ei ratkennut.
+/* Päivän artistin tulos. Arvauksia 1-7 jos ratkesi, 0 jos ei ratkennut.
  * Sama kahden vuorokauden haarukka kuin biisipelissä ja samasta syystä:
  * se kattaa kaikki aikavyöhykkeet mutta estää rivien kylvämisen
  * mielivaltaisille päiville. */
-const ARVAUKSIA_MAX = 6;
+const ARVAUKSIA_MAX = 7;
 
 function artistiKelpaa(k) {
   if (!k || !Number.isInteger(k.arvauksia)) return false;
@@ -312,10 +312,11 @@ export default {
       if (!artistiKelpaa(k)) return vastaus('{"virhe":"kelpaamaton tulos"}', 400, origin);
 
       /* Sarakkeen nimi rakennetaan vasta tarkistuksen jälkeen ja vain
-       * luvusta joka on todistetusti 0..6, joten SQL:ään ei pääse mitään
+       * luvusta joka on todistetusti 0..ARVAUKSIA_MAX, joten SQL:ään ei
+       * pääse mitään
        * pelaajan syöttämää. */
       const sarake = k.arvauksia === 0 ? "epa" : "g" + k.arvauksia;
-      const SARAKKEET = "n, g1,g2,g3,g4,g5,g6, epa";
+      const SARAKKEET = "n, g1,g2,g3,g4,g5,g6,g7, epa";
       const UPSERT = `
         INSERT INTO paiva_artisti (paiva, n, ${sarake}) VALUES (?1, 1, 1)
         ON CONFLICT(paiva) DO UPDATE SET
@@ -342,7 +343,7 @@ export default {
         ok: true,
         sija: rivi.n,
         n: rivi.n,
-        g: Array.from({ length: 6 }, (_, i) => rivi["g" + (i + 1)]),
+        g: Array.from({ length: ARVAUKSIA_MAX }, (_, i) => rivi["g" + (i + 1)]),
         epa: rivi.epa,
       }), 200, origin);
     }
@@ -365,13 +366,13 @@ export default {
       if (osuma) return osuma;
 
       const rivi = await env.DB.prepare(
-        `SELECT n, g1,g2,g3,g4,g5,g6, epa FROM paiva_artisti WHERE paiva = ?1`
+        `SELECT n, g1,g2,g3,g4,g5,g6,g7, epa FROM paiva_artisti WHERE paiva = ?1`
       ).bind(p).first();
 
       const ulos = rivi
-        ? { n: rivi.n, g: Array.from({ length: 6 }, (_, i) => rivi["g" + (i + 1)]),
+        ? { n: rivi.n, g: Array.from({ length: ARVAUKSIA_MAX }, (_, i) => rivi["g" + (i + 1)]),
             epa: rivi.epa }
-        : { n: 0, g: Array(6).fill(0), epa: 0 };
+        : { n: 0, g: Array(ARVAUKSIA_MAX).fill(0), epa: 0 };
 
       const vast = vastaus(JSON.stringify(ulos), 200, origin);
       // Minuutti, samasta syystä kuin /paiva: kuluvan päivän luku kasvaa

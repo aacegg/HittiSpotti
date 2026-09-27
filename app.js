@@ -223,9 +223,16 @@
      * pelaamalla, joten se on viimeisenä.
      *
      * 143 = 87 uutta biisiä katalogiin + 56 täytteistä peliin nostettua.
-     * Pelaajalle ne ovat sama asia, joten luku on yksi. */
+     * Pelaajalle ne ovat sama asia, joten luku on yksi.
+     *
+     * Ensimmäinen kohta alkaa sanoilla "UUSI PELI:" eivätkä muut ala
+     * millään vastaavalla, ja se on tahallista. Pelkkä nimi lihavoituna
+     * ei kerro silmäilijälle mitään, koska "ArtistiSpotti" voisi yhtä
+     * hyvin olla muutos johonkin vanhaan. Jos jokainen kohta alkaisi
+     * samalla tavalla korostettuna, mikään ei enää erottuisi: korostus
+     * toimii vain niin kauan kuin sitä on yksi. */
     kohdat: [
-      "<b>ArtistiSpotti</b> on uusi peli: arvaa päivän artisti seitsemällä yrityksellä, uusi artisti joka päivä",
+      "<b>UUSI PELI: ArtistiSpotti.</b> Arvaa päivän artisti seitsemällä yrityksellä, uusi artisti joka päivä",
       "<b>Kaverihaaste</b> antaa samat biisit sinulle ja kavereillesi. Valitse kierrosten määrä, lähetä linkki ja vertailkaa pisteitä",
       "<b>143 uutta biisiä</b>, nyt yhteensä 1 887 arvattavaa",
     ],

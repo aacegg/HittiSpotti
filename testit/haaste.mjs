@@ -143,5 +143,19 @@ vaita("haasteeseen tultaessa koodi osoitteeseen",
 vaita("ilman haastetta osoitteeseen ei kosketa",
   asetaOsoite("https://hittispotti.fi/", null) === null);
 
+/* 10. Haasteen vuosikymmenet näytetään haasteen omista valinnoista, ei
+ *     vapaan pelin valinnasta. Aiemmin otsikko luki vapaan pelin valinnan:
+ *     90-luvun haaste näytti "2020-luku", jos vapaassa pelissä oli se. */
+const nimet = new Function(`
+  const state = { kaudet: ["2020"] };
+  ${pala(/  const KAUDET = \[[\s\S]*?\n  \];/)}
+  ${pala(/  KAUDET\.forEach\(\(k\) => \{ k\.nimi = [^\n]*/)}
+  ${pala(/  function valitutKaudet\([\s\S]*?\n  \}/)}
+  ${pala(/  function kausiNimi\([\s\S]*?\n  \}/)}
+  return kausiNimi;`)();
+vaita("haasteen vuosikymmen omasta valinnasta", nimet(["1990"]) === "1990-luku", nimet(["1990"]));
+vaita("vapaan pelin valinta ei vuoda haasteeseen", nimet([]) === "", nimet([]));
+vaita("ilman parametria vapaan pelin valinta", nimet() === "2020-luku", nimet());
+
 console.log(ok ? "\nLÄPI" : "\nHYLÄTTY");
 process.exit(ok ? 0 : 1);

@@ -44,9 +44,14 @@
    * näyttäisi otsikkona "1950–80-, 1990-, 2000-, 2010- ja 2020-luku"
    * silloin kun tarkoitus on "kaikki". Näin viimeisen napin painaminen
    * palaa siististi lähtötilaan. */
-  function valitutKaudet() {
-    if (!state.kaudet.length || state.kaudet.length === KAUDET.length) return [];
-    return KAUDET.filter((k) => state.kaudet.includes(k.avain));
+  /* Oletuksena vapaan pelin valinta. Kaverihaasteella on omat
+   * vuosikymmenensä (state.haaste.kaudet), ja ne annetaan parametrina:
+   * aiemmin haasteen otsikko luki vapaan pelin valinnan, eli haaste
+   * näytti "90-luku" vaikka se oli koko katalogista, ja haasteen omat
+   * vuosikymmenet eivät näkyneet missään. */
+  function valitutKaudet(kaudet = state.kaudet) {
+    if (!kaudet.length || kaudet.length === KAUDET.length) return [];
+    return KAUDET.filter((k) => kaudet.includes(k.avain));
   }
 
   /* Rajauksen nimi otsikoihin, tuloksiin ja jakotekstiin. Tyhjä merkkijono
@@ -55,8 +60,8 @@
    *
    * Neljä viidestä sanotaan poissulkevasti. Se on lyhyempi kuin luettelo,
    * ja ennen kaikkea se on se mitä pelaaja teki: hän jätti yhden pois. */
-  function kausiNimi() {
-    const valitut = valitutKaudet();
+  function kausiNimi(kaudet = state.kaudet) {
+    const valitut = valitutKaudet(kaudet);
     if (!valitut.length) return "";
     if (valitut.length === 1) return valitut[0].nimi;
     const poissa = KAUDET.filter((k) => !valitut.includes(k));
@@ -3174,7 +3179,7 @@
     el.modeSub.textContent = state.mode === "daily"
       ? dateLine(keyToDate(state.dayKey || todayKey()))
       : state.mode === "haaste" && h
-        ? `kierros ${h.kierros + 1}/${h.kierroksia}${rajaus ? " · " + rajaus : ""}`
+        ? `kierros ${h.kierros + 1}/${h.kierroksia}${kausiNimi(h.kaudet) ? " · " + kausiNimi(h.kaudet) : ""}`
       : rajaus ? "vapaa peli" : "";
     el.scoreLabel.textContent = `${fmt(state.score)} p`;
     // Koko sivun elävä väri on soivan biisin vaikeustaso.
@@ -3650,6 +3655,11 @@
     if (state.mode === "daily") {
       lines.push(`🎵 HittiSpotti · ${todayPretty()}`);
       lines.push(`${fmt(state.score)} / ${fmt(POINTS[0] * DAILY_COUNT)} pistettä`);
+    } else if (state.mode === "haaste" && state.haaste) {
+      const h = state.haaste;
+      const rajaus = kausiNimi(h.kaudet);
+      lines.push(`🎵 HittiSpotti · kaverihaaste${rajaus ? " · " + rajaus.toLowerCase() : ""}`);
+      lines.push(`${fmt(state.score)} pistettä, kierros ${h.kierros + 1}/${h.kierroksia}`);
     } else {
       const rajaus = kausiNimi();
       lines.push(`🎵 HittiSpotti · ${rajaus ? rajaus.toLowerCase() : "vapaa sarja"}`);
@@ -3657,7 +3667,11 @@
     }
     lines.push("");
     state.results.forEach((r) => lines.push(`${squares(r)} ${r.solved ? fmt(r.points) : "0"}`));
-    if (location.protocol.startsWith("http")) {
+    if (state.mode === "haaste" && state.haaste) {
+      // Haasteessa linkki on kutsu samaan sarjaan, ei etusivu.
+      lines.push("");
+      lines.push(haasteOsoite(state.haaste.koodi));
+    } else if (location.protocol.startsWith("http")) {
       lines.push("");
       lines.push(location.origin + location.pathname);
     }
@@ -3676,6 +3690,7 @@
     el.resultsTitle.textContent = daily
       ? `Päivän biisit, ${dateLine(keyToDate(state.dayKey || todayKey()))}`
       : haaste ? `Kaverihaaste, kierros ${haaste.kierros + 1}/${haaste.kierroksia}`
+          + (kausiNimi(haaste.kaudet) ? ` · ${kausiNimi(haaste.kaudet)}` : "")
       : kausiNimi() || "Vapaa peli";
     el.resultsScore.textContent = fmt(state.score);
     const yhteenveto = resultSummary(solved, daily ? DAILY_COUNT : state.results.length);
@@ -3855,6 +3870,24 @@
     return osat.join("  ·  ");
   }
 
+  /* Haasteen jakokuvan otsikko. Vuosikymmenet kuuluvat mukaan, koska
+   * "haaste 90-luvulta" on eri kisa kuin koko katalogi, ja kuvaa katsova
+   * kaveri haluaa tietää kumpaa pelattiin. Pitkä monivalinta ("1990-,
+   * 2000- ja 2010-luku") ei mahdu koodin kanssa samalle riville, joten
+   * koodi jää silloin pois: vuosikymmenet kertovat katsojalle enemmän kuin
+   * koodi, jota ei kuvasta voi käyttää mihinkään. Fontti on sama jolla
+   * otsikko() piirtää alarivin. */
+  function haasteKuvaOtsikko(g, h, tila) {
+    const kierr = `${h.kierroksia} ${h.kierroksia === 1 ? "kierros" : "kierrosta"}`;
+    const rajaus = kausiNimi(h.kaudet);
+    const vaihtoehdot = rajaus
+      ? [`Kaverihaaste ${h.koodi} · ${kierr} · ${rajaus}`, `Kaverihaaste · ${kierr} · ${rajaus}`]
+      : [`Kaverihaaste ${h.koodi} · ${kierr}`];
+    g.font = `400 34px ${NAYTA}`;
+    return vaihtoehdot.find((t) => g.measureText(t).width <= tila)
+      || vaihtoehdot[vaihtoehdot.length - 1];
+  }
+
   // Päivän biisit: neliöt eivät paljasta mitään.
   function neliokuva() {
     const c = document.createElement("canvas");
@@ -3864,8 +3897,7 @@
     pohja(g, KUVA, KUVA);
     const h = state.haaste;
     const haaste = state.mode === "haaste" && h;
-    let y = otsikko(g, reuna, haaste
-      ? `Kaverihaaste ${h.koodi} · ${h.kierroksia} ${h.kierroksia === 1 ? "kierros" : "kierrosta"}`
+    let y = otsikko(g, reuna, haaste ? haasteKuvaOtsikko(g, h, KUVA - 2 * reuna)
       : `Päivän biisit · ${dateLine(keyToDate(state.dayKey || todayKey()))}`);
 
     y += 74;

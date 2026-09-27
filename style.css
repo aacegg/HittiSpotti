@@ -1221,6 +1221,15 @@ button.tchip:hover { color: var(--text); }
    Tällöin lista käännetään kentän yläpuolelle, jossa tilaa on moninkertaisesti.
    Korkeuden asettaa app.js sen mukaan mitä näkyvissä oikeasti on. */
 .suggestions.is-up { top: auto; bottom: calc(100% + var(--s2)); }
+/* ArtistiSpotin ylös avautuva lista käänteisessä järjestyksessä: paras
+   osuma alimpana, heti kentän yläpuolella. Normaalijärjestyksessä paras
+   osuma oli listan yläpäässä kaukana kentästä, ja kun kirjoittaminen
+   vähensi osumia, lista lyheni ylhäältä kohti kenttää. Kohta johon
+   katsoi tyhjeni, ja lista näytti katoavan vaikka osumia oli yhä.
+   Käännettynä lista lyhenee kentästä poispäin ja parhaat osumat pysyvät
+   paikallaan. Vieritys alkaa column-reversessä lopusta, eli kentän
+   vierestä. */
+#a-ehdotukset.is-up { display: flex; flex-direction: column-reverse; }
 .suggestion { position: relative; padding: var(--s3) var(--s4); border-radius: 2px; cursor: pointer; }
 .suggestion:hover, .suggestion.is-active { background: var(--line-soft); }
 .suggestion .s-title {

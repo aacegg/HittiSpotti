@@ -2171,7 +2171,11 @@
       e.preventDefault();
       /* Kierto listan yli molempiin suuntiin. Alusta ylös päin hyppää
        * viimeiseen, mikä on nopein tapa päästä listan loppuun. */
-      const suunta = e.key === "ArrowDown" ? 1 : -1;
+      /* Ylös avautuvassa listassa paras osuma on alimpana (ks.
+       * style.css #a-ehdotukset.is-up), joten nuolen suunta käännetään:
+       * alas-nuoli liikkuu ruudulla alaspäin kohti kenttää. */
+      const ylos = el.aEhdotukset.classList.contains("is-up");
+      const suunta = (e.key === "ArrowDown") !== ylos ? 1 : -1;
       artistiValittu = ((artistiValittu + suunta) % n + n) % n;
       piirraArtistiEhdotukset(artistiEhdokkaat);
       return;

@@ -377,6 +377,10 @@
     dsLongest: $("#ds-longest"),
     navDailyNote: $("#nav-daily-note"),
     navFreeNote: $("#nav-free-note"),
+    navHaasteNote: $("#nav-haaste-note"),
+    haasteKesken: $("#haaste-kesken"),
+    haasteKeskenTeksti: $("#haaste-kesken-teksti"),
+    haasteJatka: $("#haaste-jatka"),
     freeReset: $("#free-reset"),
     bar: document.querySelector(".bar"),
     barTag: $("#bar-tag"),
@@ -602,6 +606,9 @@
       kesken: (pvm) => `daily:${pvm}:kesken`,
       vertailu: (pvm) => `paivavertailu:${pvm}`,
       haaste: (koodi) => `haaste:${koodi}`,
+      /* Viimeksi pelattu, kesken oleva haaste. Ei "haaste:"-etuliitettä,
+       * koska siivoaHaasteet poistaa niillä alkavia vanhimmasta alkaen. */
+      haasteKesken: "haaste-kesken",
       stats: "stats",
     },
     artisti: {
@@ -888,6 +895,10 @@
     /* Alateksti on ainoa paikka joka kertoo ennen aloitusta mitä napeista
        seuraa. Ilman sitä valinta näkyisi vasta pelin otsikossa, eli vasta
        kun sarja on jo alkanut ja edellinen menetetty. */
+    const kesken = keskenHaaste();
+    el.navHaasteNote.textContent = kesken
+      ? `kesken, kierros ${kesken.kierros + 1}/${kesken.h.kierroksia}`
+      : "samat biisit kaverin kanssa";
     el.navFreeNote.textContent = rajaus
       ? `viisi satunnaista biisiä · ${rajaus.toLowerCase()}`
       : "viisi satunnaista biisiä";
@@ -2586,6 +2597,7 @@
     }
     state.mode = "haaste";
     asetaHaasteOsoite(h.koodi);
+    store.set(AVAIN.biisi.haasteKesken, h.koodi);
     state.haaste = {
       ...h, kierros,
       /* Jokaiselta pelatulta kierrokselta pisteet ja se mitkä viidestä
@@ -2635,6 +2647,28 @@
    * sata riviä joita kukaan ei lue. */
   function unohdaHaaste(koodi) {
     if (koodi) store.remove(AVAIN.biisi.haaste(koodi));
+    if (koodi && store.get(AVAIN.biisi.haasteKesken, null) === koodi) {
+      store.remove(AVAIN.biisi.haasteKesken);
+    }
+  }
+
+  /* Kesken oleva haaste: koodi, asetukset ja kierros, tai null. Loppuun
+   * pelattu haaste unohdetaan (unohdaHaaste), joten sitä ei tarjota. */
+  function keskenHaaste() {
+    const koodi = store.get(AVAIN.biisi.haasteKesken, null);
+    const h = koodi ? lueHaaste(koodi) : null;
+    if (!h) return null;
+    const t = store.get(AVAIN.biisi.haaste(koodi), null);
+    const kierros = t && Number.isInteger(t.kierros)
+      ? Math.min(Math.max(t.kierros, 0), h.kierroksia - 1) : 0;
+    return { h, kierros };
+  }
+
+  function keskenKuvaus(k) {
+    return [
+      `${k.h.kierroksia} ${k.h.kierroksia === 1 ? "kierros" : "kierrosta"}`,
+      kausiNimi(k.h.kaudet) || "kaikki vuosikymmenet",
+    ].join(" · ") + `, kierros ${k.kierros + 1}/${k.h.kierroksia}`;
   }
 
   /* Aiempien kierrosten pisteet yhteensä. Kesken oleva kierros ei ole
@@ -2680,6 +2714,12 @@
   function avaaHaasteRuutu() {
     haasteValinta = { kierroksia: 3, kaudet: [] };
     piirraHaasteValinnat();
+    /* Kesken oleva haaste ylimpänä. Silloin "Luo haaste" ei ole enää
+     * korostettu, jotta ruudussa on yksi pääpainike eikä kaksi. */
+    const kesken = keskenHaaste();
+    el.haasteKesken.hidden = !kesken;
+    el.haasteLuo.classList.toggle("btn-accent", !kesken);
+    if (kesken) el.haasteKeskenTeksti.textContent = keskenKuvaus(kesken);
     el.haasteScrim.hidden = false;
     el.haasteSheet.hidden = false;
     el.body.classList.add("sheet-open");
@@ -5130,6 +5170,14 @@
     el.haasteClose.addEventListener("click", suljeHaasteRuutu);
     el.haasteScrim.addEventListener("click", suljeHaasteRuutu);
     el.haasteLuo.addEventListener("click", () => { luoHaaste(); });
+    el.haasteJatka.addEventListener("click", async () => {
+      const kesken = keskenHaaste();
+      if (!kesken) return;
+      suljeHaasteRuutu();
+      closeDrawer();
+      stopPlayback();
+      await startHaaste(kesken.h);
+    });
     el.kutsuAvaa.addEventListener("click", () => avaaKutsu(false));
     el.kutsuClose.addEventListener("click", suljeKutsu);
     el.kutsuScrim.addEventListener("click", suljeKutsu);

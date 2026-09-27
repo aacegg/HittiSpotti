@@ -21,7 +21,7 @@
        Ilman tätä päivitetty kuva (scripts/tee_jakokuva.js) ei näkyisi
        jaetuissa linkeissä, vaan vanha luku jäisi elämään välimuisteihin.
        Numero kulkee muiden ?v=-merkintöjen mukana julkaisussa. -->
-  <meta property="og:image" content="https://hittispotti.fi/jakokuva.jpg?v=174">
+  <meta property="og:image" content="https://hittispotti.fi/jakokuva.jpg?v=175">
   <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -32,17 +32,17 @@
        kuvakkeesta kiinni omassa välimuistissaan sitkeämmin kuin mistään
        muusta, eikä pelkkä uusi tiedostosisältö samassa osoitteessa riitä
        vaihtamaan sitä. -->
-  <link rel="icon" href="favicon.svg?v=174" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg?v=175" type="image/svg+xml">
   <!-- iOS ei tue SVG:tä kotinäytön kuvakkeena: SVG:llä se otti sivusta
        ruudunkaappauksen kuvakkeen sijaan. 180 px on iPhonen koko. -->
-  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=174">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=174">
-  <link rel="manifest" href="manifest.webmanifest?v=174">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=175">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=175">
+  <link rel="manifest" href="manifest.webmanifest?v=175">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HittiSpotti">
   <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=174">
+  <link rel="stylesheet" href="style.css?v=175">
 
   <script type="application/ld+json">
   {
@@ -133,7 +133,7 @@
 
       <button type="button" class="navitem" data-go="haaste">
         <span class="navitem-name">Kaverihaaste<span class="uusi" data-uusi="haaste" hidden>uutta</span></span>
-        <span class="navitem-note">samat biisit kaverin kanssa</span>
+        <span class="navitem-note" id="nav-haaste-note">samat biisit kaverin kanssa</span>
       </button>
 
       <hr class="drawer-rule">
@@ -749,6 +749,19 @@
     <p class="haaste-lead">Sama biisisarja kaikille. Lähetä linkki kavereille,
       pelatkaa omassa tahdissanne ja verratkaa pisteitä.</p>
 
+    <!-- Kesken oleva haaste. Eteneminen oli tallessa, mutta siihen pääsi
+         takaisin vain linkin kautta: valikon Kaverihaaste avasi aina uuden
+         luonnin, joten muussa pelimuodossa käynnin jälkeen haaste näytti
+         kadonneen. -->
+    <div id="haaste-kesken" hidden>
+      <div class="haaste-kesken">
+        <p class="haaste-kesken-otsikko">Kesken oleva haaste</p>
+        <p class="haaste-kesken-teksti" id="haaste-kesken-teksti"></p>
+        <button type="button" class="btn btn-accent btn-wide" id="haaste-jatka">Jatka haastetta</button>
+      </div>
+      <p class="haaste-tai">tai luo uusi haaste</p>
+    </div>
+
     <h3 class="haaste-otsikko" id="haaste-kierrokset-otsikko">Kierroksia</h3>
     <p class="haaste-apu">Yksi kierros on viisi biisiä, yksi jokaiselta
       vaikeustasolta.</p>
@@ -956,7 +969,7 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=174"></script>
+  <script src="app.js?v=175"></script>
 
   <!-- Kävijälaskenta: ei evästeitä, ei henkilötietoja, ei seurantaa yli
        sivustorajojen – siksi tämä ei vaadi suostumusikkunaa. Ladataan

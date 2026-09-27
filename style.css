@@ -2390,6 +2390,25 @@ body.sheet-open { overflow: hidden; }
    ruudukon oma sivupehmuste on tässä turha. Kierrosnapit ovat viisi lyhyttä
    lukua, joten ne mahtuvat yhdelle riville. */
 #haaste-sheet .kaudet { margin-bottom: 18px; padding: 0; }
+.haaste-kesken {
+  margin: var(--s4) 0 var(--s2);
+  padding: var(--s4);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+}
+#haaste-kesken[hidden] { display: none; }
+.haaste-kesken-otsikko {
+  margin: 0 0 4px; color: var(--dim); font-size: var(--f1);
+  font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+}
+.haaste-kesken-teksti { margin: 0 0 var(--s3); color: var(--text); font-weight: 600; }
+/* Väliotsikko jatkamisen ja uuden luonnin välissä, viivat molemmin puolin. */
+.haaste-tai {
+  display: flex; align-items: center; gap: var(--s3);
+  margin: var(--s4) 0 var(--s3); color: var(--dim); font-size: var(--f2);
+}
+.haaste-tai::before, .haaste-tai::after { content: ""; flex: 1; height: 1px; background: var(--line); }
 #haaste-kierrokset { grid-template-columns: repeat(5, 1fr); }
 
 /* ArtistiSpotin ohjenappi ja ohjeruutu.

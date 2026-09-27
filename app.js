@@ -4225,7 +4225,7 @@
      * näkee mihin versioon muutokset kuuluvat. Luetaan TUOTEVERSIOsta,
      * jotta seuraava versionnosto päivittää tämänkin. */
     const otsikko = document.getElementById("uutta-title");
-    if (otsikko) otsikko.innerHTML = `Mitä uutta <span class="uutta-versio">versio ${TUOTEVERSIO}</span>`;
+    if (otsikko) otsikko.innerHTML = `Mitä uutta? <span class="uutta-versio">versio ${TUOTEVERSIO}</span>`;
     el.uuttaScrim.hidden = false;
     el.uuttaSheet.hidden = false;
     el.body.classList.add("sheet-open");

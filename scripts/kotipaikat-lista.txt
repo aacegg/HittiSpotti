@@ -24,7 +24,7 @@ Arttu Wiskari — Espoo
 Aste — Kuusankoski
 Aurora — Helsinki
 Averagekidluke — Helsinki
-Axel Kala — Helsinki
+Axel Kala — Jyväskylä
 Bat & Ryyd — Kemijärvi
 Battle Beast — Helsinki
 Beast in Black — Helsinki
@@ -87,7 +87,7 @@ Ismo Alanko — Joensuu
 J. Karjalainen — Helsinki
 Jami Faltin — Espoo
 Janji — Helsinki
-Jari Sillanpää — Ulkomaat
+Jari Sillanpää — Ruotsi
 Jean Sibelius — Hämeenlinna
 Jenni Vartiainen — Kuopio
 Jesse Kaikuranta — Maarianhamina
@@ -97,11 +97,11 @@ Johanna Kurkela — Lumijoki
 Jonna Tervomaa — Forssa
 Jonne Aaron — Tampere
 Jore & Zpoppa — Helsinki
-Juha Tapio — Asikkala
+Juha Tapio — Ylistaro
 Juice Leskinen — Juankoski
 Jukka Poika — Helsinki
 Juno — Helsinki
-Justimus — Hämeenlinna
+Justimus — Haapavesi
 JVG — Helsinki
 Kaija Koo — Helsinki
 KAJ — Vaasa
@@ -121,7 +121,7 @@ Komiat — Pöytyä
 Korelon — Vantaa
 Korpiklaani — Lahti
 Kotiteollisuus — Lappeenranta
-Kube — Helsinki
+Kube — Vantaa
 Kuumaa — Helsinki
 Laila Kinnunen — Vantaa
 Laura Närhi — Kirkkonummi
@@ -131,7 +131,7 @@ Lauri Tähkä — Vaasa
 Lauri Tähkä & Elonkerjuu — Teuva
 Lea Laven — Haukipudas
 Leevi and the Leavings — Helsinki
-Lord Est — Helsinki
+Lord Est — Lempäälä
 Lordi — Rovaniemi
 Lukas Leon — Vantaa
 Maija Vilkkumaa — Helsinki
@@ -141,7 +141,7 @@ Mariska — Helsinki
 Martti Servo & Napander — Helsinki
 Matti ja Teppo — Turku
 Maukka Perusjätkä — Helsinki
-Mäkki — Ulkomaat
+Mäkki — Vantaa
 Meiju Suvas — Helsinki
 Melo — Helsinki
 Michael Monroe — Helsinki
@@ -188,7 +188,7 @@ Redrama — Helsinki
 Reijo Taipale — Miehikkälä
 Reino Nordin — Helsinki
 Ressu Redford — Helsinki
-Robin Packalen — Turku
+Robin — Turku
 Ruger Hauer — Helsinki
 Ruudolf — Helsinki
 Samuli Edelmann — Pori

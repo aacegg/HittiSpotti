@@ -1735,6 +1735,7 @@ body.sheet-open { overflow: hidden; }
   background: var(--live);
 }
 .uutta b { color: var(--text); font-weight: 700; }
+.uutta-versio { font-size: 14px; font-weight: 400; color: var(--muted); margin-left: 6px; letter-spacing: 0; }
 
 .ohje { list-style: none; counter-reset: askel; margin: 0; padding: 0; }
 .ohje[hidden] { display: none; }

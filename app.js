@@ -183,7 +183,8 @@
    * vaihtuu harvoin ja vain päätöksestä. Palauteviestissä ne ovat molemmat,
    * muodossa "versio 1.0 (100)": pelaaja tunnistaa alun, ja suluista näkee
    * täsmälleen mikä rakenne hänellä oli. */
-  const TUOTEVERSIO = "1.0";
+  /* 1.1: ArtistiSpotti, Kaverihaaste ja 144 uutta biisiä (27.9.2026). */
+  const TUOTEVERSIO = "1.1";
 
   /* Mitä uutta -tiedote.
    *
@@ -4220,6 +4221,11 @@
      * yritetään uudestaan seuraavalla kerralla. */
     if (state.view !== "game" && state.view !== "results") return;
     el.uuttaLista.innerHTML = UUTTA.kohdat.map((k) => `<li>${k}</li>`).join("");
+    /* Versio otsikon perään pienellä: otsikko pysyy lyhyenä, ja pelaaja
+     * näkee mihin versioon muutokset kuuluvat. Luetaan TUOTEVERSIOsta,
+     * jotta seuraava versionnosto päivittää tämänkin. */
+    const otsikko = document.getElementById("uutta-title");
+    if (otsikko) otsikko.innerHTML = `Mitä uutta <span class="uutta-versio">versio ${TUOTEVERSIO}</span>`;
     el.uuttaScrim.hidden = false;
     el.uuttaSheet.hidden = false;
     el.body.classList.add("sheet-open");

@@ -834,7 +834,7 @@
        Versio omalle rivilleen, jottei se katoa lauseen jatkoksi silloin kun
        sitä nimenomaan etsitään. */
     el.drawerFoot.innerHTML =
-      `${state.pool.length} arvattavaa biisiä · tulokset tallentuvat vain tähän selaimeen`
+      `${fmt(state.pool.length)} arvattavaa biisiä · tulokset tallentuvat vain tähän selaimeen`
       + `<span class="drawer-versio">HittiSpotti ${TUOTEVERSIO}</span>`;
     /* "Aloita peli alusta" koskee vain vapaata peliä, joten se näkyy vasta
        siellä. Rivillä ei ole enää selitettä: teksti kertoo jo mitä nappi
@@ -845,12 +845,16 @@
        rajattuna. Aiemmin rajaus vei korostuksen kausinapille, koska nappi
        oli itsessään pelin aloitus. Nyt napit ovat suodatin ja rivi on
        aloitus, joten ne kertovat kahta eri asiaa eivätkä kilpaile. */
+    /* Korostus kaikille neljälle pelimuodolle. Aiemmin vain päivän peli ja
+       vapaa peli korostuivat, joten ArtistiSpottia tai Kaverihaastetta
+       pelatessa mikään rivi ei kertonut missä ollaan. Puhelimella sen
+       huomasi vain valikon avatessa, mutta leveällä ruudulla valikko on
+       aina näkyvissä sivupalkkina, ja tyhjä korostus näkyi koko ajan. */
+    const nyt = (state.view === "artisti" || state.view === "artistitulos") ? "artisti"
+      : state.view === "game" ? state.mode : "";
     document.querySelectorAll("[data-go]").forEach((b) => {
-      const isMode = b.dataset.go === "daily" || b.dataset.go === "free";
-      if (isMode) {
-        b.classList.toggle("is-active",
-          state.view === "game" && state.mode === b.dataset.go);
-      }
+      const isMode = ["daily", "free", "haaste", "artisti"].includes(b.dataset.go);
+      if (isMode) b.classList.toggle("is-active", nyt === b.dataset.go);
     });
     /* Napit näyttävät valinnan aina, eivät vain kesken vapaan sarjan: se on
        säilyvä asetus eikä käynnissä olevan sarjan ominaisuus. Muuten

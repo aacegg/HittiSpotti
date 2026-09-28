@@ -152,7 +152,7 @@
    * välimuistissa tyylimuutosten yli, mutta uusi katalogi on eri osoite ja
    * tulee varmasti perille – vanha versio antaisi pelaajalle eri päivän
    * biisit kuin muille. */
-  const KATALOGI_K = 46;
+  const KATALOGI_K = 47;
 
   /* Katalogi on kahdessa osassa, ks. scripts/tee_aanet.py.
    *
@@ -1244,12 +1244,22 @@
     return Math.floor((Date.UTC(y, m - 1, d) - ARTISTI_EPOCH) / DAY_MS);
   }
 
+  /* Kierrossa ovat vain julkaisuhetken artistit. Myöhemmin lisätyillä on
+   * artistit.json:ssa x: 1 (ks. scripts/artistit-lisatyt.txt): ne voi
+   * hakea ja arvata, mutta päivän artistiksi ne eivät tule.
+   *
+   * Syy on sekoitus. Se riippuu listan sisällöstä, joten yksikin uusi
+   * artisti kierrossa vaihtaisi jokaisen päivän artistin, myös jo
+   * pelattujen. Pelaajan tallennetut arvaukset näyttäisivät silloin
+   * väärää lopputulosta ja viiden edellisen päivän pelit vaihtuisivat. */
+  const kiertoArtistit = () => state.artistit.filter((a) => !a.x);
+
   const artistiPakat = new Map();
 
   function artistiPakka(cycle) {
     const valmis = artistiPakat.get(cycle);
     if (valmis) return valmis;
-    const lista = state.artistit.slice().sort((a, b) => (a.id < b.id ? -1 : 1));
+    const lista = kiertoArtistit().sort((a, b) => (a.id < b.id ? -1 : 1));
     const order = shuffled(lista, hashString(`artisti:${ARTISTI_SEKOITUS}:${cycle}`));
     const n = order.length;
     if (cycle > 0 && n >= 3 * ARTISTI_GAP) {
@@ -1270,7 +1280,7 @@
   }
 
   function paivanArtisti(key) {
-    const n = state.artistit.length;
+    const n = kiertoArtistit().length;
     if (!n) return null;
     const day = artistiDayIndex(key);
     return artistiPakka(Math.floor(day / n))[((day % n) + n) % n];

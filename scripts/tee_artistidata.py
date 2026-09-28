@@ -37,6 +37,9 @@ ROOT = Path(__file__).resolve().parent.parent
 LAHDE = ROOT / ".artistit.json"
 ULOS = ROOT / "artistit.json"
 LISTA = Path(__file__).resolve().parent / "artistit-lista.txt"
+# Arvattavat mutta ei päivän artistiksi, ks. tiedoston selitys ja
+# app.js:n kiertoArtistit.
+LISATYT = Path(__file__).resolve().parent / "artistit-lisatyt.txt"
 
 # Peliin menevät kentät. Lyhyet avaimet, koska ne toistuvat 246 kertaa.
 #
@@ -76,6 +79,15 @@ def main() -> int:
     nimet = [r.strip() for r in LISTA.read_text(encoding="utf-8").splitlines()
              if r.strip() and not r.startswith("#")]
 
+    lisatyt = {r.strip() for r in LISATYT.read_text(encoding="utf-8").splitlines()
+               if r.strip() and not r.startswith("#")}
+    # Kirjoitusvirhe lisättyjen listassa veisi artistin hiljaa kiertoon
+    # ja vaihtaisi kaikkien päivien artistit, joten se pysäyttää ajon.
+    if lisatyt - set(nimet):
+        print("LISÄTTY MUTTA EI ROOLILISTALLA: "
+              + ", ".join(sorted(lisatyt - set(nimet))), file=sys.stderr)
+        return 1
+
     ulos, puutteet = [], []
     for v in tiedot.values():
         rivi = {}
@@ -109,6 +121,8 @@ def main() -> int:
                 puutteet.append(f"{v.get('nimi')}: tuntematon kunta "
                                 f"{rivi['p']!r}")
                 continue
+            if v.get("nimi") in lisatyt:
+                rivi["x"] = 1
             ulos.append(rivi)
 
     if puutteet:

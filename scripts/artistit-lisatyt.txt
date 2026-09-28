@@ -1,0 +1,12 @@
+# ArtistiSpotin artistit jotka voi arvata mutta jotka eivät tule päivän
+# artistiksi. Nimi täsmälleen kuten artistit-lista.txt:ssä, jossa niiden
+# pitää olla myös.
+#
+# Päivän artisti arvotaan sekoittamalla koko lista, joten uuden artistin
+# vieminen kiertoon vaihtaisi jokaisen päivän artistin, myös jo
+# pelattujen. Tämän listan artistit saavat artistit.json:iin kentän
+# x: 1, ja peli jättää ne pois arvonnasta mutta tarjoaa ne haussa.
+#
+# Lisätty pelaajan palautteesta 28.9.2026, kun haku ei tuntenut niitä.
+Pauli Hanhiniemi
+Sentenced

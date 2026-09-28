@@ -10,22 +10,26 @@ const src = fs.readFileSync("app.js", "utf8");
 const pala = (h) => { const m = src.match(h); if (!m) throw new Error("ei löytynyt " + h); return m[0]; };
 const artistit = JSON.parse(fs.readFileSync("artistit.json", "utf8"));
 
-const koodi = `
+const teeKoodi = (lista) => `
   const DAY_MS = 86400000;
-  const state = { artistit: ARTISTIT };
+  const state = { artistit: ${JSON.stringify(lista)} };
   ${pala(/function hashString\(str\) \{[\s\S]*?\n  \}/)}
   ${pala(/function mulberry32\(seed\) \{[\s\S]*?\n  \}/)}
   ${pala(/function shuffled\(list, seed\) \{[\s\S]*?\n  \}/)}
   ${pala(/const ARTISTI_EPOCH = [\s\S]*?const ARTISTI_GAP = \d+;/)}
   ${pala(/function artistiDayIndex\(key\) \{[\s\S]*?\n  \}/)}
+  ${pala(/const kiertoArtistit = [^\n]*/)}
   ${pala(/const artistiPakat = new Map\(\);/)}
   ${pala(/function artistiPakka\(cycle\) \{[\s\S]*?\n  \}/)}
   ${pala(/function paivanArtisti\(key\) \{[\s\S]*?\n  \}/)}
   return { paivanArtisti, artistiDayIndex, artistiPakka };
-`.replace("ARTISTIT", JSON.stringify(artistit));
-const { paivanArtisti, artistiDayIndex } = new Function(koodi)();
+`;
+const { paivanArtisti, artistiDayIndex } = new Function(teeKoodi(artistit))();
 
-const N = artistit.length;
+/* Kierrossa ovat vain artistit ilman x-merkintää. Myöhemmin lisätyt
+ * (scripts/artistit-lisatyt.txt) ovat vain haussa. */
+const kierrossa = artistit.filter((a) => !a.x);
+const N = kierrossa.length;
 const pvm = (i) => {
   const d = new Date(Date.UTC(2026, 8, 24) + i * 86400000);
   return d.toISOString().slice(0, 10);
@@ -50,7 +54,20 @@ for (let i = 0; i < N; i++) kierros.add(paivanArtisti(pvm(i)).id);
 vaita(`kierros ${N} päivää ilman toistoja`, kierros.size === N, `${kierros.size}/${N}`);
 
 // 4. Jokainen artisti tulee vuoroon
-vaita("jokainen artisti kerran kierrossa", kierros.size === artistit.length);
+vaita("jokainen artisti kerran kierrossa", kierros.size === kierrossa.length);
+
+/* 4b. Lisätyt artistit eivät muuta kiertoa. Jos tämä pettää, artistin
+ *     lisääminen vaihtaa jo pelattujen päivien oikeat vastaukset. */
+const ilman = new Function(teeKoodi(kierrossa))().paivanArtisti;
+let sama = true;
+for (let i = -10; i < N * 3; i++) {
+  if (paivanArtisti(pvm(i)).id !== ilman(pvm(i)).id) { sama = false; break; }
+}
+vaita("lisätyt artistit eivät muuta kiertoa", sama);
+const lisatyt = new Set(artistit.filter((a) => a.x).map((a) => a.id));
+let tuli = 0;
+for (let i = 0; i < N * 3; i++) if (lisatyt.has(paivanArtisti(pvm(i)).id)) tuli++;
+vaita("lisätty artisti ei tule päivän artistiksi", tuli === 0, `${lisatyt.size} lisättyä`);
 
 // 5. Sauma: lyhin väli saman artistin toistoon
 const nahty = new Map();

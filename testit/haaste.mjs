@@ -19,17 +19,21 @@ const koodi = `
   const state = { pool: POOL };
   ${pala(/  const TIER_CYCLE = \[[^\]]*\];/)}
   ${pala(/  const KAUDET = \[[\s\S]*?\n  \];/)}
+  ${pala(/function hashString\(str\) \{[\s\S]*?\n  \}/)}
   ${pala(/function mulberry32\(seed\) \{[\s\S]*?\n  \}/)}
   ${pala(/function shuffled\(list, seed\) \{[\s\S]*?\n  \}/)}
   ${pala(/  const HAASTE_KIERROKSET = \[[^\]]*\];/)}
   ${pala(/  const HAASTE_SIEMEN_MAX = [^\n]*/)}
+  ${pala(/  const HAASTE_VERSIO = [^\n]*/)}
   ${pala(/  function haasteKoodi\([\s\S]*?\n  \}/)}
   ${pala(/  function lueHaaste\(koodi\) \{[\s\S]*?\n  \}/)}
   ${pala(/  function haasteBiisit\(h\) \{[\s\S]*?\n  \}/)}
   ${pala(/  function haasteKierros\(h, kierros\) \{[\s\S]*?\n  \}/)}
   return { haasteKoodi, lueHaaste, haasteBiisit, haasteKierros, KAUDET };
-`.replace("POOL", JSON.stringify(kat.filter((s) => s.peli !== false)));
-const { haasteKoodi, lueHaaste, haasteBiisit, haasteKierros, KAUDET } = new Function(koodi)();
+`;
+const pelattavat = kat.filter((s) => s.peli !== false);
+const teeHaaste = (pool) => new Function(koodi.replace("POOL", JSON.stringify(pool)))();
+const { haasteKoodi, lueHaaste, haasteBiisit, haasteKierros, KAUDET } = teeHaaste(pelattavat);
 
 let ok = true;
 const vaita = (nimi, ehto, lisa = "") => {
@@ -166,6 +170,49 @@ vaita("ensimmäisellä kierroksella ei aiempia",
 vaita("toisella kierroksella vain ensimmäinen",
   aiemmat({ kierros: 1, kierrokset: [{ pisteet: 2900 }, { pisteet: 1000 }] }) === 2900);
 vaita("ilman haastetta nolla", aiemmat(null) === 0);
+
+/* 12. Valintatapa 2: katalogimuutos ei vaihda haastetta.
+ *     Versio 1 sekoitti koko tason listan, joten yksikin uusi biisi
+ *     vaihtoi kaikki biisit ja kaveri sai samasta linkistä eri sarjan. */
+vaita("uusi koodi on versio 2", /-2$/.test(haasteKoodi(5, 3, [])) && lueHaaste(haasteKoodi(5, 3, [])).versio === 2);
+vaita("tuntematon versio on kelvoton", lueHaaste("abc-3-0-3") === null);
+const idt = (hb) => hb.map((t) => t.map((x) => x.id).join(",")).join("|");
+let muuttui = 0, haasteita = 0;
+const lisatty = pelattavat.concat(Array.from({ length: 20 }, (_, i) => ({
+  id: 9e9 + i, artist: "Testi", title: "Uusi " + i, year: 2020, tier: 1 + (i % 5) })));
+const lisatyilla = teeHaaste(lisatty);
+for (let siemen = 0; siemen < 200; siemen++) {
+  const k = haasteKoodi(siemen * 7919, 3, []);
+  haasteita++;
+  if (idt(haasteBiisit(lueHaaste(k))) !== idt(lisatyilla.haasteBiisit(lisatyilla.lueHaaste(k)))) muuttui++;
+}
+/* 20 uutta biisiä, neljä per taso, 15 valittua: odotus noin viidennes
+ * haasteista. Versio 1:llä muuttuivat kaikki. */
+vaita("20 uutta biisiä muuttaa harvaa haastetta", muuttui / haasteita < 0.35,
+  `${muuttui}/${haasteita}`);
+const tasoVaihto = pelattavat.map((x, i) => (i === 7 ? { ...x, tier: x.tier === 5 ? 4 : x.tier + 1 } : x));
+const vaihdetulla = teeHaaste(tasoVaihto);
+let tasoMuutti = 0;
+for (let siemen = 0; siemen < 200; siemen++) {
+  const k = haasteKoodi(siemen * 104729, 5, []);
+  if (idt(haasteBiisit(lueHaaste(k))) !== idt(vaihdetulla.haasteBiisit(vaihdetulla.lueHaaste(k)))) tasoMuutti++;
+}
+vaita("yhden biisin tasomuutos muuttaa vain harvaa", tasoMuutti <= 10, `${tasoMuutti}/200`);
+const v2 = lueHaaste(haasteKoodi(123, 5, ["1990"]));
+const v2idt = [];
+for (let k = 0; k < 5; k++) v2idt.push(...haasteKierros(v2, k).map((x) => x.id));
+vaita("versio 2: ei toistoa", new Set(v2idt).size === 25);
+vaita("versio 2: tasot 1-5", haasteKierros(v2, 0).map((x) => x.tier).join(",") === "1,2,3,4,5");
+
+/* 13. Versio 1:n koodit antavat saman sarjan kuin ennen muutosta, jotta
+ *     julkaisuhetkellä kesken olevat haasteet eivät vaihdu. Tilannekuva
+ *     otettu vanhalla koodilla samasta katalogista. */
+const vanhat = {"abc-3-0":[[1645551829,1277156034,722435361],[1442465677,1443345644,1872345095],[1879810403,1565587598,1866248688],[713624947,196453821,1067070098],[73629626,1248420559,1580370681]],"zz1-5-2":[[260655284,1443367787,1443109086,270298859,1442499567],[270986922,996916278,255078223,919408531,723543479],[1443110276,723446654,1669932412,299230665,1166857879],[299232053,270986882,655113864,209391816,255077995],[270987112,655511462,713940227,1442640603,258513836]],"k3x9-1-f":[[968108643],[79348840],[416693329],[1442344411],[252129229]],"q-3-g":[[1886521259,1646268330,1861801973],[1868742940,1613227754,1586167945],[1802728410,1796448265,1879810403],[6764760267,1869080009,1815701461],[1686474531,1558807605,1551380237]]};
+for (const [k, odotus] of Object.entries(vanhat)) {
+  const h = lueHaaste(k);
+  vaita(`versio 1 ennallaan ${k}`, !!h && h.versio === 1 && h.koodi === k
+    && JSON.stringify(haasteBiisit(h).map((t) => t.map((x) => x.id))) === JSON.stringify(odotus));
+}
 
 console.log(ok ? "\nLÄPI" : "\nHYLÄTTY");
 process.exit(ok ? 0 : 1);

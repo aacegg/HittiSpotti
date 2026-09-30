@@ -2473,17 +2473,33 @@
    * vuosikymmenten bittimaski. Lyhyt, luettava ääneen ja kirjoitettavissa
    * käsin, ja epäkelpo koodi tunnistetaan ilman palvelinta.
    *
-   * Yksi rajoitus on syytä tietää: jos katalogiin lisätään biisejä kesken
-   * haasteen, sekoitus muuttuu ja vanha linkki antaa eri sarjan. Haaste on
-   * tarkoitettu saman päivän kisailuun, joten sillä ei ole väliä.
+   * Versio 2 lisää koodin loppuun "-2", ks. HAASTE_VERSIO.
    */
   const HAASTE_KIERROKSET = [1, 2, 3, 4, 5];
   const HAASTE_SIEMEN_MAX = 36 ** 5;
+  /* Biisien valintatapa.
+   *
+   * 1: koko tason lista sekoitettiin siemenellä ja otettiin alusta. Yksikin
+   *    katalogimuutos (uusi biisi, vaihtunut taso) sekoitti listan uudelleen,
+   *    ja sama linkki antoi eri biisit. Katalogia päivitetään usein, joten
+   *    haaste hajosi jos kaveri pelasi päivityksen jälkeen, tai jos haastajalla
+   *    oli peli auki vanhassa välilehdessä. Palautteessa: "kaverille tuli eri
+   *    kappaleet samasta linkistä".
+   * 2: jokainen biisi saa siemenestä ja omasta tunnisteestaan arvon, ja
+   *    haasteeseen tulevat pienimmät. Uusi biisi muuttaa haastetta vain jos
+   *    sen oma arvo osuu valittujen joukkoon, eli kolmen kierroksen
+   *    haasteessa noin kerran sadasta per taso.
+   *
+   * Versio 1:n koodit (kolme osaa) pelataan yhä vanhalla tavalla, jotta
+   * julkaisuhetkellä kesken olevat haasteet eivät vaihdu. */
+  const HAASTE_VERSIO = 2;
 
-  function haasteKoodi(siemen, kierroksia, kaudet) {
+  function haasteKoodi(siemen, kierroksia, kaudet, versio = HAASTE_VERSIO) {
     const bitit = KAUDET.reduce(
       (b, k, i) => b | (kaudet.includes(k.avain) ? 1 << i : 0), 0);
-    return [siemen.toString(36), kierroksia.toString(36), bitit.toString(36)].join("-");
+    const osat = [siemen.toString(36), kierroksia.toString(36), bitit.toString(36)];
+    if (versio >= 2) osat.push(String(versio));
+    return osat.join("-");
   }
 
   /* Palauttaa haasteen tai null. Null myös silloin kun koodi on muodoltaan
@@ -2491,13 +2507,18 @@
    * peliä jossa on nolla kierrosta. */
   function lueHaaste(koodi) {
     const osat = String(koodi || "").trim().toLowerCase().split("-");
-    if (osat.length !== 3) return null;
-    const [siemen, kierroksia, bitit] = osat.map((o) => parseInt(o, 36));
+    // Neljäs osa on valintatavan versio. Tuntematon versio on kelvoton:
+    // tuleva valintatapa ei saa pelautua väärällä tavalla hiljaa.
+    if (osat.length === 4 && osat[3] !== String(HAASTE_VERSIO)) return null;
+    if (osat.length !== 3 && osat.length !== 4) return null;
+    const versio = osat.length === 4 ? HAASTE_VERSIO : 1;
+    const [siemen, kierroksia, bitit] = osat.slice(0, 3).map((o) => parseInt(o, 36));
     if (!Number.isInteger(siemen) || siemen < 0 || siemen >= HAASTE_SIEMEN_MAX) return null;
     if (!HAASTE_KIERROKSET.includes(kierroksia)) return null;
     if (!Number.isInteger(bitit) || bitit < 0 || bitit >= (1 << KAUDET.length)) return null;
     const kaudet = KAUDET.filter((_, i) => bitit & (1 << i)).map((k) => k.avain);
-    return { koodi: haasteKoodi(siemen, kierroksia, kaudet), siemen, kierroksia, kaudet };
+    return { koodi: haasteKoodi(siemen, kierroksia, kaudet, versio),
+             siemen, kierroksia, kaudet, versio };
   }
 
   /* Haasteen biisit: yksi jokaiselta tasolta jokaiselle kierrokselle.
@@ -2518,6 +2539,17 @@
       const kaikki = state.pool.filter((s) => s.tier === tier);
       const rajattu = kaikki.filter(kelpaa);
       const lista = rajattu.length >= h.kierroksia ? rajattu : kaikki;
+      if (h.versio >= 2) {
+        /* Arvo riippuu vain siemenestä ja biisistä, ei listan muista
+         * biiseistä, joten katalogimuutos ei siirrä muiden järjestystä.
+         * Taso ei ole mukana: biisi on vain yhdellä tasolla kerrallaan.
+         * Tasapeli ratkaistaan tunnisteella, jottei järjestys riipu
+         * tiedoston järjestyksestä. */
+        const arvo = (s) => hashString(`haaste:${h.siemen}:${s.id}`);
+        return lista.map((s) => [arvo(s), s])
+          .sort((a, b) => a[0] - b[0] || a[1].id - b[1].id)
+          .slice(0, h.kierroksia).map(([, s]) => s);
+      }
       return shuffled(lista.slice().sort((a, b) => a.id - b.id),
                       h.siemen * 10 + tier).slice(0, h.kierroksia);
     });

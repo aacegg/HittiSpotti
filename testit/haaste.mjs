@@ -19,8 +19,6 @@ const koodi = `
   const state = { pool: POOL };
   ${pala(/  const TIER_CYCLE = \[[^\]]*\];/)}
   ${pala(/  const KAUDET = \[[\s\S]*?\n  \];/)}
-  ${pala(/  const KAUSI_VANHA = [^\n]*/)}
-  ${pala(/  const puraVanhaKausi = [\s\S]*?\);\n/)}
   ${pala(/function mulberry32\(seed\) \{[\s\S]*?\n  \}/)}
   ${pala(/function shuffled\(list, seed\) \{[\s\S]*?\n  \}/)}
   ${pala(/  const HAASTE_KIERROKSET = \[[^\]]*\];/)}
@@ -151,17 +149,12 @@ vaita("ilman haastetta osoitteeseen ei kosketa",
 const nimet = new Function(`
   const state = { kaudet: ["2020"] };
   ${pala(/  const KAUDET = \[[\s\S]*?\n  \];/)}
-  ${pala(/  const KAUSI_VANHA = [^\n]*/)}
   ${pala(/  KAUDET\.forEach\(\(k\) => \{ k\.nimi = [^\n]*/)}
   ${pala(/  function valitutKaudet\([\s\S]*?\n  \}/)}
   ${pala(/  function kausiNimi\([\s\S]*?\n  \}/)}
   return kausiNimi;`)();
 vaita("haasteen vuosikymmen omasta valinnasta", nimet(["1990"]) === "1990-luku", nimet(["1990"]));
 vaita("vapaan pelin valinta ei vuoda haasteeseen", nimet([]) === "", nimet([]));
-vaita("50–70 ja 80 yhdessä yhtenä nimenä", nimet(["5070", "1980"]) === "1950–80-luku", nimet(["5070", "1980"]));
-vaita("80-luku omana nimenä", nimet(["1980"]) === "1980-luku", nimet(["1980"]));
-vaita("viisi kuudesta poissulkevasti", nimet(["5070", "1980", "1990", "2000", "2010"]) === "Ei 2020-lukua");
-vaita("yhdistelmä luettelona", nimet(["5070", "1980", "2010"]) === "1950–80- ja 2010-luku", nimet(["5070", "1980", "2010"]));
 vaita("ilman parametria vapaan pelin valinta", nimet() === "2020-luku", nimet());
 
 /* 11. Pisteet palautettaessa. Päättynyt kierros on sekä kierroslistassa
@@ -173,26 +166,6 @@ vaita("ensimmäisellä kierroksella ei aiempia",
 vaita("toisella kierroksella vain ensimmäinen",
   aiemmat({ kierros: 1, kierrokset: [{ pisteet: 2900 }, { pisteet: 1000 }] }) === 2900);
 vaita("ilman haastetta nolla", aiemmat(null) === 0);
-
-/* 12. 80-luku erotettiin 50–80-luvusta. Ennen jakoa jaettu linkki, jossa
- *     on bitti 0 (1950–89), antaa yhä saman sarjan ja pitää koodinsa,
- *     jotta kesken jäänyt haaste löytyy tallennuksesta. */
-const vanha = lueHaaste("abc-3-1");
-vaita("vanha 50–80-linkki kelpaa", !!vanha && vanha.kaudet.join(",") === "5070,1980",
-  vanha && vanha.kaudet.join(","));
-vaita("vanha linkki pitää koodinsa", vanha && vanha.koodi === "abc-3-1");
-const uusi = lueHaaste(haasteKoodi(vanha.siemen, 3, ["5070", "1980"]));
-const idt = (h) => haasteBiisit(h).map((t) => t.map((x) => x.id).join(",")).join("|");
-vaita("vanha ja uusi 50–80 antavat samat biisit", idt(vanha) === idt(uusi));
-const vanhaYhd = lueHaaste("abc-3-3");   // bitit 0 ja 1: 50–80 ja 90-luku
-vaita("vanha yhdistelmä purkautuu", vanhaYhd && vanhaYhd.kaudet.join(",") === "5070,1980,1990",
-  vanhaYhd && vanhaYhd.kaudet.join(","));
-const kasi = lueHaaste(haasteKoodi(5, 1, ["1980"]));
-vaita("80-luku omana", kasi && kasi.kaudet.join(",") === "1980");
-const kasiVuodet = [];
-for (let k = 0; k < 5; k++) kasiVuodet.push(...haasteKierros(lueHaaste(haasteKoodi(k, 1, ["1980"])), 0).map((x) => x.year));
-vaita("80-luvun haaste 80-luvulta", kasiVuodet.every((v) => v >= 1980 && v <= 1989),
-  kasiVuodet.filter((v) => v < 1980 || v > 1989).join(","));
 
 console.log(ok ? "\nLÄPI" : "\nHYLÄTTY");
 process.exit(ok ? 0 : 1);

@@ -95,17 +95,33 @@ def lue_lista():
 
 
 def ehdota(apple, wp, mb, oma):
-    """Palauttaa (ehdotus, varma)."""
+    """Palauttaa (ehdotus, varma).
+
+    Applen Pop on heikko ääni. Apple merkitsee popiksi 1 082 biisiä
+    1 888:sta, myös rockyhtyeiden ja räppärien biisejä, joten se ei
+    kumoa Wikipediaa ja MusicBrainzia vaan ratkaisee vain silloin kun
+    niitä ei ole. Applen Rap ja Rock ovat vahvoja: niitä se ei jaa
+    kevyesti. Sama koskee MusicBrainzin popia iskelmää vastaan, koska
+    iskelmä on sielläkin usein merkitty popiksi."""
     taiteilija = [g for g in (wp, mb) if g]
-    if apple == "Pop" and "Iskelmä" in taiteilija:
-        apple = "Iskelmä"
-    aanet = [g for g in (apple, wp, mb) if g]
+    if "Iskelmä" in taiteilija:
+        taiteilija = ["Iskelmä" if g == "Pop" else g for g in taiteilija]
+    if apple == "Pop" and taiteilija:
+        apple = None
+    aanet = [g for g in [apple] + taiteilija if g]
     if not aanet:
         return oma, False
     laskuri = Counter(aanet).most_common()
     paras = [g for g, n in laskuri if n == laskuri[0][1]]
     ehdotus = oma if oma in paras else paras[0]
-    varma = len(set(aanet)) == 1 and (len(aanet) >= 2 or apple in ("Rap", "Rock", "Muu"))
+    # Yksikin artistilähde riittää kun mikään ei ole ristiriidassa: jos
+    # Wikipedia sanoo rock eikä muuta tietoa ole, se on parempi kuin
+    # ihmisen arvaus. Pelkkä Applen Pop ei riitä, koska se voi olla iskelmää.
+    varma = len(set(aanet)) == 1 and (bool(taiteilija) or apple in ("Rap", "Rock", "Muu"))
+    # Kaksi kolmesta riittää kun toinen niistä on Applen biisikohtainen
+    # Rap tai Rock: se kertoo juuri tästä biisistä eikä vain artistista.
+    if not varma and apple in ("Rap", "Rock") and ehdotus == apple and Counter(aanet)[apple] >= 2:
+        varma = True
     return ehdotus, varma
 
 

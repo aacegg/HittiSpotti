@@ -17,3 +17,9 @@ puuttuvat-biisit.txt
 # tiedostoonsa samaan tapaan kuin songs.json.
 .artistit.json
 
+
+# Genrearvioinnin lähteet: Applen genret ja artistien tyylilajit
+# Wikipediasta ja MusicBrainzista. Haettavissa uudelleen, ks.
+# scripts/tee_genrearviointi.py.
+.genret-apple.json
+.genrelahteet.json

@@ -52,6 +52,14 @@ PALOJA = 64
 # itunes puuttuvat tarkoituksella.
 KEVYET = ("artist", "title", "year", "tier", "id")
 
+# Biisin genre vapaan pelin genrevalintaa varten, katalogiin kenttänä g.
+# Oma tiedostonsa eikä songs.jsonin kenttä: genret syntyivät omalla
+# arviointikierroksellaan (scripts/tee_genrearviointi.py), ja niitä
+# päivitetään eri tahdissa kuin biisilistaa. Biisi jolla genreä ei ole
+# (esimerkiksi myöhemmin lisätty) on mukana koko katalogissa mutta ei
+# minkään genren valinnassa.
+GENRET = ROOT / "scripts" / "genret-biisit.json"
+
 
 def rivit(olio_lista):
     """JSON-taulukko, yksi olio rivillä.
@@ -67,6 +75,8 @@ def rivit(olio_lista):
 
 def main() -> int:
     songs = json.loads(SONGS.read_text(encoding="utf-8"))
+    genret = {int(k): v for k, v in json.loads(GENRET.read_text(encoding="utf-8")).items()}
+    ilman_genrea = 0
 
     kevyt, palat, ilman = [], {}, []
     for s in songs:
@@ -79,6 +89,10 @@ def main() -> int:
         kevyt.append(rivi)
         if not arvattava:
             continue
+        if genret.get(s["id"]):
+            rivi["g"] = genret[s["id"]]
+        else:
+            ilman_genrea += 1
         if not s.get("preview"):
             # Arvattava biisi ilman esikuuntelua ei voi tulla vastaan.
             # Peli suodatti sen ennen pois preview-kentän puuttumisen
@@ -114,6 +128,8 @@ def main() -> int:
           f"{len(kevyt)} riviä, {arvattavia} arvattavaa")
     print(f"aanet/         {sum(koot):>9} tavua  {len(pitaisi)} palaa, "
           f"pienin {koot[0]}, suurin {koot[-1]}")
+    if ilman_genrea:
+        print(f"  {ilman_genrea} arvattavaa biisiä ilman genreä, ks. {GENRET.name}")
     if poistettu:
         print(f"  poistettu {poistettu} vanhentunutta palaa")
     if ilman:

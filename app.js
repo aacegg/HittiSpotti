@@ -70,6 +70,37 @@
     return `${tyvet.slice(0, -1).map((t) => `${t}-`).join(", ")} ja ${tyvet[tyvet.length - 1]}-luku`;
   }
 
+  /* Vapaan pelin genrevalinta, samalla mallilla kuin vuosikymmenet:
+   * monivalinta, tyhjä valinta ja kaikki valittuna tarkoittavat koko
+   * katalogia, ja valinta säilyy käyntien yli.
+   *
+   * Genre on katalogissa kenttänä g (scripts/genret-biisit.json, ks.
+   * scripts/tee_aanet.py). Biisikohtainen eikä artistin: saman artistin
+   * biisit voivat olla eri genreä. Muu-genre (lastenmusiikki, klassinen,
+   * soundtrackit) ei ole valittavissa, koska se ei ole genre jota kukaan
+   * valitsisi, mutta sen biisit ovat mukana koko katalogissa.
+   *
+   * Metalli on rockissa ja elektroninen popissa. Omina genreinään niissä
+   * oli liian vähän helppoja biisejä: metallissa yksi. */
+  const GENRET = ["Pop", "Rap", "Rock", "Iskelmä"];
+
+  function valitutGenret(genret = state.genret) {
+    if (!genret.length || genret.length === GENRET.length) return [];
+    return GENRET.filter((g) => genret.includes(g));
+  }
+
+  function genreNimi(genret = state.genret) {
+    const valitut = valitutGenret(genret);
+    if (valitut.length <= 1) return valitut[0] || "";
+    return `${valitut.slice(0, -1).join(", ")} ja ${valitut[valitut.length - 1]}`;
+  }
+
+  /* Vapaan pelin koko rajaus otsikoihin ja jakoon: "Rock · 1990-luku".
+   * Genre ensin, koska se on se mitä pelaaja tuli pelaamaan. */
+  function rajausNimi() {
+    return [genreNimi(), kausiNimi()].filter(Boolean).join(" · ");
+  }
+
   /* Napin painallus kääntää yhden kauden päälle tai pois JA kokoaa sarjan
    * uudestaan. Valinta on siis aina elävä: ensimmäinen painallus aloittaa
    * sen vuosikymmenen sarjan, toinen lisää vuosikymmenen ja kokoaa sarjan
@@ -99,6 +130,19 @@
      * halua vanhoja biisejä ei halua niitä myöskään huomenna, eikä valintaa
      * pidä joutua tekemään uudestaan joka kerta. */
     store.set("kaudet", state.kaudet);
+    refreshDrawer();
+    kokoaSarjaPian();
+  }
+
+  /* Sama käytös kuin vuosikymmenillä, ks. vaihdaKausi. */
+  function vaihdaGenre(genre) {
+    if (!pakkaAjastin && freeStarted()
+      && !confirm("Sarja alkaa alusta ja pisteet nollautuvat. Jatketaanko?")) return;
+    state.genret = state.genret.includes(genre)
+      ? state.genret.filter((g) => g !== genre)
+      : state.genret.concat(genre);
+    state.genret = GENRET.filter((g) => state.genret.includes(g));
+    store.set("genret", state.genret);
     refreshDrawer();
     kokoaSarjaPian();
   }
@@ -141,8 +185,12 @@
    * roskaa jonka joku on voinut kirjoittaa avaimen alle käsin. */
   function lataaKaudet() {
     const tallessa = store.get("kaudet", []);
-    if (!Array.isArray(tallessa)) return;
-    state.kaudet = KAUDET.filter((k) => tallessa.includes(k.avain)).map((k) => k.avain);
+    if (Array.isArray(tallessa)) {
+      state.kaudet = KAUDET.filter((k) => tallessa.includes(k.avain)).map((k) => k.avain);
+    }
+    // Genrevalinta samalla periaatteella: tuntematon arvo suodatetaan pois.
+    const genret = store.get("genret", []);
+    if (Array.isArray(genret)) state.genret = GENRET.filter((g) => genret.includes(g));
   }
   const STORE = "hittispotti:";
   const STORE_OLD = "songspot-suomi:";         // aiempi nimi, tiedot siirretään kerran
@@ -152,7 +200,7 @@
    * välimuistissa tyylimuutosten yli, mutta uusi katalogi on eri osoite ja
    * tulee varmasti perille – vanha versio antaisi pelaajalle eri päivän
    * biisit kuin muille. */
-  const KATALOGI_K = 48;
+  const KATALOGI_K = 49;
 
   /* Katalogi on kahdessa osassa, ks. scripts/tee_aanet.py.
    *
@@ -267,6 +315,8 @@
      * ei voinut ilmaista, koska neljän jäljelle jäävän valitseminen vaatii
      * neljä valintaa yhtä aikaa. */
     kaudet: [],
+    // Vapaan pelin genrevalinta, GENRET-arvoja. Tyhjä = kaikki.
+    genret: [],
     /* Kesken oleva kaverihaaste: koodi, siemen, kierrosten määrä, monesko
      * kierros on menossa ja aiempien kierrosten pisteet. null muissa
      * pelimuodoissa. */
@@ -728,7 +778,7 @@
        * Nimi ja edistyminen ovat omissa elementeissään, koska monivalinta voi
        * tuottaa pitkän nimen. Nimi saa katketa, edistyminen ei: jos palkkiin
        * mahtuu vain toinen, "3/5" on se jota katsotaan kesken sarjan. */
-      el.barTag.innerHTML = `<b>${kausiNimi() || "Vapaa peli"}</b>`
+      el.barTag.innerHTML = `<b>${rajausNimi() || "Vapaa peli"}</b>`
         + `<span>· ${valmis}/${state.rounds.length}</span>`;
     } else {
       el.barTag.textContent = `${valmis}/${state.rounds.length} valmis`;
@@ -784,8 +834,8 @@
        * meni läpi ja rivi jäi Kaverihaasteen alle, eli näytti kuuluvan
        * siihen. Vuosikymmennappien perään eikä vapaan pelin otsikon perään,
        * ks. perustelu index.html:ssä. */
-      const kaudet = el.drawer.querySelector("#kaudet");
-      if (el.freeReset.previousElementSibling !== kaudet) kaudet.after(el.freeReset);
+      const genret = el.drawer.querySelector("#genret");
+      if (el.freeReset.previousElementSibling !== genret) genret.after(el.freeReset);
     }
     if (kiskoon) piirraPisteet();
   }
@@ -865,7 +915,7 @@
     /* "Aloita peli alusta" koskee vain vapaata peliä, joten se näkyy vasta
        siellä. Rivillä ei ole enää selitettä: teksti kertoo jo mitä nappi
        tekee, ja menetettävät pisteet lukevat varmistuksessa jonka se avaa. */
-    const rajaus = kausiNimi();
+    const rajaus = rajausNimi();
     el.freeReset.hidden = !(state.mode === "free" && state.view === "game");
     /* "Vapaa peli" on valittuna aina kun vapaa sarja on käynnissä, myös
        rajattuna. Aiemmin rajaus vei korostuksen kausinapille, koska nappi
@@ -890,6 +940,11 @@
       const paalla = state.kaudet.includes(b.dataset.kausi);
       b.classList.toggle("is-on", paalla);
       // Väri on ainoa muu merkki valinnasta, joten se ei riitä yksin.
+      b.setAttribute("aria-pressed", String(paalla));
+    });
+    document.querySelectorAll("[data-genre]").forEach((b) => {
+      const paalla = state.genret.includes(b.dataset.genre);
+      b.classList.toggle("is-on", paalla);
       b.setAttribute("aria-pressed", String(paalla));
     });
     /* Alateksti on ainoa paikka joka kertoo ennen aloitusta mitä napeista
@@ -3334,9 +3389,16 @@
      * jälkikäteen: muuten "taso käyty läpi" -nollaus laskisi väärin ja
      * nollaisi koko tason vaikka kauden sisällä olisi vielä biisejä. */
     const valitut = valitutKaudet();
-    let kuuluu = (s) => s.tier === tier
+    const genret = valitutGenret();
+    const genreOk = (s) => !genret.length || genret.includes(s.g);
+    let kuuluu = (s) => s.tier === tier && genreOk(s)
       && (!valitut.length
         || (s.year && valitut.some((k) => s.year >= k.alku && s.year <= k.loppu)));
+    /* Genre ja vuosikymmen yhdessä voivat jättää tason tyhjäksi,
+     * esimerkiksi 50–80-luvun rap helpoimmalla tasolla. Silloin
+     * vuosikymmen jätetään pois ennen genreä: genre on se mitä pelaaja
+     * tuli kuulemaan. */
+    if (genret.length && !state.pool.some(kuuluu)) kuuluu = (s) => s.tier === tier && genreOk(s);
     /* Jos valinnasta ei löydy tätä tasoa lainkaan, rajaus jätetään väliin
      * tämän biisin kohdalla. Nykyisellä katalogilla ohuinkin yksittäinen
      * kausi antaa 22 biisiä joka tasolta, eikä monivalinta voi tehdä
@@ -3395,7 +3457,7 @@
      * pelimuodolla aikanaan: jos ainoa ero näkyy himmeänä alarivinä, pelaaja
      * ei huomaa mitä on valinnut, ja ihmettelee miksi kaikki biisit ovat
      * vanhoja. */
-    const rajaus = kausiNimi();
+    const rajaus = rajausNimi();
     const h = state.haaste;
     el.kutsuAvaa.hidden = state.mode !== "haaste";
     el.modeLabel.textContent = state.mode === "daily" ? "Päivän biisit"
@@ -3895,7 +3957,7 @@
       lines.push(`🎵 HittiSpotti · kaverihaaste${rajaus ? " · " + rajaus.toLowerCase() : ""}`);
       lines.push(`${fmt(state.score)} pistettä, kierros ${h.kierros + 1}/${h.kierroksia}`);
     } else {
-      const rajaus = kausiNimi();
+      const rajaus = rajausNimi();
       lines.push(`🎵 HittiSpotti · ${rajaus ? rajaus.toLowerCase() : "vapaa sarja"}`);
       lines.push(`${fmt(state.score)} / ${fmt(POINTS[0] * state.results.length)} pistettä`);
     }
@@ -3925,7 +3987,7 @@
       ? `Päivän biisit, ${dateLine(keyToDate(state.dayKey || todayKey()))}`
       : haaste ? `Kaverihaaste, kierros ${haaste.kierros + 1}/${haaste.kierroksia}`
           + (kausiNimi(haaste.kaudet) ? ` · ${kausiNimi(haaste.kaudet)}` : "")
-      : kausiNimi() || "Vapaa peli";
+      : rajausNimi() || "Vapaa peli";
     el.resultsScore.textContent = fmt(state.score);
     const yhteenveto = resultSummary(solved, daily ? DAILY_COUNT : state.results.length);
     /* Haasteessa pisteluku on koko haasteen summa, joten kierroksen oma
@@ -4177,7 +4239,7 @@
     const g = c.getContext("2d");
     const reuna = 92;
     pohja(g, KUVA, KUVA_LISTA);
-    let y = otsikko(g, reuna, kausiNimi() || "Vapaa peli");
+    let y = otsikko(g, reuna, rajausNimi() || "Vapaa peli");
 
     y += 46;
     const kansi = 122, rivi = 148, tekstiX = reuna + kansi + 30;
@@ -5145,6 +5207,8 @@
      * jotta seuraavan vuosikymmenen voi valita samalla käynnillä. */
     document.querySelectorAll("[data-kausi]").forEach((b) =>
       b.addEventListener("click", () => vaihdaKausi(b.dataset.kausi)));
+    document.querySelectorAll("[data-genre]").forEach((b) =>
+      b.addEventListener("click", () => vaihdaGenre(b.dataset.genre)));
 
     el.playBtn.addEventListener("click", () => {
       if (audio.playing) { stopPlayback(); return; }

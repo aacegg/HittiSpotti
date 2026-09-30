@@ -1,0 +1,618 @@
+# Biisipelin genret artistin mukaan. Rivi per artisti: nimi — genre.
+#
+# Biisipelin oma lista. Se ei lue ArtistiSpotin genrejä eikä vaikuta
+# niihin, vaikka sama artisti olisi molemmissa: pelit pysyvät erillään.
+#
+# Pohjana Applen genre, joka ei yksin kelpaa: iskelmää Applella ei ole
+# lainkaan (se on Popissa), ja "Worldwide" niputtaa Tapio Rautavaaran,
+# PMMP:n ja Fintelligensin. Iskelmä, metalli ja elektroninen on käyty
+# käsin läpi.
+#
+# Genret: Pop, Rap, Rock, Metalli, Iskelmä, Elektroninen, Muu.
+# Muu (lastenmusiikki, klassinen, soundtrackit) on mukana koko
+# katalogissa mutta ei minkään genren valinnassa.
+2. Maanantai — Pop
+22-Pistepirkko — Rock
+A-Tyyppi — Pop
+Aamupojat — Pop
+Aarne Alligaattori & Viidakkorumpu — Muu
+Aarne Tenkanen — Pop
+AB — Rap
+Abreu — Pop
+Adi L Hasla — Rap
+Ahti — Rap
+Ahti & Behm — Rap
+Aikakone — Pop
+AikaPoliisi — Pop
+Aki Sirkesalo — Pop
+Aknestik — Pop
+Aksel — Pop
+Alan Walker & Robin — Elektroninen
+Aleksanteri Hakaniemi — Pop
+Aliisa Syrjä — Pop
+ALMA — Pop
+ALMA & French Montana — Pop
+Amorphis — Metalli
+ANI — Pop
+ANI & VIIVI — Pop
+Anna Eriksson — Pop
+Anna Hanski — Pop
+Anna Järvinen & Olavi Uusivirta — Pop
+Anna Puu — Pop
+Anna Puu & Olavi Uusivirta — Pop
+Anne Mattila — Iskelmä
+Anneli Saaristo — Iskelmä
+Annika Eklund — Pop
+Annikki Tähti — Iskelmä
+Anssi Kela — Pop
+Antti Ketonen — Pop
+Antti Paalanen — Pop
+Antti Railio — Pop
+Antti Tuisku — Pop
+Apocalyptica — Metalli
+Apulanta — Rock
+Ares — Rap
+Ari Koivunen — Metalli
+Ari Pulkkinen — Muu
+Arja Koriseva — Iskelmä
+Arppa — Pop
+Arttu Lindeman — Rap
+Arttu Wiskari — Iskelmä
+Asa — Rap
+Asa & Josafat — Rap
+Asla Jo — Pop
+Aste — Rap
+Atomirotta — Rock
+Aurora — Pop
+Avain — Pop
+Averagekidluke — Rap
+Averagekidluke & ibe — Rap
+Axel Kala — Rap
+Bang For The Buck — Elektroninen
+Basic Element — Elektroninen
+Bassbros — Elektroninen
+Bat & Ryyd — Elektroninen
+Beast in Black — Metalli
+Bee — Pop
+Behm — Pop
+Behm & Olavi Uusivirta — Pop
+Benjamin — Pop
+Benjamin & BESS — Pop
+BESS — Pop
+BESS & Käärijä — Pop
+Bizi — Rap
+Blacflaco & Cledos — Rap
+Blacflaco & Etta — Rap
+Blacflaco & Korelon — Rap
+Bleak Purdy & Cozie — Rap
+Blind Channel — Metalli
+Bogart Co. — Pop
+Bomfunk MC's — Elektroninen
+Brita Koivunen — Iskelmä
+Brädi — Rap
+CatCat — Pop
+Cavallini & Shrty & Gettomasa — Rap
+Chebaleba — Rap
+Cheek — Rap
+Children of Bodom — Metalli
+Chisu — Pop
+Chorale — Elektroninen
+Christopher Romberg — Muu
+Cledos — Rap
+Cledos & Behm — Rap
+Cledos & ibe — Rap
+Cledos & Jambo — Rap
+CMX — Rock
+Costee — Rap
+Costi — Rap
+Danny — Iskelmä
+Danny & Armi — Iskelmä
+Darude — Elektroninen
+Dave Lindholm — Rock
+Davy — Rap
+Diandra — Pop
+Dingo — Rock
+DISCO — Pop
+DJ Ibusal — Rap
+DJ Oku Luukkainen — Elektroninen
+Dj Oku Luukkainen — Elektroninen
+DJ Oku Luukkainen & HesaÄijä — Elektroninen
+Djvi — Elektroninen
+Don Huonot — Rock
+Duo — Pop
+Edicti — Pop
+Edu Kettunen — Iskelmä
+Eemeli & Esa Pakarinen — Iskelmä
+Eero Raittinen — Iskelmä
+Eevil Stöö — Rap
+Ege Zulu — Rap
+Ege Zulu & Behm — Pop
+Ege Zulu & Gettomasa — Rap
+Egotrippi — Rock
+Eija Sinikka — Iskelmä
+Eini — Iskelmä
+Eino Grön — Iskelmä
+Eino ja Aapeli — Pop
+Elastinen — Rap
+Elektronomia — Elektroninen
+Ellinoora — Pop
+Ellinoora & Juha Tapio — Pop
+Ellinoora & Samuli Putro — Pop
+Elokuu — Pop
+Elonkerjuu — Rock
+Eläkeläiset — Iskelmä
+emma & matilda — Pop
+Epelit — Pop
+Eppu Normaali — Rock
+Erika Vikman — Iskelmä
+Erika Vikman & Arttu Wiskari — Iskelmä
+Erin — Pop
+Erkki Junkkarinen — Iskelmä
+Erkki Liikanen ja Tuire Pentikäinen — Iskelmä
+Esa Pakarinen — Iskelmä
+Etta — Rap
+Eveliina Kurki — Pop
+Evelina — Pop
+Fabe — Rap
+Fabe & SHRTY — Rap
+Faija — Pop
+felix jaehn — Elektroninen
+Finlanders — Iskelmä
+Finnish Hockey Mafia — Pop
+Fintelligens — Rap
+Frederik — Iskelmä
+Fredi — Iskelmä
+Freeman — Iskelmä
+Fröbelin Palikat — Muu
+Gasellit — Rap
+Gasellit & JVG — Rap
+Georg Ots — Iskelmä
+Gettomasa — Rap
+Gettomasa & Van Hegen — Rap
+GG Caravan — Pop
+Gimmel — Pop
+Goldielocks — Pop
+Good Boys — Rap
+Gracias & Reino Nordin — Rap
+Haloo Helsinki! — Pop
+Hank Solo — Pop
+Hanna Ekola — Iskelmä
+Hanoi Rocks — Rock
+Happoradio — Rock
+Hassisen Kone — Rock
+Hausmylly — Iskelmä
+Hector — Rock
+Heikki Kuula — Rap
+Heikki Kuula & Paperi T — Rap
+helmi marleena — Pop
+Helsinki Philharmonic Orchestra & Okko Kamu — Muu
+Herrat — Pop
+HesaÄijä — Rap
+Hevisaurus — Metalli
+HIM — Rock
+Hohto — Rock
+Hugo — Rap
+HurHur — Pop
+Hurja — Rap
+Hurriganes — Rock
+Hussa — Rap
+ibe — Rap
+ibe & baka® — Rap
+Ida — Pop
+Ida Paul & Kalle Lindroth — Pop
+Ikuinenkesä — Pop
+Ilmari Hakkola — Muu
+Ilpo Kaikkonen — Iskelmä
+Ilta — Pop
+Indica — Rock
+Irina — Pop
+Irwin Goodman — Iskelmä
+Isac Elliot — Pop
+Isac Elliot & Ares — Pop
+Isac Elliot & Mirella — Pop
+Ismo Alanko — Rock
+Isto Hiltunen — Iskelmä
+J&J — Pop
+J. Karjalainen — Rock
+J. Karjalainen & Mustat Lasit — Rock
+J. Karjalainen Electric Sauna — Rock
+Jaakko Kulta — Pop
+Jambo — Rap
+Jambo & Mikael Laurent — Rap
+Jami Faltin — Rap
+Jamppa Tuominen — Iskelmä
+Janji & Johnning — Elektroninen
+JANNA — Pop
+Janne Hurme — Pop
+Janne Tulkki — Iskelmä
+Jannika B — Pop
+Jansson — Pop
+Jari Sillanpää — Iskelmä
+Jean-Pierre Kusela — Iskelmä
+Jenkki — Elektroninen
+Jenni Vartiainen — Pop
+Jesse Kaikuranta — Pop
+Jippu — Pop
+Jippu & Samuli Edelmann — Pop
+Joe L — Pop
+Joel Hallikainen — Iskelmä
+Johanna Kurkela — Pop
+Johnny — Iskelmä
+Jokrates — Rap
+Jonna — Iskelmä
+Jonna Geagea — Pop
+Jonna Tervomaa — Pop
+Jonne Aaron — Pop
+Jontte Valosaari — Iskelmä
+Jore & Zpoppa — Rap
+Jore Marjaranta — Rock
+Juha Tapio — Pop
+Juha Vainio — Iskelmä
+Juhana Haukkala — Pop
+Juhani & Joonatan — Pop
+Juice Leskinen — Rock
+Juice Leskinen & Coitus Int — Rock
+Juice Leskinen & Grand Slam — Rock
+Juice Leskinen Slam — Rock
+Juju — Rap
+Jukio Kallio & Daniel Hagström — Muu
+Jukka Kuoppamäki — Iskelmä
+Jukka Poika — Pop
+Jukka Ruusumaa — Pop
+Juliet Jonesin Sydän — Rock
+Jumal X10 Lavis — Pop
+Juno — Rap
+Justimus — Rap
+JVG — Rap
+JVG & emma & matilda — Rap
+JXO — Rap
+Kaartin soittokunta & Elias Seppälä — Muu
+Kai Hyttinen — Iskelmä
+Kaija Koo — Pop
+KAJ — Pop
+Kake Randelin — Iskelmä
+Kake Singers — Iskelmä
+Kapasiteettiyksikkö — Rap
+Kapteeni Ä-ni — Rap
+Kari Tapio — Iskelmä
+Karri Koira — Pop
+Kaseva — Rock
+Kasmir — Pop
+Katri Helena — Iskelmä
+Katri Ylander — Pop
+Kauko Röyhkä — Rock
+Kauko Röyhkä & Narttu — Rock
+KAUKUA — Pop
+keiju & MOMO — Rap
+Keko Salata — Pop
+Kerava — Pop
+KERZA — Pop
+Kikka — Iskelmä
+Kingi Enzio & Röyhkeät Ritarit — Rock
+Kirka — Iskelmä
+Kirka Rapitzin & Sarkastinen — Rap
+Klamydia — Rock
+koira — Rap
+Kolmas Nainen — Rock
+Komiat — Pop
+Korelon — Rap
+Korelon & Cledos — Rap
+Korelon & Sara Bee — Rap
+Korelon & Sliki — Rap
+Korelon & Turisti — Rap
+Korpiklaani — Metalli
+Kotiteollisuus — Metalli
+Krista Siegfrids — Pop
+Kristian Meurman — Rock
+Kristiina Brask — Iskelmä
+Kube — Rap
+KULLERVO — Rap
+Kuningas Pähkinä & Setä Tamu — Rap
+Kuningasidea — Pop
+Kurre — Iskelmä
+Kuumaa — Pop
+Kuumaa & emma & matilda — Pop
+Kymppilinja — Rap
+Käärijä — Rap
+Käärijä & Baby Lasagna — Pop
+Käärijä & Basshunter — Pop
+Käärijä & Hooja — Pop
+Käärijä & Joost — Pop
+Lage — Pop
+Lahti United — Rap
+Laila Kinnunen — Iskelmä
+Lakko & Herba — Rap
+Lasse Hoikka & Souvarit — Iskelmä
+Lasse Mårtenson ja Studio-orkesteri — Iskelmä
+Laura Närhi — Pop
+Laura Voutilainen — Pop
+Lauri Haav — Rap
+Lauri Haav & Gettomasa — Rap
+Lauri Haav & Mirella — Pop
+Lauri Tähkä — Pop
+Lauri Tähkä & Elonkerjuu — Rock
+Lea Laven — Iskelmä
+Leevi and the Leavings — Pop
+Leo Luoto — Iskelmä
+Likanen Etelä — Rap
+Linda Lampenius & Pete Parkkonen — Pop
+Lissut — Rock
+Lokku — Pop
+London MC — Rap
+Lord Est — Rap
+Lordi — Metalli
+Lost Society — Metalli
+louna0nline — Rap
+Lukas Leon — Rap
+M//O — Rap
+Maarit — Iskelmä
+Maija Vilkkumaa — Pop
+Maj Karma — Rock
+Mamba — Pop
+Mansesteri — Rap
+Marilii — Pop
+Marion — Iskelmä
+Marion Rung — Iskelmä
+Marion Rung & Four Cats — Iskelmä
+Mariska — Pop
+Mariska & Pahat Sudet — Rock
+Marita Taavitsainen — Iskelmä
+Markku Aro — Iskelmä
+Marko Haavisto & Poutahaukat — Rock
+Martti Servo & Napander — Iskelmä
+Martti Vainaa & Sallitut Aineet — Pop
+Mascara — Pop
+Matti — Rap
+Matti Esko — Iskelmä
+Matti ja Teppo — Iskelmä
+Matti Nykänen — Pop
+Maukka Perusjätkä — Rock
+Maustetytöt — Pop
+McLäskiTissi — Pop
+MD$ — Rap
+Meiju Suvas — Iskelmä
+Melo — Rap
+Melo & Versace Henrik — Rap
+Michael Monroe — Rock
+Mika Sundqvist — Iskelmä
+Mikael Gabriel — Rap
+Mikael Gabriel & Isac Elliot — Pop
+Mikael Gabriel & nublu — Rap
+Mikael Gabriel & Vesa-Matti Loiri — Rap
+Mikko Alatalo — Pop
+Mikko Harju — Pop
+Mikko Kuustonen — Pop
+Miljoonasade — Rock
+Mirella — Pop
+Mirella & Averagekidluke — Pop
+Mirella & Lauri Haav — Pop
+MKDMSK — Rap
+MKDMSK & Pyhimys — Rap
+Mouhous — Rap
+Movetron — Pop
+Munamies — Pop
+Music Legends — Muu
+Musta Barbaari — Rap
+Mäk Gälis — Rap
+Mäkki — Rap
+Ne Luumäet — Iskelmä
+Negative — Rock
+Neljä Ruusua — Rock
+Neljänsuora — Pop
+Nelli Matula — Pop
+Neon 2 — Pop
+Nightwish — Metalli
+Niila — Pop
+Nikke Ankara — Rap
+Niko Saarinen — Pop
+Nopsajalka — Pop
+Nost3 & Protro — Elektroninen
+NOTO — Rap
+NOTO & ibe — Rap
+Nuket — Rock
+Nuorihylly — Rap
+Nylon Beat — Pop
+Nyrkkitappelu — Rock
+OG Ulla-Maija — Rap
+Olavi Uusivirta — Pop
+Olavi Virta — Iskelmä
+OLGA — Pop
+OLGA & Isac Elliot — Pop
+Olli Antonio — Rap
+Olli Halonen — Pop
+Paleface — Rap
+Paperi T — Rap
+Pariisin Kevät — Pop
+Pasi ja Anssi — Pop
+Pate Mustajärvi — Rock
+Paula Koivuniemi — Iskelmä
+Pauli Hanhiniemi — Rock
+Pave Maijanen — Pop
+Peer Günt — Rock
+Pehmoaino — Pop
+Pekka Ruuska — Iskelmä
+Pelle Miljoona — Rock
+Pelle Miljoona Oy — Rock
+Pepe Willberg & Jormas — Iskelmä
+Pertti Kurikan Nimipäivät — Rock
+Pete Parkkonen — Pop
+Petri Munck — Pop
+Petri Nygård — Rap
+Phimi & Jokrates — Rap
+Pihlaja — Pop
+Pikku G — Rap
+Pilvi Hämäläinen — Pop
+PistePiste — Rock
+PMMP — Pop
+Poets of the Fall — Rock
+Poju — Rap
+Polyteknikkojen Kuoro — Muu
+Popeda — Rock
+Portion Boys — Pop
+Portion Boys & Kake Randelin — Iskelmä
+Profeetat — Rap
+Puhuva Kone — Rap
+Puolikuu — Iskelmä
+Pyhimys — Rap
+Pyhimys & SAIMAA — Pop
+Pyrythekid — Rap
+Pyrythekid & Axel Kala — Rap
+Raappana — Pop
+Ramses II — Rap
+Raptori — Rap
+Rauli Badding Somerjoki — Iskelmä
+Reckless Love — Rock
+Redrama — Rap
+Reijo Taipale — Iskelmä
+Reino Nordin — Pop
+Rekami — Rap
+Rekami & Joniveli — Rap
+Ressu Redford — Pop
+Ressu Redford & Pyhimys — Pop
+Retropop — Pop
+Riki Sorsa — Pop
+Ripsipiirakka — Pop
+RobbeBoy — Pop
+Robin — Pop
+Robin Schulz — Elektroninen
+Roope Salminen & Koirat — Rap
+RosvoSektori — Pop
+Ruger Hauer — Rap
+Ruoska — Metalli
+Ruudolf — Pop
+Ruudolf & Miska Soini — Pop
+Röge — Rap
+Röge & VilleGalle — Rap
+Rölli — Muu
+S4RA — Rap
+SAARA — Pop
+Saara Aalto — Pop
+Sairas T — Rap
+Sammy Babitzin — Iskelmä
+Samppa Linna — Pop
+Samu Haber — Pop
+Samuell — Pop
+Samuli Edelmann — Iskelmä
+Samuli Putro — Pop
+Sanni — Pop
+Sara Bee — Rap
+Sara Siipola — Pop
+Scandinavian Music Group — Pop
+Seija Simola — Iskelmä
+Seksikäs-Suklaa & Dosdela — Rap
+Sentenced — Metalli
+Sere — Rap
+Sexmane — Rap
+SHRTY — Rap
+Sielun Veljet — Rock
+Siiri Nordin — Pop
+Sini Sabotage — Rap
+Sir Elwoodin Hiljaiset Värit — Rock
+Skandaali — Rap
+Skädäm — Pop
+Sleepy Sleepers — Rock
+Sliki — Rap
+Softengine — Rock
+Solistiyhtye Suomi — Iskelmä
+Solonen & Kosola — Pop
+Sonata Arctica — Metalli
+Sonja Lumme — Iskelmä
+Souvarit — Iskelmä
+Spekti — Rap
+Stam1na — Metalli
+Steen1 — Rap
+Stella — Pop
+Stepa — Rap
+Stig — Pop
+Stratovarius — Metalli
+Studio Killers — Pop
+Sunrise Avenue — Rock
+Suurlähettiläät — Pop
+Suvi Teräsniska — Iskelmä
+Särre — Rap
+Taikapeili — Pop
+Taiska — Iskelmä
+Tanssiorkesteri Ässät — Iskelmä
+Tapani Kansa — Iskelmä
+Tapio Rautavaara — Iskelmä
+Tarja Turunen — Metalli
+Tauski — Iskelmä
+Tauski & Virpi — Iskelmä
+Tavaramarkkinat — Pop
+TCT — Pop
+Tea — Pop
+Teflon Brothers — Rap
+Teflon Brothers & Pandora — Pop
+Tehosekoitin — Rock
+Teleks — Iskelmä
+Teräsbetoni — Metalli
+The 69 Eyes — Rock
+The Crash — Rock
+The Rasmus — Rock
+The Verkkars — Pop
+Tiktak — Pop
+Timo Koivusalo — Iskelmä
+Timo Pieni Huijaus — Rap
+Timo Rautiainen & Trio Niskalaukaus — Metalli
+Tippa-T — Rap
+Tohtori Getto — Rap
+Tommi Läntinen — Iskelmä
+Topi Sorsakoski — Iskelmä
+Topi Sorsakoski & Agents — Iskelmä
+Tuomari Nurmio — Rock
+Tuomas Kauhanen — Rap
+Tuomo Karppinen — Muu
+Tupe. — Rap
+Tupe. & Vepu — Pop
+Turisti — Rap
+Turisti & Elastinen — Rap
+Turmion Kätilöt — Metalli
+Turo's Hevi Gee — Rock
+Tuuli — Pop
+Tuure Boelius — Pop
+Tuure Kilpeläinen — Pop
+Tuure Kilpeläinen ja Kaihon Karavaani — Pop
+Töölön Ketterä — Rap
+Ultra Bra — Pop
+Uniikki — Rap
+Uniklubi — Rock
+Ursus Factory — Elektroninen
+Valovuosi — Pop
+Valvomo — Pop
+VeePee Lehto — Rock
+Veikko Lavi — Iskelmä
+Veljenpojat — Iskelmä
+Vesa-Matti Loiri — Iskelmä
+Vesa-Matti Loiri & Samuli Edelmann — Iskelmä
+Vesala — Pop
+Vesta — Pop
+Vesterinen Yhtyeineen — Pop
+Vet Pillows — Pop
+VG+ & Seksikäs-Suklaa — Rap
+Vgr — Pop
+Viikate — Rock
+VIIVI — Pop
+Ville Valo & Natalia Avelon — Pop
+VilleGalle — Rap
+Vilma Alina — Pop
+Virve Rosti — Iskelmä
+VJ — Rap
+Von Hertzen Brothers — Rock
+Waldo — Elektroninen
+Waldo's People — Elektroninen
+whereismike — Pop
+william — Rap
+william & Bizi — Rap
+Windows95Man — Pop
+YB026 — Rap
+Yeboyah — Rap
+Yksi Totuus — Rap
+Yksi Totuus & HesaÄijä — Rap
+Yksi Totuus & Matti Nykänen — Rap
+YOUNGHEARTED — Pop
+YUP — Rock
+Yö — Rock
+Yölintu — Iskelmä
+Yön Polte — Rap
+Zen Café — Rock
+Överi — Rap

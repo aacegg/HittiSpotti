@@ -2580,3 +2580,17 @@ body.sheet-open { overflow: hidden; }
 /* Mahdoton genren ja vuosikymmenen yhdistelmä, ks. rajausOnnistuu
    app.js:ssä. Himmeä eikä piilotettu, jotta napit eivät liiku. */
 .kchip.is-mahdoton { opacity: .35; }
+
+/* Valikon peliryhmät. Pieni otsikko ja pelin väri pallona sen edessä.
+   Ensimmäisen rivin yläviiva pois: otsikko erottaa jo ryhmän. */
+.nav-ryhma {
+  display: flex; align-items: center; gap: var(--s2);
+  margin: var(--s5) 0 0; padding: 0 0 var(--s1);
+  font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted);
+}
+.nav-ryhma:first-child { margin-top: var(--s2); }
+.nav-ryhma::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--t1); }
+.nav-ryhma-artisti::before { background: var(--t4); }
+.nav-ryhma + .navitem { border-top: 0; }
+.navitem-sub.is-active .navitem-name { color: var(--live); }

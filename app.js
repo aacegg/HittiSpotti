@@ -3646,7 +3646,7 @@
     if (r.finished) return;
     const guess = state.selected || exactMatch(el.input.value);
     if (!guess) { toast("Valitse biisi listasta."); return; }
-    if (guess.id === r.song.id) finishRound(true);
+    if (samaBiisi(guess.id, r.song.id)) finishRound(true);
     else { addGuess("wrong", guess.label, guess.id); advanceStep(); }
   }
 
@@ -3766,6 +3766,22 @@
     return alreadyGuessed(hit) ? null : hit;
   }
 
+  /* Sama biisi kahtena levytyksenä. Kumpaakaan ei voi poistaa pelistä,
+   * koska pelattava joukko määrää päivän biisit: yksikin poisto vaihtaisi
+   * jokaisen tulevan päivän sarjan. Siksi ne ovat arvauksessa sama biisi,
+   * ja haussa näkyy vain ryhmän ensimmäinen, jottei pelaaja joudu
+   * arvaamaan kumpi levytys on oikea.
+   *
+   * Taiska: Moi Moi Moi (Take Me High) 1976 ja Moi moi vain, sama biisi
+   * uudelleen levytettynä 2011 kokoelmalle. Ylläpitäjä tunnisti
+   * kuuntelemalla, eroa ei näe nimestä eikä vuodesta. */
+  const SAMA_BIISI = [[209278450, 1076534691]];
+  const samaRyhma = new Map();
+  SAMA_BIISI.forEach((r) => r.forEach((id) => samaRyhma.set(String(id), r.map(String))));
+  const samaBiisi = (a, b) => String(a) === String(b)
+    || (samaRyhma.get(String(a)) || []).includes(String(b));
+  const piilossaHaussa = new Set(SAMA_BIISI.flatMap((r) => r.slice(1).map(String)));
+
   function findSuggestions(text) {
     const q = normalize(text);
     /* Hakusana myös raakana, pelkkä kirjainkoko pienennettynä.
@@ -3777,6 +3793,7 @@
     const tokens = q ? q.split(" ") : [];
     const scored = [];
     for (const s of state.songs) {
+      if (piilossaHaussa.has(String(s.id))) continue;
       const raakaOsuu = raaka.length > 0 && s.keyRaaka.includes(raaka);
       const sanatOsuvat = tokens.length > 0 && tokens.every((t) => s.key.includes(t));
       if (!sanatOsuvat && !raakaOsuu) continue;

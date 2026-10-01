@@ -2581,20 +2581,41 @@ body.sheet-open { overflow: hidden; }
    app.js:ssä. Himmeä eikä piilotettu, jotta napit eivät liiku. */
 .kchip.is-mahdoton { opacity: .35; }
 
-/* Valikon peliryhmät. Pieni otsikko ja pelin väri pallona sen edessä.
-   Ensimmäisen rivin yläviiva pois: otsikko erottaa jo ryhmän. */
+/* Valikon peliryhmät. Otsikko pelin värillä ja sen perässä ohut viiva,
+   jotta ryhmän alku erottuu selvästi. Ensimmäisen rivin yläviiva pois:
+   otsikko erottaa jo ryhmän. */
 .nav-ryhma {
-  display: flex; align-items: center; gap: var(--s2);
-  margin: var(--s5) 0 0; padding: 0 0 var(--s1);
-  font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
-  color: var(--muted);
+  display: flex; align-items: center; gap: var(--s3);
+  margin: var(--s6) 0 var(--s1); padding: 0;
+  font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--t1);
 }
+.nav-ryhma::after { content: ""; flex: 1; height: 1px; background: currentColor; opacity: .35; }
 .nav-ryhma:first-child { margin-top: var(--s2); }
-.nav-ryhma::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--t1); }
-.nav-ryhma-artisti::before { background: var(--t4); }
+.nav-ryhma-artisti { color: var(--t4); }
 .nav-ryhma + .navitem { border-top: 0; }
+
+/* Vuosikymmen- ja genrenapit valikossa tiiviimmin: kolme ja neljä
+   rinnakkain kahden sijaan. Viisi riviä nappeja vei puolet valikosta.
+   Vain valikossa; haasteruudun napit pysyvät ennallaan. */
+.drawer-nav .kaudet { grid-template-columns: repeat(3, 1fr); gap: 6px; padding: var(--s1) 0 var(--s2); }
+.drawer-nav .kaudet.genret { grid-template-columns: repeat(4, 1fr); padding-bottom: var(--s3); }
+.drawer-nav .kchip { min-height: 34px; padding: 4px 2px; font-size: 13px; }
 .navitem-sub.is-active .navitem-name { color: var(--live); }
 
 /* Päivärivi piiloon rajattomassa pelissä. display: flex ohittaisi
    hidden-attribuutin ilman tätä. */
 .a-paivat[hidden] { display: none; }
+
+/* Tyhjät arvausrivit: katkoviiva, ei täyttöä. */
+.a-ruutu.on-tyhja { background: transparent; border: 1px dashed var(--line); min-height: 48px; }
+.a-rivit li.on-tyhja { margin-bottom: 8px; }
+
+/* Rajattoman pelin merkki otsikon alla. */
+.a-pvm.on-rajaton { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 8px; }
+.a-rajaton-merkki {
+  display: inline-block; padding: 4px 12px; border-radius: 999px;
+  background: var(--t4); color: #17120a;
+  font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+}
+.a-rajaton-luvut { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }

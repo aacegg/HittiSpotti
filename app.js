@@ -721,6 +721,7 @@
       stats: "artisti:stats",
       rajaton: "artisti:rajaton",
       rajatonViimeiset: "artisti:rajaton:viimeiset",
+      rajatonTilastot: "artisti:rajaton:tilastot",
     },
   };
 
@@ -1797,6 +1798,16 @@
       const animoi = uusi && rivi === viimeinen ? " on-uusi" : "";
       return `<li><div class="a-rivi${animoi}">${solut}</div></li>`;
     });
+    /* Jäljellä olevat arvaukset tyhjinä katkoviivariveinä. Ilman niitä
+     * ruudukko alkoi tyhjästä ja kasvoi alaspäin arvaus kerrallaan, ja
+     * sivu näytti alussa lähes tyhjältä. Nyt pelilauta on näkyvissä
+     * koko kokoisena alusta asti eikä mikään siirry arvatessa. */
+    if (!artistiTila.ohi) {
+      const tyhja = '<div class="a-ruutu on-tyhja"></div>'.repeat(ARTISTI_KENTAT.length);
+      for (let i = artistiTila.arvaukset.length; i < ARTISTI_ARVAUKSIA; i++) {
+        rivit.push(`<li class="on-tyhja"><div class="a-rivi">${tyhja}</div></li>`);
+      }
+    }
     el.aRivit.innerHTML = rivit.join("");
     if (nimiJaljessa) {
       const ruutu = el.aRivit.querySelector("li:last-child .a-ruutu.on-nimi");
@@ -1849,10 +1860,22 @@
      * hukkaa kesken olevaa artistia. Tilastoihin ja putkeen se ei koske:
      * ne ovat päivän pelin, jossa kaikilla on sama artisti. */
     if (artistiTila.pvm === RAJATON) {
+      const ennen = store.get(AVAIN.artisti.rajaton, null) || {};
+      /* Ratkaistut lasketaan kerran per artisti: kirjattu-merkintä estää
+       * saman pelin laskemisen uudestaan sivun latauksen jälkeen. */
+      const kirjataan = artistiTila.ohi && !(ennen.oikea === artistiTila.oikea.id && ennen.kirjattu);
+      if (kirjataan) {
+        const t = rajatonTilastot();
+        t.pelatut += 1;
+        if (artistiTila.voitto) t.ratkaistut += 1;
+        store.set(AVAIN.artisti.rajatonTilastot, t);
+      }
       store.set(AVAIN.artisti.rajaton, {
         oikea: artistiTila.oikea.id,
         arvaukset: artistiTila.arvaukset.map((a) => a.id),
+        kirjattu: artistiTila.ohi,
       });
+      piirraArtistiOtsikko();
       return;
     }
     // Luetaan ennen kirjoitusta: tilastot kirjataan vain kerran päivässä,
@@ -2250,6 +2273,25 @@
   const RAJATON = "rajaton";
   const RAJATON_MUISTI = 40;
 
+  function rajatonTilastot() {
+    const t = store.get(AVAIN.artisti.rajatonTilastot, null) || {};
+    return { pelatut: Number(t.pelatut) || 0, ratkaistut: Number(t.ratkaistut) || 0 };
+  }
+
+  /* Otsikon alarivi: päivän pelissä päivämäärä, rajattomassa näkyvä
+   * merkki ja oma laskuri. Pelkkä harmaa "Rajaton" jäi huomaamatta. */
+  function piirraArtistiOtsikko() {
+    const rajaton = artistiTila.pvm === RAJATON;
+    el.aPvm.classList.toggle("on-rajaton", rajaton);
+    if (!rajaton) {
+      el.aPvm.textContent = keyToDate(artistiTila.pvm).toLocaleDateString("fi-FI");
+      return;
+    }
+    const t = rajatonTilastot();
+    el.aPvm.innerHTML = '<span class="a-rajaton-merkki">Rajaton peli</span>'
+      + (t.pelatut ? `<span class="a-rajaton-luvut">Ratkaistu ${t.ratkaistut}/${t.pelatut}</span>` : "");
+  }
+
   function arvoRajaton() {
     const viimeiset = store.get(AVAIN.artisti.rajatonViimeiset, []);
     const pois = new Set(Array.isArray(viimeiset) ? viimeiset : []);
@@ -2282,7 +2324,7 @@
       aloitaRajaton(arvoRajaton());
       tallennaArtisti();
     }
-    el.aPvm.textContent = "Rajaton";
+    piirraArtistiOtsikko();
     el.aInput.value = "";
     el.aEhdotukset.hidden = true;
     piirraArtistiRivit();
@@ -2331,7 +2373,7 @@
     }
     // Päivämäärä seuraa pelattavaa päivää eikä kelloa, jotta
     // testipäivää pelatessa näkee mitä päivää pelaa.
-    el.aPvm.textContent = keyToDate(pvm).toLocaleDateString("fi-FI");
+    piirraArtistiOtsikko();
     el.aInput.value = "";
     el.aEhdotukset.hidden = true;
     piirraArtistiRivit();

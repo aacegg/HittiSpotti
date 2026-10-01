@@ -719,6 +719,8 @@
       kesken: (pvm) => `artisti:daily:${pvm}:kesken`,
       vertailu: (pvm) => `artisti:paivavertailu:${pvm}`,
       stats: "artisti:stats",
+      rajaton: "artisti:rajaton",
+      rajatonViimeiset: "artisti:rajaton:viimeiset",
     },
   };
 
@@ -978,10 +980,11 @@
        pelatessa mikään rivi ei kertonut missä ollaan. Puhelimella sen
        huomasi vain valikon avatessa, mutta leveällä ruudulla valikko on
        aina näkyvissä sivupalkkina, ja tyhjä korostus näkyi koko ajan. */
-    const nyt = (state.view === "artisti" || state.view === "artistitulos") ? "artisti"
+    const nyt = (state.view === "artisti" || state.view === "artistitulos")
+      ? (artistiTila.pvm === RAJATON ? "artistirajaton" : "artisti")
       : state.view === "game" ? state.mode : "";
     document.querySelectorAll("[data-go]").forEach((b) => {
-      const isMode = ["daily", "free", "haaste", "artisti"].includes(b.dataset.go);
+      const isMode = ["daily", "free", "haaste", "artisti", "artistirajaton"].includes(b.dataset.go);
       if (isMode) b.classList.toggle("is-active", nyt === b.dataset.go);
     });
     /* Napit näyttävät valinnan aina, eivät vain kesken vapaan sarjan: se on
@@ -1817,9 +1820,10 @@
     if (artistiTila.ohi) {
       const n = artistiTila.arvaukset.length;
       el.aLoppuOtsikko.textContent = artistiTila.voitto ? "Oikein!" : "Ei osunut";
+      const kuka = artistiTila.pvm === RAJATON ? "Artisti" : "Päivän artisti";
       el.aLoppuTeksti.textContent = artistiTila.voitto
-        ? `Päivän artisti oli ${artistiTila.oikea.n}. Arvauksia ${n}/${ARTISTI_ARVAUKSIA}.`
-        : `Päivän artisti oli ${artistiTila.oikea.n}.`;
+        ? `${kuka} oli ${artistiTila.oikea.n}. Arvauksia ${n}/${ARTISTI_ARVAUKSIA}.`
+        : `${kuka} oli ${artistiTila.oikea.n}.`;
       /* Vastaus vasta kun viimeinenkin ruutu on kääntynyt. Muuten
        * "Päivän artisti oli X" lukisi ruudulla ennen kuin pelaaja on
        * ehtinyt katsoa sitä riviä josta se olisi pitänyt päätellä. */
@@ -1841,6 +1845,16 @@
 
   function tallennaArtisti() {
     if (!artistiTila.pvm) return;
+    /* Rajaton peli tallentuu omalle avaimelleen, jotta sivun lataus ei
+     * hukkaa kesken olevaa artistia. Tilastoihin ja putkeen se ei koske:
+     * ne ovat päivän pelin, jossa kaikilla on sama artisti. */
+    if (artistiTila.pvm === RAJATON) {
+      store.set(AVAIN.artisti.rajaton, {
+        oikea: artistiTila.oikea.id,
+        arvaukset: artistiTila.arvaukset.map((a) => a.id),
+      });
+      return;
+    }
     // Luetaan ennen kirjoitusta: tilastot kirjataan vain kerran päivässä,
     // ja tallenteen olemassaolo on se mikä kertoo päivän jo kirjatuksi.
     const jo = !!store.get(AVAIN.artisti.tulos(artistiTila.pvm), null);
@@ -2223,7 +2237,71 @@
    *
    * Ilman päivää avautuu tämä päivä: valikon ArtistiSpotti on aina
    * tämän päivän peli, vaikka edellisellä kerralla olisi pelattu mennyttä. */
+  /* ---------- Rajaton ArtistiSpotti ----------
+   *
+   * Niin monta artistia kuin jaksaa. Arvonta on kaikista artisteista,
+   * myös niistä jotka ovat myöhemmin päivän artisteja: Spotlen rajaton
+   * toimii samoin, ja ylläpitäjä valitsi tämän. Viimeiset
+   * RAJATON_MUISTI arvottua eivät tule uudestaan, jottei sama toistu
+   * heti.
+   *
+   * Ei tilastoja, ei palvelinlähetystä eikä päiväriviä: pelaajat eivät
+   * pelaa samaa artistia, joten vertailtavaa ei ole. */
+  const RAJATON = "rajaton";
+  const RAJATON_MUISTI = 40;
+
+  function arvoRajaton() {
+    const viimeiset = store.get(AVAIN.artisti.rajatonViimeiset, []);
+    const pois = new Set(Array.isArray(viimeiset) ? viimeiset : []);
+    let joukko = state.artistit.filter((a) => !pois.has(a.id));
+    if (!joukko.length) joukko = state.artistit;
+    const a = joukko[Math.floor(Math.random() * joukko.length)];
+    store.set(AVAIN.artisti.rajatonViimeiset,
+      [...pois, a.id].slice(-RAJATON_MUISTI));
+    return a;
+  }
+
+  function aloitaRajaton(oikea, arvaukset = []) {
+    artistiTila.pvm = RAJATON;
+    artistiTila.oikea = oikea;
+    artistiTila.arvaukset = arvaukset;
+    artistiTila.voitto = arvaukset.some((a) => a.id === oikea.id);
+    artistiTila.ohi = artistiTila.voitto || arvaukset.length >= ARTISTI_ARVAUKSIA;
+  }
+
+  async function avaaRajaton(uusi = false) {
+    show("artisti");
+    asetaHaasteOsoite(null);
+    await lataaArtistit();
+    const byId = new Map(state.artistit.map((a) => [a.id, a]));
+    const tallessa = store.get(AVAIN.artisti.rajaton, null);
+    const vanha = !uusi && tallessa && byId.get(tallessa.oikea);
+    if (vanha) {
+      aloitaRajaton(vanha, (tallessa.arvaukset || []).map((id) => byId.get(id)).filter(Boolean));
+    } else {
+      aloitaRajaton(arvoRajaton());
+      tallennaArtisti();
+    }
+    el.aPvm.textContent = "Rajaton";
+    el.aInput.value = "";
+    el.aEhdotukset.hidden = true;
+    piirraArtistiRivit();
+    piirraArtistiPaivat();
+    paivitaArtistiNapit();
+    refreshDrawer();
+    if (!store.get(AVAIN.artisti.etuliite + "ohje-nahty", 0)) avaaArtistiOhje();
+  }
+
+  /* Loppulohkon ja paljastusruudun nappi: päivän pelissä tulokset,
+   * rajattomassa seuraava artisti. */
+  function paivitaArtistiNapit() {
+    const rajaton = artistiTila.pvm === RAJATON;
+    el.aTulokset.textContent = rajaton ? "Uusi artisti" : "Tulokset";
+    el.aPaljastusOk.textContent = rajaton ? "Uusi artisti" : "Tulokset";
+  }
+
   async function avaaArtisti(valinta) {
+    if (valinta === RAJATON) { await avaaRajaton(); return; }
     show("artisti");
     asetaHaasteOsoite(null);
     await lataaArtistit();
@@ -2255,6 +2333,8 @@
     el.aEhdotukset.hidden = true;
     piirraArtistiRivit();
     piirraArtistiPaivat();
+    paivitaArtistiNapit();
+    refreshDrawer();
     /* Ensimmäisellä käynnillä säännöt aukeavat itsestään. Pelkkä
      * kysymysmerkki jäisi huomaamatta, ja ruudukko ilman selitystä on
      * viisi saraketta värejä ilman kertojaa siitä mitä ne tarkoittavat. */
@@ -2472,7 +2552,8 @@
   el.aPaljastusScrim.addEventListener("click", suljeArtistiPaljastus);
   el.aPaljastusOk.addEventListener("click", () => {
     suljeArtistiPaljastus();
-    avaaArtistiTulos();
+    if (artistiTila.pvm === RAJATON) avaaRajaton(true);
+    else avaaArtistiTulos();
   });
 
   /* Ohjeruutu.
@@ -2525,7 +2606,10 @@
   el.aOhjeOk.addEventListener("click", suljeArtistiOhje);
   el.aOhjeScrim.addEventListener("click", suljeArtistiOhje);
 
-  el.aTulokset.addEventListener("click", () => { avaaArtistiTulos(); });
+  el.aTulokset.addEventListener("click", () => {
+    if (artistiTila.pvm === RAJATON) avaaRajaton(true);
+    else avaaArtistiTulos();
+  });
   el.atJaa.addEventListener("click", () => { jaaArtisti(); });
   // Sama päivä jonka tulosta katsotaan, ei tämä päivä.
   el.atTakaisin.addEventListener("click", () => { avaaArtisti(artistiTila.pvm); });
@@ -5284,6 +5368,7 @@
     if (target === "daily") await startDaily();
     else if (target === "free") await startFree();
     else if (target === "artisti") await avaaArtisti();
+    else if (target === "artistirajaton") await avaaRajaton();
     else if (target === "artistitulos") await avaaArtistiTulos();
     else if (target === "stats") show("stats");
     else if (target === "help") show("help");

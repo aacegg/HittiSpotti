@@ -2599,8 +2599,17 @@ body.sheet-open { overflow: hidden; }
    rinnakkain kahden sijaan. Viisi riviä nappeja vei puolet valikosta.
    Vain valikossa; haasteruudun napit pysyvät ennallaan. */
 .drawer-nav .kaudet { grid-template-columns: repeat(3, 1fr); gap: 6px; padding: var(--s1) 0 var(--s2); }
-.drawer-nav .kaudet.genret { grid-template-columns: repeat(4, 1fr); padding-bottom: var(--s3); }
-.drawer-nav .kchip { min-height: 34px; padding: 4px 2px; font-size: 13px; }
+.drawer-nav .kaudet.genret {
+  grid-template-columns: repeat(4, 1fr); padding-bottom: var(--s3);
+  /* Pieni erotus vuosikymmenistä: lyhyt viiva ryhmien välissä, jotta
+     kaksi eri valintaa ei lue yhtenä nappiruudukkona. */
+  position: relative; margin-top: var(--s2); padding-top: var(--s3);
+}
+.drawer-nav .kaudet.genret::before {
+  content: ""; position: absolute; top: 0; left: 25%; right: 25%;
+  height: 1px; background: var(--dim);
+}
+.drawer-nav .kchip { min-height: 34px; padding: 4px 2px; font-size: 12.5px; }
 .navitem-sub.is-active .navitem-name { color: var(--live); }
 
 /* Päivärivi piiloon rajattomassa pelissä. display: flex ohittaisi

@@ -28,13 +28,26 @@
    * Tyvi on nimi ilman "-luku"-päätettä. Sitä tarvitaan kun valintoja on
    * monta: "1990-, 2000- ja 2010-luku" on suomea, "1990-luku, 2000-luku ja
    * 2010-luku" on luettelo. */
+  /* bitti on kauden paikka kaverihaasteen koodissa. Se on oma kenttänsä
+   * eikä listan järjestys, koska 80-luku erotettiin myöhemmin omakseen:
+   * jaetuissa linkeissä bitti 0 tarkoittaa yhä vanhaa 1950–89-kautta, ja
+   * listan järjestyksestä johdettuna se olisi alkanut tarkoittaa jotain
+   * muuta. Ks. KAUSI_VANHA. */
   const KAUDET = [
-    { avain: "vanha", tyvi: "1950–80", alku: 1950, loppu: 1989 },
-    { avain: "1990", tyvi: "1990", alku: 1990, loppu: 1999 },
-    { avain: "2000", tyvi: "2000", alku: 2000, loppu: 2009 },
-    { avain: "2010", tyvi: "2010", alku: 2010, loppu: 2019 },
-    { avain: "2020", tyvi: "2020", alku: 2020, loppu: 2099 },
+    { avain: "5070", tyvi: "1950–70", alku: 1950, loppu: 1979, bitti: 5 },
+    { avain: "1980", tyvi: "1980", alku: 1980, loppu: 1989, bitti: 6 },
+    { avain: "1990", tyvi: "1990", alku: 1990, loppu: 1999, bitti: 1 },
+    { avain: "2000", tyvi: "2000", alku: 2000, loppu: 2009, bitti: 2 },
+    { avain: "2010", tyvi: "2010", alku: 2010, loppu: 2019, bitti: 3 },
+    { avain: "2020", tyvi: "2020", alku: 2020, loppu: 2099, bitti: 4 },
   ];
+  /* Poistunut kausi "vanha" (1950–89) oli 50–70-luku ja 80-luku yhdessä.
+   * Se luetaan niinä kahtena, jolloin biisijoukko on täsmälleen sama ja
+   * vanha haastelinkki antaa saman sarjan kuin ennen. Avain voi tulla
+   * tallennetusta vapaan pelin valinnasta tai koodin bitistä 0. */
+  const KAUSI_VANHA = { avain: "vanha", bitti: 0, kaudet: ["5070", "1980"] };
+  const puraVanhaKausi = (avaimet) => avaimet.flatMap(
+    (a) => (a === KAUSI_VANHA.avain ? KAUSI_VANHA.kaudet : [a]));
   KAUDET.forEach((k) => { k.nimi = k.tyvi + "-luku"; });
 
   /* Valitut kaudet aikajärjestyksessä, tai tyhjä lista kun rajausta ei ole.
@@ -61,11 +74,18 @@
    * Neljä viidestä sanotaan poissulkevasti. Se on lyhyempi kuin luettelo,
    * ja ennen kaikkea se on se mitä pelaaja teki: hän jätti yhden pois. */
   function kausiNimi(kaudet = state.kaudet) {
-    const valitut = valitutKaudet(kaudet);
+    let valitut = valitutKaudet(kaudet);
     if (!valitut.length) return "";
-    if (valitut.length === 1) return valitut[0].nimi;
     const poissa = KAUDET.filter((k) => !valitut.includes(k));
     if (poissa.length === 1) return `Ei ${poissa[0].tyvi}-lukua`;
+    /* 50–70 ja 80 yhdessä sanotaan yhtenä kautena. Muuten otsikko olisi
+     * "1950–70- ja 1980-luku", ja vanha haastelinkki näyttäisi eri nimen
+     * kuin silloin kun se jaettiin. */
+    if (KAUSI_VANHA.kaudet.every((a) => valitut.some((k) => k.avain === a))) {
+      valitut = [{ avain: KAUSI_VANHA.avain, tyvi: "1950–80", nimi: "1950–80-luku" },
+        ...valitut.filter((k) => !KAUSI_VANHA.kaudet.includes(k.avain))];
+    }
+    if (valitut.length === 1) return valitut[0].nimi;
     const tyvet = valitut.map((k) => k.tyvi);
     return `${tyvet.slice(0, -1).map((t) => `${t}-`).join(", ")} ja ${tyvet[tyvet.length - 1]}-luku`;
   }
@@ -229,7 +249,9 @@
   function lataaKaudet() {
     const tallessa = store.get("kaudet", []);
     if (Array.isArray(tallessa)) {
-      state.kaudet = KAUDET.filter((k) => tallessa.includes(k.avain)).map((k) => k.avain);
+      // Ennen 80-luvun erottamista tallentunut "vanha" puretaan kahdeksi.
+      const avaimet = puraVanhaKausi(tallessa);
+      state.kaudet = KAUDET.filter((k) => avaimet.includes(k.avain)).map((k) => k.avain);
     }
     // Genrevalinta samalla periaatteella: tuntematon arvo suodatetaan pois.
     const genret = store.get("genret", []);
@@ -2776,7 +2798,7 @@
 
   function haasteKoodi(siemen, kierroksia, kaudet, versio = HAASTE_VERSIO) {
     const bitit = KAUDET.reduce(
-      (b, k, i) => b | (kaudet.includes(k.avain) ? 1 << i : 0), 0);
+      (b, k) => b | (kaudet.includes(k.avain) ? 1 << k.bitti : 0), 0);
     const osat = [siemen.toString(36), kierroksia.toString(36), bitit.toString(36)];
     if (versio >= 2) osat.push(String(versio));
     return osat.join("-");
@@ -2795,10 +2817,19 @@
     const [siemen, kierroksia, bitit] = osat.slice(0, 3).map((o) => parseInt(o, 36));
     if (!Number.isInteger(siemen) || siemen < 0 || siemen >= HAASTE_SIEMEN_MAX) return null;
     if (!HAASTE_KIERROKSET.includes(kierroksia)) return null;
-    if (!Number.isInteger(bitit) || bitit < 0 || bitit >= (1 << KAUDET.length)) return null;
-    const kaudet = KAUDET.filter((_, i) => bitit & (1 << i)).map((k) => k.avain);
-    return { koodi: haasteKoodi(siemen, kierroksia, kaudet, versio),
-             siemen, kierroksia, kaudet, versio };
+    const bitteja = Math.max(KAUSI_VANHA.bitti, ...KAUDET.map((k) => k.bitti)) + 1;
+    if (!Number.isInteger(bitit) || bitit < 0 || bitit >= (1 << bitteja)) return null;
+    const avaimet = puraVanhaKausi(
+      [KAUSI_VANHA, ...KAUDET].filter((k) => bitit & (1 << k.bitti)).map((k) => k.avain));
+    const kaudet = KAUDET.filter((k) => avaimet.includes(k.avain)).map((k) => k.avain);
+    /* Koodi kirjoitetaan puretuista luvuista eikä haasteKoodi:lla. Vanha
+     * linkki pitää silloin oman koodinsa, ja sen alle tallennettu eteneminen
+     * löytyy yhä: haasteKoodi kirjoittaisi bitin 0 (50-80-luku ennen
+     * 80-luvun erottamista) uusiksi kahtena bittinä, ja kesken jäänyt
+     * haaste alkaisi alusta. */
+    const osat_ = [siemen, kierroksia, bitit].map((n) => n.toString(36));
+    if (versio >= 2) osat_.push(String(versio));
+    return { koodi: osat_.join("-"), siemen, kierroksia, kaudet, versio };
   }
 
   /* Haasteen biisit: yksi jokaiselta tasolta jokaiselle kierrokselle.

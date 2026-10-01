@@ -14,6 +14,7 @@ const teePeli = (genret, kaudet) => new Function(`
   const state = { pool: ${JSON.stringify(kat)}, used: new Set(),
                   genret: ${JSON.stringify(genret)}, kaudet: ${JSON.stringify(kaudet)} };
   ${pala(/  const KAUDET = \[[\s\S]*?\n  \];/)}
+  ${pala(/  const KAUSI_VANHA = [^\n]*/)}
   ${pala(/  KAUDET\.forEach\(\(k\) => \{ k\.nimi = [^\n]*/)}
   ${pala(/  function valitutKaudet\([\s\S]*?\n  \}/)}
   ${pala(/  function kausiNimi\([\s\S]*?\n  \}/)}
@@ -55,7 +56,7 @@ vaita("rock ja 90-luku", rock90.every((s) => s.g === "Rock" && s.year >= 1990 &&
   `${rock90.filter((s) => !(s.g === "Rock" && s.year >= 1990 && s.year <= 1999)).length} ohi`);
 /* Tyhjä yhdistelmä: genre pidetään, vuosikymmen jätetään. */
 const tasot = [1, 2, 3, 4, 5].map((t) => kat.filter((s) => s.tier === t && s.g === "Rap" && s.year <= 1989).length);
-const rapVanha = otos(teePeli(["Rap"], ["vanha"]), 10);
+const rapVanha = otos(teePeli(["Rap"], ["5070", "1980"]), 10);
 vaita("vajaa yhdistelmä ei kaadu ja pitää genren", rapVanha.length === 50 && rapVanha.every((s) => s.g === "Rap"),
   `50–80-luvun rapia tasoittain ${tasot.join(",")}`);
 vaita("nimi: genre ensin", teePeli(["Rock"], ["1990"]).rajausNimi() === "Rock · 1990-luku",
@@ -66,15 +67,16 @@ vaita("nimi: ei rajausta", teePeli([], []).rajausNimi() === "");
 
 /* Mahdottomat yhdistelmät estetään valittaessa. */
 const p0 = teePeli([], []);
-vaita("rap + 50–80 on mahdoton", !p0.rajausOnnistuu(["Rap"], ["vanha"]));
+vaita("rap + 50–80 on mahdoton", !p0.rajausOnnistuu(["Rap"], ["5070", "1980"]));
 vaita("rap + 90 on mahdoton (yhdeltä tasolta puuttuu)", !p0.rajausOnnistuu(["Rap"], ["1990"]));
 vaita("iskelmä + 2020 estetty (yhdellä tasolla yksi biisi)", !p0.rajausOnnistuu(["Iskelmä"], ["2020"]));
-vaita("pop + 50–80 sallittu (kolme biisiä)", p0.rajausOnnistuu(["Pop"], ["vanha"]));
+vaita("pop + 50–80 sallittu (kolme biisiä)", p0.rajausOnnistuu(["Pop"], ["5070", "1980"]));
+vaita("rap + 80-luku on mahdoton", !p0.rajausOnnistuu(["Rap"], ["1980"]));
 vaita("rock + 90 onnistuu", p0.rajausOnnistuu(["Rock"], ["1990"]));
-vaita("rap + 50–80 + 2010 onnistuu", p0.rajausOnnistuu(["Rap"], ["vanha", "2010"]));
+vaita("rap + 50–80 + 2010 onnistuu", p0.rajausOnnistuu(["Rap"], ["5070", "1980", "2010"]));
 vaita("pelkkä genre onnistuu aina", ["Pop", "Rap", "Rock", "Iskelmä"].every((g) => p0.rajausOnnistuu([g], [])));
-vaita("selitys", p0.mahdotonTeksti(["Rap"], ["vanha"]) === "1950–80-luvun rapia ei ole tarpeeksi.",
-  p0.mahdotonTeksti(["Rap"], ["vanha"]));
+vaita("selitys", p0.mahdotonTeksti(["Rap"], ["5070", "1980"]) === "1950–80-luvun rapia ei ole tarpeeksi.",
+  p0.mahdotonTeksti(["Rap"], ["5070", "1980"]));
 vaita("selitys kahdella genrellä", p0.mahdotonTeksti(["Rock", "Iskelmä"], ["2020"]) === "2020-luvun rockia ja iskelmää ei ole tarpeeksi.",
   p0.mahdotonTeksti(["Rock", "Iskelmä"], ["2020"]));
 

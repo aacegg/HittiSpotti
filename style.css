@@ -2594,3 +2594,7 @@ body.sheet-open { overflow: hidden; }
 .nav-ryhma-artisti::before { background: var(--t4); }
 .nav-ryhma + .navitem { border-top: 0; }
 .navitem-sub.is-active .navitem-name { color: var(--live); }
+
+/* Päivärivi piiloon rajattomassa pelissä. display: flex ohittaisi
+   hidden-attribuutin ilman tätä. */
+.a-paivat[hidden] { display: none; }

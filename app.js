@@ -2296,6 +2296,9 @@
    * rajattomassa seuraava artisti. */
   function paivitaArtistiNapit() {
     const rajaton = artistiTila.pvm === RAJATON;
+    /* Päivärivi vain päivän pelissä. Rajattomassa se hämmensi: rivi
+     * näytti päiviä vaikka pelattava artisti ei kuulu mihinkään niistä. */
+    if (el.aPaivat) el.aPaivat.hidden = rajaton;
     el.aTulokset.textContent = rajaton ? "Uusi artisti" : "Tulokset";
     el.aPaljastusOk.textContent = rajaton ? "Uusi artisti" : "Tulokset";
   }

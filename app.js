@@ -1832,7 +1832,12 @@
     }
     el.aRivit.innerHTML = rivit.join("");
     if (nimiJaljessa) {
-      const ruutu = el.aRivit.querySelector("li:last-child .a-ruutu.on-nimi");
+      /* Rivi indeksillä eikä :last-child-valitsimella: arvaamattomat
+       * rivit piirretään tyhjinä perään, joten viimeinen li on tyhjä rivi
+       * eikä juuri arvattu. Silloin väri jäi tulematta seuraavaan
+       * arvaukseen asti. */
+      const ruutu = el.aRivit.children[viimeinen]
+        && el.aRivit.children[viimeinen].querySelector(".a-ruutu.on-nimi");
       artistiNimiAjastin = setTimeout(() => {
         if (!ruutu) return;
         ruutu.classList.add("on-kaanny");

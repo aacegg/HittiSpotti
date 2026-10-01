@@ -96,17 +96,24 @@
   }
 
   /* Riittääkö genren ja vuosikymmenen yhdistelmä sarjaan: jokaiselta
-   * tasolta vähintään yksi biisi. Mahdoton yhdistelmä estetään jo
+   * tasolta vähintään RAJAUS_VAHINTAAN biisiä. Mahdoton yhdistelmä estetään jo
    * valittaessa (himmeä nappi), koska muuten peli soittaisi muita
    * vuosikymmeniä otsikon luvatessa toista: "Rap · 1950–80-luku" soitti
    * JVG:tä vuodelta 2025. 50–80-luvun rapia ei ole lainkaan. */
+  /* Vähintään kolme biisiä jokaiselta tasolta. Yhdellä sama biisi tuli
+   * joka sarjassa (2020-luvun iskelmä), kolmella se toistuu joka
+   * kolmannessa, mikä on vielä siedettävää. Viidellä raja olisi estänyt
+   * myös esimerkiksi vanhan popin, jota joku varmasti haluaa pelata. */
+  const RAJAUS_VAHINTAAN = 3;
+
   function rajausOnnistuu(genret, kaudet) {
     const g = valitutGenret(genret);
     const k = valitutKaudet(kaudet);
     if (!g.length || !k.length) return true;
-    return TIER_CYCLE.every((tier) => state.pool.some((s) => s.tier === tier
+    return TIER_CYCLE.every((tier) => state.pool.filter((s) => s.tier === tier
       && g.includes(s.g)
-      && s.year && k.some((x) => s.year >= x.alku && s.year <= x.loppu)));
+      && s.year && k.some((x) => s.year >= x.alku && s.year <= x.loppu)).length
+      >= RAJAUS_VAHINTAAN);
   }
 
   /* Miksi nappia ei voi painaa: "1950–80-luvun rapia ei ole." */

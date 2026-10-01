@@ -22,6 +22,7 @@ const teePeli = (genret, kaudet) => new Function(`
   ${pala(/  function genreNimi\([\s\S]*?\n  \}/)}
   ${pala(/  function rajausNimi\(\) \{[\s\S]*?\n  \}/)}
   ${pala(/  const TIER_CYCLE = \[[^\]]*\];/)}
+  ${pala(/  const RAJAUS_VAHINTAAN = \d+;/)}
   ${pala(/  function rajausOnnistuu\([\s\S]*?\n  \}/)}
   ${pala(/  const GENRE_PARTITIIVI = [^\n]*/)}
   ${pala(/  function mahdotonTeksti\([\s\S]*?\n  \}/)}
@@ -67,6 +68,8 @@ vaita("nimi: ei rajausta", teePeli([], []).rajausNimi() === "");
 const p0 = teePeli([], []);
 vaita("rap + 50–80 on mahdoton", !p0.rajausOnnistuu(["Rap"], ["vanha"]));
 vaita("rap + 90 on mahdoton (yhdeltä tasolta puuttuu)", !p0.rajausOnnistuu(["Rap"], ["1990"]));
+vaita("iskelmä + 2020 estetty (yhdellä tasolla yksi biisi)", !p0.rajausOnnistuu(["Iskelmä"], ["2020"]));
+vaita("pop + 50–80 sallittu (kolme biisiä)", p0.rajausOnnistuu(["Pop"], ["vanha"]));
 vaita("rock + 90 onnistuu", p0.rajausOnnistuu(["Rock"], ["1990"]));
 vaita("rap + 50–80 + 2010 onnistuu", p0.rajausOnnistuu(["Rap"], ["vanha", "2010"]));
 vaita("pelkkä genre onnistuu aina", ["Pop", "Rap", "Rock", "Iskelmä"].every((g) => p0.rajausOnnistuu([g], [])));

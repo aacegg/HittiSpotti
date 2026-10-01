@@ -372,7 +372,7 @@
 {"artist":"Kake Randelin","title":"Nasta pimu","year":1983,"tier":1,"id":655608439,"g":"Iskelmä"},
 {"artist":"Erkki Junkkarinen","title":"Ruusuja Hopeamaljassa","year":1975,"tier":5,"id":656118233,"g":"Iskelmä"},
 {"artist":"Erkki Junkkarinen","title":"Kappale kauneinta Suomea","year":1977,"tier":5,"id":867679886,"g":"Iskelmä"},
-{"artist":"Taiska","title":"Moi moi vain","year":2011,"tier":4,"id":1076534691,"g":"Pop"},
+{"artist":"Taiska","title":"Moi moi vain","year":2011,"tier":4,"id":1076534691,"peli":false},
 {"artist":"Taiska","title":"Mombasa","year":1976,"tier":3,"id":216691214,"g":"Pop"},
 {"artist":"Suvi Teräsniska","title":"Täydellinen Elämä","year":2013,"tier":3,"id":857595588,"g":"Iskelmä"},
 {"artist":"Suvi Teräsniska","title":"Rikki mutta riittävä","year":2025,"tier":3,"id":1804457559,"peli":false},

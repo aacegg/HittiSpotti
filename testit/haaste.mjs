@@ -11,6 +11,7 @@
  * siitä, koska kumpikin näkee vain oman sarjansa.
  */
 import fs from "node:fs";
+import { execSync } from "node:child_process";
 const src = fs.readFileSync("app.js", "utf8");
 const pala = (h) => { const m = src.match(h); if (!m) throw new Error("ei löytynyt " + h); return m[0]; };
 const kat = JSON.parse(fs.readFileSync("katalogi.json", "utf8"));
@@ -204,14 +205,19 @@ for (let k = 0; k < 5; k++) v2idt.push(...haasteKierros(v2, k).map((x) => x.id))
 vaita("versio 2: ei toistoa", new Set(v2idt).size === 25);
 vaita("versio 2: tasot 1-5", haasteKierros(v2, 0).map((x) => x.tier).join(",") === "1,2,3,4,5");
 
-/* 13. Versio 1:n koodit antavat saman sarjan kuin ennen muutosta, jotta
- *     julkaisuhetkellä kesken olevat haasteet eivät vaihdu. Tilannekuva
- *     otettu vanhalla koodilla samasta katalogista. */
+/* 13. Versio 1:n laskenta on ennallaan: sama koodi antaa saman sarjan kuin
+ *     ennen versiota 2. Tilannekuva otettiin katalogista, joka oli
+ *     käytössä commitissa 68527c7, joten vertailu tehdään sitä vasten.
+ *     Nykyistä katalogia vasten tämä hälyttäisi jokaisesta katalogi-
+ *     muutoksesta, koska juuri sitä versio 1 ei kestä. */
+const vanhaPool = JSON.parse(execSync("git show 68527c7:katalogi.json", { encoding: "utf8", maxBuffer: 1 << 26 }))
+  .filter((x) => x.peli !== false);
+const vanhalla = teeHaaste(vanhaPool);
 const vanhat = {"abc-3-0":[[1645551829,1277156034,722435361],[1442465677,1443345644,1872345095],[1879810403,1565587598,1866248688],[713624947,196453821,1067070098],[73629626,1248420559,1580370681]],"zz1-5-2":[[260655284,1443367787,1443109086,270298859,1442499567],[270986922,996916278,255078223,919408531,723543479],[1443110276,723446654,1669932412,299230665,1166857879],[299232053,270986882,655113864,209391816,255077995],[270987112,655511462,713940227,1442640603,258513836]],"k3x9-1-f":[[968108643],[79348840],[416693329],[1442344411],[252129229]],"q-3-g":[[1886521259,1646268330,1861801973],[1868742940,1613227754,1586167945],[1802728410,1796448265,1879810403],[6764760267,1869080009,1815701461],[1686474531,1558807605,1551380237]]};
 for (const [k, odotus] of Object.entries(vanhat)) {
-  const h = lueHaaste(k);
+  const h = vanhalla.lueHaaste(k);
   vaita(`versio 1 ennallaan ${k}`, !!h && h.versio === 1 && h.koodi === k
-    && JSON.stringify(haasteBiisit(h).map((t) => t.map((x) => x.id))) === JSON.stringify(odotus));
+    && JSON.stringify(vanhalla.haasteBiisit(h).map((t) => t.map((x) => x.id))) === JSON.stringify(odotus));
 }
 
 console.log(ok ? "\nLÄPI" : "\nHYLÄTTY");

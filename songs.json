@@ -3738,7 +3738,8 @@
   "id": 1076534691,
   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/7f/4e/32/7f4e32e9-3901-d2fc-1333-9bce205d5dae/mzaf_10341191036041796586.plus.aac.p.m4a",
   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music69/v4/b1/b0/d0/b1b0d0d4-2c8d-ac7a-b5de-e5fbfe667082/cover.jpg/300x300bb.jpg",
-  "itunes": "Taiska – Moi moi vain (2011)"
+  "itunes": "Taiska – Moi moi vain (2011)",
+  "peli": false
  },
  {
   "artist": "Taiska",

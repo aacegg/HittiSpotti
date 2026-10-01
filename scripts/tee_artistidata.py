@@ -37,8 +37,8 @@ ROOT = Path(__file__).resolve().parent.parent
 LAHDE = ROOT / ".artistit.json"
 ULOS = ROOT / "artistit.json"
 LISTA = Path(__file__).resolve().parent / "artistit-lista.txt"
-# Arvattavat mutta ei päivän artistiksi, ks. tiedoston selitys ja
-# app.js:n kiertoArtistit.
+# Myöhemmin lisätyt: kiertoon vasta jäädytyksen jälkeen, ks. app.js:n
+# ARTISTI_JAADYTYS.
 LISATYT = Path(__file__).resolve().parent / "artistit-lisatyt.txt"
 
 # Peliin menevät kentät. Lyhyet avaimet, koska ne toistuvat 246 kertaa.
@@ -122,7 +122,7 @@ def main() -> int:
                                 f"{rivi['p']!r}")
                 continue
             if v.get("nimi") in lisatyt:
-                rivi["x"] = 1
+                rivi["u"] = 1
             ulos.append(rivi)
 
     if puutteet:

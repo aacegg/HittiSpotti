@@ -18,6 +18,7 @@ const teeKoodi = (lista) => `
   ${pala(/function shuffled\(list, seed\) \{[\s\S]*?\n  \}/)}
   ${pala(/const ARTISTI_EPOCH = [\s\S]*?const ARTISTI_GAP = \d+;/)}
   ${pala(/function artistiDayIndex\(key\) \{[\s\S]*?\n  \}/)}
+  ${pala(/const ARTISTI_JAADYTYS = [^\n]*/)}
   ${pala(/const kiertoArtistit = [^\n]*/)}
   ${pala(/const artistiPakat = new Map\(\);/)}
   ${pala(/function artistiPakka\(cycle\) \{[\s\S]*?\n  \}/)}
@@ -26,8 +27,7 @@ const teeKoodi = (lista) => `
 `;
 const { paivanArtisti, artistiDayIndex } = new Function(teeKoodi(artistit))();
 
-/* Kierrossa ovat vain artistit ilman x-merkintää. Myöhemmin lisätyt
- * (scripts/artistit-lisatyt.txt) ovat vain haussa. */
+/* Kierrossa ovat artistit ilman x-merkintää, myös myöhemmin lisätyt (u). */
 const kierrossa = artistit.filter((a) => !a.x);
 const N = kierrossa.length;
 const pvm = (i) => {
@@ -56,18 +56,30 @@ vaita(`kierros ${N} päivää ilman toistoja`, kierros.size === N, `${kierros.si
 // 4. Jokainen artisti tulee vuoroon
 vaita("jokainen artisti kerran kierrossa", kierros.size === kierrossa.length);
 
-/* 4b. Lisätyt artistit eivät muuta kiertoa. Jos tämä pettää, artistin
- *     lisääminen vaihtaa jo pelattujen päivien oikeat vastaukset. */
-const ilman = new Function(teeKoodi(kierrossa))().paivanArtisti;
+/* 4b. Jäädytys: päivät ARTISTI_JAADYTYS asti ovat samat kuin ennen
+ *     lisäystä. Vertailukohta on alkuperäinen laskenta (yksi sekoitus,
+ *     ei jäädytystä) pelkillä alkuperäisillä artisteilla, eli täsmälleen
+ *     se mitä tuotannossa pelattiin. Jos tämä pettää, jo pelattujen
+ *     päivien oikeat vastaukset vaihtuvat. */
+const alkuperaiset = kierrossa.filter((a) => !a.u)
+  .sort((a, b) => (a.id < b.id ? -1 : 1));
+const vanha = new Function(`
+  ${pala(/function hashString\(str\) \{[\s\S]*?\n  \}/)}
+  ${pala(/function mulberry32\(seed\) \{[\s\S]*?\n  \}/)}
+  ${pala(/function shuffled\(list, seed\) \{[\s\S]*?\n  \}/)}
+  ${pala(/const ARTISTI_SEKOITUS = \d+;/)}
+  return shuffled(${JSON.stringify(alkuperaiset)}, hashString(\`artisti:\${ARTISTI_SEKOITUS}:0\`));`)();
+const F = artistiDayIndex(pala(/const ARTISTI_JAADYTYS = "([^"]*)"/).match(/"([^"]*)"/)[1]);
 let sama = true;
-for (let i = -10; i < N * 3; i++) {
-  if (paivanArtisti(pvm(i)).id !== ilman(pvm(i)).id) { sama = false; break; }
-}
-vaita("lisätyt artistit eivät muuta kiertoa", sama);
-const lisatyt = new Set(artistit.filter((a) => a.x).map((a) => a.id));
-let tuli = 0;
-for (let i = 0; i < N * 3; i++) if (lisatyt.has(paivanArtisti(pvm(i)).id)) tuli++;
-vaita("lisätty artisti ei tule päivän artistiksi", tuli === 0, `${lisatyt.size} lisättyä`);
+for (let i = 0; i <= F; i++) if (paivanArtisti(pvm(i)).id !== vanha[i].id) sama = false;
+vaita(`jäädytetyt päivät 0-${F} ennallaan`, sama);
+const lisatyt = new Set(kierrossa.filter((a) => a.u).map((a) => a.id));
+let ennen = 0;
+for (let i = 0; i <= F; i++) if (lisatyt.has(paivanArtisti(pvm(i)).id)) ennen++;
+vaita("lisätty artisti ei tule ennen jäädytyksen loppua", ennen === 0, `${lisatyt.size} lisättyä`);
+let kierroksella = 0;
+for (let i = 0; i < N; i++) if (lisatyt.has(paivanArtisti(pvm(i)).id)) kierroksella++;
+vaita("lisätyt tulevat ensimmäisellä kierroksella", kierroksella === lisatyt.size);
 
 // 5. Sauma: lyhin väli saman artistin toistoon
 const nahty = new Map();

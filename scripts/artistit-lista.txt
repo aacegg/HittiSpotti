@@ -33,6 +33,7 @@ Ari Koivunen
 Arja Koriseva
 Arttu Wiskari
 Aste
+Atomirotta
 Aurora
 Averagekidluke
 Axel Kala
@@ -101,6 +102,7 @@ Ismo Alanko
 J. Karjalainen
 Jami Faltin
 Janji
+Janne Hurme
 Jannika B
 Jari Sillanpää
 Jean Sibelius
@@ -181,7 +183,9 @@ Nopsajalka
 Nylon Beat
 Olavi Uusivirta
 Olavi Virta
+OLGA
 Olli Halonen
+Olli Lindholm
 Paleface
 Paperi T
 Pariisin Kevät
@@ -192,6 +196,7 @@ Pauli Hanhiniemi
 Pave Maijanen
 Peer Günt
 Pehmoaino
+Pekka Ruuska
 Pelle Miljoona
 Pete Parkkonen
 Petri Nygård
@@ -208,6 +213,7 @@ Redrama
 Reijo Taipale
 Reino Nordin
 Ressu Redford
+Riki Sorsa
 Robin
 Ruger Hauer
 Ruudolf
@@ -244,6 +250,7 @@ The Rasmus
 The Verkkars
 Tiktak
 Tippa-T
+Tommi Läntinen
 Topi Sorsakoski
 Tuomari Nurmio
 Tuomas Kauhanen

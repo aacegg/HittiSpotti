@@ -1,13 +1,20 @@
-# ArtistiSpotin artistit jotka voi arvata mutta jotka eivät tule päivän
-# artistiksi. Nimi täsmälleen kuten artistit-lista.txt:ssä, jossa niiden
-# pitää olla myös.
+# ArtistiSpotin myöhemmin lisätyt artistit. Nimi täsmälleen kuten
+# artistit-lista.txt:ssä, jossa niiden pitää olla myös.
 #
-# Päivän artisti arvotaan sekoittamalla koko lista, joten uuden artistin
-# vieminen kiertoon vaihtaisi jokaisen päivän artistin, myös jo
-# pelattujen. Tämän listan artistit saavat artistit.json:iin kentän
-# x: 1, ja peli jättää ne pois arvonnasta mutta tarjoaa ne haussa.
+# Nämä saavat artistit.json:iin kentän u: 1. Peli pitää ensimmäisen
+# kierroksen päivät ARTISTI_JAADYTYS-päivään asti alkuperäisinä (laskettuna
+# ilman näitä) ja sekoittaa nämä mukaan vasta sen jälkeisiin päiviin.
+# Ks. app.js, artistiPakka.
 #
-# Lisätty pelaajan palautteesta 28.9.2026, kun haku ei tuntenut niitä.
+# Sentenced, Pauli Hanhiniemi ja Jannika B lisättiin 28.-29.9.2026 ensin
+# vain hakuun ja kiertoon 2.10.2026 muiden kanssa.
 Pauli Hanhiniemi
 Sentenced
 Jannika B
+Olli Lindholm
+Riki Sorsa
+Atomirotta
+Tommi Läntinen
+Janne Hurme
+Pekka Ruuska
+OLGA

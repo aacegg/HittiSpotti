@@ -1368,14 +1368,28 @@
     return Math.floor((Date.UTC(y, m - 1, d) - ARTISTI_EPOCH) / DAY_MS);
   }
 
-  /* Kierrossa ovat vain julkaisuhetken artistit. Myöhemmin lisätyillä on
-   * artistit.json:ssa x: 1 (ks. scripts/artistit-lisatyt.txt): ne voi
-   * hakea ja arvata, mutta päivän artistiksi ne eivät tule.
+  /* Myöhemmin lisätyt artistit (u: 1, ks. scripts/artistit-lisatyt.txt)
+   * tulevat kiertoon jäädytyksen jälkeen.
    *
-   * Syy on sekoitus. Se riippuu listan sisällöstä, joten yksikin uusi
-   * artisti kierrossa vaihtaisi jokaisen päivän artistin, myös jo
-   * pelattujen. Pelaajan tallennetut arvaukset näyttäisivät silloin
-   * väärää lopputulosta ja viiden edellisen päivän pelit vaihtuisivat. */
+   * Sekoitus riippuu listan sisällöstä, joten uusi artisti listassa
+   * sekoittaisi jokaisen päivän artistin, myös jo pelattujen. Pelaajan
+   * tallennetut arvaukset näyttäisivät silloin väärää lopputulosta ja
+   * viiden edellisen päivän pelit vaihtuisivat. Siksi ensimmäinen kierros
+   * kootaan kahdesta osasta:
+   *
+   *   1. päivät ARTISTI_JAADYTYS asti: alkuperäinen järjestys, laskettuna
+   *      alkuperäisistä artisteista täsmälleen kuten ennen lisäystä
+   *   2. loput päivät: kierron loput artistit ja lisätyt yhdessä,
+   *      omalla siemenellään sekoitettuina
+   *
+   * Jokainen artisti on silti kierroksessa täsmälleen kerran. Jäädytys
+   * ulottuu viikon julkaisupäivän yli, jotta julkaisun ajoitus ei voi
+   * vaihtaa jo nähtyä päivää. Toisesta kierroksesta alkaen kaikki ovat
+   * samalla viivalla ja sekoitetaan normaalisti.
+   *
+   * x: 1 on yhä olemassa artistille joka on haussa mutta ei koskaan
+   * päivän artisti. Datassa sellaisia ei tällä hetkellä ole. */
+  const ARTISTI_JAADYTYS = "2026-10-09";
   const kiertoArtistit = () => state.artistit.filter((a) => !a.x);
 
   const artistiPakat = new Map();
@@ -1384,11 +1398,24 @@
     const valmis = artistiPakat.get(cycle);
     if (valmis) return valmis;
     const lista = kiertoArtistit().sort((a, b) => (a.id < b.id ? -1 : 1));
-    const order = shuffled(lista, hashString(`artisti:${ARTISTI_SEKOITUS}:${cycle}`));
+    let order;
+    if (cycle === 0) {
+      const alkuperaiset = lista.filter((a) => !a.u);
+      const etu = shuffled(alkuperaiset, hashString(`artisti:${ARTISTI_SEKOITUS}:0`))
+        .slice(0, artistiDayIndex(ARTISTI_JAADYTYS) + 1);
+      const etuIdt = new Set(etu.map((a) => a.id));
+      const loput = shuffled(lista.filter((a) => !etuIdt.has(a.id)),
+        hashString(`artisti:${ARTISTI_SEKOITUS}:0:jatko`));
+      order = etu.concat(loput);
+    } else {
+      order = shuffled(lista, hashString(`artisti:${ARTISTI_SEKOITUS}:${cycle}`));
+    }
     const n = order.length;
     if (cycle > 0 && n >= 3 * ARTISTI_GAP) {
-      const edellinen = shuffled(lista,
-        hashString(`artisti:${ARTISTI_SEKOITUS}:${cycle - 1}`));
+      /* Sauma lasketaan edellisen kierroksen todellisesta järjestyksestä,
+       * ei pelkästä sekoituksesta: ensimmäinen kierros on koottu kahdesta
+       * osasta, joten sekoitus ei enää kerro sen loppua. */
+      const edellinen = artistiPakka(cycle - 1);
       const hanta = new Set(edellinen.slice(n - ARTISTI_GAP).map((a) => a.id));
       for (let i = 0; i < ARTISTI_GAP; i++) {
         if (!hanta.has(order[i].id)) continue;

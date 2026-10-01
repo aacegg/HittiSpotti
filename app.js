@@ -306,7 +306,7 @@
    * muodossa "versio 1.0 (100)": pelaaja tunnistaa alun, ja suluista näkee
    * täsmälleen mikä rakenne hänellä oli. */
   /* 1.1: ArtistiSpotti, Kaverihaaste ja 144 uutta biisiä (27.9.2026). */
-  const TUOTEVERSIO = "1.1";
+  const TUOTEVERSIO = "1.2";
 
   /* Mitä uutta -tiedote.
    *
@@ -337,32 +337,21 @@
    * koska hän ei ole nähnyt sitä arvattavana kertaakaan. Yksi luku siis,
    * summana. */
   const UUTTA = {
-    /* Uusi tunnus, koska tiedote on kokonaan uusi. Vanhan nähneet saavat
-     * tämän kerran, eikä kukaan näe sitä kahdesti. */
-    id: "2026-09-27-artistispotti",
-    /* Tiedote vanhenee itsestään. Kaksi uutta pelimuotoa on uutinen sillä
-     * viikolla kun ne ilmestyvät, ei kuukautta myöhemmin. Sama päivä kuin
-     * valikon uutta-merkeillä (UUSI_ASTI), jotta ne katoavat yhdessä eikä
-     * toinen jää kertomaan uutuudesta jota toinen ei enää mainosta. */
-    loppuu: "2026-10-05",
-    /* Tärkein ensin. ArtistiSpotti on kokonaan uusi peli eikä sitä löydä
-     * pelaamalla biisipeliä: se on valikossa oma rivinsä. Kaverihaaste on
-     * toisena, koska sekin on uusi rivi valikossa. Biisimäärän huomaa
-     * pelaamalla, joten se on viimeisenä.
-     *
-     * 144 = 88 uutta biisiä katalogiin + 56 täytteistä peliin nostettua.
-     * Pelaajalle ne ovat sama asia, joten luku on yksi.
-     *
-     * Ensimmäinen kohta alkaa sanoilla "UUSI PELI:" eivätkä muut ala
-     * millään vastaavalla, ja se on tahallista. Pelkkä nimi lihavoituna
-     * ei kerro silmäilijälle mitään, koska "ArtistiSpotti" voisi yhtä
-     * hyvin olla muutos johonkin vanhaan. Jos jokainen kohta alkaisi
-     * samalla tavalla korostettuna, mikään ei enää erottuisi: korostus
-     * toimii vain niin kauan kuin sitä on yksi. */
+    /* Uusi tunnus, joten myös 1.1:n tiedotteen nähneet saavat tämän
+     * kerran. */
+    id: "2026-10-02-versio-1.2",
+    /* Viikko, sama kuin valikon uutta-merkeillä (UUSI_ASTI). */
+    loppuu: "2026-10-09",
+    /* Tärkein ensin. Rajaton peli on uusi rivi valikossa eikä sitä löydä
+     * pelaamalla, joten se on ensimmäisenä. Genrevalinta on vapaan pelin
+     * sisällä. "UUSI PELI" -korostusta ei käytetä: rajaton on
+     * ArtistiSpotin muunnelma, ja korostus kuluu jos sitä käyttää joka
+     * kerta. */
     kohdat: [
-      "<b>UUSI PELI: ArtistiSpotti.</b> Arvaa päivän artisti seitsemällä yrityksellä. Uusi artisti joka päivä, ja viisi edellistä päivää voi pelata jälkikäteen",
-      "<b>Kaverihaaste</b> antaa samat biisit sinulle ja kavereillesi. Valitse kierrosten määrä, lähetä linkki ja vertailkaa pisteitä",
-      "<b>144 uutta biisiä</b>, nyt yhteensä 1 888 arvattavaa",
+      "<b>Rajaton ArtistiSpotti.</b> Arvaa niin monta artistia kuin jaksat. Löytyy valikosta ArtistiSpotin alta",
+      "<b>Valitse genre.</b> Vapaassa pelissä voi nyt valita popin, rapin, rockin tai iskelmän, ja genren voi yhdistää vuosikymmeneen",
+      "<b>80-luku omana valintanaan</b>, erillään 50–70-luvusta",
+      "<b>52 uutta biisiä</b> ja seitsemän uutta artistia ArtistiSpottiin. Arvattavia biisejä on nyt 1 939",
     ],
   };
 
@@ -964,7 +953,7 @@
    * Päivä on pelin oma vuorokausiraja (todayKey) eikä selaimen paikallinen,
    * jotta se vaihtuu samaan aikaan kuin päivän biisit. Vertailu on
    * tekstivertailu, koska YYYY-MM-DD järjestyy oikein sellaisenaan. */
-  const UUSI_ASTI = { artisti: "2026-10-05", haaste: "2026-10-05" };
+  const UUSI_ASTI = { rajaton: "2026-10-09", vapaa: "2026-10-09" };
 
   function paivitaUusiMerkit() {
     document.querySelectorAll("[data-uusi]").forEach((m) => {

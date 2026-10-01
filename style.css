@@ -2576,3 +2576,7 @@ body.sheet-open { overflow: hidden; }
   .a-ruutu.on-nimi { font-size: 8px; padding: 3px 2px; }
   .a-nimi-kuva { width: 20px; height: 20px; }
 }
+
+/* Mahdoton genren ja vuosikymmenen yhdistelmä, ks. rajausOnnistuu
+   app.js:ssä. Himmeä eikä piilotettu, jotta napit eivät liiku. */
+.kchip.is-mahdoton { opacity: .35; }

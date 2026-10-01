@@ -95,6 +95,30 @@
     return `${valitut.slice(0, -1).join(", ")} ja ${valitut[valitut.length - 1]}`;
   }
 
+  /* Riittääkö genren ja vuosikymmenen yhdistelmä sarjaan: jokaiselta
+   * tasolta vähintään yksi biisi. Mahdoton yhdistelmä estetään jo
+   * valittaessa (himmeä nappi), koska muuten peli soittaisi muita
+   * vuosikymmeniä otsikon luvatessa toista: "Rap · 1950–80-luku" soitti
+   * JVG:tä vuodelta 2025. 50–80-luvun rapia ei ole lainkaan. */
+  function rajausOnnistuu(genret, kaudet) {
+    const g = valitutGenret(genret);
+    const k = valitutKaudet(kaudet);
+    if (!g.length || !k.length) return true;
+    return TIER_CYCLE.every((tier) => state.pool.some((s) => s.tier === tier
+      && g.includes(s.g)
+      && s.year && k.some((x) => s.year >= x.alku && s.year <= x.loppu)));
+  }
+
+  /* Miksi nappia ei voi painaa: "1950–80-luvun rapia ei ole." */
+  const GENRE_PARTITIIVI = { Pop: "poppia", Rap: "rapia", Rock: "rockia", Iskelmä: "iskelmää" };
+  function mahdotonTeksti(genret, kaudet) {
+    const g = valitutGenret(genret).map((x) => GENRE_PARTITIIVI[x]);
+    const k = kausiNimi(kaudet);
+    if (!g.length || !/-luku$/.test(k)) return "Tällä yhdistelmällä ei löydy tarpeeksi biisejä.";
+    const genret_ = g.length > 1 ? `${g.slice(0, -1).join(", ")} ja ${g[g.length - 1]}` : g[0];
+    return `${k.replace(/-luku$/, "-luvun")} ${genret_} ei ole tarpeeksi.`;
+  }
+
   /* Vapaan pelin koko rajaus otsikoihin ja jakoon: "Rock · 1990-luku".
    * Genre ensin, koska se on se mitä pelaaja tuli pelaamaan. */
   function rajausNimi() {
@@ -116,6 +140,12 @@
    * sulkisi valikon niin kuin ennen, toista vuosikymmentä ei pääsisi
    * painamaan avaamatta valikkoa uudestaan. */
   function vaihdaKausi(avain) {
+    const uudet = state.kaudet.includes(avain)
+      ? state.kaudet.filter((k) => k !== avain) : state.kaudet.concat(avain);
+    if (!rajausOnnistuu(state.genret, uudet)) {
+      toast(mahdotonTeksti(state.genret, uudet));
+      return;
+    }
     /* Varmistus vain ensimmäisestä painalluksesta. Sen jälkeen uusi sarja on
      * jo tulossa eikä menetettäviä pisteitä enää ole, joten saman kysymyksen
      * toistaminen joka napille olisi pelkkä este monivalinnan tiellä. */
@@ -136,6 +166,12 @@
 
   /* Sama käytös kuin vuosikymmenillä, ks. vaihdaKausi. */
   function vaihdaGenre(genre) {
+    const uudet = state.genret.includes(genre)
+      ? state.genret.filter((g) => g !== genre) : state.genret.concat(genre);
+    if (!rajausOnnistuu(uudet, state.kaudet)) {
+      toast(mahdotonTeksti(uudet, state.kaudet));
+      return;
+    }
     if (!pakkaAjastin && freeStarted()
       && !confirm("Sarja alkaa alusta ja pisteet nollautuvat. Jatketaanko?")) return;
     state.genret = state.genret.includes(genre)
@@ -191,6 +227,15 @@
     // Genrevalinta samalla periaatteella: tuntematon arvo suodatetaan pois.
     const genret = store.get("genret", []);
     if (Array.isArray(genret)) state.genret = GENRET.filter((g) => genret.includes(g));
+    /* Ennen estoa tallentunut mahdoton yhdistelmä: vuosikymmen pois,
+     * genre jää, kuten poiminnan varasäännössäkin. Ajetaan katalogin
+     * latauksen jälkeen, koska tarkistus tarvitsee biisit. */
+  }
+
+  function korjaaMahdotonRajaus() {
+    if (rajausOnnistuu(state.genret, state.kaudet)) return;
+    state.kaudet = [];
+    store.set("kaudet", state.kaudet);
   }
   const STORE = "hittispotti:";
   const STORE_OLD = "songspot-suomi:";         // aiempi nimi, tiedot siirretään kerran
@@ -947,6 +992,23 @@
       b.classList.toggle("is-on", paalla);
       b.setAttribute("aria-pressed", String(paalla));
     });
+    /* Himmeä nappi on mahdoton yhdistelmä. Ei disabled, jotta painallus
+     * voi kertoa syyn: hiljaa kuollut nappi näyttää rikkinäiseltä.
+     * Valittua ei himmennetä, koska sen pitää pystyä poistamaan. */
+    if (state.pool.length) {
+      document.querySelectorAll("[data-kausi]").forEach((b) => {
+        const k = b.dataset.kausi;
+        const pois = !state.kaudet.includes(k) && !rajausOnnistuu(state.genret, state.kaudet.concat(k));
+        b.classList.toggle("is-mahdoton", pois);
+        b.setAttribute("aria-disabled", String(pois));
+      });
+      document.querySelectorAll("[data-genre]").forEach((b) => {
+        const g = b.dataset.genre;
+        const pois = !state.genret.includes(g) && !rajausOnnistuu(state.genret.concat(g), state.kaudet);
+        b.classList.toggle("is-mahdoton", pois);
+        b.setAttribute("aria-disabled", String(pois));
+      });
+    }
     /* Alateksti on ainoa paikka joka kertoo ennen aloitusta mitä napeista
        seuraa. Ilman sitä valinta näkyisi vasta pelin otsikossa, eli vasta
        kun sarja on jo alkanut ja edellinen menetetty. */
@@ -5400,6 +5462,7 @@
     el.loadingText.textContent = "Ladataan biisejä…";
     try {
       await loadCatalog();
+      korjaaMahdotonRajaus();
       refreshDrawer();
       /* Haastelinkki avaa haasteen, muuten sivu avautuu päivän peliin.
        * Kelvoton koodi ei kaada mitään vaan putoaa päivän peliin: linkki

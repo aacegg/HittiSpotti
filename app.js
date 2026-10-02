@@ -2306,8 +2306,18 @@
     }
     const t = rajatonTilastot();
     el.aPvm.innerHTML = '<span class="a-rajaton-merkki">Rajaton peli</span>'
-      + (t.pelatut ? `<span class="a-rajaton-luvut">Ratkaistu ${t.ratkaistut}/${t.pelatut}</span>` : "");
+      + (t.pelatut ? `<span class="a-rajaton-luvut">Ratkaistu ${t.ratkaistut}/${t.pelatut}</span>`
+        + '<button type="button" class="a-rajaton-nollaa">Nollaa</button>' : "");
   }
+
+  /* Laskurin nollaus. Vain laskuri: kesken oleva artisti ja toiston
+   * esto (viimeiset 100) jäävät ennalleen, koska ne eivät ole tulos. */
+  el.aPvm.addEventListener("click", (e) => {
+    if (!e.target.closest(".a-rajaton-nollaa")) return;
+    if (!confirm("Nollataanko rajattoman pelin laskuri?")) return;
+    store.remove(AVAIN.artisti.rajatonTilastot);
+    piirraArtistiOtsikko();
+  });
 
   function arvoRajaton() {
     const viimeiset = store.get(AVAIN.artisti.rajatonViimeiset, []);

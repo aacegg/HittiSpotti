@@ -2628,3 +2628,11 @@ body.sheet-open { overflow: hidden; }
   font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
 }
 .a-rajaton-luvut { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+/* Laskurin nollaus: tekstinappi, ei korostettu, koska sitä tarvitaan harvoin. */
+.a-rajaton-nollaa {
+  border: 0; background: none; padding: 4px 2px; cursor: pointer;
+  color: var(--dim); font: inherit; font-size: 13px; text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.a-rajaton-nollaa:hover { color: var(--text); }

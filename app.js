@@ -2282,12 +2282,13 @@
    * myös niistä jotka ovat myöhemmin päivän artisteja: Spotlen rajaton
    * toimii samoin, ja ylläpitäjä valitsi tämän. Viimeiset
    * RAJATON_MUISTI arvottua eivät tule uudestaan, jottei sama toistu
-   * heti.
+   * heti. Satunnainen arvonta eikä sekoitettu pakka, myös ylläpitäjän
+   * valinta.
    *
    * Ei tilastoja, ei palvelinlähetystä eikä päiväriviä: pelaajat eivät
    * pelaa samaa artistia, joten vertailtavaa ei ole. */
   const RAJATON = "rajaton";
-  const RAJATON_MUISTI = 40;
+  const RAJATON_MUISTI = 100;   // ylläpitäjän valinta, 40 toistui liian pian
 
   function rajatonTilastot() {
     const t = store.get(AVAIN.artisti.rajatonTilastot, null) || {};

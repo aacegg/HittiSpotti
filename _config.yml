@@ -33,3 +33,7 @@ exclude:
   - scripts/
   - katalogi.html
   - songs.json
+  # Arkiston lähde. Siinä on kiinnityksen jälkeen myös kuluvan päivän
+  # biisit, joten sitä ei julkaista: julkaistaan vain siitä koottu
+  # arkisto.html, jossa on pelkät menneet päivät.
+  - arkisto.json

@@ -1,0 +1,1622 @@
+{
+ "huom": "Menneet päivät sellaisina kuin ne pelattiin. Älä muokkaa käsin: node scripts/arkisto.mjs kiinnita. Ks. scripts/arkisto.mjs.",
+ "paivat": {
+  "2026-09-03": {
+   "b": [
+    {
+     "id": 202122147,
+     "a": "PMMP",
+     "t": "Pikkuveli",
+     "v": 2005,
+     "taso": 1
+    },
+    {
+     "id": 1443367792,
+     "a": "Ultra Bra",
+     "t": "Minä Suojelen Sinua Kaikelta",
+     "v": 1997,
+     "taso": 2
+    },
+    {
+     "id": 1442787020,
+     "a": "Elastinen",
+     "t": "Ovet Paukkuu",
+     "v": 2007,
+     "taso": 3
+    },
+    {
+     "id": 1478135331,
+     "a": "Costee",
+     "t": "Satuta mua kunnolla",
+     "v": 2019,
+     "taso": 4
+    },
+    {
+     "id": 654974316,
+     "a": "Eino Grön",
+     "t": "Kulkuri ja joutsen",
+     "v": 1970,
+     "taso": 5
+    }
+   ]
+  },
+  "2026-09-04": {
+   "b": [
+    {
+     "id": 394359590,
+     "a": "Happoradio",
+     "t": "Pelastaja",
+     "v": 2001,
+     "taso": 1
+    },
+    {
+     "id": 1444288744,
+     "a": "Spekti",
+     "t": "Juomalaulu (feat. Tasis)",
+     "v": 2013,
+     "taso": 2
+    },
+    {
+     "id": 713595405,
+     "a": "Sammy Babitzin",
+     "t": "Kuin Tuhka Tuuleen (Don't Pull Your Love)",
+     "v": 1999,
+     "taso": 3
+    },
+    {
+     "id": 1443109515,
+     "a": "Leevi and the Leavings",
+     "t": "Poika nimeltä Päivi",
+     "v": 1992,
+     "taso": 4
+    },
+    {
+     "id": 273944385,
+     "a": "Kirka",
+     "t": "Ota Lähellesi",
+     "v": 1979,
+     "taso": 5
+    }
+   ]
+  },
+  "2026-09-05": {
+   "b": [
+    {
+     "id": 1444325772,
+     "a": "Robin Packalen",
+     "t": "Hula Hula (feat. Nelli Matula)",
+     "v": 2017,
+     "taso": 1
+    },
+    {
+     "id": 330861135,
+     "a": "Antti Tuisku",
+     "t": "Juuret",
+     "v": 2006,
+     "taso": 2
+    },
+    {
+     "id": 1443348519,
+     "a": "Tiktak",
+     "t": "Tuuleksi Taivaanrantaan",
+     "v": 2003,
+     "taso": 3
+    },
+    {
+     "id": 724124925,
+     "a": "Pave Maijanen",
+     "t": "Pidä huolta",
+     "v": 1990,
+     "taso": 4
+    },
+    {
+     "id": 311221652,
+     "a": "Jamppa Tuominen",
+     "t": "Aamu Toi, Ilta Vei",
+     "v": 1977,
+     "taso": 5
+    }
+   ]
+  },
+  "2026-09-06": {
+   "b": [
+    {
+     "id": 1444325772,
+     "a": "Robin Packalen",
+     "t": "Hula Hula (feat. Nelli Matula)",
+     "v": 2017,
+     "taso": 1
+    },
+    {
+     "id": 1639869368,
+     "a": "Uniklubi",
+     "t": "Kaikki mitä mä annoin",
+     "v": 2005,
+     "taso": 2
+    },
+    {
+     "id": 268555705,
+     "a": "Dave Lindholm",
+     "t": "Annan Kitaran Laulaa Vaan",
+     "v": 1993,
+     "taso": 3
+    },
+    {
+     "id": 1445150322,
+     "a": "Nikke Ankara",
+     "t": "Koska Sä Eroot",
+     "v": 2015,
+     "taso": 4
+    },
+    {
+     "id": 307823627,
+     "a": "Dingo",
+     "t": "Perjantai",
+     "v": 1993,
+     "taso": 5
+    }
+   ]
+  },
+  "2026-09-07": {
+   "b": [
+    {
+     "id": 1423082712,
+     "a": "Cheek",
+     "t": "Timantit on ikuisia",
+     "v": 2013,
+     "taso": 1
+    },
+    {
+     "id": 1442343386,
+     "a": "Elastinen",
+     "t": "Täytyy Jaksaa (feat. Sami Hedberg)",
+     "v": 2016,
+     "taso": 2
+    },
+    {
+     "id": 1117486721,
+     "a": "Kari Tapio",
+     "t": "Muisto vain jää",
+     "v": 2005,
+     "taso": 3
+    },
+    {
+     "id": 1840451761,
+     "a": "Ares",
+     "t": "Totuus sattuu (with Pehmoaino)",
+     "v": 2025,
+     "taso": 4
+    },
+    {
+     "id": 1121257536,
+     "a": "Vesala",
+     "t": "Tytöt ei soita kitaraa",
+     "v": 2016,
+     "taso": 5
+    }
+   ]
+  },
+  "2026-09-08": {
+   "b": [
+    {
+     "id": 1565583956,
+     "a": "Juha Tapio",
+     "t": "Tykkään susta niin että halkeen",
+     "v": 2013,
+     "taso": 1
+    },
+    {
+     "id": 397725222,
+     "a": "Antti Tuisku",
+     "t": "Hyökyaalto",
+     "v": 2001,
+     "taso": 2
+    },
+    {
+     "id": 1047252453,
+     "a": "Cheek",
+     "t": "Sillat (feat. Ilta)",
+     "v": 2015,
+     "taso": 3
+    },
+    {
+     "id": 73633714,
+     "a": "Vesa-Matti Loiri",
+     "t": "Ystävän Laulu",
+     "v": 2003,
+     "taso": 4
+    },
+    {
+     "id": 213000944,
+     "a": "Annikki Tähti",
+     "t": "Kuningaskobra",
+     "v": 1956,
+     "taso": 5
+    }
+   ]
+  },
+  "2026-09-09": {
+   "b": [
+    {
+     "id": 254899412,
+     "a": "Anne Mattila",
+     "t": "Perutaan Häät",
+     "v": 2002,
+     "taso": 1
+    },
+    {
+     "id": 209392475,
+     "a": "Ressu Redford",
+     "t": "Kuusi Kuuta & Saturnuksen Renkaat",
+     "v": 1990,
+     "taso": 2
+    },
+    {
+     "id": 1338823751,
+     "a": "Jenni Vartiainen",
+     "t": "Väärään suuntaan",
+     "v": 2018,
+     "taso": 3
+    },
+    {
+     "id": 1492369093,
+     "a": "JVG",
+     "t": "Faija (feat. Nopsajalka)",
+     "v": 2011,
+     "taso": 4
+    },
+    {
+     "id": 273860887,
+     "a": "Waldo's People",
+     "t": "Rain",
+     "v": 1998,
+     "taso": 5
+    }
+   ]
+  },
+  "2026-09-10": {
+   "b": [
+    {
+     "id": 723786874,
+     "a": "Eppu Normaali",
+     "t": "Vuonna '85",
+     "v": 1985,
+     "taso": 1
+    },
+    {
+     "id": 1443332973,
+     "a": "Olavi Uusivirta",
+     "t": "On niin helppoo olla onnellinen",
+     "v": 2005,
+     "taso": 2
+    },
+    {
+     "id": 1875333913,
+     "a": "Isac Elliot & Mirella",
+     "t": "Palamaan",
+     "v": 2025,
+     "taso": 3
+    },
+    {
+     "id": 1443320225,
+     "a": "Tiktak",
+     "t": "Satuprinsessa",
+     "v": 2001,
+     "taso": 4
+    },
+    {
+     "id": 395386054,
+     "a": "Laura Voutilainen",
+     "t": "En Mielestäin Sua Saa",
+     "v": 2001,
+     "taso": 5
+    }
+   ]
+  },
+  "2026-09-11": {
+   "b": [
+    {
+     "id": 1443091488,
+     "a": "Robin Packalen",
+     "t": "Sua Varten",
+     "v": 2014,
+     "taso": 1
+    },
+    {
+     "id": 1320059848,
+     "a": "Vesta",
+     "t": "Ota varovasti",
+     "v": 2017,
+     "taso": 2
+    },
+    {
+     "id": 1462612365,
+     "a": "Gasellit",
+     "t": "Suojaus petti",
+     "v": 2019,
+     "taso": 3
+    },
+    {
+     "id": 1442465673,
+     "a": "Mikael Gabriel",
+     "t": "Viimeisen kerran (feat. Diandra)",
+     "v": 2015,
+     "taso": 4
+    },
+    {
+     "id": 361256228,
+     "a": "Poets of the Fall",
+     "t": "War",
+     "v": 2010,
+     "taso": 5
+    }
+   ]
+  },
+  "2026-09-12": {
+   "b": [
+    {
+     "id": 1442769495,
+     "a": "Pekka Ruuska",
+     "t": "Rafaelin enkeli",
+     "v": 1990,
+     "taso": 1
+    },
+    {
+     "id": 330861699,
+     "a": "Chisu",
+     "t": "Baden-Baden",
+     "v": 2009,
+     "taso": 2
+    },
+    {
+     "id": 1442948058,
+     "a": "Topi Sorsakoski & Agents",
+     "t": "Yksi Ainoa Ikkuna",
+     "v": 1986,
+     "taso": 3
+    },
+    {
+     "id": 719411142,
+     "a": "Turmion Kätilöt",
+     "t": "Pyhä Maa",
+     "v": 2013,
+     "taso": 4
+    },
+    {
+     "id": 862326275,
+     "a": "Annikki Tähti",
+     "t": "Muistatko Monrepos'n",
+     "v": 1955,
+     "taso": 5
+    }
+   ]
+  },
+  "2026-09-13": {
+   "b": [
+    {
+     "id": 1478908814,
+     "a": "Kari Tapio",
+     "t": "Myrskyn jälkeen",
+     "v": 1995,
+     "taso": 1
+    },
+    {
+     "id": 1743523741,
+     "a": "Stig",
+     "t": "Viheltelen",
+     "v": 2013,
+     "taso": 2
+    },
+    {
+     "id": 1355621140,
+     "a": "Gasellit",
+     "t": "Riks Raks Poks (feat. Elias Gould)",
+     "v": 2018,
+     "taso": 3
+    },
+    {
+     "id": 1232750831,
+     "a": "Herrat",
+     "t": "Kumiankka",
+     "v": 2017,
+     "taso": 4
+    },
+    {
+     "id": 270802005,
+     "a": "Poets of the Fall",
+     "t": "Carnival of Rust",
+     "v": 2006,
+     "taso": 5
+    }
+   ]
+  },
+  "2026-09-14": {
+   "b": [
+    {
+     "id": 394359590,
+     "a": "Happoradio",
+     "t": "Pelastaja",
+     "v": 2001,
+     "taso": 1
+    },
+    {
+     "id": 917181634,
+     "a": "Jari Sillanpää",
+     "t": "Sinä ansaitset kultaa",
+     "v": 2014,
+     "taso": 2
+    },
+    {
+     "id": 274960550,
+     "a": "Aikakone",
+     "t": "Odota",
+     "v": 1995,
+     "taso": 3
+    },
+    {
+     "id": 1347195461,
+     "a": "Vesala",
+     "t": "Nyt on lähtö",
+     "v": 2018,
+     "taso": 4
+    },
+    {
+     "id": 1442432723,
+     "a": "Nikke Ankara",
+     "t": "Rullaa",
+     "v": 2015,
+     "taso": 5
+    }
+   ]
+  },
+  "2026-09-15": {
+   "b": [
+    {
+     "id": 723799102,
+     "a": "Pate Mustajärvi",
+     "t": "Ukkometso",
+     "v": 1995,
+     "taso": 1
+    },
+    {
+     "id": 1166838604,
+     "a": "Klamydia",
+     "t": "Pienen pojan elämää",
+     "v": 1991,
+     "taso": 2
+    },
+    {
+     "id": 1586169657,
+     "a": "Portion Boys",
+     "t": "Sierralla Nevadaan",
+     "v": 2016,
+     "taso": 3
+    },
+    {
+     "id": 304325625,
+     "a": "Negative",
+     "t": "The Moment of Our Love",
+     "v": 2003,
+     "taso": 4
+    },
+    {
+     "id": 656144533,
+     "a": "Lasse Mårtenson ja Studio-orkesteri",
+     "t": "Myrskyluodon Maija - Stormskärs Maja",
+     "v": 1976,
+     "taso": 5
+    }
+   ]
+  },
+  "2026-09-16": {
+   "b": [
+    {
+     "id": 1728453174,
+     "a": "Anna Puu",
+     "t": "Tarviin vielä yhden yön aikaa",
+     "v": 2017,
+     "taso": 1
+    },
+    {
+     "id": 371151366,
+     "a": "Raptori",
+     "t": "Oi Beibi",
+     "v": 1990,
+     "taso": 2
+    },
+    {
+     "id": 1584365720,
+     "a": "Juha Tapio",
+     "t": "Valitsisin sut",
+     "v": 2021,
+     "taso": 3
+    },
+    {
+     "id": 1644413701,
+     "a": "Costee",
+     "t": "Yhes oottamaan kuolemaa",
+     "v": 2022,
+     "taso": 4
+    },
+    {
+     "id": 723817618,
+     "a": "Eppu Normaali",
+     "t": "Taivaassa Perseet Tervataan",
+     "v": 1984,
+     "taso": 5
+    }
+   ]
+  },
+  "2026-09-17": {
+   "b": [
+    {
+     "id": 209285022,
+     "a": "Dingo",
+     "t": "Lähetyssaarnaaja",
+     "v": 1984,
+     "taso": 1
+    },
+    {
+     "id": 1392974769,
+     "a": "Lukas Leon, Cheek & Etta",
+     "t": "XTC",
+     "v": 2018,
+     "taso": 2
+    },
+    {
+     "id": 723817717,
+     "a": "Eppu Normaali",
+     "t": "Njet njet",
+     "v": 1979,
+     "taso": 3
+    },
+    {
+     "id": 1442626023,
+     "a": "Uniikki",
+     "t": "Puita Uuniin (feat. Elastinen & Timo Pieni Huijaus)",
+     "v": 2013,
+     "taso": 4
+    },
+    {
+     "id": 1580370681,
+     "a": "Beast in Black",
+     "t": "One Night in Tokyo",
+     "v": 2021,
+     "taso": 5
+    }
+   ]
+  },
+  "2026-09-18": {
+   "b": [
+    {
+     "id": 307823569,
+     "a": "Dingo",
+     "t": "Levoton Tuhkimo",
+     "v": 1984,
+     "taso": 1
+    },
+    {
+     "id": 1522651576,
+     "a": "Matti ja Teppo",
+     "t": "Vauhti kiihtyy",
+     "v": 1989,
+     "taso": 2
+    },
+    {
+     "id": 1166823835,
+     "a": "Klamydia",
+     "t": "Pohjanmaalla",
+     "v": 2007,
+     "taso": 3
+    },
+    {
+     "id": 1178935690,
+     "a": "Jukka Kuoppamäki",
+     "t": "Sininen ja valkoinen",
+     "v": 1972,
+     "taso": 4
+    },
+    {
+     "id": 654974316,
+     "a": "Eino Grön",
+     "t": "Kulkuri ja joutsen",
+     "v": 1970,
+     "taso": 5
+    }
+   ]
+  },
+  "2026-09-19": {
+   "b": [
+    {
+     "id": 329146131,
+     "a": "Anssi Kela",
+     "t": "Mikan faijan BMW",
+     "v": 2000,
+     "taso": 1
+    },
+    {
+     "id": 1565598460,
+     "a": "Juha Tapio",
+     "t": "Jotain niin oikeaa",
+     "v": 2015,
+     "taso": 2
+    },
+    {
+     "id": 1041903663,
+     "a": "Apulanta",
+     "t": "Valot pimeyksien reunoilla",
+     "v": 2015,
+     "taso": 3
+    },
+    {
+     "id": 1798232918,
+     "a": "KAUKUA",
+     "t": "10 000 tuntii",
+     "v": 2025,
+     "taso": 4
+    },
+    {
+     "id": 713547026,
+     "a": "Eppu Normaali",
+     "t": "Poliisi pamputtaa taas",
+     "v": 1978,
+     "taso": 5
+    }
+   ]
+  },
+  "2026-09-20": {
+   "b": [
+    {
+     "id": 716186675,
+     "a": "Haloo Helsinki!",
+     "t": "Maailman Toisella Puolen",
+     "v": 2011,
+     "taso": 1
+    },
+    {
+     "id": 267022867,
+     "a": "Katri Helena",
+     "t": "Kesän lapsi (From \"Viva America\")",
+     "v": 1976,
+     "taso": 2
+    },
+    {
+     "id": 1516626959,
+     "a": "Cledos",
+     "t": "KILO",
+     "v": 2020,
+     "taso": 3
+    },
+    {
+     "id": 847881102,
+     "a": "Ilpo Kaikkonen",
+     "t": "Terveiset Sinne Taivaaseen",
+     "v": 2012,
+     "taso": 4
+    },
+    {
+     "id": 1442640791,
+     "a": "Maukka Perusjätkä",
+     "t": "Sotaa Apatiaa Vastaan",
+     "v": 1979,
+     "taso": 5
+    }
+   ]
+  },
+  "2026-09-21": {
+   "b": [
+    {
+     "id": 209286090,
+     "a": "Dingo",
+     "t": "Nahkatakkinen Tyttö",
+     "v": 1985,
+     "taso": 1
+    },
+    {
+     "id": 1442552476,
+     "a": "Evelina",
+     "t": "Sireenit",
+     "v": 2016,
+     "taso": 2
+    },
+    {
+     "id": 1355621140,
+     "a": "Gasellit",
+     "t": "Riks Raks Poks (feat. Elias Gould)",
+     "v": 2018,
+     "taso": 3
+    },
+    {
+     "id": 713509735,
+     "a": "Yö",
+     "t": "Ihmisen poika",
+     "v": 1994,
+     "taso": 4
+    },
+    {
+     "id": 1442570182,
+     "a": "Pelle Miljoona",
+     "t": "Tähtivaeltaja",
+     "v": 1995,
+     "taso": 5
+    }
+   ]
+  },
+  "2026-09-22": {
+   "b": [
+    {
+     "id": 274566101,
+     "a": "Irwin Goodman",
+     "t": "Rentun ruusu",
+     "v": 1988,
+     "taso": 1
+    },
+    {
+     "id": 274562776,
+     "a": "Matti ja Teppo",
+     "t": "Mä Joka Päivä Töitä Teen",
+     "v": 1982,
+     "taso": 2
+    },
+    {
+     "id": 1084340225,
+     "a": "Laura Närhi",
+     "t": "Supersankari",
+     "v": 2016,
+     "taso": 3
+    },
+    {
+     "id": 1568520882,
+     "a": "Erika Vikman & Arttu Wiskari",
+     "t": "Tääl on niin kuuma",
+     "v": 2021,
+     "taso": 4
+    },
+    {
+     "id": 270987112,
+     "a": "Aikakone",
+     "t": "Anna Mun Bailaa",
+     "v": 1998,
+     "taso": 5
+    }
+   ]
+  },
+  "2026-09-23": {
+   "b": [
+    {
+     "id": 1047252702,
+     "a": "Cheek",
+     "t": "Keinu",
+     "v": 2015,
+     "taso": 1
+    },
+    {
+     "id": 723817582,
+     "a": "Eppu Normaali",
+     "t": "Nyt Reppuni Jupiset Riimisi Rupiset",
+     "v": 1984,
+     "taso": 2
+    },
+    {
+     "id": 1444328029,
+     "a": "Brädi",
+     "t": "Nelostie (feat. Juha Tapio)",
+     "v": 2017,
+     "taso": 3
+    },
+    {
+     "id": 79390746,
+     "a": "Mamba",
+     "t": "Lauantai-Ilta",
+     "v": 1986,
+     "taso": 4
+    },
+    {
+     "id": 1679633043,
+     "a": "Children of Bodom",
+     "t": "Are You Dead Yet?",
+     "v": 2005,
+     "taso": 5
+    }
+   ]
+  },
+  "2026-09-24": {
+   "b": [
+    {
+     "id": 209397958,
+     "a": "Katri Helena",
+     "t": "Letkis",
+     "v": 1964,
+     "taso": 1
+    },
+    {
+     "id": 1547833846,
+     "a": "Teflon Brothers & Pandora",
+     "t": "I Love You",
+     "v": 2021,
+     "taso": 2
+    },
+    {
+     "id": 985662341,
+     "a": "Sanni",
+     "t": "Pojat",
+     "v": 2015,
+     "taso": 3
+    },
+    {
+     "id": 269274063,
+     "a": "Kirka",
+     "t": "Leijat",
+     "v": 1984,
+     "taso": 4
+    },
+    {
+     "id": 1444294893,
+     "a": "Mikael Gabriel",
+     "t": "Päästä Mut Pois (feat. Diandra)",
+     "v": 2013,
+     "taso": 5
+    }
+   ],
+   "a": {
+    "n": "Kikka"
+   }
+  },
+  "2026-09-25": {
+   "b": [
+    {
+     "id": 270985006,
+     "a": "Egotrippi",
+     "t": "Matkustaja",
+     "v": 2004,
+     "taso": 1
+    },
+    {
+     "id": 209392475,
+     "a": "Ressu Redford",
+     "t": "Kuusi Kuuta & Saturnuksen Renkaat",
+     "v": 1990,
+     "taso": 2
+    },
+    {
+     "id": 1503600362,
+     "a": "Kuumaa",
+     "t": "Rakastaja",
+     "v": 2020,
+     "taso": 3
+    },
+    {
+     "id": 1492026518,
+     "a": "Solonen & Kosola",
+     "t": "Kolmetoista kertaa kovempi ku kukaan",
+     "v": 2013,
+     "taso": 4
+    },
+    {
+     "id": 361256228,
+     "a": "Poets of the Fall",
+     "t": "War",
+     "v": 2010,
+     "taso": 5
+    }
+   ],
+   "a": {
+    "n": "VIIVI"
+   }
+  },
+  "2026-09-26": {
+   "b": [
+    {
+     "id": 1494397177,
+     "a": "Musta Barbaari",
+     "t": "Salil eka salil vika",
+     "v": 2013,
+     "taso": 1
+    },
+    {
+     "id": 1788680284,
+     "a": "Ares",
+     "t": "T-paita (feat. Bizi)",
+     "v": 2025,
+     "taso": 2
+    },
+    {
+     "id": 985662808,
+     "a": "Stig",
+     "t": "Lupasit et kelpaan näin",
+     "v": 2015,
+     "taso": 3
+    },
+    {
+     "id": 1407728579,
+     "a": "Sunrise Avenue",
+     "t": "I Help You Hate Me",
+     "v": 2017,
+     "taso": 4
+    },
+    {
+     "id": 568901900,
+     "a": "The Rasmus",
+     "t": "Rakkauslaulu",
+     "v": 1997,
+     "taso": 5
+    }
+   ],
+   "a": {
+    "n": "Leevi and the Leavings"
+   }
+  },
+  "2026-09-27": {
+   "b": [
+    {
+     "id": 1802743230,
+     "a": "Gettomasa & Van Hegen",
+     "t": "Shamppanjadieetillä",
+     "v": 2022,
+     "taso": 1
+    },
+    {
+     "id": 1277783580,
+     "a": "Jenni Vartiainen",
+     "t": "Keinu [Vain elämää kausi 7]",
+     "v": 2017,
+     "taso": 2
+    },
+    {
+     "id": 252127380,
+     "a": "Hector",
+     "t": "Jos Sä Tahdot Niin",
+     "v": 1988,
+     "taso": 3
+    },
+    {
+     "id": 1438448127,
+     "a": "Fabe",
+     "t": "Kauas",
+     "v": 2018,
+     "taso": 4
+    },
+    {
+     "id": 1350076949,
+     "a": "Souvarit",
+     "t": "Kaikesta muusta luopuisin",
+     "v": 1998,
+     "taso": 5
+    }
+   ],
+   "a": {
+    "n": "Stella"
+   }
+  },
+  "2026-09-28": {
+   "b": [
+    {
+     "id": 612493469,
+     "a": "Raappana",
+     "t": "Kauas pois",
+     "v": 2012,
+     "taso": 1
+    },
+    {
+     "id": 1444599106,
+     "a": "Pasi ja Anssi",
+     "t": "Tää On Se Maa",
+     "v": 2017,
+     "taso": 2
+    },
+    {
+     "id": 1802713659,
+     "a": "Reino Nordin",
+     "t": "Kyynelten virta",
+     "v": 2018,
+     "taso": 3
+    },
+    {
+     "id": 1494240316,
+     "a": "Mäkki",
+     "t": "Kalenteris tyhjää (feat. Ruma)",
+     "v": 2014,
+     "taso": 4
+    },
+    {
+     "id": 1452572521,
+     "a": "Darude",
+     "t": "Superman (feat. Sebastian Rejman)",
+     "v": 2019,
+     "taso": 5
+    }
+   ],
+   "a": {
+    "n": "Dingo"
+   }
+  },
+  "2026-09-29": {
+   "b": [
+    {
+     "id": 1492369106,
+     "a": "JVG",
+     "t": "Nelisilmä (feat. Heikki Kuula)",
+     "v": 2011,
+     "taso": 1
+    },
+    {
+     "id": 1751958867,
+     "a": "Ares",
+     "t": "Kokonainen",
+     "v": 2024,
+     "taso": 2
+    },
+    {
+     "id": 1456955177,
+     "a": "Korpiklaani",
+     "t": "Ievan Polkka",
+     "v": 2012,
+     "taso": 3
+    },
+    {
+     "id": 985659260,
+     "a": "Brädi, Kuningas Pähkinä, Millionaire Men, Oku Luukkainen, Setä Tamu & Stig",
+     "t": "Kesä yössä",
+     "v": 2015,
+     "taso": 4
+    },
+    {
+     "id": 1648318611,
+     "a": "Apocalyptica",
+     "t": "I Don't Care",
+     "v": 2007,
+     "taso": 5
+    }
+   ],
+   "a": {
+    "n": "Lord Est"
+   }
+  },
+  "2026-09-30": {
+   "b": [
+    {
+     "id": 1689251146,
+     "a": "JVG",
+     "t": "Oisko tää täs",
+     "v": 2023,
+     "taso": 1
+    },
+    {
+     "id": 959303959,
+     "a": "Fröbelin Palikat",
+     "t": "Leijonan Metsästys",
+     "v": 1992,
+     "taso": 2
+    },
+    {
+     "id": 1492516101,
+     "a": "Karri Koira",
+     "t": "Amerikankotka liitää (feat. Ruudolf)",
+     "v": 2012,
+     "taso": 3
+    },
+    {
+     "id": 1802733073,
+     "a": "Lauri Haav",
+     "t": "Aino",
+     "v": 2023,
+     "taso": 4
+    },
+    {
+     "id": 1281546971,
+     "a": "Yksi Totuus",
+     "t": "Sammakko (feat. STIG)",
+     "v": 2017,
+     "taso": 5
+    }
+   ],
+   "a": {
+    "n": "Tuomari Nurmio"
+   }
+  },
+  "2026-10-01": {
+   "b": [
+    {
+     "id": 1735511476,
+     "a": "Turisti",
+     "t": "Yks Kaks",
+     "v": 2024,
+     "taso": 1
+    },
+    {
+     "id": 656111296,
+     "a": "Veikko Lavi",
+     "t": "Silakka-Apajalla",
+     "v": 1971,
+     "taso": 2
+    },
+    {
+     "id": 1033653367,
+     "a": "JVG",
+     "t": "Takajeejee (feat. Evelina)",
+     "v": 2015,
+     "taso": 3
+    },
+    {
+     "id": 255668672,
+     "a": "DISCO",
+     "t": "Levottomat tuulet",
+     "v": 2002,
+     "taso": 4
+    },
+    {
+     "id": 1443360518,
+     "a": "Juice Leskinen",
+     "t": "Viimeinen Kylähullu",
+     "v": 1981,
+     "taso": 5
+    }
+   ],
+   "a": {
+    "n": "Joe L"
+   }
+  },
+  "2026-10-02": {
+   "b": [
+    {
+     "id": 216691182,
+     "a": "Frederik",
+     "t": "Kolmekymppinen",
+     "v": 1980,
+     "taso": 1
+    },
+    {
+     "id": 723799111,
+     "a": "Topi Sorsakoski, Pate Mustajärvi, Harri Marstio & Jorma Kääriäinen",
+     "t": "Mä Elän Vieläkin (The Highwayman)",
+     "v": 1995,
+     "taso": 2
+    },
+    {
+     "id": 1470209796,
+     "a": "Mikko Harju",
+     "t": "Anna mennä lennä",
+     "v": 2019,
+     "taso": 3
+    },
+    {
+     "id": 912327488,
+     "a": "Benjamin",
+     "t": "Underdogs",
+     "v": 2014,
+     "taso": 4
+    },
+    {
+     "id": 211107275,
+     "a": "Tapani Kansa",
+     "t": "Delilah",
+     "v": 1968,
+     "taso": 5
+    }
+   ],
+   "a": {
+    "n": "Sielun Veljet"
+   }
+  },
+  "2026-10-03": {
+   "b": [
+    {
+     "id": 1690657357,
+     "a": "Phimi & Jokrates",
+     "t": "Rio",
+     "v": 2023,
+     "taso": 1
+    },
+    {
+     "id": 1807549695,
+     "a": "DAVI",
+     "t": "Yks mun ongelmist (feat. Jore & Zpoppa)",
+     "v": 2025,
+     "taso": 2
+    },
+    {
+     "id": 1565587938,
+     "a": "Juha Tapio",
+     "t": "Sydän jota rakastan",
+     "v": 2017,
+     "taso": 3
+    },
+    {
+     "id": 1174865548,
+     "a": "Ida Paul & Kalle Lindroth",
+     "t": "Parvekkeella",
+     "v": 2016,
+     "taso": 4
+    },
+    {
+     "id": 1442432728,
+     "a": "Nikke Ankara",
+     "t": "Spesiaali",
+     "v": 2014,
+     "taso": 5
+    }
+   ],
+   "a": {
+    "n": "Ruudolf"
+   }
+  },
+  "2026-10-04": {
+   "b": [
+    {
+     "id": 1735511476,
+     "a": "Turisti",
+     "t": "Yks Kaks",
+     "v": 2024,
+     "taso": 1
+    },
+    {
+     "id": 1782578176,
+     "a": "VIIVI",
+     "t": "Mitä näil korteil saa? (feat. JVG)",
+     "v": 2023,
+     "taso": 2
+    },
+    {
+     "id": 1660945502,
+     "a": "Benjamin",
+     "t": "Hoida mut",
+     "v": 2023,
+     "taso": 3
+    },
+    {
+     "id": 1442701720,
+     "a": "Teflon Brothers",
+     "t": "Ay Ay Ay (feat. Tango-Teemu)",
+     "v": 2017,
+     "taso": 4
+    },
+    {
+     "id": 713786502,
+     "a": "CMX",
+     "t": "Minun Sydämeni On Särkynyt",
+     "v": 2002,
+     "taso": 5
+    }
+   ],
+   "a": {
+    "n": "Ville Valo"
+   }
+  },
+  "2026-10-05": {
+   "b": [
+    {
+     "id": 948313792,
+     "a": "Fröbelin Palikat",
+     "t": "Sutsisatsi",
+     "v": 1993,
+     "taso": 1
+    },
+    {
+     "id": 1277782170,
+     "a": "Sanni",
+     "t": "Timantit on ikuisia [Vain elämää kausi 7]",
+     "v": 2017,
+     "taso": 2
+    },
+    {
+     "id": 299218907,
+     "a": "Samuli Edelmann",
+     "t": "Kaikki Tahtoo",
+     "v": 2001,
+     "taso": 3
+    },
+    {
+     "id": 1389778897,
+     "a": "Faija",
+     "t": "Olutta ja mennyttä (feat. Tauski)",
+     "v": 2018,
+     "taso": 4
+    },
+    {
+     "id": 251513984,
+     "a": "Marion Rung",
+     "t": "My Boy Lollipop",
+     "v": 1964,
+     "taso": 5
+    }
+   ],
+   "a": {
+    "n": "Brädi"
+   }
+  },
+  "2026-10-06": {
+   "b": [
+    {
+     "id": 1465913314,
+     "a": "Apulanta",
+     "t": "Lokin päällä lokki",
+     "v": 2019,
+     "taso": 1
+    },
+    {
+     "id": 309025993,
+     "a": "Skandaali",
+     "t": "Elämä On Peli",
+     "v": 2004,
+     "taso": 2
+    },
+    {
+     "id": 1443369974,
+     "a": "Mikael Gabriel",
+     "t": "Pohjosen Poika",
+     "v": 2010,
+     "taso": 3
+    },
+    {
+     "id": 258514236,
+     "a": "Janne Tulkki",
+     "t": "Yksinäinen Pitkä Tie",
+     "v": 1999,
+     "taso": 4
+    },
+    {
+     "id": 900375128,
+     "a": "Lahti United",
+     "t": "Signaali",
+     "v": 2014,
+     "taso": 5
+    }
+   ],
+   "a": {
+    "n": "Mouhous"
+   }
+  },
+  "2026-10-07": {
+   "b": [
+    {
+     "id": 1802753093,
+     "a": "Costi",
+     "t": "Maailman Ympäri",
+     "v": 2023,
+     "taso": 1
+    },
+    {
+     "id": 219383158,
+     "a": "Virve Rosti",
+     "t": "Menolippu - One Way Ticket to the Blues",
+     "v": 1979,
+     "taso": 2
+    },
+    {
+     "id": 1358652765,
+     "a": "Neljänsuora",
+     "t": "Paratiisi",
+     "v": 2018,
+     "taso": 3
+    },
+    {
+     "id": 1492372335,
+     "a": "Kube",
+     "t": "Plug",
+     "v": 2016,
+     "taso": 4
+    },
+    {
+     "id": 713940227,
+     "a": "Ismo Alanko",
+     "t": "Taiteilijaelämää",
+     "v": 1995,
+     "taso": 5
+    }
+   ],
+   "a": {
+    "n": "Robin"
+   }
+  },
+  "2026-10-08": {
+   "b": [
+    {
+     "id": 330861699,
+     "a": "Chisu",
+     "t": "Baden-Baden",
+     "v": 2009,
+     "taso": 1
+    },
+    {
+     "id": 1777420649,
+     "a": "Elokuu",
+     "t": "Tänään Lähtee",
+     "v": 2013,
+     "taso": 2
+    },
+    {
+     "id": 655579545,
+     "a": "Tavaramarkkinat",
+     "t": "Kevät",
+     "v": 1989,
+     "taso": 3
+    },
+    {
+     "id": 1453568595,
+     "a": "Lauri Tähkä",
+     "t": "Mustaherukan tuoksuinen tyttö",
+     "v": 2019,
+     "taso": 4
+    },
+    {
+     "id": 1444294893,
+     "a": "Mikael Gabriel",
+     "t": "Päästä Mut Pois (feat. Diandra)",
+     "v": 2013,
+     "taso": 5
+    }
+   ],
+   "a": {
+    "n": "Jari Sillanpää"
+   }
+  },
+  "2026-10-09": {
+   "b": [
+    {
+     "id": 219383233,
+     "a": "Virve Rosti",
+     "t": "Sata salamaa",
+     "v": 1987,
+     "taso": 1
+    },
+    {
+     "id": 1844813282,
+     "a": "Turisti",
+     "t": "Beyonce",
+     "v": 2025,
+     "taso": 2
+    },
+    {
+     "id": 1492516101,
+     "a": "Karri Koira",
+     "t": "Amerikankotka liitää (feat. Ruudolf)",
+     "v": 2012,
+     "taso": 3
+    },
+    {
+     "id": 527832297,
+     "a": "PMMP",
+     "t": "Heliumpallo",
+     "v": 2012,
+     "taso": 4
+    },
+    {
+     "id": 1445304280,
+     "a": "SAARA",
+     "t": "Superpowers",
+     "v": 2017,
+     "taso": 5
+    }
+   ],
+   "a": {
+    "n": "Ressu Redford"
+   }
+  },
+  "2026-10-10": {
+   "b": [
+    {
+     "id": 1327411849,
+     "a": "JVG",
+     "t": "Popkorni",
+     "v": 2017,
+     "taso": 1
+    },
+    {
+     "id": 203884919,
+     "a": "Vesa-Matti Loiri",
+     "t": "Sydämeeni Joulun Teen",
+     "v": 1988,
+     "taso": 2
+    },
+    {
+     "id": 1444293811,
+     "a": "Nelli Matula",
+     "t": "Lemmikki",
+     "v": 2016,
+     "taso": 3
+    },
+    {
+     "id": 1443385118,
+     "a": "Lauri Tähkä & Elonkerjuu",
+     "t": "Pitkät pellot",
+     "v": 2006,
+     "taso": 4
+    },
+    {
+     "id": 713807861,
+     "a": "Redrama",
+     "t": "Hang It Up",
+     "v": 2003,
+     "taso": 5
+    }
+   ],
+   "a": {
+    "n": "Paleface"
+   }
+  },
+  "2026-10-11": {
+   "b": [
+    {
+     "id": 1442669441,
+     "a": "Gasellit",
+     "t": "Imus",
+     "v": 2017,
+     "taso": 1
+    },
+    {
+     "id": 1385016690,
+     "a": "Gettomasa",
+     "t": "Ei mitää järkee (feat. Gracias)",
+     "v": 2018,
+     "taso": 2
+    },
+    {
+     "id": 250411615,
+     "a": "Vesa-Matti Loiri",
+     "t": "Lapin Kesä",
+     "v": 1978,
+     "taso": 3
+    },
+    {
+     "id": 276482322,
+     "a": "Sturm und Drang",
+     "t": "Indian",
+     "v": 2007,
+     "taso": 4
+    },
+    {
+     "id": 1069842754,
+     "a": "Paleface",
+     "t": "Talonomistaja",
+     "v": 2010,
+     "taso": 5
+    }
+   ],
+   "a": {
+    "n": "Fröbelin Palikat"
+   }
+  },
+  "2026-10-12": {
+   "b": [
+    {
+     "id": 1443109086,
+     "a": "Leevi and the Leavings",
+     "t": "Laura Jenna Ellinoora Alexandra Camilla Jurvanen",
+     "v": 1996,
+     "taso": 1
+    },
+    {
+     "id": 1444592157,
+     "a": "Mäkki",
+     "t": "Satamiljoonaa Kertaa (feat. Reino Nordin)",
+     "v": 2017,
+     "taso": 2
+    },
+    {
+     "id": 363624402,
+     "a": "Johanna Kurkela",
+     "t": "Rakkauslaulu",
+     "v": 2010,
+     "taso": 3
+    },
+    {
+     "id": 1691286972,
+     "a": "Juhani & Joonatan",
+     "t": "Rakkauden Tiikeri",
+     "v": 2023,
+     "taso": 4
+    },
+    {
+     "id": 1031373186,
+     "a": "Tiisu",
+     "t": "Virtaset",
+     "v": 2015,
+     "taso": 5
+    }
+   ],
+   "a": {
+    "n": "Ari Koivunen"
+   }
+  }
+ }
+}

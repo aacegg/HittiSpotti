@@ -24,6 +24,13 @@ on:
   # Käsiajo jää rinnalle: sillä voi uusia epäonnistuneen ajon ilman että
   # tarvitsee keksiä uusi commit.
   workflow_dispatch:
+  # Arkistoon tulee uusi päivä joka yö. Sivu kootaan julkaisussa eikä
+  # gitissä, joten ilman tätä eilinen päivä ilmestyisi vasta seuraavan
+  # julkaisun mukana. Ajo julkaisee mainin sellaisenaan, eli pelaajille ei
+  # mene mitään muuta uutta kuin arkiston päivä.
+  # 22.10 UTC on talviaikaan 00.10 ja kesäaikaan 01.10 Suomen aikaa.
+  schedule:
+    - cron: "10 22 * * *"
 
 # Kaksi yhtäaikaista julkaisua kirjoittaisi toistensa päälle
 # sattumanvaraisessa järjestyksessä. Uusin voittaa, vanha keskeytetään.
@@ -36,6 +43,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Koko historia, jotta arkiston tarkistus voi lukea edellisen
+          # julkaisun koodin (github.event.before).
+          fetch-depth: 0
 
       - name: Kokoa julkaistava hakemisto
         # dist/ kootaan git archivella, eli siinä on TASAN ne tiedostot
@@ -86,6 +97,22 @@ jobs:
               print("Yli 25 MiB, Cloudflare hylkäisi:", *iso, sep="\n  ")
               sys.exit(1)
           PY
+
+      - name: Kokoa arkisto
+        # Ennen arkistosivua tarkistetaan, ettei julkaisu vaihda menneitä
+        # päiviä: kiinnittämättömät menneet päivät lasketaan nykyisellä
+        # koodilla, joten jos edellinen julkaisu laskee ne eri tavalla,
+        # arkisto näyttäisi väärät biisit. Silloin julkaisu kaatuu tähän ja
+        # ohje korjaukseen tulostuu. Ks. scripts/arkisto.mjs.
+        # Ajastetussa ajossa koodi ei ole muuttunut, joten tarkistus jää pois.
+        env:
+          EDELLINEN: ${{ github.event.before }}
+        run: |
+          if [ "${{ github.event_name }}" = "push" ] && [ -n "$EDELLINEN" ] \
+             && git cat-file -e "$EDELLINEN^{commit}" 2>/dev/null; then
+            node scripts/arkisto.mjs tarkista "$EDELLINEN"
+          fi
+          node scripts/arkisto.mjs sivu dist
 
       - name: Julkaise Cloudflarelle
         uses: cloudflare/wrangler-action@v3

@@ -1,0 +1,195 @@
+/* Pelin ulkopuoliset tekstisivut: tietoa, ohjeet, arkisto, tietosuoja,
+ * yhteystiedot.
+ *
+ * Oma kevyt tiedosto eikä style.css: pelin tyylit ovat 80 kt ja kuuluvat
+ * pelille. Värit, kirjasimet ja mitat ovat samat kuin pelissä, joten sivut
+ * näyttävät samalta sivustolta. Ne on kopioitu tähän eikä jaettu, koska
+ * pelin tyylitiedosto ei ole jaettavissa osiin ilman rakennusvaihetta.
+ *
+ * Sivut toimivat ilman JavaScriptiä. Se on koko pointti: hakukone ja
+ * mainosten tarkastaja lukevat ne sellaisenaan. */
+
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("fonts/bricolage-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("fonts/bricolage-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+:root {
+  color-scheme: dark;
+  --bg: #0a0908;
+  --bg-lift: #14120f;
+  --line: #2a2521;
+  --line-soft: #1b1815;
+  --text: #f2ebdf;
+  --muted: #8a8073;
+  --t1: #5ecf9a;
+  --t2: #bcd14a;
+  --t3: #f5b32e;
+  --t4: #ff8a4c;
+  --t5: #ff5f6d;
+  --artisti: #ff8a4c;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --display: "Bricolage Grotesque", "Helvetica Neue", system-ui, sans-serif;
+  --palsta: 680px;
+  --merkki: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 52 46'%3E%3Crect x='0' y='26.4' width='8' height='19.6' rx='4'/%3E%3Crect x='11' y='11.2' width='8' height='34.8' rx='4'/%3E%3Crect x='22' y='0' width='8' height='46' rx='4'/%3E%3Crect x='33' y='17.6' width='8' height='28.4' rx='4'/%3E%3Crect x='44' y='6.4' width='8' height='39.6' rx='4'/%3E%3C/svg%3E");
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--text); text-decoration-color: var(--t3); text-underline-offset: 3px; }
+a:hover { color: var(--t3); }
+:focus-visible { outline: 2px solid var(--t3); outline-offset: 2px; }
+
+/* ---------- Yläpalkki ---------- */
+.s-yla {
+  border-bottom: 1px solid var(--line-soft);
+  padding: 0 16px;
+  padding-top: env(safe-area-inset-top);
+}
+.s-yla-sisus {
+  max-width: var(--palsta);
+  margin: 0 auto;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.s-merkki {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -.035em;
+  text-decoration: none;
+  color: var(--text);
+}
+.s-merkki::before {
+  content: "";
+  width: 13px;
+  height: 11.5px;
+  margin-right: 8px;
+  background: var(--t3);
+  -webkit-mask: var(--merkki) center / contain no-repeat;
+  mask: var(--merkki) center / contain no-repeat;
+}
+.s-merkki em { font-style: normal; font-weight: 400; }
+.s-pelaa {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: var(--t3);
+  color: #17120a;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+}
+.s-pelaa:hover { color: #17120a; filter: brightness(1.08); }
+
+/* ---------- Sisältö ---------- */
+main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--palsta);
+  margin: 0 auto;
+  padding: 32px 16px 48px;
+}
+h1, h2, h3 { font-family: var(--display); letter-spacing: -.03em; line-height: 1.15; }
+h1 { font-size: clamp(30px, 7vw, 40px); font-weight: 800; margin: 0 0 12px; }
+h2 { font-size: 24px; font-weight: 700; margin: 40px 0 8px; }
+h3 { font-size: 18px; font-weight: 700; margin: 28px 0 4px; }
+p, ul, ol, dl { margin: 0 0 14px; }
+li { margin-bottom: 6px; }
+.s-ingressi { font-size: 18px; color: var(--text); margin-bottom: 24px; }
+.s-pieni { color: var(--muted); font-size: 14px; }
+strong { font-weight: 650; }
+
+/* Sisällysluettelo pitkien sivujen alussa. */
+.s-sisalto {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 14px 18px;
+  margin: 0 0 8px;
+  background: var(--bg-lift);
+}
+.s-sisalto p { margin: 0 0 6px; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.s-sisalto ul { margin: 0; padding-left: 18px; }
+.s-sisalto li { margin: 2px 0; }
+
+/* Taulukko pisteille ja sarakkeille. */
+.s-taulu { width: 100%; border-collapse: collapse; margin: 8px 0 18px; font-size: 15px; }
+.s-taulu th, .s-taulu td { text-align: left; padding: 8px 10px 8px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+.s-taulu th { font-weight: 650; color: var(--muted); font-size: 13px; }
+
+/* Värimerkit ohjeissa: sama kieli kuin pelin ruudukossa. */
+.s-vari {
+  display: inline-block;
+  min-width: 1.2em;
+  padding: 0 6px;
+  border-radius: 3px;
+  font-weight: 650;
+  font-size: 14px;
+}
+.s-vari.on-osui { background: var(--t1); color: #0b1a12; }
+.s-vari.on-lahella { background: var(--t3); color: #17120a; }
+.s-vari.on-ohi { background: var(--line); color: var(--text); }
+
+/* ---------- Arkisto ---------- */
+.ark-kuukaudet { display: flex; flex-wrap: wrap; gap: 8px 14px; margin: 0 0 8px; }
+.ark-kk > h2 { position: sticky; top: 0; background: var(--bg); padding: 10px 0 6px; margin-bottom: 0; z-index: 1; }
+.ark-paiva { border-top: 1px solid var(--line); padding: 4px 0 10px; }
+.ark-paiva h3 { margin: 14px 0 8px; font-size: 17px; }
+.ark-lista { list-style: none; padding: 0; margin: 0 0 8px; }
+.ark-lista li { display: grid; grid-template-columns: 88px 1fr; gap: 10px; align-items: baseline; margin: 0 0 6px; }
+.ark-taso { font-size: 12px; font-weight: 650; text-transform: uppercase; letter-spacing: .05em; }
+.ark-taso[data-tier="1"] { color: var(--t1); }
+.ark-taso[data-tier="2"] { color: var(--t2); }
+.ark-taso[data-tier="3"] { color: var(--t3); }
+.ark-taso[data-tier="4"] { color: var(--t4); }
+.ark-taso[data-tier="5"] { color: var(--t5); }
+.ark-biisi a { font-weight: 600; text-decoration: none; }
+.ark-biisi a:hover { text-decoration: underline; }
+.ark-artisti { display: block; color: var(--muted); font-size: 14px; line-height: 1.4; }
+.ark-pa { font-size: 15px; margin: 4px 0 6px; }
+.ark-pa strong { color: var(--artisti); }
+.ark-piilossa { color: var(--muted); }
+
+/* ---------- Alapalkki ---------- */
+.s-ala {
+  border-top: 1px solid var(--line-soft);
+  padding: 24px 16px calc(28px + env(safe-area-inset-bottom));
+  color: var(--muted);
+  font-size: 14px;
+}
+.s-ala-sisus { max-width: var(--palsta); margin: 0 auto; }
+.s-ala nav { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-bottom: 10px; }
+.s-ala a { color: var(--text); }
+.s-ala p { margin: 0; }

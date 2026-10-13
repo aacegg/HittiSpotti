@@ -64,6 +64,9 @@ jobs:
               sys.exit(1)
           PY
 
+      - name: Kokoa arkisto
+        run: node scripts/arkisto.mjs sivu dist
+
       - name: Irrota testisivu tilastoinnista
         env:
           SHA: ${{ github.sha }}

@@ -2636,3 +2636,29 @@ body.sheet-open { overflow: hidden; }
   text-underline-offset: 3px;
 }
 .a-rajaton-nollaa:hover { color: var(--text); }
+
+/* Etusivun alapalkki, ks. index.html. Samassa palstassa kuin .wrap, mutta
+   hiljainen: pieni teksti, haalea väri, ei yhtään täytettyä pintaa. */
+.etu-ala {
+  position: relative;
+  z-index: 1;
+  max-width: var(--palsta);
+  margin: var(--s8) auto 0;
+  padding: var(--s6) var(--s5) calc(var(--s7) + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line-soft);
+  color: var(--muted);
+  font-size: var(--f3);
+  line-height: 1.6;
+}
+.etu-ala h2 {
+  font-family: var(--display);
+  font-size: var(--f6);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  color: var(--text);
+  margin: 0 0 var(--s3);
+}
+.etu-ala p { margin: 0 0 var(--s4); }
+.etu-ala a { color: var(--text); text-underline-offset: 3px; }
+.etu-ala nav { display: flex; flex-wrap: wrap; gap: var(--s3) var(--s5); margin: var(--s5) 0 var(--s4); }
+.etu-ala-pieni { font-size: var(--f2); }

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Arkisto – menneiden päivien biisit ja artistit | HittiSpotti</title>
+  <meta name="description" content="Kaikki HittiSpotin menneiden päivien biisit ja ArtistiSpotin päivän artistit. Katso mitkä suomibiisit olivat vuorossa ja millä vaikeustasolla.">
+  <meta name="theme-color" content="#0a0908">
+  <meta name="google-adsense-account" content="ca-pub-2029070076507506">
+  <link rel="canonical" href="https://hittispotti.fi/arkisto">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="HittiSpotti">
+  <meta property="og:locale" content="fi_FI">
+  <meta property="og:url" content="https://hittispotti.fi/arkisto">
+  <meta property="og:title" content="HittiSpotin arkisto">
+  <meta property="og:description" content="Menneiden päivien biisit ja artistit.">
+  <meta property="og:image" content="https://hittispotti.fi/jakokuva.jpg">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+  <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="sivut.css?v=1">
+</head>
+<!-- Tämä sivu kootaan julkaisussa: node scripts/arkisto.mjs sivu dist.
+     Pohja on scripts/arkisto-pohja.html, päivät arkisto.json:ssa. -->
+<body>
+  <header class="s-yla">
+    <div class="s-yla-sisus">
+      <a class="s-merkki" href="/">Hitti<em>Spotti</em></a>
+      <a class="s-pelaa" href="/">Pelaa</a>
+    </div>
+  </header>
+
+  <main>
+    <h1>Arkisto</h1>
+    <p class="s-ingressi">Täältä löytyvät HittiSpotin menneiden päivien biisit ja ArtistiSpotin päivän artistit. Arkistossa on nyt {{PAIVIA}} päivää ja {{BIISEJA}} biisiä.</p>
+    <p>Joka päivä kaikki pelaajat saavat samat viisi biisiä, yhden jokaiselta vaikeustasolta. Uusi päivä lisätään arkistoon, kun se on ohi, joten tämän päivän biisejä täältä ei löydy. Päivän artisti näytetään vasta, kun sitä ei voi enää pelata jälkikäteen. Biisin nimestä pääset kuuntelemaan sen Apple Musicissa.</p>
+    <p>Vaikeustaso kertoo, miten pelaajat biisin tunnistivat. Helppo tunnistetaan useimmiten ensimmäisestä kymmenyksestä, Mahdoton jää useimmilta arvaamatta. Lue lisää <a href="/ohjeet">ohjeista</a>.</p>
+    <nav class="ark-kuukaudet" aria-label="Kuukaudet">{{KUUKAUDET}}</nav>
+
+    {{PAIVAT}}
+  </main>
+
+  <footer class="s-ala">
+    <div class="s-ala-sisus">
+      <nav aria-label="Sivuston osat">
+        <a href="/">Pelaa</a>
+        <a href="/ohjeet">Ohjeet</a>
+        <a href="/arkisto">Arkisto</a>
+        <a href="/tietoa">Tietoa</a>
+        <a href="/tietosuoja">Tietosuoja</a>
+        <a href="/yhteystiedot">Yhteystiedot</a>
+      </nav>
+      <p>© 2026 HittiSpotti. Äänipätkät ovat Applen esikuunteluja. HittiSpotti ei liity Spotifyyn eikä Appleen.</p>
+    </div>
+  </footer>
+</body>
+</html>

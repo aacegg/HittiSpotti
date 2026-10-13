@@ -215,6 +215,37 @@ GitHub Pages käskee selainta pitämään tiedostot välimuistissa kymmenen minu
 
 Numero on kolmessa tiedostossa: `index.html`, `sw.js` (myös `VERSIO`) ja `haaste/index.html`. Viimeinen on kaverihaasteen kutsusivu, jossa numero on esikatselukuvan osoitteessa. Sen unohtaminen ei riko peliä, mutta chatit näyttävät silloin vanhaa kutsukuvaa. Kuvat `jakokuva.jpg` ja `haastekuva.jpg` piirretään uusiksi komennolla `node scripts/tee_jakokuva.js`, ja se kannattaa ajaa aina kun katalogi muuttuu, koska jakokuvassa lukee biisimäärä.
 
+## Arkisto ja tekstisivut
+
+Pelin ulkopuoliset sivut ovat tavallista HTML:ää ilman JavaScriptiä:
+`tietoa.html`, `ohjeet.html`, `tietosuoja.html` ja `yhteystiedot.html`,
+tyylit `sivut.css`:ssä. Ne näkyvät osoitteissa ilman päätettä
+(hittispotti.fi/ohjeet) ja ovat sivukartassa. Ne tehtiin AdSensen
+"vähäarvoinen sisältö" -hylkäyksen takia: peli syntyy JavaScriptillä, joten
+hakukone ja tarkastaja eivät nähneet sivulla juuri mitään luettavaa.
+
+`arkisto.html` kootaan julkaisussa eikä sitä ole gitissä:
+
+    node scripts/arkisto.mjs sivu dist
+
+Menneiden päivien biisit ovat `arkisto.json`:ssa sellaisina kuin ne
+pelattiin. Ne on kiinnitettävä, koska päivän biisit ovat pakan funktio ja
+katalogin muutos vaihtaa myös menneet päivät. Kiinnityksen jälkeiset päivät
+lasketaan nykyisellä koodilla, ja julkaisu kaatuu jos edellinen versio
+laskisi ne eri tavalla. Tuotannon julkaisu ajetaan myös joka yö, jotta eilinen
+päivä tulee arkistoon.
+
+**Ennen jokaista julkaisua** kiinnitetään päivät tähän päivään asti
+tuotannon koodilla ja tarkistetaan:
+
+    git fetch origin main
+    node scripts/arkisto.mjs kiinnita origin/main
+    node testit/arkisto.mjs
+
+Kuluvan päivän biisit ovat kiinnityksen jälkeen `arkisto.json`:ssa, joten
+sitä ei julkaista (`_config.yml`). Sivulle tulee vain mennyt päivä, ja päivän
+artisti vasta kun sitä ei voi enää pelata jälkikäteen.
+
 ## Rakenne
 
 ```

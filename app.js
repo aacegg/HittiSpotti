@@ -306,7 +306,7 @@
    * muodossa "versio 1.0 (100)": pelaaja tunnistaa alun, ja suluista näkee
    * täsmälleen mikä rakenne hänellä oli. */
   /* 1.1: ArtistiSpotti, Kaverihaaste ja 144 uutta biisiä (27.9.2026). */
-  const TUOTEVERSIO = "1.2";
+  const TUOTEVERSIO = "1.3";
 
   /* Mitä uutta -tiedote.
    *
@@ -337,21 +337,20 @@
    * koska hän ei ole nähnyt sitä arvattavana kertaakaan. Yksi luku siis,
    * summana. */
   const UUTTA = {
-    /* Uusi tunnus, joten myös 1.1:n tiedotteen nähneet saavat tämän
+    /* Uusi tunnus, joten myös 1.2:n tiedotteen nähneet saavat tämän
      * kerran. */
-    id: "2026-10-02-versio-1.2",
-    /* Viikko, sama kuin valikon uutta-merkeillä (UUSI_ASTI). */
-    loppuu: "2026-10-09",
-    /* Tärkein ensin. Rajaton peli on uusi rivi valikossa eikä sitä löydä
-     * pelaamalla, joten se on ensimmäisenä. Genrevalinta on vapaan pelin
-     * sisällä. "UUSI PELI" -korostusta ei käytetä: rajaton on
-     * ArtistiSpotin muunnelma, ja korostus kuluu jos sitä käyttää joka
-     * kerta. */
+    id: "2026-10-20-versio-1.3",
+    /* Viikko kuten edelliselläkin kerralla. */
+    loppuu: "2026-10-27",
+    /* Tärkein ensin. Biisimäärä on se minkä jokainen huomaa, tasot ja
+     * toistot selittävät miksi päivän biisit tuntuvat erilaisilta.
+     * Arkisto on linkki, koska sitä ei löydä pelistä muuten kuin
+     * vierittämällä alapalkkiin. */
     kohdat: [
-      "<b>Rajaton ArtistiSpotti.</b> Arvaa niin monta artistia kuin jaksat. Löytyy valikosta ArtistiSpotin alta",
-      "<b>Valitse genre.</b> Vapaassa pelissä voi nyt valita popin, rapin, rockin tai iskelmän, ja genren voi yhdistää vuosikymmeneen",
-      "<b>80-luku omana valintanaan</b>, erillään 50–70-luvusta",
-      "<b>52 uutta biisiä</b> ja seitsemän uutta artistia ArtistiSpottiin. Arvattavia biisejä on nyt 1 939",
+      "<b>Yli 2 000 biisiä.</b> Peliin tuli 91 uutta biisiä, monet pelaajien toiveista",
+      "<b>Vaikeustasot uusiksi.</b> 373 biisiä vaihtoi tasoa pelaajien tulosten perusteella. Helppo on nyt oikeasti helppo ja Mahdoton oikeasti mahdoton",
+      "<b>Ei enää toistoja.</b> Jo pelattu biisi ei palaa päivän biiseihin puoleen vuoteen",
+      '<b>Arkisto.</b> Menneiden päivien biisit ja artistit löytyvät nyt <a href="/arkisto">arkistosta</a>',
     ],
   };
 

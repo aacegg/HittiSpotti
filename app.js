@@ -347,7 +347,7 @@
      * Arkisto on linkki, koska sitä ei löydä pelistä muuten kuin
      * vierittämällä alapalkkiin. */
     kohdat: [
-      "<b>Yli 2 000 biisiä.</b> Peliin tuli 91 uutta biisiä, monet pelaajien toiveista",
+      "<b>Yli 2 000 biisiä.</b> Peliin tuli 92 uutta biisiä, monet pelaajien toiveista",
       "<b>Vaikeustasot uusiksi.</b> 373 biisiä vaihtoi tasoa pelaajien tulosten perusteella. Helppo on nyt oikeasti helppo ja Mahdoton oikeasti mahdoton",
       "<b>Ei enää toistoja.</b> Jo pelattu biisi ei palaa päivän biiseihin puoleen vuoteen",
       '<b>Arkisto.</b> Menneiden päivien biisit ja artistit löytyvät nyt <a href="/arkisto">arkistosta</a>',

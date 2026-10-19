@@ -240,7 +240,13 @@ tuotannon koodilla ja tarkistetaan:
 
     git fetch origin main
     node scripts/arkisto.mjs kiinnita origin/main
+    node scripts/arkisto.mjs karanteeni
     node testit/arkisto.mjs
+
+`karanteeni` kirjoittaa app.js:ään viimeisen puolen vuoden aikana pelatut
+biisit (PELATUT_IDT). Ilman sitä katalogin muutos arpoo pakat uudelleen ja
+jo pelattu biisi voi palata viikkojen päästä: ennen tätä niin kävi 12
+kertaa 47 päivässä. Komento muuttaa app.js:ää, joten `?v=`-numero nousee.
 
 Kuluvan päivän biisit ovat kiinnityksen jälkeen `arkisto.json`:ssa, joten
 sitä ei julkaista (`_config.yml`). Sivulle tulee vain mennyt päivä, ja päivän

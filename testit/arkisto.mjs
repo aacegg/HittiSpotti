@@ -51,6 +51,20 @@ vaita("vielä pelattavan päivän artisti on piilossa",
   osio(pelattava).includes("vielä pelattavissa") && !osio(pelattava).includes("<strong>"));
 vaita("vanhemman päivän artisti näkyy", osio(vanha).includes("<strong>"));
 
+// Pelattujen karanteeni: viimeisen PELATUT_PV päivän biisit eivät palaa
+// ikkunassa. Vaihtokohteiden loppuminen näkyisi tässä.
+const appSrc = fs.readFileSync("app.js", "utf8");
+const pAlku = appSrc.match(/const PELATUT_ALKU = dayIndex\("([\d-]+)"\);/)[1];
+const pPv = Number(appSrc.match(/const PELATUT_PV = (\d+);/)[1]);
+const pIdt = new Set([...appSrc.match(/const PELATUT_IDT = new Set\(\[([\s\S]*?)\]\)/)[1].matchAll(/\d+/g)].map((m) => Number(m[0])));
+let palaa = 0;
+for (let i = 0; i <= pPv; i++) for (const s of l.biisit(lisaa(pAlku, i))) if (pIdt.has(s.id)) palaa++;
+vaita(`karanteenin ${pIdt.size} biisiä eivät palaa ${pPv} päivään (${pAlku} alkaen)`, palaa === 0);
+const pelatut = new Set(avaimet.filter((k) => k >= lisaa(pAlku, -pPv) && k < pAlku).flatMap((k) => ark.paivat[k].b.map((s) => s.id)));
+vaita("karanteeni kirjoitettu viimeisimmän kiinnityksen jälkeen (kiinnita ja karanteeni yhdessä)",
+  avaimet.at(-1) === lisaa(pAlku, -1));
+vaita("karanteenissa ovat kaikki ikkunaa edeltävät pelatut", [...pelatut].every((id) => pIdt.has(id)));
+
 // Julkaisun tarkistus: tuotannon koodi laskee kiinnittämättömät menneet
 // päivät samoin kuin nykyinen. Sama ajetaan julkaisussa.
 let tuotanto = null;

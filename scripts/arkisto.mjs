@@ -3,6 +3,7 @@
  *   node scripts/arkisto.mjs sivu <hakemisto>   kirjoittaa <hakemisto>/arkisto.html
  *   node scripts/arkisto.mjs kiinnita [ref]     kiinnittää päivät tähän päivään asti
  *   node scripts/arkisto.mjs tarkista <ref>     vertaa refin laskentaa nykyiseen
+ *   node scripts/arkisto.mjs karanteeni [alku]  kirjoittaa pelatut app.js:n karanteeniin
  *
  * Miksi kiinnitys eikä pelkkä laskenta: päivän biisit ovat pakan funktio,
  * ja pakka riippuu koko katalogista. Uusi biisi tai vaihtunut taso vaihtaa
@@ -226,6 +227,38 @@ function tarkista(ref, tanaan = suomenPaiva()) {
   return true;
 }
 
+/* Pelattujen karanteeni app.js:ssä (PELATUT_IDT). Viimeisen PELATUT_PV
+ * päivän biisit kiinnitetystä arkistosta, ja ikkuna alkaa huomisesta.
+ * Arkiston on oltava kiinnitetty tähän päivään asti, muuten listasta
+ * puuttuisi päiviä. */
+function karanteeniin(alku) {
+  const tanaan = suomenPaiva();
+  alku = alku || lisaa(tanaan, 1);
+  const ark = lueArkisto();
+  if (viimeinen(ark) < lisaa(alku, -1)) {
+    throw new Error(`Arkisto kiinnitetty vain ${viimeinen(ark)} asti. Aja ensin: node scripts/arkisto.mjs kiinnita`);
+  }
+  const polku = path.join(JUURI, "app.js");
+  const src = fs.readFileSync(polku, "utf8");
+  const pv = Number((src.match(/const PELATUT_PV = (\d+);/) || [])[1]);
+  if (!pv) throw new Error("app.js: PELATUT_PV puuttuu");
+  const raja = lisaa(alku, -pv);
+  const paivat = Object.entries(ark.paivat).filter(([k]) => k >= raja && k < alku);
+  const idt = [...new Set(paivat.flatMap(([, p]) => p.b.map((b) => b.id)))].sort((a, b) => a - b);
+  const rivit = [];
+  for (let i = 0; i < idt.length; i += 6) rivit.push("    " + idt.slice(i, i + 6).join(", ") + ",");
+  const lohko = `  // PELATUT ALKU
+  const PELATUT_ALKU = dayIndex("${alku}");
+  const PELATUT_IDT = new Set([
+${rivit.join("\n")}
+  ]);   // ${idt.length} biisiä, pelattu ${paivat[0][0]} … ${paivat.at(-1)[0]}
+  // PELATUT LOPPU`;
+  const uusi = src.replace(/  \/\/ PELATUT ALKU[\s\S]*?  \/\/ PELATUT LOPPU/, lohko);
+  if (uusi === src && !src.includes(lohko)) throw new Error("app.js: PELATUT-merkit puuttuvat");
+  fs.writeFileSync(polku, uusi);
+  console.log(`Karanteeniin ${idt.length} biisiä, ikkuna ${alku} alkaen ${pv} päivää.`);
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const [komento, arg] = process.argv.slice(2);
   if (komento === "sivu") {
@@ -234,11 +267,13 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     console.log(`Kirjoitettu ${path.join(kohde, "arkisto.html")}`);
   } else if (komento === "kiinnita") {
     kiinnita(arg);
+  } else if (komento === "karanteeni") {
+    karanteeniin(arg);
   } else if (komento === "tarkista") {
     if (!arg) { console.error("Anna vertailtava versio, esim. origin/main"); process.exit(2); }
     process.exit(tarkista(arg) ? 0 : 1);
   } else {
-    console.error("Käyttö: node scripts/arkisto.mjs sivu <hakemisto> | kiinnita [ref] | tarkista <ref>");
+    console.error("Käyttö: node scripts/arkisto.mjs sivu <hakemisto> | kiinnita [ref] | tarkista <ref> | karanteeni [alku]");
     process.exit(2);
   }
 }

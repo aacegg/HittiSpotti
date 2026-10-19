@@ -2745,22 +2745,94 @@
   const KARANTEENI_ALKU = dayIndex("2026-09-17");
   const KARANTEENI_LOPPU = dayIndex("2026-09-20") + KARANTEENI_PV;
 
-  function karanteeni(order, cycle) {
-    if (!KARANTEENI_IDT.size) return;
+  /* Pelattujen karanteeni.
+   *
+   * Pakka on katalogin funktio, joten jokainen katalogin muutos (uusi biisi,
+   * vaihtunut taso) arpoo koko järjestyksen uudelleen. Uusi järjestys ei
+   * tiedä mitä on jo pelattu, ja lupaus "biisi palaa vasta kun taso on
+   * käyty läpi" rikkoutui: arkiston mukaan 47 päivän aikana sama biisi tuli
+   * päivän sarjaan uudestaan 12 kertaa, lyhimmillään kolmen päivän päästä.
+   * Pelaaja huomasi.
+   *
+   * Siksi julkaisussa, jossa katalogi muuttuu, viimeisen PELATUT_PV päivän
+   * biisit siirretään pakassa pois PELATUT_PV päivän ikkunasta. Sama vaihto
+   * kuin lukituksen karanteenissa, joten jokainen biisi jaetaan yhä kerran
+   * kierroksessa. Ennen PELATUT_ALKUa olevia päiviä ei kosketa.
+   *
+   * Lista kirjoitetaan arkistosta, älä muokkaa käsin:
+   *   node scripts/arkisto.mjs karanteeni
+   * Kaikki julkaisun vaiheet README:ssä (Arkisto ja tekstisivut).
+   *
+   * Rajoitus: vaihtokohteet haetaan saman kierroksen loppupäästä. Jos
+   * ikkuna ulottuu tason kierroksen loppuun asti, osalle ei löydy paikkaa
+   * ja ne jäävät ennalleen. testit/arkisto.mjs kertoo jos niin käy. */
+  const PELATUT_PV = 180;
+  // PELATUT ALKU
+  const PELATUT_ALKU = dayIndex("2026-10-20");
+  const PELATUT_IDT = new Set([
+    73633714, 79390746, 195401765, 202119691, 202122147, 203884919,
+    209285022, 209286090, 209392475, 209397958, 211107275, 213000944,
+    216691182, 219383158, 219383233, 250411615, 251513984, 252127380,
+    254899412, 255668672, 258514236, 267022867, 268555705, 269274063,
+    270802005, 270985006, 270987112, 273860887, 273944385, 274562776,
+    274566073, 274566101, 274960550, 276482322, 291055225, 299218907,
+    304325625, 307823569, 307823627, 309025993, 311221652, 329146131,
+    330861135, 330861699, 361256228, 363624402, 371151366, 394359590,
+    395386054, 397725222, 527774238, 527832297, 552902659, 568901900,
+    612493469, 654974316, 655579545, 656111296, 656144533, 679627872,
+    713509735, 713547026, 713595405, 713786502, 713803285, 713807861,
+    713940227, 716186675, 719411142, 723786873, 723786874, 723799102,
+    723799111, 723817582, 723817618, 723817717, 724124925, 847881102,
+    862326275, 900375128, 912327488, 917181634, 948313792, 959303959,
+    975470635, 985659260, 985662341, 985662808, 1031373186, 1033653367,
+    1041903663, 1047252453, 1047252702, 1051276476, 1053197141, 1069842754,
+    1078170454, 1084340225, 1091328396, 1117486721, 1121257536, 1166823835,
+    1166838604, 1168574818, 1174865548, 1178935690, 1201684781, 1232750831,
+    1277782170, 1277783580, 1281546971, 1320059848, 1327411849, 1338823751,
+    1347195461, 1350076949, 1355621140, 1358652765, 1385016690, 1389778897,
+    1392974769, 1407728579, 1423082712, 1438448127, 1440611746, 1442343386,
+    1442432723, 1442432728, 1442465673, 1442552476, 1442570182, 1442581052,
+    1442626023, 1442640791, 1442644273, 1442669441, 1442701720, 1442769495,
+    1442787020, 1442814257, 1442948058, 1443091488, 1443109086, 1443109289,
+    1443109515, 1443320225, 1443332973, 1443348519, 1443360518, 1443367792,
+    1443369974, 1443385118, 1444288744, 1444293811, 1444294893, 1444325772,
+    1444328029, 1444592157, 1444599106, 1445150322, 1445304280, 1452572521,
+    1453568595, 1456955177, 1462612365, 1465913314, 1470209796, 1478135331,
+    1478908814, 1492026518, 1492369093, 1492369106, 1492372335, 1492516101,
+    1494240316, 1494397177, 1503600362, 1516626959, 1522651576, 1526472165,
+    1527081914, 1527779898, 1547833846, 1565583956, 1565587938, 1565598460,
+    1568520882, 1569748376, 1580370681, 1584365720, 1586169657, 1607934917,
+    1639869368, 1644413701, 1648318611, 1660945502, 1669932214, 1679633043,
+    1689251146, 1690657357, 1691286972, 1728453174, 1735511476, 1743523741,
+    1751958867, 1751983968, 1775187008, 1777420649, 1782578176, 1788680284,
+    1798232918, 1802263146, 1802713659, 1802733073, 1802743230, 1802753093,
+    1803154584, 1807549695, 1815393163, 1818675838, 1840451761, 1844813282,
+    1875333913,
+  ]);   // 223 biisiä, pelattu 2026-09-03 … 2026-10-19
+  // PELATUT LOPPU
+  const PELATUT_LOPPU = PELATUT_ALKU + PELATUT_PV;
+
+  function siirraPois(order, cycle, idt, alku, loppu) {
+    if (!idt.size) return;
     const n = order.length;
     for (let pos = 0; pos < n; pos++) {
       const day = cycle * n + pos;
-      if (day > KARANTEENI_LOPPU) break;   // paikat ovat päiväjärjestyksessä
-      if (day < KARANTEENI_ALKU) continue; // menneet päivät jätetään rauhaan
-      if (!KARANTEENI_IDT.has(order[pos].id)) continue;
+      if (day > loppu) break;   // paikat ovat päiväjärjestyksessä
+      if (day < alku) continue; // menneet päivät jätetään rauhaan
+      if (!idt.has(order[pos].id)) continue;
       for (let askel = 1; askel < n; askel++) {
         const j = (pos + askel) % n;
-        if (cycle * n + j <= KARANTEENI_LOPPU) continue;
-        if (KARANTEENI_IDT.has(order[j].id)) continue;
+        if (cycle * n + j <= loppu) continue;
+        if (idt.has(order[j].id)) continue;
         [order[pos], order[j]] = [order[j], order[pos]];
         break;
       }
     }
+  }
+
+  function karanteeni(order, cycle) {
+    siirraPois(order, cycle, KARANTEENI_IDT, KARANTEENI_ALKU, KARANTEENI_LOPPU);
+    siirraPois(order, cycle, PELATUT_IDT, PELATUT_ALKU, PELATUT_LOPPU);
   }
 
   /* ---------- Kaverihaaste ----------

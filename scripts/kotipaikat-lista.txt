@@ -258,7 +258,6 @@ F — Turku
 Vilma Alina — Helsinki
 Sara Siipola — Laihia
 Indica — Helsinki
-Tarja Turunen — Kitee
 Tuuli — Espoo
 Pihlaja — Tampere
 Sini Sabotage — Tuusula
@@ -266,3 +265,4 @@ Diandra — Hyvinkää
 Krista Siegfrids — Kaskinen
 Saara Aalto — Oulunsalo
 Hanna Pakarinen — Lappeenranta
+Gimmel — Helsinki

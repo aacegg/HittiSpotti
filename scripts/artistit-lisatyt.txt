@@ -23,7 +23,6 @@ OLGA
 2: Vilma Alina
 2: Sara Siipola
 2: Indica
-2: Tarja Turunen
 2: Tuuli
 2: Pihlaja
 2: Sini Sabotage

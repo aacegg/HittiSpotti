@@ -164,7 +164,7 @@ strong { font-weight: 650; }
 
 /* ---------- Arkisto ---------- */
 .ark-kuukaudet { display: flex; flex-wrap: wrap; gap: 8px 14px; margin: 0 0 8px; }
-.ark-kk > h2 { position: sticky; top: 0; background: var(--bg); padding: 10px 0 6px; margin-bottom: 0; z-index: 1; }
+.ark-kk > h2 { position: sticky; top: 0; background: var(--bg); padding: 10px 0 8px; margin-bottom: 0; z-index: 1; border-bottom: 1px solid var(--line); }
 .ark-paiva { border-top: 1px solid var(--line); padding: 4px 0 10px; }
 .ark-paiva h3 { margin: 14px 0 8px; font-size: 17px; }
 .ark-lista { list-style: none; padding: 0; margin: 0 0 8px; }

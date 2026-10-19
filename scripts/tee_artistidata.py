@@ -79,13 +79,23 @@ def main() -> int:
     nimet = [r.strip() for r in LISTA.read_text(encoding="utf-8").splitlines()
              if r.strip() and not r.startswith("#")]
 
-    lisatyt = {r.strip() for r in LISATYT.read_text(encoding="utf-8").splitlines()
-               if r.strip() and not r.startswith("#")}
+    # Rivi "Nimi" on ensimmäistä lisäyserää (u: 1), "2: Nimi" toista
+    # (u: 2) ja niin edelleen. Erä kertoo minkä jäädytyspäivän jälkeen
+    # artisti tulee kiertoon, ks. ARTISTI_JAADYTYKSET app.js:ssä.
+    lisatyt = {}
+    for r in LISATYT.read_text(encoding="utf-8").splitlines():
+        if not r.strip() or r.startswith("#"):
+            continue
+        era, _, nimi = r.strip().partition(": ")
+        if nimi and era.isdigit():
+            lisatyt[nimi.strip()] = int(era)
+        else:
+            lisatyt[r.strip()] = 1
     # Kirjoitusvirhe lisättyjen listassa veisi artistin hiljaa kiertoon
     # ja vaihtaisi kaikkien päivien artistit, joten se pysäyttää ajon.
-    if lisatyt - set(nimet):
+    if set(lisatyt) - set(nimet):
         print("LISÄTTY MUTTA EI ROOLILISTALLA: "
-              + ", ".join(sorted(lisatyt - set(nimet))), file=sys.stderr)
+              + ", ".join(sorted(set(lisatyt) - set(nimet))), file=sys.stderr)
         return 1
 
     ulos, puutteet = [], []
@@ -122,7 +132,7 @@ def main() -> int:
                                 f"{rivi['p']!r}")
                 continue
             if v.get("nimi") in lisatyt:
-                rivi["u"] = 1
+                rivi["u"] = lisatyt[v["nimi"]]
             ulos.append(rivi)
 
     if puutteet:

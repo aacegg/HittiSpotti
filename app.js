@@ -1391,7 +1391,7 @@
    * viiden edellisen päivän pelit vaihtuisivat. Siksi ensimmäinen kierros
    * kootaan kahdesta osasta:
    *
-   *   1. päivät ARTISTI_JAADYTYS asti: alkuperäinen järjestys, laskettuna
+   *   1. päivät ensimmäiseen jäädytykseen asti: alkuperäinen järjestys, laskettuna
    *      alkuperäisistä artisteista täsmälleen kuten ennen lisäystä
    *   2. loput päivät: kierron loput artistit ja lisätyt yhdessä,
    *      omalla siemenellään sekoitettuina
@@ -1403,7 +1403,13 @@
    *
    * x: 1 on yhä olemassa artistille joka on haussa mutta ei koskaan
    * päivän artisti. Datassa sellaisia ei tällä hetkellä ole. */
-  const ARTISTI_JAADYTYS = "2026-10-09";
+  /* Jäädytyspäivät, yksi jokaista lisäyserää kohti. Erän k artistit
+   * (artistit.json: u = k) tulevat kiertoon vasta päivän
+   * ARTISTI_JAADYTYKSET[k - 1] jälkeen, ja sitä edeltävät päivät pysyvät
+   * sellaisina kuin ne laskettiin ilman niitä. Toinen erä (naisartistit)
+   * lisättiin 20.10.2026: päivät siihen asti, myös jälkikäteen
+   * pelattavat, eivät muutu. */
+  const ARTISTI_JAADYTYKSET = ["2026-10-09", "2026-10-20"];
   const kiertoArtistit = () => state.artistit.filter((a) => !a.x);
 
   const artistiPakat = new Map();
@@ -1414,13 +1420,22 @@
     const lista = kiertoArtistit().sort((a, b) => (a.id < b.id ? -1 : 1));
     let order;
     if (cycle === 0) {
-      const alkuperaiset = lista.filter((a) => !a.u);
-      const etu = shuffled(alkuperaiset, hashString(`artisti:${ARTISTI_SEKOITUS}:0`))
-        .slice(0, artistiDayIndex(ARTISTI_JAADYTYS) + 1);
-      const etuIdt = new Set(etu.map((a) => a.id));
-      const loput = shuffled(lista.filter((a) => !etuIdt.has(a.id)),
-        hashString(`artisti:${ARTISTI_SEKOITUS}:0:jatko`));
-      order = etu.concat(loput);
+      /* Kerroksittain: ensin alkuperäiset ensimmäiseen jäädytykseen asti,
+       * sitten ensimmäisen erän kanssa sekoitettu jatko toiseen asti ja
+       * niin edelleen. Siemenet ovat samat kuin yksivaiheisessa
+       * versiossa (":0" ja ":0:jatko"), joten jo lasketut päivät pysyvät. */
+      order = [];
+      const kaytetty = new Set();
+      for (let k = 0; k <= ARTISTI_JAADYTYKSET.length; k++) {
+        const mukana = lista.filter((a) => (a.u || 0) <= k && !kaytetty.has(a.id));
+        const siemen = `artisti:${ARTISTI_SEKOITUS}:0` + (k === 0 ? "" : k === 1 ? ":jatko" : `:jatko${k}`);
+        let osa = shuffled(mukana, hashString(siemen));
+        if (k < ARTISTI_JAADYTYKSET.length) {
+          osa = osa.slice(0, Math.max(0, artistiDayIndex(ARTISTI_JAADYTYKSET[k]) + 1 - order.length));
+        }
+        osa.forEach((a) => kaytetty.add(a.id));
+        order = order.concat(osa);
+      }
     } else {
       order = shuffled(lista, hashString(`artisti:${ARTISTI_SEKOITUS}:${cycle}`));
     }

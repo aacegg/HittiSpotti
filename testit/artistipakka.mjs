@@ -18,7 +18,7 @@ const teeKoodi = (lista) => `
   ${pala(/function shuffled\(list, seed\) \{[\s\S]*?\n  \}/)}
   ${pala(/const ARTISTI_EPOCH = [\s\S]*?const ARTISTI_GAP = \d+;/)}
   ${pala(/function artistiDayIndex\(key\) \{[\s\S]*?\n  \}/)}
-  ${pala(/const ARTISTI_JAADYTYS = [^\n]*/)}
+  ${pala(/const ARTISTI_JAADYTYKSET = [^\n]*/)}
   ${pala(/const kiertoArtistit = [^\n]*/)}
   ${pala(/const artistiPakat = new Map\(\);/)}
   ${pala(/function artistiPakka\(cycle\) \{[\s\S]*?\n  \}/)}
@@ -69,14 +69,26 @@ const vanha = new Function(`
   ${pala(/function shuffled\(list, seed\) \{[\s\S]*?\n  \}/)}
   ${pala(/const ARTISTI_SEKOITUS = \d+;/)}
   return shuffled(${JSON.stringify(alkuperaiset)}, hashString(\`artisti:\${ARTISTI_SEKOITUS}:0\`));`)();
-const F = artistiDayIndex(pala(/const ARTISTI_JAADYTYS = "([^"]*)"/).match(/"([^"]*)"/)[1]);
+const JAADYTYKSET = JSON.parse(pala(/const ARTISTI_JAADYTYKSET = (\[[^\]]*\])/).match(/(\[[^\]]*\])/)[1]);
+const F = artistiDayIndex(JAADYTYKSET[0]);
 let sama = true;
 for (let i = 0; i <= F; i++) if (paivanArtisti(pvm(i)).id !== vanha[i].id) sama = false;
 vaita(`jäädytetyt päivät 0-${F} ennallaan`, sama);
 const lisatyt = new Set(kierrossa.filter((a) => a.u).map((a) => a.id));
-let ennen = 0;
-for (let i = 0; i <= F; i++) if (lisatyt.has(paivanArtisti(pvm(i)).id)) ennen++;
-vaita("lisätty artisti ei tule ennen jäädytyksen loppua", ennen === 0, `${lisatyt.size} lisättyä`);
+for (let era = 1; era <= JAADYTYKSET.length; era++) {
+  const erassa = new Set(kierrossa.filter((a) => a.u === era).map((a) => a.id));
+  const raja = artistiDayIndex(JAADYTYKSET[era - 1]);
+  let ennen = 0;
+  for (let i = 0; i <= raja; i++) if (erassa.has(paivanArtisti(pvm(i)).id)) ennen++;
+  vaita(`erän ${era} artistit eivät tule ennen ${JAADYTYKSET[era - 1]}`, ennen === 0, `${erassa.size} artistia`);
+}
+
+/* 4c. Arkistoon kiinnitetyt päivät: jokaisen menneen päivän artisti on
+ *     yhä sama kuin se, jota silloin pelattiin. Tämä kattaa kaikki
+ *     jäädytykset kerralla, myös ne joita yllä ei erikseen testata. */
+const arkisto = JSON.parse(fs.readFileSync("arkisto.json", "utf8")).paivat;
+const eri = Object.entries(arkisto).filter(([k, p]) => p.a && paivanArtisti(k).n !== p.a.n);
+vaita("arkiston päivien artistit ennallaan", eri.length === 0, eri.length ? `ensimmäinen ${eri[0][0]}` : "");
 let kierroksella = 0;
 for (let i = 0; i < N; i++) if (lisatyt.has(paivanArtisti(pvm(i)).id)) kierroksella++;
 vaita("lisätyt tulevat ensimmäisellä kierroksella", kierroksella === lisatyt.size);

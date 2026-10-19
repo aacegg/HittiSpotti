@@ -1767,6 +1767,7 @@
    * nousee juuri kun väri tulee näkyviin, ja peittää sen. */
   const ARTISTI_TAUKO_MS = 180;
   let artistiLoppuAjastin = 0;
+  let artistiSamatAjastin = 0;
   let artistiNimiAjastin = 0;
   let artistiVariAjastin = 0;
 
@@ -1776,6 +1777,7 @@
    * uudestaan kuin ne olisi juuri arvattu. */
   function piirraArtistiRivit(uusi = false) {
     clearTimeout(artistiLoppuAjastin);
+    clearTimeout(artistiSamatAjastin);
     clearTimeout(artistiNimiAjastin);
     clearTimeout(artistiVariAjastin);
     const viimeinen = artistiTila.arvaukset.length - 1;
@@ -1840,9 +1842,25 @@
       }, ARTISTI_RIVI_MS + ARTISTI_NIMI_VIIVE_MS);
     }
     const jaljella = ARTISTI_ARVAUKSIA - artistiTila.arvaukset.length;
-    el.aJaljella.textContent = artistiTila.ohi
+    const jaljellaTeksti = artistiTila.ohi
       ? ""
       : `${jaljella} ${jaljella === 1 ? "arvaus" : "arvausta"} jäljellä`;
+    el.aJaljella.textContent = jaljellaTeksti;
+    /* Samat tiedot, eri artisti. 27 artistilla on täsmälleen samat viisi
+     * tietoa jonkun toisen kanssa (esim. Mäkki ja Kube), ja silloin rivi on
+     * kokonaan vihreä nimeä lukuun ottamatta. Pelaajalle se näytti viallisen
+     * pelin toiminnalta. Selitys tulee jäljellä olevien arvausten riville
+     * eikä omaksi rivikseen, jottei ruudukko siirry, ja vasta kun rivi on
+     * kääntynyt, ettei teksti kerro tulosta ennen ruutuja. */
+    const edellinen = artistiTila.arvaukset[viimeinen];
+    const samat = !artistiTila.ohi && edellinen && edellinen.id !== artistiTila.oikea.id
+      && artistiVertaa(edellinen, artistiTila.oikea)
+        .every((r, i) => ARTISTI_KENTAT[i].nimi || r.tila === "osui");
+    if (samat) {
+      const nayta = () => { el.aJaljella.textContent = `Samat tiedot, eri artisti · ${jaljellaTeksti}`; };
+      if (uusi) artistiSamatAjastin = setTimeout(nayta, ARTISTI_RIVI_MS + ARTISTI_NIMI_VIIVE_MS + ARTISTI_NIMI_MS);
+      else nayta();
+    }
     el.aArvaus.hidden = artistiTila.ohi;
     if (artistiTila.ohi) {
       const n = artistiTila.arvaukset.length;

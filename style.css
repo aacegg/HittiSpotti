@@ -836,6 +836,12 @@ h2.big, .big {
   display: flex;
   flex-direction: column;
   min-height: calc(100dvh - var(--bar-h) - var(--s8) - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  /* svh eikä dvh: dvh muuttuu kesken vierityksen, kun puhelimen selain
+     pienentää osoiterivinsä, ja soitin keskittyi silloin uudelleen ja liikkui
+     sormen alla. svh on korkeus osoiterivi näkyvissä, eli sama kuin dvh
+     sivun avautuessa, mutta pysyy paikallaan vierittäessä. Ensimmäinen
+     rivi jää selaimille, jotka eivät tunne svh:ta. */
+  min-height: calc(100svh - var(--bar-h) - var(--s8) - env(safe-area-inset-top) - env(safe-area-inset-bottom));
 }
 
 .meta {
@@ -2104,7 +2110,7 @@ body.sheet-open { overflow: hidden; }
    alapuolelle silloin kun sen kuuluu olla siellä.
    dvh eikä vh: iOS:n Safarissa vh tarkoittaa osoiterivi piilossa -korkeutta,
    joten vh jättäisi mainoksen kurkistamaan silloin kun rivi on näkyvissä. */
-.ennen-mainosta { min-height: 100dvh; }
+.ennen-mainosta { min-height: 100dvh; min-height: 100svh; }
 
 /* Paljastuksen aikana varaus puretaan, jolloin mainos nousee ruudulle ilman
    vierittämistä.

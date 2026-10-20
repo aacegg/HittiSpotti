@@ -286,7 +286,28 @@ try {
     if (vanha.arviot) saved.arviot = vanha.arviot;   // poista jätetään lukematta
   }
 } catch {}
-const rate = new Map(Object.entries(saved.arviot).map(([k, v]) => [Number(k), v]));
+/* Arvio muistetaan yhdessä sen tason kanssa, joka biisillä oli arvioitaessa
+   (pohjat). Ilman sitä vanha arvio heräsi henkiin aina kun katalogin taso
+   muuttui muuta kautta: pelaajadatan tasokorjauksen jälkeen vienti tarjosi
+   108 vanhaa arviota, jotka olivat täsmälleen korjausta edeltävät tasot ja
+   olisivat kumonneet puolet korjauksesta.
+
+   Siksi latauksessa arvio pidetään vain, jos biisin taso on yhä sama kuin
+   arvioitaessa (odottava muutos) tai jos arvio on sama kuin nykyinen taso
+   (kuunneltu ja hyväksytty). Muuten katalogi on muuttunut arvion jälkeen ja
+   arvio on vanhentunut. Pohjattomat vanhat arviot pidetään vain jälkimmäisessä
+   tapauksessa. */
+const NYT = new Map(SONGS.map((s) => [s.id, s.tier]));
+const pohjat = new Map(Object.entries(saved.pohjat || {}).map(([k, v]) => [Number(k), v]));
+const rate = new Map();
+let vanhentuneita = 0;
+for (const [k, v] of Object.entries(saved.arviot)) {
+  const id = Number(k), nyt = NYT.get(id);
+  if (nyt === undefined) continue;
+  if (v === nyt || pohjat.get(id) === nyt) rate.set(id, v);
+  else { vanhentuneita++; pohjat.delete(id); }
+}
+for (const id of [...pohjat.keys()]) if (!rate.has(id)) pohjat.delete(id);
 
 /* Kolme joukkoa, ei yhtä. Katalogin täytteet ovat tosiasia, omat merkinnät
    ovat mielipide, ja ne on pidettävä erillään: muuten tosiasia tallentuu
@@ -309,6 +330,7 @@ function save() {
   // uudelleen SONGS:sta, joten ne eivät voi vanhentua muistiin.
   localStorage.setItem(KEY, JSON.stringify({
     arviot: Object.fromEntries(rate),
+    pohjat: Object.fromEntries(pohjat),
     poista: [...omatPois], palauta: [...omatTakaisin],
   }));
   progress();
@@ -578,7 +600,8 @@ function focusRow(i, scroll = true) {
 }
 
 function setTier(id, t) {
-  if (t === 0) rate.delete(id); else rate.set(id, t);
+  if (t === 0) { rate.delete(id); pohjat.delete(id); }
+  else { rate.set(id, t); if (!pohjat.has(id)) pohjat.set(id, NYT.get(id)); }
   save();
   const li = list.querySelector(`li[data-id="${id}"]`);
   if (li) {

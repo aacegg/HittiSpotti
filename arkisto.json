@@ -1911,6 +1911,48 @@
    "a": {
     "n": "Elonkerjuu"
    }
+  },
+  "2026-10-20": {
+   "b": [
+    {
+     "id": 722435356,
+     "a": "Jonna",
+     "t": "Hyvännäköinen",
+     "v": 1984,
+     "taso": 1
+    },
+    {
+     "id": 274960550,
+     "a": "Aikakone",
+     "t": "Odota",
+     "v": 1995,
+     "taso": 2
+    },
+    {
+     "id": 271020720,
+     "a": "Arja Koriseva",
+     "t": "Kuningaskobra - Snake Charmer",
+     "v": 1990,
+     "taso": 3
+    },
+    {
+     "id": 824699970,
+     "a": "Jari Sillanpää",
+     "t": "Kaduilla Tuulee",
+     "v": 1991,
+     "taso": 4
+    },
+    {
+     "id": 1037900754,
+     "a": "Hausmylly",
+     "t": "Maailman reunalla",
+     "v": 1995,
+     "taso": 5
+    }
+   ],
+   "a": {
+    "n": "Peer Günt"
+   }
   }
  }
 }

@@ -1465,49 +1465,48 @@
    * Arvonta antoi pelin julkaisusta 23 päivän aikana yhden naisen, ja
    * seuraavat seitsemän päivää olisivat olleet pelkkiä miehiä. Osuus oli
    * oikea, noin kolmannes, mutta ne kasautuivat kuukauden päähän, ja
-   * pelaajat huomasivat. Siksi päivästä TASAPAINO_ALKU lähtien naiset ja
-   * sekayhtyeet jaetaan tasavälein, jolloin miehiä tulee enintään
-   * ARTISTI_MIEHIA_PUTKEEN peräkkäin. Jokainen artisti tulee yhä kerran
-   * kierroksessa. Aiempia päiviä ei kosketa, joten jo pelatut ja
+   * pelaajat huomasivat. Siksi päivästä TASAPAINO_ALKU lähtien miehiä
+   * tulee enintään ARTISTI_MIEHIA_PUTKEEN peräkkäin. Jokainen artisti
+   * tulee yhä kerran kierroksessa. Aiempia päiviä ei kosketa, joten jo pelatut ja
    * jälkikäteen pelattavat pysyvät. */
   const TASAPAINO_ALKU = "2026-10-22";
-  const ARTISTI_MIEHIA_PUTKEEN = 3;
+  const ARTISTI_MIEHIA_PUTKEEN = 5;
 
   function tasapainota(order, cycle) {
     const n = order.length;
-    const alku = Math.max(0, artistiDayIndex(TASAPAINO_ALKU) - cycle * n);
-    if (alku >= n) return;
+    const alku = artistiDayIndex(TASAPAINO_ALKU);
+    if ((cycle + 1) * n <= alku) return;
     const mies = (a) => a.s === "Mies";
-    /* Loppuosa jaetaan uudelleen: naiset ja sekayhtyeet tasavälein
-     * (paikat floor(k * L / w)), molemmat ryhmät omassa arvotussa
-     * järjestyksessään. Osuus on noin kolmannes, joten väli on alle neljä
-     * ja miehiä tulee enintään kolme peräkkäin. Ensimmäinen nainen tulee
-     * heti alkupäivänä, koska sitä edeltävät päivät ovat voineet olla
-     * pelkkiä miehiä. */
-    const osa = order.slice(alku);
-    const naiset = osa.filter((a) => !mies(a));
-    const miehet = osa.filter(mies);
-    const L = osa.length, w = naiset.length;
-    const naisPaikat = new Set(naiset.map((_, k) => Math.floor((k * L) / w)));
-    let ni = 0, mi = 0;
-    for (let i = 0; i < L; i++) {
-      order[alku + i] = naisPaikat.has(i) && ni < w ? naiset[ni++] : (mi < miehet.length ? miehet[mi++] : naiset[ni++]);
+    /* Arvottu järjestys pidetään, ja siihen puututaan vain kun miehiä
+     * olisi tulossa liikaa peräkkäin: silloin tilalle vaihdetaan kierroksen
+     * seuraava nainen tai sekayhtye. Välit vaihtelevat siis arvonnan
+     * mukaan, naisia voi tulla putkeen, eikä kaavasta voi päätellä
+     * vastausta. Tasavälinen jako kokeiltiin ensin, mutta siinä väli oli
+     * aina 3 tai 4 päivää ja kolmen miehen jälkeen tiesi seuraavan olevan
+     * nainen. */
+    let putki = 0;
+    if (cycle > 0) {
+      const ed = artistiPakka(cycle - 1);
+      for (let i = ed.length - 1; i >= 0 && mies(ed[i]); i--) putki++;
+    } else {
+      for (let i = Math.min(alku, n) - 1; i >= 0 && mies(order[i]); i--) putki++;
     }
-    /* Saumakorjaus uudestaan, koska uudelleenjako voi tuoda edellisen
-     * kierroksen hännän artistin kierroksen alkuun. Vaihto tehdään saman
-     * ryhmän sisällä, jottei tasaväli rikkoudu. */
-    if (cycle > 0 && alku === 0 && n >= 3 * ARTISTI_GAP) {
-      const hanta = new Set(artistiPakka(cycle - 1).slice(n - ARTISTI_GAP).map((a) => a.id));
-      for (let i = 0; i < ARTISTI_GAP; i++) {
-        if (!hanta.has(order[i].id)) continue;
-        for (let j = ARTISTI_GAP; j < n; j++) {
-          if (hanta.has(order[j].id) || mies(order[j]) !== mies(order[i])) continue;
-          [order[i], order[j]] = [order[j], order[i]];
+    const hanta = cycle > 0 && n >= 3 * ARTISTI_GAP
+      ? new Set(artistiPakka(cycle - 1).slice(n - ARTISTI_GAP).map((a) => a.id))
+      : new Set();
+    for (let pos = Math.max(0, alku - cycle * n); pos < n; pos++) {
+      if (mies(order[pos]) && putki >= ARTISTI_MIEHIA_PUTKEEN) {
+        for (let j = pos + 1; j < n; j++) {
+          if (mies(order[j])) continue;
+          if (pos < ARTISTI_GAP && hanta.has(order[j].id)) continue;
+          [order[pos], order[j]] = [order[j], order[pos]];
           break;
         }
       }
+      putki = mies(order[pos]) ? putki + 1 : 0;
     }
   }
+
 
 
   function paivanArtisti(key) {

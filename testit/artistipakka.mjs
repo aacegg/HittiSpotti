@@ -22,6 +22,9 @@ const teeKoodi = (lista) => `
   ${pala(/const kiertoArtistit = [^\n]*/)}
   ${pala(/const artistiPakat = new Map\(\);/)}
   ${pala(/function artistiPakka\(cycle\) \{[\s\S]*?\n  \}/)}
+  ${pala(/const TASAPAINO_ALKU = [^\n]*/)}
+  ${pala(/const ARTISTI_MIEHIA_PUTKEEN = [^\n]*/)}
+  ${pala(/function tasapainota\(order, cycle\) \{[\s\S]*?\n  \}/)}
   ${pala(/function paivanArtisti\(key\) \{[\s\S]*?\n  \}/)}
   return { paivanArtisti, artistiDayIndex, artistiPakka };
 `;
@@ -92,6 +95,17 @@ vaita("arkiston päivien artistit ennallaan", eri.length === 0, eri.length ? `en
 let kierroksella = 0;
 for (let i = 0; i < N; i++) if (lisatyt.has(paivanArtisti(pvm(i)).id)) kierroksella++;
 vaita("lisätyt tulevat ensimmäisellä kierroksella", kierroksella === lisatyt.size);
+
+/* 4d. Tasapaino: tasapainon alusta lähtien enintään ARTISTI_MIEHIA_PUTKEEN
+ *     miestä peräkkäin kolmen kierroksen ajan. */
+const TA = artistiDayIndex(pala(/const TASAPAINO_ALKU = "([^"]*)"/).match(/"([^"]*)"/)[1]);
+const MAXP = Number(pala(/const ARTISTI_MIEHIA_PUTKEEN = (\d+)/).match(/(\d+)/)[1]);
+let putki = 0, pisin = 0;
+for (let i = TA - MAXP; i < TA + 3 * N; i++) {
+  putki = paivanArtisti(pvm(i)).s === "Mies" ? putki + 1 : 0;
+  if (i >= TA) pisin = Math.max(pisin, putki);
+}
+vaita(`enintään ${MAXP} miestä peräkkäin ${3 * N} päivän ajan`, pisin <= MAXP, `pisin ${pisin}`);
 
 // 5. Sauma: lyhin väli saman artistin toistoon
 const nahty = new Map();

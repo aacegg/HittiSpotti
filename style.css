@@ -2677,3 +2677,46 @@ main.wrap {
 .etu-ala a { color: var(--text); text-underline-offset: 3px; }
 .etu-ala nav { display: flex; flex-wrap: wrap; gap: var(--s3) var(--s5); margin: var(--s5) 0 var(--s4); }
 .etu-ala-pieni { font-size: var(--f2); }
+
+/* Kaverihaasteen taulukko tulossivulla. Samaa hiljaista kieltä kuin
+   tuloslista: hiusviivat, ei laatikoita. Oma rivi ja voittaja erottuvat
+   värillä, eivät taustalla. */
+.haaste-taulu { margin: var(--s5) 0 var(--s2); }
+.haaste-taulu[hidden] { display: none; }
+.ht-lista { list-style: none; margin: 0 0 var(--s4); padding: 0; border-top: 1px solid var(--line); }
+.ht-lista li {
+  display: grid;
+  grid-template-columns: 2em 1fr auto;
+  align-items: baseline;
+  gap: var(--s3);
+  padding: var(--s3) 0;
+  border-bottom: 1px solid var(--line);
+  font-size: var(--f4);
+}
+.ht-sija { color: var(--muted); font-variant-numeric: tabular-nums; }
+.ht-nimi { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ht-pisteet { font-family: var(--display); font-weight: 700; font-variant-numeric: tabular-nums; }
+.ht-lista li.on-oma .ht-nimi, .ht-lista li.on-oma .ht-pisteet { color: var(--live); }
+.ht-kruunu {
+  margin-left: var(--s3);
+  font-size: var(--f1);
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ok);
+}
+.ht-nimikentta { display: flex; align-items: center; gap: var(--s4); font-size: var(--f3); color: var(--muted); }
+.ht-nimikentta input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 16px;
+  color: var(--text);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  padding: var(--s2) 0;
+  outline: none;
+}
+.ht-nimikentta input:focus { border-bottom-color: var(--live); }
+.ht-ohje { margin: var(--s3) 0 0; font-size: var(--f3); color: var(--muted); }

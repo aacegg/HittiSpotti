@@ -547,6 +547,7 @@
     resultsTitle: $("#results-title"),
     resultsScore: $("#results-score"),
     resultsSub: $("#results-sub"),
+    haasteTaulu: $("#haaste-taulu"),
     resultsList: $("#results-list"),
     shareBtn: $("#share-btn"),
     sharePreview: $("#share-preview"),
@@ -3030,6 +3031,109 @@
     return haasteBiisit(h).map((tasonBiisit) => tasonBiisit[kierros]).filter(Boolean);
   }
 
+  /* ---------- Haasteen tulosvertailu ----------
+   *
+   * Tulokset kulkevat linkissä: ?haaste=KOODI&t=Arttu~9875.Liisa~8200.
+   * Palvelinta ei ole, joten linkki on ainoa paikka jossa ne voivat
+   * kulkea. Haastaja jakaa linkin pelattuaan, kaveri näkee ennen peliä
+   * mitä vastaan pelaa ja lopuksi taulukon. Kaveri voi jakaa saman
+   * linkin eteenpäin omalla rivillään, jolloin taulukko kasvaa.
+   *
+   * Linkkiä muokkaamalla voi keksiä itselleen pisteet. Kaveriporukan
+   * pelissä se on hyväksyttävä hinta palvelimettomuudesta. Pisteet
+   * rajataan silti mahdollisiin, ettei rikkinäinen linkki tuo taulukkoon
+   * mahdotonta lukua, ja nimistä poistetaan erotinmerkit.
+   *
+   * Linkistä luetut rivit tallennetaan haasteen alle, joten ne säilyvät
+   * vaikka osoite siivotaan. Saman nimen myöhempi rivi korvaa aiemman. */
+  const HAASTE_TULOKSIA = 8;
+  const HAASTE_NIMI = "haaste-nimi";
+  const puhdasNimi = (n) => String(n || "").replace(/[~.]/g, " ")
+    .replace(/\s+/g, " ").trim().slice(0, 16);
+  const samaNimi = (a, b) => a.toLocaleLowerCase("fi") === b.toLocaleLowerCase("fi");
+  const omaNimi = () => puhdasNimi(store.get(HAASTE_NIMI, ""));
+
+  function lueTulokset(t, h) {
+    const max = h.kierroksia * POINTS[0] * DAILY_COUNT;
+    const out = [];
+    for (const osa of String(t || "").split(".")) {
+      const [nimi, p] = osa.split("~");
+      let n;
+      try { n = puhdasNimi(decodeURIComponent(nimi || "")); } catch { continue; }
+      const pisteet = Number(p);
+      if (!n || !Number.isInteger(pisteet) || pisteet < 0 || pisteet > max) continue;
+      if (out.some((x) => samaNimi(x.n, n))) continue;
+      out.push({ n, p: pisteet });
+      if (out.length >= HAASTE_TULOKSIA) break;
+    }
+    return out;
+  }
+
+  function yhdistaTulokset(...listat) {
+    const out = [];
+    for (const lista of listat) for (const x of lista || []) {
+      const i = out.findIndex((y) => samaNimi(y.n, x.n));
+      if (i >= 0) out[i] = { n: x.n, p: x.p }; else out.push({ n: x.n, p: x.p });
+    }
+    return out;
+  }
+
+  const haasteSumma = (h) => (h.kierrokset || [])
+    .reduce((summa, k) => summa + ((k && k.pisteet) || 0), 0);
+
+  /* Taulukko suurimmasta pienimpään. Oma rivi mukana vain kun haaste on
+   * pelattu, ja se on aina mukana vaikka taulukko olisi täynnä: muuten
+   * pelaaja ei näkisi omaa sijoitustaan. */
+  function haasteTaulukko(h) {
+    const nimi = omaNimi();
+    const rivit = (h.muut || []).filter((x) => !nimi || !samaNimi(x.n, nimi))
+      .map((x) => ({ ...x, oma: false }));
+    if (h.valmis) rivit.push({ n: nimi || "Sinä", p: haasteSumma(h), oma: true });
+    rivit.sort((a, b) => b.p - a.p || a.oma - b.oma);
+    const parhaat = rivit.slice(0, HAASTE_TULOKSIA);
+    const oma = rivit.find((r) => r.oma);
+    if (oma && !parhaat.includes(oma)) parhaat[parhaat.length - 1] = oma;
+    return parhaat;
+  }
+
+  /* Linkkiin menevät rivit. Oma rivi vain nimellä: nimetön "Sinä" olisi
+   * vastaanottajalle väärä nimi. */
+  function jaettavatTulokset(h) {
+    return haasteTaulukko(h).filter((r) => !r.oma || omaNimi())
+      .map((r) => ({ n: r.oma ? omaNimi() : r.n, p: r.p }));
+  }
+
+  const tuloksetParam = (lista) => lista
+    .map((x) => `${encodeURIComponent(x.n)}~${x.p}`).join(".");
+
+  function piirraHaasteTaulu() {
+    const h = state.mode === "haaste" ? state.haaste : null;
+    const nayta = !!(h && h.valmis && haasteViimeinen() && (h.muut || []).length);
+    const oma = !!(h && h.valmis && haasteViimeinen());
+    el.haasteTaulu.hidden = !oma;
+    if (!oma) return;
+    const rivit = haasteTaulukko(h);
+    const kaksi = rivit.length >= 2 && rivit[0].p > rivit[1].p;
+    el.haasteTaulu.innerHTML = (nayta
+      ? `<ol class="ht-lista">${rivit.map((r, i) => `
+        <li class="${r.oma ? "on-oma" : ""}${i === 0 && kaksi ? " on-voittaja" : ""}">
+          <span class="ht-sija">${i + 1}.</span>
+          <span class="ht-nimi">${escapeHtml(r.n)}${i === 0 && kaksi ? '<span class="ht-kruunu">johtaa</span>' : ""}</span>
+          <span class="ht-pisteet">${fmt(r.p)}</span>
+        </li>`).join("")}</ol>`
+      : "")
+      + `<label class="ht-nimikentta"><span>Nimesi taulukkoon</span>
+        <input type="text" id="ht-nimi" maxlength="16" autocomplete="nickname"
+          placeholder="Kirjoita nimesi" value="${escapeHtml(omaNimi())}"></label>
+      <p class="ht-ohje">Jaa linkki lopuksi, niin kaverit näkevät tuloksesi ja voivat yrittää voittaa sen.</p>`;
+    const kentta = el.haasteTaulu.querySelector("#ht-nimi");
+    kentta.addEventListener("change", () => {
+      store.set(HAASTE_NIMI, puhdasNimi(kentta.value));
+      piirraHaasteTaulu();
+    });
+    kentta.addEventListener("keydown", (e) => { e.stopPropagation(); if (e.key === "Enter") kentta.blur(); });
+  }
+
   /* Haasteen eteneminen tallennetaan koodin alle.
    *
    * Viisi kierrosta on 25 biisiä, eikä sitä pelata yhdeltä istumalta.
@@ -3048,6 +3152,7 @@
        * jotta saman linkin avaaminen näyttää lopputuloksen eikä aloita
        * alusta. aika: siivoaHaasteet pitää tuoreimmat. */
       valmis: !!h.valmis,
+      muut: h.muut || [],
       aika: Date.now(),
       kierros: h.kierros,
       kierrokset: h.kierrokset,
@@ -3089,10 +3194,15 @@
     if (!history.replaceState) return;
     const u = new URL(location.href);
     if (koodi) {
-      if (u.searchParams.get("haaste") === koodi) return;
+      /* Tulokset on luettu ja tallennettu haasteen alle, joten ne voi
+       * poistaa osoitteesta. Muuten ne jäisivät osoiteriville ja kulkisivat
+       * vanhoina mukaan, jos pelaaja kopioi osoitteen itse. */
+      if (u.searchParams.get("haaste") === koodi && !u.searchParams.has("t")) return;
       u.searchParams.set("haaste", koodi);
-    } else if (u.searchParams.has("haaste")) {
+      u.searchParams.delete("t");
+    } else if (u.searchParams.has("haaste") || u.searchParams.has("t")) {
       u.searchParams.delete("haaste");
+      u.searchParams.delete("t");
     } else {
       return;
     }
@@ -3100,6 +3210,8 @@
   }
 
   async function startHaaste(h) {
+    /* Linkin tulokset luetaan ennen kuin osoite siivotaan. */
+    const linkista = lueTulokset(new URLSearchParams(location.search).get("t"), h);
     const tallennettu = store.get(AVAIN.biisi.haaste(h.koodi), null);
     const kierros = tallennettu && Number.isInteger(tallennettu.kierros)
       ? Math.min(Math.max(tallennettu.kierros, 0), h.kierroksia - 1) : 0;
@@ -3118,6 +3230,7 @@
     if (!valmis) store.set(AVAIN.biisi.haasteKesken, h.koodi);
     state.haaste = {
       ...h, kierros, valmis,
+      muut: yhdistaTulokset(tallennettu && tallennettu.muut, linkista),
       /* Jokaiselta pelatulta kierrokselta pisteet ja se mitkä viidestä
        * tunnistettiin. Osumat tarvitaan lopun jakokuvaan, jossa on rivi
        * kierrosta kohti. */
@@ -3142,6 +3255,13 @@
     show("game");
     openRound();
     state.rounds.forEach((r) => prefetch(r.song));
+    /* Haastaja näkyy ennen ensimmäistä biisiä, ei kesken haasteen. */
+    const paras = (state.haaste.muut || []).slice().sort((a, b) => b.p - a.p)[0];
+    if (paras && kierros === 0 && state.at === 0 && !state.rounds[0].finished
+        && !state.rounds[0].guesses.length) {
+      toast(`${paras.n} sai ${fmt(paras.p)} pistettä. Pystytkö parempaan?`, 6000);
+    }
+    persistHaaste();
   }
 
   /* Kierroksen pisteet kierroslistaan. Lista kasvaa vasta kierroksen
@@ -3279,7 +3399,7 @@
       `${h.kierroksia * DAILY_COUNT} biisiä`,
       kausiNimi(h.kaudet) || "kaikki vuosikymmenet",
     ].join(" · ");
-    el.kutsuLinkki.value = haasteOsoite(h.koodi);
+    el.kutsuLinkki.value = haasteLinkki(h);
     el.kutsuLinkki.hidden = true;
     // Jakovalikko vain jos selain tarjoaa sen (puhelimet kyllä, osa
     // työpöytäselaimista ei). Ilman sitä kopiointi on ainoa nappi.
@@ -4398,7 +4518,7 @@
     if (state.mode === "haaste" && state.haaste) {
       // Haasteessa linkki on kutsu samaan sarjaan, ei etusivu.
       lines.push("");
-      lines.push(haasteOsoite(state.haaste.koodi));
+      lines.push(haasteLinkki(state.haaste));
     } else if (location.protocol.startsWith("http")) {
       lines.push("");
       lines.push(location.origin + location.pathname);
@@ -4433,6 +4553,7 @@
             ? ` Haaste on pelattu, yhteensä ${fmt(state.score)} pistettä.`
             : "")
       : yhteenveto;
+    piirraHaasteTaulu();
     el.resultsList.innerHTML = "";
     state.results.forEach((r) => {
       const s = r.song || state.byId.get(String(r.id)) || { title: "?", artist: "?", art: "", year: "" };
@@ -5042,15 +5163,21 @@
    * URL-rakentimella eikä merkkijonoja liittämällä: jaettavaOsoite voi
    * päättyä tiedostonimeen (/index.html), jolloin liitetty polku menisi
    * sen perään. */
-  const haasteOsoite = (koodi) =>
-    `${new URL("haaste/", jaettavaOsoite()).href}?haaste=${koodi}`;
+  const haasteOsoite = (koodi, tulokset = []) =>
+    `${new URL("haaste/", jaettavaOsoite()).href}?haaste=${koodi}`
+    + (tulokset.length ? `&t=${tuloksetParam(tulokset)}` : "");
+
+  /* Haasteen jaettava linkki: pelattuna oma tulos mukana, muuten vain
+   * muiden. */
+  const haasteLinkki = (h) => haasteOsoite(h.koodi,
+    h.valmis ? jaettavatTulokset(h) : (h.muut || []));
 
   async function kopioiLinkki() {
     try {
       /* Haasteessa linkki on kutsu samaan sarjaan, ei osoite etusivulle.
        * Juuri se on koko jakamisen pointti. */
       await navigator.clipboard.writeText(state.mode === "haaste" && state.haaste
-        ? haasteOsoite(state.haaste.koodi) : jaettavaOsoite());
+        ? haasteLinkki(state.haaste) : jaettavaOsoite());
       toast("Linkki kopioitu leikepöydälle.");
     } catch {
       toast("Kopiointi ei onnistunut.");

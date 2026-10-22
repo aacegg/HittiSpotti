@@ -2646,6 +2646,14 @@ body.sheet-open { overflow: hidden; }
 
 /* Etusivun alapalkki, ks. index.html. Samassa palstassa kuin .wrap, mutta
    hiljainen: pieni teksti, haalea väri, ei yhtään täytettyä pintaa. */
+/* Pääalue on vähintään ruudun korkuinen, jotta alapalkki jää aina taitteen
+   alle. Paljastuksessa pelialueen korkeusvaraus puretaan, jotta mainos
+   nousisi näkyviin, ja ilman tätä sen tilalle nousi alapalkki kesken
+   pelin. Mainos on pääalueen sisällä, joten se nousee yhä. */
+main.wrap {
+  min-height: calc(100dvh - var(--bar-h) - env(safe-area-inset-top));
+  min-height: calc(100svh - var(--bar-h) - env(safe-area-inset-top));
+}
 .etu-ala {
   position: relative;
   z-index: 1;

@@ -5369,10 +5369,12 @@
   const mainosAlustetut = new Set();
   let mainosSkriptiPyydetty = false;
 
-  /* Skripti ladataan vasta kun ensimmäistä mainosta tarvitaan, ei sivun
-   * latauksessa. Mainos on joka tapauksessa vierityksen takana, joten
-   * etusivun ei tarvitse odottaa sitä, ja peli pysyy yhtä nopeana kuin
-   * ennenkin niille jotka eivät vieritä alas. */
+  /* Skripti ladataan heti kun sivu on latautunut (ks. init), ei vasta
+   * ensimmäisessä paljastuksessa. Skriptin mukana tulee suostumusikkuna, ja
+   * paljastukseen ladattuna se ilmestyi kesken sarjan ensimmäisen biisin
+   * jälkeen. Load-tapahtuman jälkeen ladattuna se ei hidasta pelin
+   * käynnistymistä. naytaMainos kutsuu tätä myös, jos lataus ei ole vielä
+   * ehtinyt alkaa. */
   function lataaMainosskripti() {
     if (mainosSkriptiPyydetty || !MAINOS_JULKAISIJA) return;
     mainosSkriptiPyydetty = true;
@@ -5859,6 +5861,10 @@
     pruneProgress();
     lataaKaudet();
     paivitaMainosteksti();
+    if (Object.values(MAINOS_PAIKAT).some(Boolean)) {
+      if (document.readyState === "complete") lataaMainosskripti();
+      else addEventListener("load", () => lataaMainosskripti(), { once: true });
+    }
     bind();
     await loadAndStart();
     naytaUutta(palaava);

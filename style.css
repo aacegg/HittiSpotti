@@ -2129,6 +2129,9 @@ body.sheet-open { overflow: hidden; }
   border-top: 1px solid var(--line-soft);
 }
 .mainos[hidden] { display: none; }
+/* AdSense merkitsee täyttämättä jääneen paikan tilalla "unfilled". Muuten
+   pelaajalle jäisi tyhjä 250 px laatikko, jonka päällä lukee "Mainos". */
+.mainos:has(ins[data-ad-status="unfilled"]) { display: none; }
 .mainos-otsikko {
   margin: 0 0 var(--s4);
   font-size: var(--f2);

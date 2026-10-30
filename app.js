@@ -5343,10 +5343,9 @@
    * salaisuus: se on tarkoitettu näkymään jokaisen mainosta näyttävän
    * sivun lähdekoodissa ja se on myös ads.txt-tiedostossa.
    *
-   * ENNEN KUIN PAIKAT TÄYTETÄÄN, kaksi asiaa on oltava kunnossa:
-   *   1. AdSensen suostumusikkuna (Privacy & messaging) päällä ETA-alueelle
-   *   2. ohjeiden tietosuojakohta kirjoitettu uusiksi, koska siinä lukee
-   *      yhä "Ei evästeitä ... Siksi tämä sivu ei tarvitse evästeilmoitusta"
+   * Paikat täytettiin 30.10.2026, kun AdSense hyväksyi sivuston. Ohjeiden
+   * ja tietosuojasivun mainoskohdat oli kirjoitettu jo valmiiksi. Paikan
+   * voi kytkeä pois tyhjentämällä sen tunnuksen.
    *
    * Suostumusta ei kysytä tässä koodissa. AdSensen oma suostumusikkuna
    * (Privacy & messaging) hoitaa ETA-alueen vaatimuksen, ja se tulee samasta
@@ -5357,7 +5356,7 @@
    * tilastolähetystä, ja sen sulkeminen ei saa sulkea mainoksia: pelaajalle
    * luvataan siinä vain että vaikeustasodata jää lähettämättä. */
   const MAINOS_JULKAISIJA = "ca-pub-2029070076507506";
-  const MAINOS_PAIKAT = { peli: "", tulos: "" };  // AdSensen slot-tunnukset
+  const MAINOS_PAIKAT = { peli: "1841624229", tulos: "4778070918" };  // AdSensen slot-tunnukset
   const MAINOS_SKRIPTI =
     "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
 

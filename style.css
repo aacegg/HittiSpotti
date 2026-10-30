@@ -2149,6 +2149,11 @@ body.sheet-open { overflow: hidden; }
 }
 /* Leveällä ruudulla mainos ei saa levitä tekstipalstaa leveämmäksi. */
 .mainos-tila > * { max-width: 100%; }
+/* Responsiivinen mainos mittaa leveytensä tyhjänä ennen sisältöä. Flex-
+   laatikon lapsena se kutistui sisältönsä levyiseksi eli nollaksi, ja
+   Google hylkäsi pyynnön. Esikatselussa vika ei näkynyt, koska
+   paikanvaraajalla on oma leveytensä. */
+.mainos-tila > ins.adsbygoogle:not(.mainos-banneri) { width: 100%; }
 
 /* Paikanvaraaja: näkyy vain paikallisessa kokeilussa, kun oikeaa
    mainostunnusta ei ole. Tuotannossa tätä ei koskaan renderöidä. */

@@ -5447,15 +5447,27 @@
       ins.dataset.fullWidthResponsive = "true";
     }
     tila.appendChild(ins);
-    try {
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-      mainosAlustetut.add(nimi);
-      kuori.hidden = false;
-    } catch {
-      /* Mainoksen kaatuminen ei saa kaataa peliä: jos push epäonnistuu,
-       * paikka jää piiloon eikä sitä yritetä uudestaan. */
-      ins.remove();
-    }
+    /* Kuori näkyviin ennen pyyntöä ja pyyntö vasta seuraavassa
+     * ruudunpäivityksessä, kun myös näkymä on ehditty tuoda esiin (show()
+     * kutsuu tätä ennen kuin vaihtaa näkymän). Responsiivinen mainos mittaa
+     * tilansa leveyden pyyntöhetkellä, ja piilossa se on nolla: Google
+     * hylkää pyynnön ("availableWidth=0"). Ennen kuori avattiin vasta
+     * pyynnön jälkeen, ja kun skripti alettiin ladata heti sivun
+     * latauduttua, paljastuksen mainos jäi siksi kokonaan tulematta.
+     * Kiinteän kokoinen banneri ei leveyttä mittaa, joten se toimi. */
+    kuori.hidden = false;
+    mainosAlustetut.add(nimi);
+    requestAnimationFrame(() => {
+      try {
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      } catch {
+        /* Mainoksen kaatuminen ei saa kaataa peliä. Paikka piiloon, ja
+         * seuraavalla näyttökerralla yritetään uudestaan. */
+        ins.remove();
+        kuori.hidden = true;
+        mainosAlustetut.delete(nimi);
+      }
+    });
   }
 
   /* Ohjeiden "mainoksia ei vielä näytetä" pois heti kun jokin paikka on

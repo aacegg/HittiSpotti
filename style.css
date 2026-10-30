@@ -2174,8 +2174,10 @@ body.sheet-open { overflow: hidden; }
    vierityksen taakse (mitattuna 393x700 ruudulla napit päättyivät 674 px
    kohdalle ja mainos alkoi 798 px kohdalta). Nyt pisteluku on pienempi,
    rivit tiiviimmät ja mainos 320x100-banneri heti nappien alla. */
+/* Varaus puretaan tulossivulla kaikilla ruuduilla: tietokoneella mainos jäi
+   muuten tyhjän ruudullisen alle, eikä sitä nähnyt kukaan. */
+#view-results .ennen-mainosta { min-height: 0; }
 @media (max-width: 599px) {
-  #view-results .ennen-mainosta { min-height: 0; }
   #view-results .score-big strong { font-size: var(--f9); }
   #view-results .score-big .unit { font-size: var(--f6); }
   #view-results .results { margin-top: var(--s4); }

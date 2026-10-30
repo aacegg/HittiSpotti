@@ -2049,6 +2049,14 @@ body.sheet-open { overflow: hidden; }
   /* Taustanimen tila tulee 600 px:n säännöstä; ryhmä on tässä lisäksi
      pystysuunnassa keskitetty, joten lisätty korkeus syö väljyyttä eikä
      työnnä mitään näkymän ulkopuolelle. */
+
+  /* Paljastuksessa keskitys puretaan, jotta mainos mahtuu ruudulle.
+     Keskitettynä paljastus oli ruudun puolivälissä ja mainos alkoi vasta
+     sen alla taitteen kohdalla (mitattuna 1920x960: napit 615 px, mainos
+     840 px). Soitin väistyy paljastuksessa joka tapauksessa, joten
+     sisällön nousu ylös ei siirrä mitään, mitä pelaaja olisi juuri
+     painamassa. */
+  .view-game.is-revealed .screen { min-height: 0; justify-content: flex-start; }
 }
 
 @media (prefers-reduced-motion: reduce) {

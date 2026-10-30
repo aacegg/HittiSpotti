@@ -511,6 +511,8 @@
     mainosPeliTila: $("#mainos-peli-tila"),
     mainosTulos: $("#mainos-tulos"),
     mainosTulosTila: $("#mainos-tulos-tila"),
+    mainosArtisti: $("#mainos-artisti"),
+    mainosArtistiTila: $("#mainos-artisti-tila"),
     uuttaSheet: $("#uutta-sheet"),
     uuttaScrim: $("#uutta-scrim"),
     uuttaClose: $("#uutta-close"),
@@ -814,6 +816,8 @@
     if (name !== "game") piilotaMainos("peli");
     if (name === "results") naytaMainos("tulos");
     else piilotaMainos("tulos");
+    if (name === "artistitulos") naytaMainos("artisti");
+    else piilotaMainos("artisti");
     for (const [k, v] of Object.entries(el.views)) v.hidden = k !== name;
     // Elävä väri kuuluu soivalle biisille. Muualla sivu palaa perusväriin,
     // jotta sovelluksella on myös oma pysyvä sävynsä.
@@ -5356,7 +5360,7 @@
    * tilastolähetystä, ja sen sulkeminen ei saa sulkea mainoksia: pelaajalle
    * luvataan siinä vain että vaikeustasodata jää lähettämättä. */
   const MAINOS_JULKAISIJA = "ca-pub-2029070076507506";
-  const MAINOS_PAIKAT = { peli: "1841624229", tulos: "4778070918" };  // AdSensen slot-tunnukset
+  const MAINOS_PAIKAT = { peli: "1841624229", tulos: "4778070918", artisti: "" };  // AdSensen slot-tunnukset
   const MAINOS_SKRIPTI =
     "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
 
@@ -5385,6 +5389,16 @@
     document.head.appendChild(s);
   }
 
+  function mainosKuori(nimi) {
+    if (nimi === "peli") return [el.mainosPeli, el.mainosPeliTila];
+    if (nimi === "tulos") return [el.mainosTulos, el.mainosTulosTila];
+    return [el.mainosArtisti, el.mainosArtistiTila];
+  }
+
+  /* Puhelimella tulossivuilla matala banneri, jotta mainos mahtuu ruudulle
+   * eikä työnnä tuloksia vierityksen taakse. */
+  const mainosBanneri = (nimi) => nimi !== "peli" && matchMedia("(max-width: 599px)").matches;
+
   /* Alustus vain kerran paikkaa kohden.
    *
    * Paljastus näytetään ja piilotetaan viisi kertaa sarjan aikana, ja
@@ -5395,8 +5409,7 @@
    * mukainen tapa: mainosta ei saa virkistää itse kesken katselun. */
   function naytaMainos(nimi) {
     if (!mainoksetPaalla()) return;
-    const kuori = nimi === "peli" ? el.mainosPeli : el.mainosTulos;
-    const tila = nimi === "peli" ? el.mainosPeliTila : el.mainosTulosTila;
+    const [kuori, tila] = mainosKuori(nimi);
     if (!kuori || !tila) return;
     if (mainosAlustetut.has(nimi)) { kuori.hidden = false; return; }
 
@@ -5406,7 +5419,7 @@
     if (mainosEsikatselu) {
       const laatikko = document.createElement("div");
       laatikko.className = "mainos-esikatselu";
-      if (nimi === "tulos" && matchMedia("(max-width: 599px)").matches) laatikko.classList.add("mainos-banneri");
+      if (mainosBanneri(nimi)) laatikko.classList.add("mainos-banneri");
       laatikko.textContent = "Mainospaikka (" + nimi + ")";
       tila.appendChild(laatikko);
       mainosAlustetut.add(nimi);
@@ -5426,7 +5439,7 @@
      * korkea mainos jäi tuloslistan alle vierityksen taakse, jolloin sitä
      * ei juuri nähty. Kiinteän koon AdSense sallii responsiiviselle
      * yksikölle, kun data-ad-format jätetään pois. */
-    if (nimi === "tulos" && matchMedia("(max-width: 599px)").matches) {
+    if (mainosBanneri(nimi)) {
       ins.className += " mainos-banneri";
       ins.style.display = "";
     } else {
@@ -5457,7 +5470,7 @@
   /* Paikka piiloon kun paljastus sulkeutuu. Sisältö jää DOM:iin, joten
    * mainosta ei alusteta uudestaan, vain kuori piilotetaan. */
   function piilotaMainos(nimi) {
-    const kuori = nimi === "peli" ? el.mainosPeli : el.mainosTulos;
+    const [kuori] = mainosKuori(nimi);
     if (kuori) kuori.hidden = true;
   }
 

@@ -2186,6 +2186,9 @@ body.sheet-open { overflow: hidden; }
   #mainos-tulos { margin-top: var(--s5); padding-top: var(--s4); }
   #mainos-tulos .mainos-otsikko { margin-bottom: var(--s3); }
   #mainos-tulos .mainos-tila { min-height: 100px; }
+  #mainos-artisti { margin-top: var(--s5); padding-top: var(--s4); }
+  #mainos-artisti .mainos-otsikko { margin-bottom: var(--s3); }
+  #mainos-artisti .mainos-tila { min-height: 100px; }
 }
 .mainos-banneri { display: inline-block; width: 320px; height: 100px; min-height: 0; }
 

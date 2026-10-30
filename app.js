@@ -5406,6 +5406,7 @@
     if (mainosEsikatselu) {
       const laatikko = document.createElement("div");
       laatikko.className = "mainos-esikatselu";
+      if (nimi === "tulos" && matchMedia("(max-width: 599px)").matches) laatikko.classList.add("mainos-banneri");
       laatikko.textContent = "Mainospaikka (" + nimi + ")";
       tila.appendChild(laatikko);
       mainosAlustetut.add(nimi);
@@ -5421,8 +5422,17 @@
     ins.style.display = "block";
     ins.dataset.adClient = MAINOS_JULKAISIJA;
     ins.dataset.adSlot = paikka;
-    ins.dataset.adFormat = "auto";
-    ins.dataset.fullWidthResponsive = "true";
+    /* Puhelimen tulossivulla kiinteä 320x100-banneri. Tavallinen 250 px
+     * korkea mainos jäi tuloslistan alle vierityksen taakse, jolloin sitä
+     * ei juuri nähty. Kiinteän koon AdSense sallii responsiiviselle
+     * yksikölle, kun data-ad-format jätetään pois. */
+    if (nimi === "tulos" && matchMedia("(max-width: 599px)").matches) {
+      ins.className += " mainos-banneri";
+      ins.style.display = "";
+    } else {
+      ins.dataset.adFormat = "auto";
+      ins.dataset.fullWidthResponsive = "true";
+    }
     tila.appendChild(ins);
     try {
       (window.adsbygoogle = window.adsbygoogle || []).push({});

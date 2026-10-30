@@ -1623,13 +1623,13 @@ button.tchip:hover { color: var(--text); }
 .results { list-style: none; padding: 0; margin: var(--s5) 0 0; }
 .results li {
   display: grid;
-  grid-template-columns: 46px 1fr auto;
+  grid-template-columns: 40px 1fr auto;
   gap: var(--s4);
   align-items: start;
-  padding: var(--s3) 0;
+  padding: var(--s2) 0;
   border-top: 1px solid var(--line-soft);
 }
-.results img { width: 46px; height: 46px; border-radius: 2px; object-fit: cover; background: var(--line-soft); }
+.results img { width: 40px; height: 40px; border-radius: 2px; object-fit: cover; background: var(--line-soft); }
 .results .r-title { font-family: var(--display); font-weight: 700; font-size: var(--f4); letter-spacing: -.02em; line-height: 1.15; }
 .results .r-artist { margin-top: var(--s1); color: var(--muted); font-size: var(--f2); }
 /* Kierroksen kulku pieninä palkkeina: osuma tason värillä, hukattu askel
@@ -2163,6 +2163,31 @@ body.sheet-open { overflow: hidden; }
   color: var(--dim);
   font-size: var(--f3);
 }
+
+/* Tulossivu puhelimella: tuloslista, napit ja mainos samalle ruudulle.
+   Ennen pisteluku, väljät rivit ja 250 px mainos veivät mainoksen
+   vierityksen taakse (mitattuna 393x700 ruudulla napit päättyivät 674 px
+   kohdalle ja mainos alkoi 798 px kohdalta). Nyt pisteluku on pienempi,
+   rivit tiiviimmät ja mainos 320x100-banneri heti nappien alla. */
+@media (max-width: 599px) {
+  #view-results .ennen-mainosta { min-height: 0; }
+  #view-results .score-big strong { font-size: var(--f9); }
+  #view-results .score-big .unit { font-size: var(--f6); }
+  #view-results .results { margin-top: var(--s4); }
+  /* Rivi kahdeksi: tason pallo ja palkit artistin perään. Tason nimi jää
+     pois näkyvistä (ruudunlukija lukee sen yhä), koska tasot ovat aina
+     järjestyksessä helposta vaikeaan ja pallon väri kertoo saman. Pitkän
+     artistinimen kanssa palkit rivittyvät omalle rivilleen kuten ennen. */
+  #view-results .results li > div { display: flex; flex-wrap: wrap; align-items: center; column-gap: var(--s3); }
+  #view-results .r-title { flex-basis: 100%; }
+  #view-results .r-meta { margin-top: var(--s1); }
+  #view-results .r-tier { font-size: 0; }
+  #view-results .r-tier::before { margin-right: 0; }
+  #mainos-tulos { margin-top: var(--s5); padding-top: var(--s4); }
+  #mainos-tulos .mainos-otsikko { margin-bottom: var(--s3); }
+  #mainos-tulos .mainos-tila { min-height: 100px; }
+}
+.mainos-banneri { display: inline-block; width: 320px; height: 100px; min-height: 0; }
 
 /* ---------- ArtistiSpotti ----------
    Oma näkymänsä. Värit tulevat pelin omasta paletista eivätkä Wordlesta:

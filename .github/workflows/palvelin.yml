@@ -101,6 +101,31 @@ jobs:
           print(f"Tietokanta {nimi} sidottu.")
           PY
 
+      # Taulut ennen workeria: uusi worker kirjoittaa paiva_artisti-tauluun,
+      # ja ilman taulua ArtistiSpotin tulos kaatuisi palvelimella. Molemmat
+      # tiedostot ovat IF NOT EXISTS -muotoa, joten ne voi ajaa joka
+      # julkaisulla. Jos tunnukselta puuttuu D1:n kirjoitusoikeus, ajo
+      # pysähtyy tähän eikä worker vaihdu, eli vanha jää toimimaan.
+      # migraatio-arviot.sql ei ole mukana: ALTER TABLE kaatuu, jos sarakkeet
+      # ovat jo olemassa.
+      - name: Päivitä tietokanta
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: palvelin
+          wranglerVersion: "4"
+          command: d1 execute hittispotti --remote --file=migraatio-artisti.sql
+
+      - name: Poista turha indeksi
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: palvelin
+          wranglerVersion: "4"
+          command: d1 execute hittispotti --remote --file=migraatio-poista-indeksi.sql
+
       - name: Julkaise Worker
         uses: cloudflare/wrangler-action@v3
         with:

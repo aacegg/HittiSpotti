@@ -4515,10 +4515,11 @@
           <div class="r-title">${escapeHtml(s.title)}</div>
           <div class="r-artist">${escapeHtml(s.artist)}, ${escapeHtml(s.year ?? "")}</div>
         </div>
+        ${mittari(s.tier, "iso")}
         <div class="r-oikea">
-          <div class="r-points${r.solved ? "" : " zero"}">${r.solved ? "+" + fmt(r.points) : "0"}</div>
-          <div class="r-meta"><span class="r-tier sr-only">${escapeHtml(TIER_NAMES[s.tier] || "")}</span
-            >${mittari(s.tier)}<span class="r-tulos${r.solved ? " is-ok" : " is-miss"}">${tulosSana(r)}</span></div>
+          <span class="sr-only">${escapeHtml(TIER_NAMES[s.tier] || "")}</span>
+          <span class="r-points${r.solved ? "" : " zero"}">${r.solved ? "+" + fmt(r.points) : "0"}</span>
+          <span class="r-tulos${r.solved ? " is-ok" : " is-miss"}">${tulosSana(r)}</span>
         </div>`;
       el.resultsList.appendChild(li);
     });

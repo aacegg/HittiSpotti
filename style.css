@@ -134,6 +134,10 @@
 
   --sans: "Nunito Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   --display: "Zilla Slab", Rockwell, Georgia, serif;
+  /* Numerot aina groteskilla: Zilla Slabin numerot ovat eri korkuisia
+     (nolla on matalampi kuin muut), ja ne näyttivät pisteissä ja sekunneissa
+     sekavilta. Nunito Sansin numerot ovat tasakorkeita ja -levyisiä. */
+  --num: "Nunito Sans", system-ui, sans-serif;
 }
 
 /* Vaalea tila. Tasovärit tummennettu, jotta ne erottuvat valkoisesta ja
@@ -522,7 +526,7 @@ a.navitem { color: inherit; text-decoration: none; }
   color: var(--muted);
 }
 .dstats-streak strong {
-  font-family: var(--display);
+  font-family: var(--num);
   font-size: var(--f8);
   font-weight: 800;
   letter-spacing: -.035em;
@@ -586,7 +590,7 @@ a.navitem { color: inherit; text-decoration: none; }
 .dweek span[data-tier="5"] { --tier-hue: var(--t5); }
 .dstats-grid dd {
   margin: 0;
-  font-family: var(--display);
+  font-family: var(--num);
   font-size: var(--f6);
   font-weight: 700;
   letter-spacing: -.02em;
@@ -993,7 +997,7 @@ body[data-mode="free"] .bar-tag b { color: var(--live); }
 .meta-score {
   flex: none;
   white-space: nowrap;
-  font-family: var(--display);
+  font-family: var(--num);
   font-size: var(--f4);
   font-weight: 700;
   letter-spacing: -.02em;
@@ -1173,9 +1177,10 @@ button.tchip:hover { background: color-mix(in srgb, var(--tier-hue) 14%, transpa
 /* Pätkän pituus isona slab-numerona, yksikkö pienempänä. */
 .clip-len {
   margin-top: var(--s6);
-  font-family: var(--display);
+  font-family: var(--num);
   font-size: var(--f9);
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: -.02em;
   line-height: .95;
   font-variant-numeric: tabular-nums;
 }
@@ -1208,9 +1213,9 @@ button.tchip:hover { background: color-mix(in srgb, var(--tier-hue) 14%, transpa
   position: relative;
   padding-top: var(--s5);
   text-align: center;
-  font-family: var(--display);
+  font-family: var(--num);
   font-size: var(--f3);
-  font-weight: 700;
+  font-weight: 800;
   color: var(--dim);
 }
 .ladder li::before {
@@ -1377,7 +1382,7 @@ button.tchip:hover { background: color-mix(in srgb, var(--tier-hue) 14%, transpa
   display: inline-flex;
   align-items: center;
   gap: var(--s4);
-  font-family: var(--display);   /* ks. .ladder li – pilkun leveys */
+  font-family: var(--num);   /* ks. .ladder li – pilkun leveys */
   font-size: var(--f4);
   font-weight: 700;
   color: inherit;
@@ -1525,9 +1530,9 @@ button.tchip:hover { background: color-mix(in srgb, var(--tier-hue) 14%, transpa
 .reveal-apple:focus-visible { color: var(--text); }
 .reveal-apple svg { flex: none; opacity: .8; }
 .reveal-points {
-  font-family: var(--display);
+  font-family: var(--num);
   font-size: var(--f7);
-  font-weight: 700;
+  font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
 .reveal .row { width: 100%; margin-top: var(--s4); }
@@ -1559,7 +1564,7 @@ button.tchip:hover { background: color-mix(in srgb, var(--tier-hue) 14%, transpa
   align-items: baseline;
   gap: var(--s4);
   margin: var(--s2) 0 0;
-  font-family: var(--display);
+  font-family: var(--num);
   font-weight: 800;
   line-height: .95;
 }
@@ -1572,10 +1577,11 @@ button.tchip:hover { background: color-mix(in srgb, var(--tier-hue) 14%, transpa
    riville 390 pikselin puhelimessa. */
 .score-big strong {
   font-size: var(--f10);
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: -.02em;
   color: var(--text);
 }
-.score-big .unit { font-size: var(--f7); font-weight: 700; color: var(--muted); }
+.score-big .unit { font-size: var(--f7); font-weight: 800; color: var(--muted); }
 
 .results-sub { margin: var(--s4) 0 0; font-size: var(--f4); line-height: 1.45; color: var(--text); }
 .results-sub:empty { display: none; }
@@ -1599,9 +1605,9 @@ button.tchip:hover { background: color-mix(in srgb, var(--tier-hue) 14%, transpa
 .results { list-style: none; padding: 0; margin: var(--s5) 0 0; }
 .results li {
   display: grid;
-  grid-template-columns: 40px 1fr auto;
+  grid-template-columns: 40px 1fr auto 4.6em;
   gap: var(--s4);
-  align-items: start;
+  align-items: center;
   padding: var(--s2) 0;
   border-top: 1px solid var(--line-soft);
 }
@@ -1612,16 +1618,15 @@ button.tchip:hover { background: color-mix(in srgb, var(--tier-hue) 14%, transpa
    sarakkeessaan ne ovat kaikilla riveillä samassa kohdassa artistin nimen
    pituudesta riippumatta, jolloin tasojen nousun näkee ylhäältä alas.
    Tason nimi on ruudunlukijalle; silmälle sen kertoo mittari. */
-.results .r-oikea { display: grid; justify-items: end; gap: var(--s1); }
-.results .r-meta { display: flex; align-items: center; gap: var(--s3); font-size: var(--f3); }
-.results .r-meta .mittari { color: var(--text); }
-.results .r-tulos { min-width: 4.6em; text-align: right; font-family: var(--display); font-weight: 700; }
+.results .r-oikea { text-align: right; line-height: 1.25; }
+.results li > .mittari { color: var(--text); }
+.results .r-tulos { display: block; font-family: var(--num); font-size: var(--f2); font-weight: 800; }
 .results .r-tulos.is-ok { color: var(--ok); }
 .results .r-tulos.is-miss { color: var(--bad); }
 .results .r-points {
-  font-family: var(--display);
+  font-family: var(--num);
   font-size: var(--f5);
-  font-weight: 700;
+  font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
 .results .r-points.zero { color: var(--dim); }
@@ -1825,7 +1830,7 @@ body.sheet-open { overflow: hidden; }
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: var(--s1); margin-bottom: var(--s6); background: var(--line-soft); }
 .stat { padding: var(--s5) var(--s5); background: var(--bg); }
 .stat-value {
-  font-family: var(--display);
+  font-family: var(--num);
   font-size: var(--f7);
   font-weight: 800;
   letter-spacing: -.035em;

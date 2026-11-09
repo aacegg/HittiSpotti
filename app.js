@@ -503,6 +503,8 @@
     suggestLink: $("#suggest-link"),
     resultsVertailu: $("#results-vertailu"),
     installBtn: $("#install-btn"),
+    teemaBtn: $("#teema-btn"),
+    teemaNimi: $("#teema-nimi"),
     installSheet: $("#install-sheet"),
     installScrim: $("#install-scrim"),
     installClose: $("#install-close"),
@@ -764,6 +766,26 @@
       } catch { return []; }
     },
   };
+
+  /* Tumma tai vaalea tila. Tallessa vain oma valinta; automaattinen on
+   * avaimen puuttuminen, jolloin CSS seuraa laitteen asetusta. index.html
+   * asettaa tallennetun tilan jo ennen ensimmäistä piirtoa. */
+  const TEEMAT = ["auto", "vaalea", "tumma"];
+  const TEEMA_NIMET = { auto: "automaattinen", vaalea: "vaalea", tumma: "tumma" };
+  function asetaTeema(teema) {
+    if (teema === "auto") {
+      delete document.documentElement.dataset.teema;
+      store.remove("teema");
+    } else {
+      document.documentElement.dataset.teema = teema;
+      store.set("teema", teema);
+    }
+    if (el.teemaNimi) el.teemaNimi.textContent = TEEMA_NIMET[teema];
+  }
+  function vaihdaTeema() {
+    const nyt = store.get("teema", "auto");
+    asetaTeema(TEEMAT[(TEEMAT.indexOf(nyt) + 1) % TEEMAT.length]);
+  }
 
   // Siirtää aiemman nimen alla olevat tulokset kerran, ettei putki ja tilastot katoa.
   function migrateStore() {
@@ -5744,6 +5766,7 @@
     el.shareCopyImg.addEventListener("click", kopioiKuva);
     el.shareCopyLink.addEventListener("click", kopioiLinkki);
     el.installBtn.addEventListener("click", asennaTaiOhjeista);
+    el.teemaBtn.addEventListener("click", vaihdaTeema);
     el.installClose.addEventListener("click", suljeAsennusohje);
     el.installScrim.addEventListener("click", suljeAsennusohje);
     el.uuttaClose.addEventListener("click", suljeUutta);
@@ -5896,6 +5919,7 @@
     pruneProgress();
     lataaKaudet();
     paivitaMainosteksti();
+    asetaTeema(store.get("teema", "auto"));
     if (Object.values(MAINOS_PAIKAT).some(Boolean)) {
       if (document.readyState === "complete") lataaMainosskripti();
       else addEventListener("load", () => lataaMainosskripti(), { once: true });

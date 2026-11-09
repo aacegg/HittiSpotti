@@ -28,8 +28,8 @@ const POHJA = [
   "./icon-180.png?v=200",
   "./icon-192.png?v=200",
   "./manifest.webmanifest?v=200",
-  "./fonts/bricolage-latin.woff2",
-  "./fonts/bricolage-latin-ext.woff2",
+  "./fonts/nunito-sans-latin.woff2",
+  "./fonts/zilla-slab-700-latin.woff2",
 ];
 
 self.addEventListener("install", (e) => {

@@ -3,10 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="color-scheme" content="dark">
+  <meta name="color-scheme" content="dark light">
   <title>HittiSpotti – tunnista suomibiisi sekunnin kymmenyksestä</title>
   <meta name="description" content="Musiikkivisa suomalaisilla biiseillä. Kuuntele 0,1 sekunnin pätkä ja arvaa kappale. Mitä nopeammin tunnistat, sitä enemmän pisteitä.">
-  <meta name="theme-color" content="#0a0908">
+  <meta name="theme-color" content="#121016" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <!-- Valittu tila ennen ensimmäistä piirtoa, jottei sivu välähdä väärän
+       värisenä. Sama avain kuin app.js:n store ("hittispotti:teema"). -->
+  <script>try{var t=JSON.parse(localStorage.getItem("hittispotti:teema"));if(t==="vaalea"||t==="tumma")document.documentElement.dataset.teema=t;}catch(e){}</script>
   <!-- AdSense-tilin omistajuus. Googlen tarkistaja etsii tätä etusivulta:
        mainosskripti ladataan vasta kun mainosta tarvitaan (ks. app.js,
        MAINOS_JULKAISIJA), joten ilman tätä sivun lähdekoodissa ei ollut
@@ -46,7 +50,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HittiSpotti">
-  <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/nunito-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/zilla-slab-700-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="style.css?v=230">
 
   <script type="application/ld+json">
@@ -189,6 +194,11 @@
            kukaan ei näe nappia joka ei tee mitään. -->
       <button type="button" class="navitem navitem-apu" id="install-btn" hidden>
         <span class="navitem-name">Lisää peli aloitusnäyttöön</span>
+      </button>
+      <!-- Tumma tai vaalea tila. Painallus vaihtaa järjestyksessä
+           Automaattinen, Vaalea, Tumma; automaattinen seuraa laitetta. -->
+      <button type="button" class="navitem navitem-apu" id="teema-btn">
+        <span class="navitem-name">Ulkoasu: <span id="teema-nimi">automaattinen</span></span>
       </button>
     </nav>
 

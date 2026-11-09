@@ -1,49 +1,70 @@
-/* HittiSpotti – yöradion näköinen musiikkivisa.
+/* HittiSpotti – musiikkivisa suomalaisilla biiseillä.
  *
  * Kolme sääntöä, joista koko ulkoasu seuraa:
- *   1. Yksi elävä väri kerrallaan. Se on aina soivan biisin vaikeustaso,
- *      joten sivu vaalenee vihreäksi helpossa ja palaa punaiseksi
- *      Mahdottomassa. Muu paletti on lämmintä mustaa ja luunvalkeaa.
- *   2. Ei laatikoita. Rajat ovat hiusviivoja ja tyhjää tilaa; täytetty
- *      pinta on varattu sille yhdelle asialle, jota pitää painaa.
- *   3. Numerot ovat sisältöä. Sekunnit ja pisteet ladotaan display-fontilla
- *      isoksi, muu teksti pysyy pienenä ja hiljaisena.
+ *   1. Väri on vaikeustaso. Soivan biisin taso värittää soittimen ja sävyttää
+ *      taustan: vihreä helpossa, punainen Mahdottomassa. Muilla asioilla ei
+ *      ole omaa väriä, jotta värin merkitys ei sekoitu.
+ *   2. Taso näkyy myös muodosta. Viisi nousevaa palkkia kertoo tason ilman
+ *      väriä, joten se toimii värisokealle ja tummassa ja vaaleassa tilassa.
+ *   3. Selkeät pinnat. Painettavat asiat ovat täytettyjä ja pyöristettyjä,
+ *      otsikot ja numerot slab-kirjasimella. Ei versaalirivejä eikä
+ *      koristeviivoja.
+ *
+ * Tumma ja vaalea tila: oletuksena laitteen asetus, valikosta voi valita
+ * kumman tahansa (html[data-teema]).
  */
 
-/* Bricolage Grotesque (SIL Open Font License 1.1) isännöidään itse: yksi
-   variable-tiedosto kattaa kaikki paksuudet, eikä sivu odota kolmatta
-   osapuolta ennen kuin teksti piirtyy. Lisenssi: fonts/OFL.txt */
+/* Zilla Slab (otsikot ja numerot) ja Nunito Sans (muu teksti), molemmat
+   SIL Open Font License 1.1. Isännöidään itse, jottei sivu odota kolmatta
+   osapuolta ennen kuin teksti piirtyy. Lisenssit: fonts/OFL-*.txt */
 @font-face {
-  font-family: "Bricolage Grotesque";
+  font-family: "Zilla Slab";
   font-style: normal;
-  font-weight: 400 800;
+  font-weight: 700;
   font-display: swap;
-  src: url("fonts/bricolage-latin.woff2") format("woff2");
+  src: url("fonts/zilla-slab-700-latin.woff2") format("woff2");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
-  font-family: "Bricolage Grotesque";
+  font-family: "Zilla Slab";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("fonts/zilla-slab-700-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Nunito Sans";
   font-style: normal;
   font-weight: 400 800;
   font-display: swap;
-  src: url("fonts/bricolage-latin-ext.woff2") format("woff2");
+  src: url("fonts/nunito-sans-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Nunito Sans";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("fonts/nunito-sans-latin-ext.woff2") format("woff2");
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
 :root {
-  /* Lämmin muste, ei neutraali harmaa: mustassa on ripaus ruskeaa ja
-     tekstissä luun sävy, jolloin ruutu näyttää painetulta eikä sammuneelta. */
-  --bg: #0a0908;
-  --bg-lift: #14120f;
-  --line: #2a2521;
-  --line-soft: #1b1815;
-  --text: #f2ebdf;
-  /* Molemmat harmaat yltävät WCAG AA:n rajaan 4,5:1 sekä --bg:tä että
-     --bg-lift:iä vasten: --muted 5,13/4,82 ja --dim 4,84/4,55. Älä tummenna
-     kumpaakaan – ne kantavat 11–12 px:n tekstit (portaat, tasopillerit,
-     valikon selitteet), jotka katoavat ensimmäisenä kirkkaassa valossa. */
-  --muted: #8a8073;
-  --dim: #857c6f;
+  /* Tumma tila on oletus. Vaalea tila korvaa nämä alempana. */
+  color-scheme: dark;
+  --bg: #121016;
+  --bg-lift: #1f1c26;
+  --line: #2e2a36;
+  --line-soft: #1f1c26;
+  --text: #f2f0f7;
+  /* Harmaat yltävät WCAG AA:n 4,5:1 molempia pintoja vasten:
+     --muted 8,1/7,2 ja --dim 6,6/5,9. */
+  --muted: #ada7bd;
+  --dim: #9c96ad;
+  /* Teksti tason värisen pinnan päällä (soitin, päänappi). Tumma molemmissa
+     tiloissa: kaikki tasovärit ovat sitä vasten vähintään 4,5:1. */
+  --live-ink: #15121a;
 
   /* Vaikeustasojen sävyaste helposta mahdottomaan. */
   --t1: #5ecf9a;
@@ -63,7 +84,6 @@
 
   /* Elävä väri: body saa data-tier-attribuutin ja koko sivu seuraa. */
   --live: var(--t3);
-  --live-ink: #17120a;
   --ok: var(--t1);
   --bad: var(--t5);
 
@@ -71,7 +91,7 @@
      ilman taustalaattaa ja ilman värejä: väri tulee taustasta muotin läpi. */
   --merkki: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 52 46'%3E%3Crect x='0' y='26.4' width='8' height='19.6' rx='4'/%3E%3Crect x='11' y='11.2' width='8' height='34.8' rx='4'/%3E%3Crect x='22' y='0' width='8' height='46' rx='4'/%3E%3Crect x='33' y='17.6' width='8' height='28.4' rx='4'/%3E%3Crect x='44' y='6.4' width='8' height='39.6' rx='4'/%3E%3C/svg%3E");
 
-  --r: 3px;
+  --r: 10px;
   --bar-h: 54px;
   --palsta: 540px;   /* sisällön leveys – myös yläpalkki noudattaa tätä */
   --palkki: 300px;   /* sivupalkin leveys, sama luku kuin .drawerissa */
@@ -119,8 +139,44 @@
   --f9: 58px;   /* pätkän pituus */
   --f10: 76px;  /* tuloksen pisteluku */
 
-  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --display: "Bricolage Grotesque", "Helvetica Neue", system-ui, sans-serif;
+  --sans: "Nunito Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --display: "Zilla Slab", Rockwell, Georgia, serif;
+}
+
+/* Vaalea tila. Tasovärit tummennettu, jotta ne erottuvat valkoisesta ja
+   tumma teksti niiden päällä yltää 4,5:1:een (t1 5,3, t2 5,7, t3 6,2,
+   t4 5,2, t5 4,7). */
+@media (prefers-color-scheme: light) {
+  :root:not([data-teema="tumma"]) {
+    color-scheme: light;
+    --bg: #ffffff;
+    --bg-lift: #f2f0f7;
+    --line: #dcd8e5;
+    --line-soft: #ebe8f1;
+    --text: #16131c;
+    --muted: #5e5870;
+    --dim: #6b6580;
+    --t1: #1a9e62;
+    --t2: #7a9a12;
+    --t3: #c98a00;
+    --t4: #e0621a;
+    --t5: #e5485c;
+  }
+}
+:root[data-teema="vaalea"] {
+  color-scheme: light;
+  --bg: #ffffff;
+  --bg-lift: #f2f0f7;
+  --line: #dcd8e5;
+  --line-soft: #ebe8f1;
+  --text: #16131c;
+  --muted: #5e5870;
+  --dim: #6b6580;
+  --t1: #1a9e62;
+  --t2: #7a9a12;
+  --t3: #c98a00;
+  --t4: #e0621a;
+  --t5: #e5485c;
 }
 
 body[data-tier="1"] { --live: var(--t1); }
@@ -145,42 +201,19 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Hehku soivan biisin värissä. Antaa mustalle syvyyttä ja vaihtuu
-   kierroksen mukana, joten sivu tuntuu reagoivan peliin. */
-body::before {
-  content: "";
-  position: fixed;
-  inset: -20% -30% auto;
-  height: 70vh;
-  z-index: 0;
-  pointer-events: none;
-  background: radial-gradient(50% 50% at 50% 40%, var(--live), transparent 70%);
-  opacity: .09;
-  transition: opacity .5s ease;
-}
-
-/* Hienovarainen rae. Pelkkä tasainen musta näyttää tyhjältä ruudulta;
-   rae tekee siitä pinnan. Ruutu on pieni ja toistuu, joten se on halpa. */
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  pointer-events: none;
-  opacity: .04;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
-}
+/* Soivan biisin taso sävyttää taustan. Vain pelin aikana: app.js poistaa
+   data-tierin muissa näkymissä, jolloin tausta palaa neutraaliksi. */
+body[data-tier] { background: color-mix(in srgb, var(--live) 8%, var(--bg)); }
+body { transition: background-color .4s ease; }
 
 button, input { font: inherit; color: inherit; }
 
 h1, h2, p, ol, ul { margin: 0; }
 
-/* Toistuva pikkuotsikko: harva välistys, versaali, hiljainen väri. */
+/* Toistuva pikkuotsikko: lihavoitu ja hiljainen, ei versaalia. */
 .eyebrow, .kicker {
-  font-size: var(--f1);
-  font-weight: 600;
-  letter-spacing: .16em;
-  text-transform: uppercase;
+  font-size: var(--f3);
+  font-weight: 700;
   color: var(--muted);
 }
 

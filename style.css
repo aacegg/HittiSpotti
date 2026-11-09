@@ -2718,7 +2718,7 @@ main.wrap {
 /* ---------- Pelimuotojen kuvakkeet ja kortit ----------
    Sama kuvake valikossa ja etusivulla. Värit kuuluvat vaikeustasoille, joten
    pelimuodot erottuvat kuvasta eivätkä väristä: levy, noppa, kaksi päätä ja
-   mikrofoni. Piirretty CSS:llä, jotta väri seuraa tekstiä ja tilaa. */
+   mikrofoni, kaikki täytettyinä. Piirretty CSS:llä, jotta väri seuraa tekstiä ja tilaa. */
 .ik { position: relative; display: block; width: 44px; height: 44px; flex: none; }
 .ik::before {
   content: "";
@@ -2728,9 +2728,9 @@ main.wrap {
   -webkit-mask: var(--ikoni) center / contain no-repeat;
   mask: var(--ikoni) center / contain no-repeat;
 }
-.ik-levy { --ikoni: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='16' rx='3'/%3E%3Cpath d='M8 3v4M16 3v4'/%3E%3Ccircle cx='10' cy='16' r='2' fill='black'/%3E%3Cpath d='M12 16v-6l4-1'/%3E%3C/svg%3E"); }
-.ik-noppa { --ikoni: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 7h3c4 0 6 10 10 10h4'/%3E%3Cpath d='M3 17h3c1.6 0 2.8-1.6 3.9-3.6'/%3E%3Cpath d='M14.1 9.6C15.2 8 16.4 7 18 7h2'/%3E%3Cpath d='M17.5 4l3 3-3 3'/%3E%3Cpath d='M17.5 14l3 3-3 3'/%3E%3C/svg%3E"); }
-.ik-kaverit { --ikoni: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8.5' cy='8' r='3.2'/%3E%3Ccircle cx='17' cy='9' r='2.6'/%3E%3Cpath d='M2.5 20c.4-3.6 2.9-5.8 6-5.8s5.6 2.2 6 5.8'/%3E%3Cpath d='M15.2 14.4c.6-.3 1.2-.4 1.8-.4 2.5 0 4.2 1.9 4.5 5'/%3E%3C/svg%3E"); }
+.ik-levy { --ikoni: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cmask id='m'%3E%3Crect width='24' height='24' fill='white'/%3E%3Ccircle cx='10.2' cy='16.4' r='2.3' fill='black'/%3E%3Cpath d='M11.3 16.4V10.2l4.9-1.3v2.3l-2.9.8v4.4z' fill='black'/%3E%3C/mask%3E%3Cg mask='url%28%23m%29' fill='black'%3E%3Crect x='2.5' y='4.6' width='19' height='17' rx='4'/%3E%3Crect x='6.4' y='2' width='2.6' height='5.6' rx='1.3'/%3E%3Crect x='15' y='2' width='2.6' height='5.6' rx='1.3'/%3E%3C/g%3E%3C/svg%3E"); }
+.ik-noppa { --ikoni: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cmask id='m'%3E%3Crect width='24' height='24' fill='white'/%3E%3Ccircle cx='7.6' cy='7.6' r='1.85' fill='black'/%3E%3Ccircle cx='16.4' cy='7.6' r='1.85' fill='black'/%3E%3Ccircle cx='12' cy='12' r='1.85' fill='black'/%3E%3Ccircle cx='7.6' cy='16.4' r='1.85' fill='black'/%3E%3Ccircle cx='16.4' cy='16.4' r='1.85' fill='black'/%3E%3C/mask%3E%3Crect x='2.5' y='2.5' width='19' height='19' rx='5' fill='black' mask='url%28%23m%29'/%3E%3C/svg%3E"); }
+.ik-kaverit { --ikoni: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cmask id='m'%3E%3Crect width='24' height='24' fill='white'/%3E%3Ccircle cx='9' cy='7.6' r='4.9' fill='black'/%3E%3Cpath d='M0.6 22.4a8.4 8 0 0 1 16.8 0z' fill='black'/%3E%3C/mask%3E%3Cg fill='black'%3E%3Cg mask='url%28%23m%29'%3E%3Ccircle cx='17.2' cy='8.4' r='3.1'/%3E%3Cpath d='M11.4 20.6a5.8 5.6 0 0 1 11.6 0z'/%3E%3C/g%3E%3Ccircle cx='9' cy='7.6' r='3.7'/%3E%3Cpath d='M1.8 20.6a7.2 6.8 0 0 1 14.4 0z'/%3E%3C/g%3E%3C/svg%3E"); }
 .ik-mikki::before { inset: 6px; }
 .ik-mikki { --ikoni: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg transform='translate%2812 12%29 rotate%2845%29 scale%28.86%29 translate%28-12 -12.3%29' fill='black'%3E%3Ccircle cx='12' cy='5' r='4.6'/%3E%3Crect x='8.3' y='10.2' width='7.4' height='2.2' rx='.6'/%3E%3Cpath fill-rule='evenodd' d='M8.9 13.2h6.2l-.9 8.2h-4.4zM11.25 15a.75.75 0 0 1 1.5 0v2a.75.75 0 0 1-1.5 0z'/%3E%3Cpath d='M9.8 22.4h4.4a2.2 1.8 0 0 1-4.4 0z'/%3E%3C/g%3E%3C/svg%3E"); }
 

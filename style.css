@@ -1149,7 +1149,9 @@ button.tchip:hover { background: color-mix(in srgb, var(--tier-hue) 14%, transpa
 .play-btn:active { transform: translateY(5px); box-shadow: 0 4px 0 color-mix(in srgb, var(--live) 62%, #000); }
 .play-btn:disabled { cursor: progress; }
 
-.ring { position: absolute; inset: -20px; width: calc(100% + 40px); height: calc(100% + 40px); transform: rotate(-90deg); pointer-events: none; }
+/* Rengas napin reunan tuntumassa. Kauempana se nousi soittimen yllä
+   olevan osoitteen päälle, koska kierros alkaa ylhäältä. */
+.ring { position: absolute; inset: -9px; width: calc(100% + 18px); height: calc(100% + 18px); transform: rotate(-90deg); pointer-events: none; }
 .ring circle { fill: none; stroke-width: 2.5; }
 .ring-bg { stroke: transparent; }
 .ring-fg {
@@ -1973,7 +1975,7 @@ body.sheet-open { overflow: hidden; }
    tieto on biisiruuduissa. */
 @media (max-width: 599px) {
   .stage { padding: var(--s3) 0; }
-  .vesileima { margin-bottom: var(--s3); font-size: 26px; }
+  .vesileima { margin-bottom: var(--s4); font-size: 26px; }
   .play-btn { width: clamp(124px, 22svh, 182px); height: clamp(124px, 22svh, 182px); }
   .clip-len { margin-top: var(--s4); font-size: 50px; }
   .stake { margin-top: var(--s2); }
@@ -1985,7 +1987,7 @@ body.sheet-open { overflow: hidden; }
 }
 @media (max-width: 599px) and (max-height: 620px) {
   .tasorivi { display: none; }
-  .vesileima { margin-bottom: var(--s2); font-size: 22px; }
+  .vesileima { margin-bottom: var(--s4); font-size: 22px; }
   .play-btn { width: 112px; height: 112px; }
   .clip-len { margin-top: var(--s3); font-size: 42px; }
 }
@@ -2704,7 +2706,7 @@ main.wrap {
 .ik-levy { --ikoni: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='16' rx='3'/%3E%3Cpath d='M8 3v4M16 3v4'/%3E%3Ccircle cx='10' cy='16' r='2' fill='black'/%3E%3Cpath d='M12 16v-6l4-1'/%3E%3C/svg%3E"); }
 .ik-noppa { --ikoni: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 7h3c4 0 6 10 10 10h4'/%3E%3Cpath d='M3 17h3c1.6 0 2.8-1.6 3.9-3.6'/%3E%3Cpath d='M14.1 9.6C15.2 8 16.4 7 18 7h2'/%3E%3Cpath d='M17.5 4l3 3-3 3'/%3E%3Cpath d='M17.5 14l3 3-3 3'/%3E%3C/svg%3E"); }
 .ik-kaverit { --ikoni: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8.5' cy='8' r='3.2'/%3E%3Ccircle cx='17' cy='9' r='2.6'/%3E%3Cpath d='M2.5 20c.4-3.6 2.9-5.8 6-5.8s5.6 2.2 6 5.8'/%3E%3Cpath d='M15.2 14.4c.6-.3 1.2-.4 1.8-.4 2.5 0 4.2 1.9 4.5 5'/%3E%3C/svg%3E"); }
-.ik-mikki { --ikoni: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='15' cy='9' r='5.2'/%3E%3Cpath d='M11.4 6.2l6.4 6.4M13.6 4.3l6.1 6.1'/%3E%3Cpath d='M11.3 12.7L3.8 20.2a1.4 1.4 0 0 0 0 2l.1.1a1.4 1.4 0 0 0 2 0l7.5-7.5'/%3E%3C/svg%3E"); }
+.ik-mikki { --ikoni: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg transform='translate%2812 12%29 rotate%2845%29 scale%28.9%29 translate%28-12 -12.3%29' fill='black'%3E%3Cpath d='M6.8 6.7a5.2 5.2 0 0 1 10.4 0z'/%3E%3Crect x='7' y='7.5' width='10' height='2.2' rx='.6'/%3E%3Cpath fill-rule='evenodd' d='M8.9 10.5h6.2l-.9 9.8h-4.4zM11.25 12.4a.75.75 0 0 1 1.5 0v2a.75.75 0 0 1-1.5 0z'/%3E%3Cpath d='M9.8 21.1h4.4a2.2 2 0 0 1-4.4 0z'/%3E%3C/g%3E%3C/svg%3E"); }
 
 /* Valikon pelimuodot kortteina: kuvake vasemmalla laatassa, nimi ja
    alateksti sen vieressä. */
@@ -2887,7 +2889,7 @@ body[data-mode="free"] .rajausrivi:hover { border-color: var(--text); }
 @media (max-width: 599px) {
   body[data-mode="free"] .rajausrivi { min-height: 44px; margin-top: var(--s3); padding: var(--s2) var(--s2) var(--s2) var(--s4); }
   .rajausrivi-otsikko { display: none; }
-  body[data-mode="free"] .play-btn { width: clamp(112px, 20svh, 176px); height: clamp(112px, 20svh, 176px); }
+  body[data-mode="free"] .play-btn { width: clamp(112px, 19svh, 176px); height: clamp(112px, 19svh, 176px); }
 }
 @media (max-width: 599px) and (max-height: 620px) {
   body[data-mode="free"] .vesileima { display: none; }

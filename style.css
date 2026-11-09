@@ -1199,8 +1199,8 @@ button.tchip:hover { background: color-mix(in srgb, var(--tier-hue) 14%, transpa
 .play-btn.is-playing .ring circle { stroke-width: 4; }
 @keyframes soitin-pomppu { 40% { transform: scale(1.05); } }
 @keyframes soitin-aalto {
-  from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--live) 60%, transparent); }
-  to { box-shadow: 0 0 0 16px color-mix(in srgb, var(--live) 0%, transparent); }
+  from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--live) 70%, transparent); }
+  to { box-shadow: 0 0 0 22px color-mix(in srgb, var(--live) 0%, transparent); }
 }
 @media (prefers-reduced-motion: reduce) {
   .play-btn.aalto, .play-btn.aalto::before, .play-btn.is-playing::before { animation: none; }

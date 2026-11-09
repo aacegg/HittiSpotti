@@ -503,6 +503,7 @@
     feedbackLink: $("#feedback-link"),
     rajaaAvaa: $("#rajaa-avaa"),
     rajausArvo: $("#rajaus-arvo"),
+    haasteYht: $("#haaste-yht"),
     haasteTaulu: $("#haaste-taulu"),
     htPaivita: $("#ht-paivita"),
     htLomake: $("#ht-nimi-lomake"),
@@ -4579,6 +4580,7 @@
             ? ` Haaste on pelattu, yhteensä ${fmt(state.score)} pistettä.`
             : "")
       : yhteenveto;
+    haasteYhteenveto(haaste);
     haasteVertailu();
     el.resultsList.innerHTML = "";
     state.results.forEach((r) => {
@@ -5323,6 +5325,32 @@
       store.set("haaste-pelaaja", t);
     }
     return t;
+  }
+
+  /* Monikierroksisen haasteen kierrokset tulossivulla: viisi ruutua
+   * osumista ja kierroksen pisteet, pelaamattomat himmeinä. Yhden
+   * kierroksen haasteessa rivi toistaisi otsikon, joten se jää pois. */
+  function haasteYhteenveto(h) {
+    if (!el.haasteYht) return;
+    el.haasteYht.hidden = !h || h.kierroksia < 2;
+    if (el.haasteYht.hidden) return;
+    const rivit = [];
+    for (let i = 0; i < h.kierroksia; i++) {
+      const k = h.kierrokset[i];
+      const ruudut = k
+        ? (k.ratkaistut || []).map((o) => `<i class="${o ? "on" : ""}"></i>`).join("")
+        : "<i></i>".repeat(5);
+      const osumat = k ? (k.ratkaistut || []).filter(Boolean).length : 0;
+      rivit.push(`<li class="${k ? "" : "tulossa"}${i === h.kierros ? " nyt" : ""}">
+        <span class="hy-nimi">${i + 1}. kierros</span>
+        <span class="hy-ruudut" role="img" aria-label="${k ? `${osumat}/5 tunnistettu` : "ei vielä pelattu"}">${ruudut}</span>
+        <span class="hy-pisteet">${k ? fmt(k.pisteet || 0) : "tulossa"}</span></li>`);
+    }
+    if (haasteViimeinen()) {
+      rivit.push(`<li class="hy-summa"><span class="hy-nimi">Yhteensä</span><span></span>
+        <span class="hy-pisteet">${fmt(state.score)}</span></li>`);
+    }
+    el.haasteYht.innerHTML = rivit.join("");
   }
 
   let haasteVuoro = 0;

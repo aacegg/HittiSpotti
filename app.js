@@ -349,7 +349,7 @@
       "<b>Tumma ja vaalea tila.</b> Peli seuraa puhelimen asetusta, ja tilan voi vaihtaa valikon alalaidasta",
       "<b>Etusivu.</b> Kun päivän biisit on pelattu, muut pelit ovat heti tarjolla",
       "<b>Rajaukset pelin sisällä.</b> Vapaan pelin vuosikymmenet ja tyylit löytyvät Muuta-napista, ArtistiSpotin rajaton peli otsikon alta",
-      "<b>Kaverihaasteen voi poistaa.</b> Kesken jäänyt haaste ei enää jää roikkumaan",
+      "<b>Kaverihaasteen tulokset.</b> Kirjoita nimimerkki, niin näet kavereiden pisteet samassa haasteessa. Kesken jääneen haasteen voi myös poistaa",
     ],
   };
 
@@ -503,6 +503,12 @@
     feedbackLink: $("#feedback-link"),
     rajaaAvaa: $("#rajaa-avaa"),
     rajausArvo: $("#rajaus-arvo"),
+    haasteTaulu: $("#haaste-taulu"),
+    htPaivita: $("#ht-paivita"),
+    htLomake: $("#ht-nimi-lomake"),
+    htNimi: $("#ht-nimi"),
+    htLista: $("#ht-lista"),
+    htOhje: $("#ht-ohje"),
     rajaaSheet: $("#rajaa-sheet"),
     rajaaScrim: $("#rajaa-scrim"),
     rajaaClose: $("#rajaa-close"),
@@ -4553,7 +4559,7 @@
     el.resultsTitle.textContent = daily
       ? `Päivän biisit, ${dateLine(keyToDate(state.dayKey || todayKey()))}`
       : haaste ? `Kaverihaaste, kierros ${haaste.kierros + 1}/${haaste.kierroksia}`
-          + (kausiNimi(haaste.kaudet) ? ` · ${kausiNimi(haaste.kaudet)}` : "")
+          + (kausiNimi(haaste.kaudet) ? `, ${kausiNimi(haaste.kaudet)}` : "")
       : rajausNimi() || "Vapaa peli";
     el.resultsScore.textContent = fmt(state.score);
     const yhteenveto = resultSummary(solved, daily ? DAILY_COUNT : state.results.length);
@@ -4568,6 +4574,7 @@
             ? ` Haaste on pelattu, yhteensä ${fmt(state.score)} pistettä.`
             : "")
       : yhteenveto;
+    haasteVertailu();
     el.resultsList.innerHTML = "";
     state.results.forEach((r) => {
       const s = r.song || state.byId.get(String(r.id)) || { title: "?", artist: "?", art: "", year: "" };
@@ -5271,6 +5278,11 @@
 
   const dataLupa = () => store.get("datalupa", true) !== false;
 
+  /* Kaverihaasteen vertailun palvelin. Oma vakionsa, koska testisivun
+   * julkaisu tyhjentää PALVELIN-osoitteen mutta vertailua pitää voida
+   * kokeilla siellä. Palvelin hyväksyy testisivun vain tähän. */
+  const HAASTE_PALVELIN = "https://hittispotti-tilastot.hittispotti.workers.dev";
+
   /* Paikallinen kehitys ei kirjoita tuotannon tilastoihin.
    *
    * Testisivulta palvelimen osoite riisutaan julkaisussa, mutta
@@ -5286,6 +5298,75 @@
    * näyttää pois päältä olevalta vain siksi että kehitetään
    * paikallisesti. */
   const saaLahettaa = () => !!PALVELIN && !PAIKALLINEN && dataLupa();
+
+  /* ---------- Kaverihaasteen vertailu ----------
+   *
+   * Haasteen tulossivulla näkyvät kaikkien haasteen pelaajien pisteet.
+   * Pelaaja kirjoittaa nimimerkin kerran, ja sen jälkeen jokaisen kierroksen
+   * pisteet päivittyvät palvelimelle samalle riville. Rivi tunnistetaan
+   * laitteelle arvotulla tunnisteella, joten sama nimi kahdella kaverilla ei
+   * sekoita mitään.
+   *
+   * Lähetys vain pelaajan omasta pyynnöstä (nimimerkin kirjoittaminen),
+   * joten se ei riipu tilastolähetyksen luvasta. Ilman nimeä mitään ei
+   * lähetetä. */
+  function haastePelaaja() {
+    let t = store.get("haaste-pelaaja", "");
+    if (!/^[0-9a-z]{16,32}$/.test(t)) {
+      t = Array.from(crypto.getRandomValues(new Uint8Array(14)), (b) => (b % 36).toString(36)).join("")
+        + Date.now().toString(36).slice(-6);
+      store.set("haaste-pelaaja", t);
+    }
+    return t;
+  }
+
+  let haasteVuoro = 0;
+  async function haasteVertailu(vainHaku = false) {
+    const h = state.mode === "haaste" ? state.haaste : null;
+    if (!el.haasteTaulu) return;
+    el.haasteTaulu.hidden = !h || !HAASTE_PALVELIN || PAIKALLINEN;
+    if (el.haasteTaulu.hidden) return;
+    const nimi = store.get("haaste-nimi", "");
+    el.htLomake.hidden = !!nimi;
+    el.htPaivita.hidden = !nimi;
+    if (!nimi) {
+      el.htLista.innerHTML = "";
+      el.htOhje.textContent = "Kirjoita nimimerkki, niin näet kavereiden pisteet ja he sinun.";
+      return;
+    }
+    const vuoro = ++haasteVuoro;
+    el.htOhje.textContent = "Haetaan…";
+    const pelatut = h.kierrokset.filter(Boolean).length;
+    try {
+      const v = vainHaku || !pelatut
+        ? await fetch(`${HAASTE_PALVELIN}/haaste?k=${encodeURIComponent(h.koodi)}&p=${haastePelaaja()}`)
+        : await fetch(`${HAASTE_PALVELIN}/haaste`, {
+          method: "POST",
+          headers: { "content-type": "text/plain" },
+          body: JSON.stringify({ koodi: h.koodi, pelaaja: haastePelaaja(), nimi, pisteet: state.score, pelatut }),
+        });
+      if (!v.ok) throw new Error(String(v.status));
+      const data = await v.json();
+      if (vuoro !== haasteVuoro) return;
+      piirraHaasteTaulu(data.rivit || [], h);
+    } catch {
+      if (vuoro !== haasteVuoro) return;
+      el.htOhje.textContent = "Vertailu ei juuri nyt onnistu. Kokeile hetken päästä uudestaan.";
+    }
+  }
+
+  function piirraHaasteTaulu(rivit, h) {
+    el.htLista.innerHTML = rivit.map((r, i) => {
+      const lisa = [r.oma ? "sinä" : "", r.pelatut < h.kierroksia ? `kierros ${r.pelatut}/${h.kierroksia}` : ""]
+        .filter(Boolean).join(", ");
+      return `<li class="${r.oma ? "on-oma" : ""}"><span class="ht-sija">${i + 1}.</span>
+        <span class="ht-nimi-solu"><b>${escapeHtml(r.nimi)}</b>${lisa ? ` <small>${lisa}</small>` : ""}</span>
+        <span class="ht-pisteet">${fmt(r.pisteet)}</span></li>`;
+    }).join("");
+    el.htOhje.innerHTML = rivit.length <= 1
+      ? 'Kun kaverisi pelaavat haasteen, heidän pisteensä näkyvät tässä. <button type="button" class="ht-kutsu">Lähetä linkki</button>'
+      : "";
+  }
 
   /* ---------- Vertailu muihin pelaajiin ----------
    *
@@ -5917,6 +5998,16 @@
     el.haastePoista.addEventListener("click", poistaKeskenHaaste);
     el.kutsuAvaa.addEventListener("click", () => avaaKutsu(false));
     el.rajaaAvaa.addEventListener("click", avaaRajaus);
+    el.htLomake.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const nimi = el.htNimi.value.replace(/[<>]/g, "").replace(/\s+/g, " ").trim().slice(0, 16);
+      if (!nimi) { el.htNimi.focus(); return; }
+      store.set("haaste-nimi", nimi);
+      el.htNimi.blur();
+      haasteVertailu();
+    });
+    el.htPaivita.addEventListener("click", () => haasteVertailu(true));
+    el.htOhje.addEventListener("click", (e) => { if (e.target.closest(".ht-kutsu")) avaaKutsu(false); });
     el.rajaaClose.addEventListener("click", suljeRajaus);
     el.rajaaOk.addEventListener("click", suljeRajaus);
     el.rajaaScrim.addEventListener("click", suljeRajaus);

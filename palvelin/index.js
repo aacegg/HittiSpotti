@@ -17,6 +17,33 @@
 
 const SALLITUT = ["https://hittispotti.fi", "https://www.hittispotti.fi"];
 
+/* Kaverihaasteen vertailuun saa puhua myös testisivu, jotta ominaisuutta
+ * voi kokeilla ennen julkaisua. Testisivun haasteet ovat omia koodejaan,
+ * joten ne eivät sekoitu kenenkään oikeaan haasteeseen. Tilastoihin
+ * testisivu ei pääse. */
+const HAASTE_SALLITUT = [...SALLITUT, "https://hittispotti-testi.hittispotti.workers.dev"];
+
+/* Kaverihaasteen tulos. Koodi samassa muodossa kuin pelin haastelinkissä
+ * (siemen-kierrokset-vuosikymmenet[-versio], base36). Pisteiden yläraja
+ * on kierrosten maksimi, nimi on pelaajan oma nimimerkki. */
+const HAASTE_MAKSIMI_KIERROKSET = 5;
+const HAASTE_RIVEJA_MAX = 40;
+const HAASTE_SAILYTYS_MS = 60 * 86400 * 1000;
+
+function puhdistaNimi(nimi) {
+  if (typeof nimi !== "string") return "";
+  return nimi.replace(/[\u0000-\u001f\u007f<>]/g, "").replace(/\s+/g, " ").trim().slice(0, 16);
+}
+
+function haasteKelpaa(k) {
+  return k
+    && typeof k.koodi === "string" && /^[0-9a-z]{1,8}-[0-9a-z]{1,2}-[0-9a-z]{1,4}(-[0-9]{1,2})?$/.test(k.koodi)
+    && typeof k.pelaaja === "string" && /^[0-9a-z]{16,32}$/.test(k.pelaaja)
+    && puhdistaNimi(k.nimi).length >= 1
+    && Number.isInteger(k.pelatut) && k.pelatut >= 1 && k.pelatut <= HAASTE_MAKSIMI_KIERROKSET
+    && Number.isInteger(k.pisteet) && k.pisteet >= 0 && k.pisteet <= k.pelatut * MAKSIMI;
+}
+
 /* Kelpuutetaan vain se mitä peli oikeasti lähettää. Osoite on julkinen,
  * joten kuka tahansa voi lähettää sinne mitä tahansa; tiukka tarkistus on
  * ainoa asia joka pitää taulun järkevänä. */
@@ -71,6 +98,19 @@ function artistiKelpaa(k) {
   return Number.isFinite(ero) && ero < 2 * 86400 * 1000;
 }
 
+/* Haasteen taulukko pisteiden mukaan. Pelaajatunnisteita ei palauteta:
+ * kysyjä saa tietää vain mikä riveistä on hänen omansa. */
+async function haasteTaulu(env, koodi, pelaaja) {
+  const { results } = await env.DB.prepare(
+    `SELECT pelaaja, nimi, pisteet, pelatut FROM haaste_tulos
+     WHERE koodi = ?1 ORDER BY pisteet DESC, aika ASC LIMIT ${HAASTE_RIVEJA_MAX}`).bind(koodi).all();
+  return {
+    rivit: (results || []).map((r) => ({
+      nimi: r.nimi, pisteet: r.pisteet, pelatut: r.pelatut, oma: !!pelaaja && r.pelaaja === pelaaja,
+    })),
+  };
+}
+
 function vastaus(body, status, origin, tyyppi = "application/json") {
   const h = { "content-type": tyyppi + "; charset=utf-8" };
   if (origin) {
@@ -83,7 +123,8 @@ function vastaus(body, status, origin, tyyppi = "application/json") {
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url);
-    const origin = SALLITUT.includes(req.headers.get("origin")) ? req.headers.get("origin") : null;
+    const sallitut = url.pathname === "/haaste" ? HAASTE_SALLITUT : SALLITUT;
+    const origin = sallitut.includes(req.headers.get("origin")) ? req.headers.get("origin") : null;
 
     if (req.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: origin ? {
@@ -304,6 +345,54 @@ export default {
      *
      * Lähetetään vain kun päivän artisti on pelattu loppuun, ratkesi tai
      * ei. Kesken jättäneet eivät kuulu vertailulukuun. */
+    /* ---- Kaverihaasteen tulos ----
+     *
+     * Peli lähettää pelaajan nimimerkin ja pisteet jokaisen kierroksen
+     * jälkeen, ja rivi päivittyy saman pelaajan kohdalle. Näin kaverit
+     * näkevät toistensa etenemisen, vaikka pelaisivat samaan aikaan.
+     * Vastauksena tulee haasteen taulukko, joten erillistä hakua ei
+     * tarvita. */
+    if (req.method === "POST" && url.pathname === "/haaste") {
+      const teksti = await req.text();
+      if (teksti.length > 400) return vastaus('{"virhe":"liian iso"}', 413, origin);
+      let k;
+      try { k = JSON.parse(teksti); } catch { return vastaus('{"virhe":"ei JSONia"}', 400, origin); }
+      if (!haasteKelpaa(k)) return vastaus('{"virhe":"kelpaamaton tulos"}', 400, origin);
+
+      /* Yhden haasteen rivimäärä on rajattu, jottei julkista osoitetta voi
+       * käyttää taulun täyttämiseen. Oma rivi saa aina päivittyä. */
+      const oma = await env.DB.prepare(
+        "SELECT 1 FROM haaste_tulos WHERE koodi = ?1 AND pelaaja = ?2").bind(k.koodi, k.pelaaja).first();
+      if (!oma) {
+        const n = await env.DB.prepare(
+          "SELECT COUNT(*) AS n FROM haaste_tulos WHERE koodi = ?1").bind(k.koodi).first();
+        if (n && n.n >= HAASTE_RIVEJA_MAX) return vastaus('{"virhe":"haaste täynnä"}', 409, origin);
+      }
+      await env.DB.prepare(`
+        INSERT INTO haaste_tulos (koodi, pelaaja, nimi, pisteet, pelatut, aika)
+        VALUES (?1, ?2, ?3, ?4, ?5, ?6)
+        ON CONFLICT(koodi, pelaaja) DO UPDATE SET
+          nimi = excluded.nimi, pisteet = excluded.pisteet,
+          pelatut = excluded.pelatut, aika = excluded.aika`)
+        .bind(k.koodi, k.pelaaja, puhdistaNimi(k.nimi), k.pisteet, k.pelatut, Date.now()).run();
+
+      // Vanhat rivit pois silloin tällöin, ei joka pyynnöllä.
+      if (Math.random() < 0.02) {
+        ctx.waitUntil(env.DB.prepare("DELETE FROM haaste_tulos WHERE aika < ?1")
+          .bind(Date.now() - HAASTE_SAILYTYS_MS).run());
+      }
+      return vastaus(JSON.stringify(await haasteTaulu(env, k.koodi, k.pelaaja)), 200, origin);
+    }
+
+    if (req.method === "GET" && url.pathname === "/haaste") {
+      const koodi = url.searchParams.get("k") || "";
+      const pelaaja = url.searchParams.get("p") || "";
+      if (!/^[0-9a-z]{1,8}-[0-9a-z]{1,2}-[0-9a-z]{1,4}(-[0-9]{1,2})?$/.test(koodi)) {
+        return vastaus('{"virhe":"kelpaamaton koodi"}', 400, origin);
+      }
+      return vastaus(JSON.stringify(await haasteTaulu(env, koodi, pelaaja)), 200, origin);
+    }
+
     if (req.method === "POST" && url.pathname === "/artisti") {
       const teksti = await req.text();
       if (teksti.length > 200) return vastaus('{"virhe":"liian iso"}', 413, origin);

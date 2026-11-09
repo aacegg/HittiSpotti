@@ -117,6 +117,15 @@ jobs:
           wranglerVersion: "4"
           command: d1 execute hittispotti --remote --file=migraatio-artisti.sql
 
+      - name: Kaverihaasteen taulu
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: palvelin
+          wranglerVersion: "4"
+          command: d1 execute hittispotti --remote --file=migraatio-haaste.sql
+
       - name: Poista turha indeksi
         uses: cloudflare/wrangler-action@v3
         with:

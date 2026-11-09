@@ -2924,3 +2924,37 @@ body[data-mode="free"] .rajausrivi:hover { border-color: var(--text); }
   .view-game .screen,
   .view-game.is-revealed .screen { min-height: 0; justify-content: flex-start; }
 }
+
+/* Kaverihaasteen vertailu tulossivulla. */
+.haaste-taulu { margin: var(--s5) 0 var(--s2); padding: var(--s4); border-radius: 14px; background: var(--bg-lift); }
+.haaste-taulu[hidden] { display: none; }
+.ht-yla { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--s3); }
+.ht-otsikko { margin: 0; font-family: var(--display); font-size: var(--f6); font-weight: 700; }
+.ht-paivita, .ht-kutsu {
+  border: 0; background: none; padding: var(--s2) 0; cursor: pointer;
+  color: var(--text); font: inherit; font-size: var(--f3); font-weight: 800;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.ht-nimi { display: flex; gap: var(--s3); margin-bottom: var(--s3); }
+.ht-nimi[hidden] { display: none; }
+.ht-nimi input {
+  flex: 1; min-width: 0; padding: var(--s3) var(--s4);
+  border: 2px solid var(--line); border-radius: var(--r); background: var(--bg);
+  color: var(--text); font: inherit; font-size: 16px; outline: none;
+}
+.ht-nimi input:focus { border-color: var(--text); }
+.ht-nimi .btn { padding: var(--s3) var(--s5); }
+.ht-lista { list-style: none; margin: 0; padding: 0; }
+.ht-lista li {
+  display: grid; grid-template-columns: 2em 1fr auto; align-items: center; gap: var(--s3);
+  padding: var(--s3) 0; border-top: 1px solid var(--line);
+}
+.ht-lista li:first-child { border-top: 0; }
+.ht-sija { color: var(--muted); font-weight: 800; font-family: var(--num); }
+.ht-nimi-solu { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ht-nimi-solu b { font-weight: 800; }
+.ht-nimi-solu small { margin-left: var(--s2); color: var(--muted); font-size: var(--f2); font-weight: 700; }
+.ht-pisteet { font-family: var(--num); font-size: var(--f5); font-weight: 800; }
+.ht-lista li.on-oma .ht-nimi-solu b, .ht-lista li.on-oma .ht-pisteet { color: #e0559f; }
+.ht-ohje { margin: var(--s2) 0 0; color: var(--muted); font-size: var(--f3); }
+.ht-ohje:empty { display: none; }

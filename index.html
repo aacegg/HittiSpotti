@@ -30,7 +30,7 @@
        Ilman tätä päivitetty kuva (scripts/tee_jakokuva.js) ei näkyisi
        jaetuissa linkeissä, vaan vanha luku jäisi elämään välimuisteihin.
        Numero kulkee muiden ?v=-merkintöjen mukana julkaisussa. -->
-  <meta property="og:image" content="https://hittispotti.fi/jakokuva.jpg?v=251">
+  <meta property="og:image" content="https://hittispotti.fi/jakokuva.jpg?v=252">
   <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -41,18 +41,18 @@
        kuvakkeesta kiinni omassa välimuistissaan sitkeämmin kuin mistään
        muusta, eikä pelkkä uusi tiedostosisältö samassa osoitteessa riitä
        vaihtamaan sitä. -->
-  <link rel="icon" href="favicon.svg?v=251" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg?v=252" type="image/svg+xml">
   <!-- iOS ei tue SVG:tä kotinäytön kuvakkeena: SVG:llä se otti sivusta
        ruudunkaappauksen kuvakkeen sijaan. 180 px on iPhonen koko. -->
-  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=251">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=251">
-  <link rel="manifest" href="manifest.webmanifest?v=251">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=252">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=252">
+  <link rel="manifest" href="manifest.webmanifest?v=252">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HittiSpotti">
   <link rel="preload" href="fonts/nunito-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/zilla-slab-700-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=251">
+  <link rel="stylesheet" href="style.css?v=252">
 
   <script type="application/ld+json">
   {
@@ -444,6 +444,22 @@
            silloin kun palvelinta ei ole, vertailu on pois päältä tai
            pelaajia on liian vähän. -->
       <p class="results-vertailu" id="results-vertailu" hidden></p>
+      <!-- Kaverihaasteen vertailu: kaikkien haasteen pelaajien pisteet.
+           Nimimerkki kysytään kerran ja muistetaan. Ks. haasteVertailu
+           app.js:ssä. -->
+      <section class="haaste-taulu" id="haaste-taulu" hidden aria-labelledby="ht-otsikko">
+        <div class="ht-yla">
+          <h3 class="ht-otsikko" id="ht-otsikko">Kaverit</h3>
+          <button type="button" class="ht-paivita" id="ht-paivita" hidden>Päivitä</button>
+        </div>
+        <form class="ht-nimi" id="ht-nimi-lomake" hidden>
+          <input id="ht-nimi" type="text" maxlength="16" autocomplete="nickname" enterkeyhint="done"
+                 placeholder="Nimimerkkisi" aria-label="Nimimerkki vertailuun">
+          <button type="submit" class="btn btn-accent">Näytä</button>
+        </form>
+        <ol class="ht-lista" id="ht-lista"></ol>
+        <p class="ht-ohje" id="ht-ohje"></p>
+      </section>
       <ol id="results-list" class="results"></ol>
       <div class="row row-wrap">
         <button type="button" class="btn btn-accent" id="share-btn">Jaa tulos</button>
@@ -696,11 +712,12 @@
         <details>
           <summary><span>Mitä tietoja minusta kerätään?</span></summary>
           <div class="faq-body">
-            <p>Tulokset ja tilastot tallentuvat vain selaimeesi. Peli ei kysy nimeä, sähköpostia eikä mitään muutakaan, eikä sinusta luoda tunnistetta.</p>
+            <p>Tulokset ja tilastot tallentuvat vain selaimeesi. Peli ei kysy sähköpostia eikä kirjautumista. Nimimerkki kysytään vain kaverihaasteen vertailuun, ja sekin on vapaaehtoinen.</p>
             <p>Ulos lähtee kolme asiaa. <strong>Kävijälaskuri</strong> (GoatCounter) kirjaa käynnin ja kaksi tapahtumaa: päivän sarjan aloituksen ja sen valmiiksi pelaamisen. <strong>Kierroksista</strong> lähtee biisi, sen taso, monenko sekunnin pätkästä tunnistit sen ja kumpaa pelimuotoa pelasit. <strong>Päivän sarjasta</strong> lähtee pistemääräsi ja se päivä jonka sarjan pelasit.</p>
             <p>Kaksi ensimmäistä ovat vaikeustasoja varten: kierros mittaa mitä ihmiset oikeasti tekevät, ja siitä lasketaan mikä biisi on minkäkin vaikea. Kolmas on sitä varten, että tulossivulla näet miten muut pärjäsivät saman päivän sarjassa.</p>
             <p>Mukana ei mene tunnistetta eikä mitään joka yhdistäisi kaksi kierrostasi toisiinsa: palvelin laskee vain summia biiseittäin ja päivittäin. Päivä tallentuu sarjan tuloksesta, koska vertailu on päiväkohtainen, mutta sekin on pelkkä summa johon oma tuloksesi katoaa muiden joukkoon.</p>
             <p>Voit kytkeä lähetyksen pois <strong>Tilastot</strong>-sivun alalaidasta. Silloin peli ei ota tilastopalvelimeen yhteyttä lainkaan, eli et myöskään näe vertailua muihin.</p>
+            <p><strong>Kaverihaaste.</strong> Jos kirjoitat haasteen tulossivulle nimimerkin, palvelimelle lähtee haasteen koodi, nimimerkkisi, pisteesi ja laitteellesi arvottu satunnainen tunniste, jotta pisteesi päivittyvät samalle riville. Ne näkyvät vain saman haasteen pelaajille ja poistuvat noin 60 päivässä. Ilman nimimerkkiä haasteesta ei lähde mitään.</p>
             <p>Peli itse ei käytä evästeitä eikä kirjautumista, eikä se seuraa sinua muille sivustoille.</p>
             <p><strong>Mainokset.</strong> Sivustolle tulee Googlen mainoksia, jotta peli pysyy ilmaisena. Google ja sen kumppanit voivat asettaa evästeitä ja käyttää laitteeltasi saatavia tietoja mainosten valitsemiseen ja mittaamiseen. Tähän kysytään sinulta lupa erillisessä ikkunassa, ja voit kieltäytyä personoiduista mainoksista. Omia mainosasetuksiasi voit säätää <a href="https://myadcenter.google.com/" target="_blank" rel="noopener noreferrer">Googlen mainoskeskuksessa</a>, ja tarkemmin asiasta kerrotaan <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener noreferrer">Googlen mainoskäytännöissä</a>.</p>
             <!-- Tämä kappale kertoo nykyhetken tilanteen, ja se piilotetaan
@@ -1104,7 +1121,7 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=251"></script>
+  <script src="app.js?v=252"></script>
 
   <!-- Kävijälaskenta: ei evästeitä, ei henkilötietoja, ei seurantaa yli
        sivustorajojen – siksi tämä ei vaadi suostumusikkunaa. Ladataan

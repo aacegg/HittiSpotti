@@ -2890,3 +2890,20 @@ body[data-mode="free"] .rajausrivi:hover { border-color: var(--text); }
   body[data-mode="free"] .vesileima { display: none; }
   body[data-mode="free"] .play-btn { width: 92px; height: 92px; }
 }
+
+/* Kesken olevan haasteen poisto: hillitty tekstinappi kortin alla. */
+.haaste-poista {
+  display: block;
+  margin: var(--s2) 0 0;
+  padding: var(--s3) 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: var(--f3);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.haaste-poista:hover { color: var(--bad); }

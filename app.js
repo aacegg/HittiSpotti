@@ -494,6 +494,7 @@
     haasteKesken: $("#haaste-kesken"),
     haasteKeskenTeksti: $("#haaste-kesken-teksti"),
     haasteJatka: $("#haaste-jatka"),
+    haastePoista: $("#haaste-poista"),
     freeReset: $("#free-reset"),
     bar: document.querySelector(".bar"),
     barTag: $("#bar-tag"),
@@ -3224,6 +3225,28 @@
     return { h, kierros };
   }
 
+  /* Kesken jääneen haasteen unohtaminen. Sekä viittaus että eteneminen
+   * poistetaan, jottei sama linkki myöhemmin avattuna jatku vanhasta
+   * kohdasta. Jos haastetta pelataan juuri nyt, siirrytään etusivulle. */
+  function poistaKeskenHaaste() {
+    const koodi = store.get(AVAIN.biisi.haasteKesken, null);
+    if (!koodi) return;
+    if (!confirm("Kesken oleva haaste ja sen pisteet poistetaan. Jatketaanko?")) return;
+    store.remove(AVAIN.biisi.haasteKesken);
+    store.remove(AVAIN.biisi.haaste(koodi));
+    el.haasteKesken.hidden = true;
+    refreshDrawer();
+    if (state.mode === "haaste") {
+      suljeHaasteRuutu();
+      stopPlayback();
+      asetaHaasteOsoite(null);
+      state.mode = "daily";
+      state.rounds = [];
+      show("koti");
+    }
+    toast("Haaste poistettu.");
+  }
+
   function keskenKuvaus(k) {
     return [
       `${k.h.kierroksia} ${k.h.kierroksia === 1 ? "kierros" : "kierrosta"}`,
@@ -5892,6 +5915,7 @@
       stopPlayback();
       await startHaaste(kesken.h);
     });
+    el.haastePoista.addEventListener("click", poistaKeskenHaaste);
     el.kutsuAvaa.addEventListener("click", () => avaaKutsu(false));
     el.rajaaAvaa.addEventListener("click", avaaRajaus);
     el.rajaaClose.addEventListener("click", suljeRajaus);

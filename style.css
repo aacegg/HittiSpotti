@@ -1181,6 +1181,31 @@ button.tchip:hover { background: color-mix(in srgb, var(--tier-hue) 14%, transpa
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* Soiton palaute. Pelkkä ohut rengas jäi huomaamatta, varsinkin 0,1 s
+   pätkällä, joka on ohi ennen kuin silmä ehtii renkaaseen. Nappi pomppaa
+   ja siitä lähtee aalto. Aalto on oma luokkansa eikä is-playing, jotta se
+   pyörii loppuun vaikka pätkä loppuisi kesken. Soiton ajan rengas on
+   paksumpi ja sen alla näkyy ura, josta näkee kuinka paljon on jäljellä. */
+.play-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.play-btn.aalto { animation: soitin-pomppu .32s ease-out; }
+.play-btn.aalto::before, .play-btn.is-playing::before { animation: soitin-aalto .9s ease-out infinite; }
+.play-btn.is-playing .ring-bg { stroke: color-mix(in srgb, var(--live) 22%, transparent); }
+.play-btn.is-playing .ring circle { stroke-width: 4; }
+@keyframes soitin-pomppu { 40% { transform: scale(1.05); } }
+@keyframes soitin-aalto {
+  from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--live) 60%, transparent); }
+  to { box-shadow: 0 0 0 16px color-mix(in srgb, var(--live) 0%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .play-btn.aalto, .play-btn.aalto::before, .play-btn.is-playing::before { animation: none; }
+}
+
 /* Pätkän pituus isona slab-numerona, yksikkö pienempänä. */
 .clip-len {
   margin-top: var(--s6);

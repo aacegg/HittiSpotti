@@ -3690,6 +3690,11 @@
       el.playBtn.disabled = false;
       audio.playing = true;
       el.playBtn.classList.add("is-playing");
+      /* Aalto käynnistetään joka kerta alusta: luokan poisto ja lisäys
+       * samassa ruudussa ei riitä, siksi välissä reflow. */
+      el.playBtn.classList.remove("aalto");
+      void el.playBtn.offsetWidth;
+      el.playBtn.classList.add("aalto");
       setPlayIcon("stop");
     };
     const failed = (err) => {
@@ -5910,6 +5915,11 @@
     document.querySelectorAll("[data-genre]").forEach((b) =>
       b.addEventListener("click", () => vaihdaGenre(b.dataset.genre)));
 
+    /* Aalto-luokka pysyy ensimmäisen aallon loppuun. Sen jälkeen aalto
+     * jatkuu vain jos pätkä yhä soi (is-playing). */
+    el.playBtn.addEventListener("animationiteration", (e) => {
+      if (e.animationName === "soitin-aalto") el.playBtn.classList.remove("aalto");
+    });
     el.playBtn.addEventListener("click", () => {
       if (audio.playing) { stopPlayback(); return; }
       playClip(cur().finished ? STEPS[STEPS.length - 1] : STEPS[cur().step]);

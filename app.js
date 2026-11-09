@@ -505,7 +505,6 @@
     resultsVertailu: $("#results-vertailu"),
     installBtn: $("#install-btn"),
     teemaBtn: $("#teema-btn"),
-    teemaNimi: $("#teema-nimi"),
     installSheet: $("#install-sheet"),
     installScrim: $("#install-scrim"),
     installClose: $("#install-close"),
@@ -773,11 +772,18 @@
     },
   };
 
-  /* Tumma tai vaalea tila. Tallessa vain oma valinta; automaattinen on
-   * avaimen puuttuminen, jolloin CSS seuraa laitteen asetusta. index.html
-   * asettaa tallennetun tilan jo ennen ensimmäistä piirtoa. */
-  const TEEMAT = ["auto", "vaalea", "tumma"];
-  const TEEMA_NIMET = { auto: "automaattinen", vaalea: "vaalea", tumma: "tumma" };
+  /* Tumma tai vaalea tila. Tallessa vain oma valinta; ilman sitä CSS
+   * seuraa laitteen asetusta. index.html asettaa tallennetun tilan jo
+   * ennen ensimmäistä piirtoa. Valikon kytkin näyttää tilan joka on
+   * voimassa, ja painallus tallentaa vastakkaisen. */
+  const LAITE_TUMMA = matchMedia("(prefers-color-scheme: dark)");
+  const onTumma = () => {
+    const t = document.documentElement.dataset.teema;
+    return t ? t === "tumma" : LAITE_TUMMA.matches;
+  };
+  function paivitaTeemaKytkin() {
+    if (el.teemaBtn) el.teemaBtn.setAttribute("aria-checked", String(onTumma()));
+  }
   function asetaTeema(teema) {
     if (teema === "auto") {
       delete document.documentElement.dataset.teema;
@@ -786,12 +792,12 @@
       document.documentElement.dataset.teema = teema;
       store.set("teema", teema);
     }
-    if (el.teemaNimi) el.teemaNimi.textContent = TEEMA_NIMET[teema];
+    paivitaTeemaKytkin();
   }
   function vaihdaTeema() {
-    const nyt = store.get("teema", "auto");
-    asetaTeema(TEEMAT[(TEEMAT.indexOf(nyt) + 1) % TEEMAT.length]);
+    asetaTeema(onTumma() ? "vaalea" : "tumma");
   }
+  LAITE_TUMMA.addEventListener("change", paivitaTeemaKytkin);
 
   // Siirtää aiemman nimen alla olevat tulokset kerran, ettei putki ja tilastot katoa.
   function migrateStore() {

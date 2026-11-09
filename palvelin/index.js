@@ -37,7 +37,7 @@ function puhdistaNimi(nimi) {
 
 function haasteKelpaa(k) {
   return k
-    && typeof k.koodi === "string" && /^[0-9a-z]{1,8}-[0-9a-z]{1,2}-[0-9a-z]{1,4}(-[0-9]{1,2})?$/.test(k.koodi)
+    && typeof k.koodi === "string" && /^[0-9a-z]{1,8}-[0-9a-z]{1,2}-[0-9a-z]{1,4}(-[0-9]{1,2}(-[0-9a-z]{1,2})?)?$/.test(k.koodi)
     && typeof k.pelaaja === "string" && /^[0-9a-z]{16,32}$/.test(k.pelaaja)
     && puhdistaNimi(k.nimi).length >= 1
     && Number.isInteger(k.pelatut) && k.pelatut >= 1 && k.pelatut <= HAASTE_MAKSIMI_KIERROKSET
@@ -387,7 +387,7 @@ export default {
     if (req.method === "GET" && url.pathname === "/haaste") {
       const koodi = url.searchParams.get("k") || "";
       const pelaaja = url.searchParams.get("p") || "";
-      if (!/^[0-9a-z]{1,8}-[0-9a-z]{1,2}-[0-9a-z]{1,4}(-[0-9]{1,2})?$/.test(koodi)) {
+      if (!/^[0-9a-z]{1,8}-[0-9a-z]{1,2}-[0-9a-z]{1,4}(-[0-9]{1,2}(-[0-9a-z]{1,2})?)?$/.test(koodi)) {
         return vastaus('{"virhe":"kelpaamaton koodi"}', 400, origin);
       }
       return vastaus(JSON.stringify(await haasteTaulu(env, koodi, pelaaja)), 200, origin);

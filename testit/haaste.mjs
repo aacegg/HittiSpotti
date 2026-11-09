@@ -27,7 +27,10 @@ const koodi = `
   ${pala(/function shuffled\(list, seed\) \{[\s\S]*?\n  \}/)}
   ${pala(/  const HAASTE_KIERROKSET = \[[^\]]*\];/)}
   ${pala(/  const HAASTE_SIEMEN_MAX = [^\n]*/)}
+  ${pala(/  const GENRET = \[[^\]]*\];/)}
+  ${pala(/  function valitutGenret\(genret = state.genret\) \{[\s\S]*?\n  \}/)}
   ${pala(/  const HAASTE_VERSIO = [^\n]*/)}
+  ${pala(/  const genreBitit = [\s\S]*?, 0\);/)}
   ${pala(/  function haasteKoodi\([\s\S]*?\n  \}/)}
   ${pala(/  function lueHaaste\(koodi\) \{[\s\S]*?\n  \}/)}
   ${pala(/  function haasteBiisit\(h\) \{[\s\S]*?\n  \}/)}
@@ -49,6 +52,22 @@ const h = lueHaaste(haasteKoodi(123456, 3, ["1990", "2010"]));
 vaita("koodi purkautuu samaksi", h && h.siemen === 123456 && h.kierroksia === 3
   && h.kaudet.join(",") === "1990,2010", JSON.stringify(h));
 const kaikki = lueHaaste(haasteKoodi(7, 1, []));
+
+// 1b. Genret: valinnainen viides osa. Ilman genreä koodi on sama kuin ennen.
+const ilman = haasteKoodi(99, 2, ["1990"]);
+vaita("koodi ilman genreä on neliosainen", ilman.split("-").length === 4, ilman);
+const rock = lueHaaste(haasteKoodi(99, 2, ["1990"], ["Rock"]));
+vaita("genre purkautuu samaksi", rock && rock.genret.join(",") === "Rock"
+  && rock.kaudet.join(",") === "1990" && rock.koodi.split("-").length === 5, JSON.stringify(rock));
+const kaikkiGenret = haasteKoodi(99, 2, [], ["Pop", "Rap", "Rock", "Iskelmä"]);
+vaita("kaikki genret = ei rajausta", kaikkiGenret.split("-").length === 4, kaikkiGenret);
+vaita("rock-haasteessa vain rockia kun riittää", haasteBiisit(rock).every((taso) =>
+  taso.length === 2 && (taso.every((b) => b.g === "Rock")
+    || pelattavat.filter((b) => b.tier === taso[0].tier && b.g === "Rock"
+      && b.year >= 1990 && b.year <= 1999).length < 2)));
+for (const rikki of ["1-1-0-2-0", "1-1-0-2-f", "1-1-0-2-zz", "1-1-0-3-1"]) {
+  vaita(`kelvoton genrekoodi "${rikki}"`, lueHaaste(rikki) === null);
+}
 vaita("tyhjä kausivalinta säilyy", kaikki && kaikki.kaudet.length === 0);
 
 // 2. Kelvoton koodi ei aloita peliä. Kirjoitusvirhe linkissä on
@@ -234,7 +253,7 @@ const vanha = lueHaaste("abc-3-1");   // versio 1, bitti 0
 vaita("vanha 50–80-linkki kelpaa", !!vanha && vanha.kaudet.join(",") === "5070,1980",
   vanha && vanha.kaudet.join(","));
 vaita("vanha linkki pitää koodinsa", vanha && vanha.koodi === "abc-3-1");
-const uusi = lueHaaste(haasteKoodi(vanha.siemen, 3, ["5070", "1980"], 1));
+const uusi = lueHaaste(haasteKoodi(vanha.siemen, 3, ["5070", "1980"], [], 1));
 const idt80 = (h) => haasteBiisit(h).map((t) => t.map((x) => x.id).join(",")).join("|");
 vaita("vanha ja uusi 50–80 antavat samat biisit", idt80(vanha) === idt80(uusi));
 const vanhaYhd = lueHaaste("abc-3-3");   // bitit 0 ja 1: 50–80 ja 90-luku

@@ -599,6 +599,7 @@
     kutsuAvaa: $("#kutsu-avaa"),
     haasteKierrokset: $("#haaste-kierrokset"),
     haasteKaudet: $("#haaste-kaudet"),
+    haasteGenret: $("#haaste-genret"),
     statGrid: $("#stat-grid"),
     resetBtn: $("#reset-stats-btn"),
     toast: $("#toast"),
@@ -2996,6 +2997,10 @@
    * käsin, ja epäkelpo koodi tunnistetaan ilman palvelinta.
    *
    * Versio 2 lisää koodin loppuun "-2", ks. HAASTE_VERSIO.
+   *
+   * Genret ovat valinnainen viides osa: GENRET-listan bittimaski, joka
+   * kirjoitetaan vain kun genre on rajattu. Ilman genreä koodi on sama kuin
+   * ennen, joten vanhat linkit ja niiden tallennettu eteneminen pysyvät.
    */
   const HAASTE_KIERROKSET = [1, 2, 3, 4, 5];
   const HAASTE_SIEMEN_MAX = 36 ** 5;
@@ -3016,11 +3021,16 @@
    * julkaisuhetkellä kesken olevat haasteet eivät vaihdu. */
   const HAASTE_VERSIO = 2;
 
-  function haasteKoodi(siemen, kierroksia, kaudet, versio = HAASTE_VERSIO) {
+  const genreBitit = (genret) => GENRET.reduce(
+    (b, g, i) => b | (valitutGenret(genret).includes(g) ? 1 << i : 0), 0);
+
+  function haasteKoodi(siemen, kierroksia, kaudet, genret = [], versio = HAASTE_VERSIO) {
     const bitit = KAUDET.reduce(
       (b, k) => b | (kaudet.includes(k.avain) ? 1 << k.bitti : 0), 0);
     const osat = [siemen.toString(36), kierroksia.toString(36), bitit.toString(36)];
     if (versio >= 2) osat.push(String(versio));
+    const gb = genreBitit(genret);
+    if (versio >= 2 && gb) osat.push(gb.toString(36));
     return osat.join("-");
   }
 
@@ -3031,9 +3041,17 @@
     const osat = String(koodi || "").trim().toLowerCase().split("-");
     // Neljäs osa on valintatavan versio. Tuntematon versio on kelvoton:
     // tuleva valintatapa ei saa pelautua väärällä tavalla hiljaa.
-    if (osat.length === 4 && osat[3] !== String(HAASTE_VERSIO)) return null;
-    if (osat.length !== 3 && osat.length !== 4) return null;
-    const versio = osat.length === 4 ? HAASTE_VERSIO : 1;
+    if (osat.length >= 4 && osat[3] !== String(HAASTE_VERSIO)) return null;
+    if (osat.length < 3 || osat.length > 5) return null;
+    const versio = osat.length >= 4 ? HAASTE_VERSIO : 1;
+    /* Viides osa: genrejen bittimaski. Nolla tai kaikki genret olisi sama
+     * kuin ei rajausta, ja sille on jo koodi ilman viidettä osaa. */
+    let genret = [];
+    if (osat.length === 5) {
+      const gb = parseInt(osat[4], 36);
+      if (!/^[0-9a-z]+$/.test(osat[4]) || !(gb > 0) || gb >= (1 << GENRET.length) - 1) return null;
+      genret = GENRET.filter((_, i) => gb & (1 << i));
+    }
     const [siemen, kierroksia, bitit] = osat.slice(0, 3).map((o) => parseInt(o, 36));
     if (!Number.isInteger(siemen) || siemen < 0 || siemen >= HAASTE_SIEMEN_MAX) return null;
     if (!HAASTE_KIERROKSET.includes(kierroksia)) return null;
@@ -3049,7 +3067,8 @@
      * haaste alkaisi alusta. */
     const osat_ = [siemen, kierroksia, bitit].map((n) => n.toString(36));
     if (versio >= 2) osat_.push(String(versio));
-    return { koodi: osat_.join("-"), siemen, kierroksia, kaudet, versio };
+    if (genret.length) osat_.push(genreBitit(genret).toString(36));
+    return { koodi: osat_.join("-"), siemen, kierroksia, kaudet, genret, versio };
   }
 
   /* Haasteen biisit: yksi jokaiselta tasolta jokaiselle kierrokselle.
@@ -3064,8 +3083,10 @@
    * pelissä: vajaa vuosikymmen ei saa jättää sarjaa vajaaksi. */
   function haasteBiisit(h) {
     const valitut = KAUDET.filter((k) => h.kaudet.includes(k.avain));
-    const kelpaa = (s) => !valitut.length
-      || (s.year && valitut.some((k) => s.year >= k.alku && s.year <= k.loppu));
+    const genret = h.genret || [];
+    const kelpaa = (s) => (!valitut.length
+      || (s.year && valitut.some((k) => s.year >= k.alku && s.year <= k.loppu)))
+      && (!genret.length || genret.includes(s.g));
     return TIER_CYCLE.map((tier) => {
       const kaikki = state.pool.filter((s) => s.tier === tier);
       const rajattu = kaikki.filter(kelpaa);
@@ -3253,10 +3274,14 @@
     toast("Haaste poistettu.");
   }
 
+  /* Haasteen rajaukset tekstinä: vuosikymmenet ja genret, tai tyhjä. */
+  const haasteRajaus = (h) => [kausiNimi(h.kaudet), genreNimi(h.genret || [])]
+    .filter(Boolean).join(", ");
+
   function keskenKuvaus(k) {
     return [
       `${k.h.kierroksia} ${k.h.kierroksia === 1 ? "kierros" : "kierrosta"}`,
-      kausiNimi(k.h.kaudet) || "kaikki vuosikymmenet",
+      haasteRajaus(k.h) || "kaikki biisit",
     ].join(", ") + `, kierros ${k.kierros + 1}/${k.h.kierroksia}`;
   }
 
@@ -3292,7 +3317,7 @@
   /* Asetusruutu. Valinnat elävät vain ruudun auki ollessa: haaste on
    * kertaluontoinen, eikä edellisen haasteen pituus ole oletus seuraavalle
    * sen enempää kuin edellisen pelin pisteet. */
-  let haasteValinta = { kierroksia: 3, kaudet: [] };
+  let haasteValinta = { kierroksia: 3, kaudet: [], genret: [] };
 
   function piirraHaasteValinnat() {
     el.haasteKierrokset.querySelectorAll("[data-kierroksia]").forEach((b) => {
@@ -3305,10 +3330,15 @@
       b.classList.toggle("is-on", on);
       b.setAttribute("aria-pressed", String(on));
     });
+    el.haasteGenret.querySelectorAll("[data-hgenre]").forEach((b) => {
+      const on = haasteValinta.genret.includes(b.dataset.hgenre);
+      b.classList.toggle("is-on", on);
+      b.setAttribute("aria-pressed", String(on));
+    });
   }
 
   function avaaHaasteRuutu() {
-    haasteValinta = { kierroksia: 3, kaudet: [] };
+    haasteValinta = { kierroksia: 3, kaudet: [], genret: [] };
     piirraHaasteValinnat();
     /* Kesken oleva haaste ylimpänä, painettavana korttina. Kortti on
      * reunallinen eikä täytetty, joten "Luo haaste" saa pysyä ruudun
@@ -3335,9 +3365,9 @@
    * asetuksilla luotu haaste on siis uusi peli eikä sama uudestaan, ja niitä
    * voi tehdä peräkkäin niin monta kuin jaksaa. */
   async function luoHaaste(kierroksia = haasteValinta.kierroksia,
-                           kaudet = haasteValinta.kaudet) {
+                           kaudet = haasteValinta.kaudet, genret = haasteValinta.genret) {
     const siemen = Math.floor(Math.random() * HAASTE_SIEMEN_MAX);
-    const h = lueHaaste(haasteKoodi(siemen, kierroksia, kaudet));
+    const h = lueHaaste(haasteKoodi(siemen, kierroksia, kaudet, genret));
     if (!h) return;
     suljeHaasteRuutu();
     closeDrawer();
@@ -3360,7 +3390,7 @@
     el.kutsuTiedot.textContent = [
       `${h.kierroksia} ${h.kierroksia === 1 ? "kierros" : "kierrosta"}`,
       `${h.kierroksia * DAILY_COUNT} biisiä`,
-      kausiNimi(h.kaudet) || "kaikki vuosikymmenet",
+      haasteRajaus(h) || "kaikki vuosikymmenet",
     ].join(", ");
     el.kutsuLinkki.value = haasteOsoite(h.koodi);
     el.kutsuLinkki.hidden = true;
@@ -3972,7 +4002,7 @@
     el.modeSub.textContent = state.mode === "daily"
       ? dateLine(keyToDate(state.dayKey || todayKey()))
       : state.mode === "haaste" && h
-        ? `kierros ${h.kierros + 1}/${h.kierroksia}${kausiNimi(h.kaudet) ? ", " + kausiNimi(h.kaudet) : ""}`
+        ? `kierros ${h.kierros + 1}/${h.kierroksia}${haasteRajaus(h) ? ", " + haasteRajaus(h) : ""}`
       : rajaus ? "vapaa peli" : "";
     el.scoreLabel.textContent = `${fmt(state.score)} p`;
     // Koko sivun elävä väri on soivan biisin vaikeustaso.
@@ -4532,7 +4562,7 @@
       lines.push(`${fmt(state.score)} / ${fmt(POINTS[0] * DAILY_COUNT)} pistettä`);
     } else if (state.mode === "haaste" && state.haaste) {
       const h = state.haaste;
-      const rajaus = kausiNimi(h.kaudet);
+      const rajaus = haasteRajaus(h);
       lines.push(`🎵 HittiSpotti · kaverihaaste${rajaus ? " · " + rajaus.toLowerCase() : ""}`);
       lines.push(`${fmt(state.score)} pistettä, kierros ${h.kierros + 1}/${h.kierroksia}`);
     } else {
@@ -4565,7 +4595,7 @@
     el.resultsTitle.textContent = daily
       ? `Päivän biisit, ${dateLine(keyToDate(state.dayKey || todayKey()))}`
       : haaste ? `Kaverihaaste, kierros ${haaste.kierros + 1}/${haaste.kierroksia}`
-          + (kausiNimi(haaste.kaudet) ? `, ${kausiNimi(haaste.kaudet)}` : "")
+          + (haasteRajaus(haaste) ? `, ${haasteRajaus(haaste)}` : "")
       : rajausNimi() || "Vapaa peli";
     el.resultsScore.textContent = fmt(state.score);
     const yhteenveto = resultSummary(solved, daily ? DAILY_COUNT : state.results.length);
@@ -4762,7 +4792,7 @@
    * otsikko() piirtää alarivin. */
   function haasteKuvaOtsikko(g, h, tila) {
     const kierr = `${h.kierroksia} ${h.kierroksia === 1 ? "kierros" : "kierrosta"}`;
-    const rajaus = kausiNimi(h.kaudet);
+    const rajaus = haasteRajaus(h);
     if (!rajaus) return `Kaverihaaste, ${kierr}`;
     const vaihtoehdot = [`Kaverihaaste, ${kierr}, ${rajaus}`, `Kaverihaaste, ${rajaus}`];
     g.font = `400 34px ${NAYTA}`;
@@ -6067,6 +6097,15 @@
       haasteValinta.kaudet = haasteValinta.kaudet.includes(k)
         ? haasteValinta.kaudet.filter((x) => x !== k)
         : haasteValinta.kaudet.concat(k);
+      piirraHaasteValinnat();
+    });
+    el.haasteGenret.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-hgenre]");
+      if (!b) return;
+      const g = b.dataset.hgenre;
+      haasteValinta.genret = haasteValinta.genret.includes(g)
+        ? haasteValinta.genret.filter((x) => x !== g)
+        : haasteValinta.genret.concat(g);
       piirraHaasteValinnat();
     });
     el.againBtn.addEventListener("click", () => {

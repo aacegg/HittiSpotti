@@ -293,6 +293,9 @@ h1, h2, p, ol, ul { margin: 0; }
   font-variant-numeric: tabular-nums;
 }
 .bar-tag b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Pelimuoto ja eteneminen näkyvät jo otsikossa ja biisiruuduissa, joten
+   yläpalkissa ne olivat kahdesti. Palkkiin jää vain nimi ja valikko. */
+.bar-tag { visibility: hidden; }
 .bar-tag span { flex: none; }
 
 .iconbtn {

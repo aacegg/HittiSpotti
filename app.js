@@ -501,7 +501,13 @@
     loadingRetry: $("#loading-retry"),
     retryBtn: $("#retry-btn"),
     feedbackLink: $("#feedback-link"),
-    suggestLink: $("#suggest-link"),
+    rajaaAvaa: $("#rajaa-avaa"),
+    rajaaSheet: $("#rajaa-sheet"),
+    rajaaScrim: $("#rajaa-scrim"),
+    rajaaClose: $("#rajaa-close"),
+    rajaaOk: $("#rajaa-ok"),
+    aTilaPaiva: $("#a-tila-paiva"),
+    aTilaRajaton: $("#a-tila-rajaton"),
     resultsVertailu: $("#results-vertailu"),
     installBtn: $("#install-btn"),
     teemaBtn: $("#teema-btn"),
@@ -826,7 +832,10 @@
     // Jakoruutu kuuluu tuloksiin. Muualle siirryttäessä se jäisi leijumaan.
     // Sama koskee asennusohjetta, joka avautuu valikosta: ilman tätä se jäisi
     // ruudulle ja body pysyisi lukossa, kun valikosta siirtyy näkymään.
-    if (el.body.classList.contains("sheet-open")) {
+    // Rajausruutu on poikkeus: sen napit kokoavat uuden vapaan sarjan, ja
+    // ruutu jää auki, jotta useamman valinnan voi tehdä kerralla.
+    const pidaRajaus = name === "game" && !el.rajaaSheet.hidden;
+    if (el.body.classList.contains("sheet-open") && !pidaRajaus) {
       el.shareSheet.hidden = true;
       el.shareScrim.hidden = true;
       el.installSheet.hidden = true;
@@ -839,6 +848,8 @@
       el.aPaljastusScrim.hidden = true;
       el.kutsuSheet.hidden = true;
       el.kutsuScrim.hidden = true;
+      el.rajaaSheet.hidden = true;
+      el.rajaaScrim.hidden = true;
       el.body.classList.remove("sheet-open");
     }
     /* Ääni kuuluu vain peliin. openRound pysäyttää soiton kierrosten välillä
@@ -932,17 +943,15 @@
     } else {
       // Takaisin omille paikoilleen: tasorivi soittimen yläpuolelle,
       // "Uusi sarja" vapaan pelin alle valikkoon.
-      if (el.tierBar.parentElement !== el.stage.parentElement) {
-        el.stage.parentElement.insertBefore(el.tierBar, el.stage);
+      // Tasorivi tason nimirivin yläpuolelle, kuten HTML:ssä.
+      if (el.tierBar.nextElementSibling !== el.tasorivi) {
+        el.tasorivi.parentElement.insertBefore(el.tierBar, el.tasorivi);
       }
-      /* Paikka tarkistetaan naapurista eikä vanhemmasta. Vanhempi kertoo
-       * vain onko rivi valikossa, ei missä kohtaa: kun Kaverihaaste
-       * lisättiin HTML:ssä vuosikymmenten ja tämän rivin väliin, tarkistus
-       * meni läpi ja rivi jäi Kaverihaasteen alle, eli näytti kuuluvan
-       * siihen. Vuosikymmennappien perään eikä vapaan pelin otsikon perään,
-       * ks. perustelu index.html:ssä. */
-      const genret = el.drawer.querySelector("#genret");
-      if (el.freeReset.previousElementSibling !== genret) genret.after(el.freeReset);
+      /* Paikka tarkistetaan naapurista eikä vanhemmasta: vanhempi kertoo
+       * vain onko rivi valikossa, ei missä kohtaa. Vapaan pelin rivin
+       * perään, koska se koskee vain vapaata peliä. */
+      const vapaa = el.drawer.querySelector('[data-go="free"]');
+      if (el.freeReset.previousElementSibling !== vapaa) vapaa.after(el.freeReset);
     }
     if (kiskoon) piirraPisteet();
   }
@@ -2492,6 +2501,8 @@
     /* Päivärivi vain päivän pelissä. Rajattomassa se hämmensi: rivi
      * näytti päiviä vaikka pelattava artisti ei kuulu mihinkään niistä. */
     if (el.aPaivat) el.aPaivat.hidden = rajaton;
+    el.aTilaPaiva.setAttribute("aria-pressed", String(!rajaton));
+    el.aTilaRajaton.setAttribute("aria-pressed", String(rajaton));
     el.aTulokset.textContent = rajaton ? "Uusi artisti" : "Tulokset";
     el.aPaljastusOk.textContent = rajaton ? "Uusi artisti" : "Tulokset";
   }
@@ -3918,6 +3929,9 @@
     const rajaus = rajausNimi();
     const h = state.haaste;
     el.kutsuAvaa.hidden = state.mode !== "haaste";
+    el.rajaaAvaa.hidden = state.mode !== "free";
+    el.rajaaAvaa.textContent = rajausNimi() ? "Rajaus" : "Rajaa";
+    el.rajaaAvaa.classList.toggle("is-on", !!rajausNimi());
     el.modeLabel.textContent = state.mode === "daily" ? "Päivän biisit"
       : state.mode === "haaste" ? "Kaverihaaste"
       : rajaus || "Vapaa peli";
@@ -4880,13 +4894,11 @@
     const versio = (skripti && (skripti.getAttribute("src").match(/v=(\d+)/) || [])[1]) || "?";
     // Kaksi tyhjää riviä alkuun: kohdistin on siinä missä kirjoittaminen
     // alkaa, eikä käyttäjän tarvitse ensin poistaa mitään.
+    /* Palaute ja biisitoiveet samasta linkistä. Pohjassa on paikka
+     * biisitoiveelle, mutta sen voi myös tyhjentää ja kirjoittaa muuta. */
     if (el.feedbackLink) {
       el.feedbackLink.href = postilinkki("HittiSpotti-palaute",
-        `\n\n---\nversio ${TUOTEVERSIO} (${versio}) · ${laite()}`);
-    }
-    if (el.suggestLink) {
-      el.suggestLink.href = postilinkki("Biisiehdotus",
-        "Artisti:\nKappale:\n\nVoit ehdottaa useampaa kerralla.\n");
+        `\n\nBiisitoive (artisti ja kappale):\n\n---\nversio ${TUOTEVERSIO} (${versio}) · ${laite()}`);
     }
   }
 
@@ -5028,6 +5040,21 @@
    * sen vielä kerran, ja se on parempi suunta kuin kokonaan näkemättä
    * jääminen. Lukuajan verran ruudulla ollut tiedote taas on luettu, vaikkei
    * tätä kautta suljettaisi. */
+  /* Vapaan pelin rajausruutu. Napit toimivat kuten ennen valikossa:
+   * painallus kokoaa sarjan uudelleen, ja ruutu jää auki useampaa valintaa
+   * varten. */
+  function avaaRajaus() {
+    el.rajaaScrim.hidden = false;
+    el.rajaaSheet.hidden = false;
+    el.body.classList.add("sheet-open");
+    el.rajaaSheet.focus({ preventScroll: true });
+  }
+  function suljeRajaus() {
+    el.rajaaSheet.hidden = true;
+    el.rajaaScrim.hidden = true;
+    el.body.classList.remove("sheet-open");
+  }
+
   function suljeUutta() {
     clearTimeout(uuttaAjastin);
     uuttaAjastin = 0;
@@ -5044,7 +5071,8 @@
    * mutta jätti itse ohjeen ruudulle ilman taustahimmennystä. Kolmannen
    * ruudun kanssa arvailu loppuu tähän. */
   function suljeRuutu() {
-    if (!el.shareSheet.hidden) suljeJako();
+    if (!el.rajaaSheet.hidden) suljeRajaus();
+    else if (!el.shareSheet.hidden) suljeJako();
     else if (!el.installSheet.hidden) suljeAsennusohje();
     else if (!el.uuttaSheet.hidden) suljeUutta();
     else if (!el.aOhjeSheet.hidden) suljeArtistiOhje();
@@ -5865,6 +5893,10 @@
       await startHaaste(kesken.h);
     });
     el.kutsuAvaa.addEventListener("click", () => avaaKutsu(false));
+    el.rajaaAvaa.addEventListener("click", avaaRajaus);
+    el.rajaaClose.addEventListener("click", suljeRajaus);
+    el.rajaaOk.addEventListener("click", suljeRajaus);
+    el.rajaaScrim.addEventListener("click", suljeRajaus);
     el.kutsuClose.addEventListener("click", suljeKutsu);
     el.kutsuScrim.addEventListener("click", suljeKutsu);
     el.kutsuPelaa.addEventListener("click", suljeKutsu);

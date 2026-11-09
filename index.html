@@ -30,7 +30,7 @@
        Ilman tätä päivitetty kuva (scripts/tee_jakokuva.js) ei näkyisi
        jaetuissa linkeissä, vaan vanha luku jäisi elämään välimuisteihin.
        Numero kulkee muiden ?v=-merkintöjen mukana julkaisussa. -->
-  <meta property="og:image" content="https://hittispotti.fi/jakokuva.jpg?v=240">
+  <meta property="og:image" content="https://hittispotti.fi/jakokuva.jpg?v=241">
   <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -41,18 +41,18 @@
        kuvakkeesta kiinni omassa välimuistissaan sitkeämmin kuin mistään
        muusta, eikä pelkkä uusi tiedostosisältö samassa osoitteessa riitä
        vaihtamaan sitä. -->
-  <link rel="icon" href="favicon.svg?v=240" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg?v=241" type="image/svg+xml">
   <!-- iOS ei tue SVG:tä kotinäytön kuvakkeena: SVG:llä se otti sivusta
        ruudunkaappauksen kuvakkeen sijaan. 180 px on iPhonen koko. -->
-  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=240">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=240">
-  <link rel="manifest" href="manifest.webmanifest?v=240">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=241">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=241">
+  <link rel="manifest" href="manifest.webmanifest?v=241">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HittiSpotti">
   <link rel="preload" href="fonts/nunito-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/zilla-slab-700-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=240">
+  <link rel="stylesheet" href="style.css?v=241">
 
   <script type="application/ld+json">
   {
@@ -85,7 +85,6 @@
       <!-- Pelimuodot kahdessa ryhmässä pelin mukaan. Valikko oli kasvanut
            seitsemään samanarvoiseen riviin, eikä mikään kertonut mitkä
            kuuluvat samaan peliin. Väri on otsikon tukena, ei ainoa erottaja. -->
-      <p class="nav-ryhma nav-ryhma-hitti">HittiSpotti</p>
       <button type="button" class="navitem navitem-kortti" data-go="daily">
         <i class="ik ik-levy" aria-hidden="true"></i>
         <span class="navitem-name">Päivän biisit</span>
@@ -106,38 +105,6 @@
         <span class="navitem-note" id="nav-free-note">viisi satunnaista biisiä</span>
       </button>
 
-      <!-- Vuosikymmen on vapaa peli rajattuna, ei oma pelimuotonsa, joten se
-           on tässä eikä omana rivinään. Viisi riviä olisi vienyt puolet
-           valikosta; napit vievät yhden. 50- ja 60-luvulla ei ole biisejä
-           kaikilla vaikeustasoilla, joten ne kulkevat 70- ja 80-luvun mukana:
-           sarja ottaa yhden biisin joka tasolta, eikä sitä voi koota
-           vajaasta vuosikymmenestä.
-
-           Painallus aloittaa sarjan heti, ja seuraava painallus lisää
-           vuosikymmenen ja kokoaa sarjan uusiksi molemmilla. Valikko jää
-           auki, mikä on monivalinnan ehto: jos painallus sulkisi sen, toista
-           vuosikymmentä ei pääsisi painamaan avaamatta valikkoa uudestaan.
-           Mikään valittuna tarkoittaa samaa kuin kaikki valittuna, eli koko
-           katalogia. -->
-      <div class="kaudet" id="kaudet" role="group" aria-label="Vapaan pelin vuosikymmenet">
-        <button type="button" class="kchip" data-kausi="5070" aria-pressed="false" aria-label="1950-70-luku">50–70-luku</button>
-        <button type="button" class="kchip" data-kausi="1980" aria-pressed="false" aria-label="1980-luku">80-luku</button>
-        <button type="button" class="kchip" data-kausi="1990" aria-pressed="false" aria-label="1990-luku">90-luku</button>
-        <button type="button" class="kchip" data-kausi="2000" aria-pressed="false" aria-label="2000-luku">2000-luku</button>
-        <button type="button" class="kchip" data-kausi="2010" aria-pressed="false" aria-label="2010-luku">2010-luku</button>
-        <button type="button" class="kchip" data-kausi="2020" aria-pressed="false" aria-label="2020-luku">2020-luku</button>
-      </div>
-
-      <!-- Genre toimii kuten vuosikymmenet ja yhdistyy niihin: rock ja
-           90-luku antaa 90-luvun rockia. Vuosikymmenten alla, koska se on
-           toinen rajaus samaan vapaaseen peliin eikä oma pelimuotonsa.
-           Ks. GENRET app.js:ssä. -->
-      <div class="kaudet genret" id="genret" role="group" aria-label="Vapaan pelin genret">
-        <button type="button" class="kchip" data-genre="Pop" aria-pressed="false">Pop</button>
-        <button type="button" class="kchip" data-genre="Rap" aria-pressed="false">Rap</button>
-        <button type="button" class="kchip" data-genre="Rock" aria-pressed="false">Rock</button>
-        <button type="button" class="kchip" data-genre="Iskelmä" aria-pressed="false">Iskelmä</button>
-      </div>
 
       <!-- Yksi teksti, ei nimeä ja selitettä. Rivillä luki ennen "Uusi sarja"
            ja sen perässä "aloita sarja alusta", eli sama asia kahdesti eri
@@ -160,19 +127,12 @@
         <span class="navitem-note" id="nav-haaste-note">samat biisit kaverin kanssa</span>
       </button>
 
-      <p class="nav-ryhma nav-ryhma-artisti">ArtistiSpotti</p>
       <button type="button" class="navitem navitem-kortti" data-go="artisti">
         <i class="ik ik-mikki" aria-hidden="true"></i>
-        <span class="navitem-name">Päivän artisti</span>
+        <span class="navitem-name">ArtistiSpotti</span>
         <span class="navitem-note" id="nav-artisti-note">seitsemän arvausta</span>
       </button>
 
-      <!-- Rajaton ArtistiSpotti: arvottu artisti, ei päivää eikä tilastoja.
-           Alarivinä kuten "Aloita peli alusta", koska se on saman pelin
-           muunnelma eikä oma pelinsä. Ks. avaaRajaton app.js:ssä. -->
-      <button type="button" class="navitem navitem-sub" data-go="artistirajaton">
-        <span class="navitem-name">Rajaton peli<span class="uusi" data-uusi="rajaton" hidden>uutta</span></span>
-      </button>
 
       <hr class="drawer-rule">
 
@@ -186,10 +146,7 @@
       <!-- Palaute kerättiin tähän asti käsin WhatsAppilla. Tämä kerää sen
            siellä missä se syntyy, myös niiltä joita ei tunne. -->
       <a class="navitem navitem-apu" id="feedback-link" href="#">
-        <span class="navitem-name">Anna palautetta</span>
-      </a>
-      <a class="navitem navitem-apu" id="suggest-link" href="#">
-        <span class="navitem-name">Ehdota biisiä</span>
+        <span class="navitem-name">Palaute ja biisitoiveet</span>
       </a>
 
       <!-- Näkyy vain jos asennus on oikeasti mahdollinen: Androidilla vasta kun
@@ -383,6 +340,9 @@
                ja pisteiden vasemmalla puolella kasvava pisteluku olisi
                työntänyt sitä. Reunassa mikään ei liikuta sitä. -->
           <button type="button" class="kutsu-nappi" id="kutsu-avaa" hidden>Kutsu</button>
+          <!-- Vapaan pelin rajaus: avaa ruudun, jossa vuosikymmenet ja
+               genret. Ne olivat ennen valikossa ja veivät siitä puolet. -->
+          <button type="button" class="kutsu-nappi" id="rajaa-avaa" hidden>Rajaa</button>
         </span>
       </div>
       <div class="tierbar" id="tierbar" aria-label="Vaikeustaso"></div>
@@ -512,6 +472,13 @@
 
       <!-- Päivärivi: tämä päivä ja viisi edellistä. Rivi täytetään
            skriptistä, ks. piirraArtistiPaivat. -->
+      <!-- Päivän artisti tai rajaton peli. Rajaton oli ennen valikossa omana
+           rivinään, mutta se on saman pelin muunnelma, joten valinta on
+           pelin sisällä. -->
+      <div class="a-tila-valinta" role="group" aria-label="Pelitapa">
+        <button type="button" class="a-tila-nappi" data-go="artisti" id="a-tila-paiva">Päivän artisti</button>
+        <button type="button" class="a-tila-nappi" data-go="artistirajaton" id="a-tila-rajaton">Rajaton</button>
+      </div>
       <div class="a-paivat" id="a-paivat" role="group" aria-label="Pelattavat päivät"></div>
 
       <!-- Hakukenttä ruudukon yläpuolella, kuten Spotlessa. Kenttä oli ennen
@@ -831,6 +798,42 @@
        Uudelle pelaajalle muutosloki on pelkkä este: hänelle kaikki on
        uutta. Sisältö tulee skriptistä, jotta tiedotteen kirjoittaminen ei
        vaadi merkkauksen koskemista. -->
+  <div class="sheet-scrim" id="rajaa-scrim" hidden></div>
+  <!-- Vapaan pelin rajaus. Napin painallus kokoaa sarjan heti uudelleen
+       (ks. vaihdaKausi), ja ruutu jää auki, jotta useamman valinnan voi
+       tehdä kerralla. -->
+  <aside class="sheet sheet-keski" id="rajaa-sheet" hidden tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="rajaa-title">
+    <div class="sheet-head">
+      <h2 class="sheet-title" id="rajaa-title">Rajaa biisit</h2>
+      <button type="button" class="iconbtn" id="rajaa-close" aria-label="Sulje">✕</button>
+    </div>
+    <p class="rajaa-ohje">Valitse yksi tai useampi. Ilman valintaa mukana ovat kaikki biisit.</p>
+    <h3 class="rajaa-otsikko">Vuosikymmen</h3>
+    <div class="kaudet" id="kaudet" role="group" aria-label="Vapaan pelin vuosikymmenet">
+        <button type="button" class="kchip" data-kausi="5070" aria-pressed="false" aria-label="1950-70-luku">50–70-luku</button>
+        <button type="button" class="kchip" data-kausi="1980" aria-pressed="false" aria-label="1980-luku">80-luku</button>
+        <button type="button" class="kchip" data-kausi="1990" aria-pressed="false" aria-label="1990-luku">90-luku</button>
+        <button type="button" class="kchip" data-kausi="2000" aria-pressed="false" aria-label="2000-luku">2000-luku</button>
+        <button type="button" class="kchip" data-kausi="2010" aria-pressed="false" aria-label="2010-luku">2010-luku</button>
+        <button type="button" class="kchip" data-kausi="2020" aria-pressed="false" aria-label="2020-luku">2020-luku</button>
+      </div>
+
+      <h3 class="rajaa-otsikko">Tyylilaji</h3>
+      <!-- Genre toimii kuten vuosikymmenet ja yhdistyy niihin: rock ja
+           90-luku antaa 90-luvun rockia. Vuosikymmenten alla, koska se on
+           toinen rajaus samaan vapaaseen peliin eikä oma pelimuotonsa.
+           Ks. GENRET app.js:ssä. -->
+      <div class="kaudet genret" id="genret" role="group" aria-label="Vapaan pelin genret">
+        <button type="button" class="kchip" data-genre="Pop" aria-pressed="false">Pop</button>
+        <button type="button" class="kchip" data-genre="Rap" aria-pressed="false">Rap</button>
+        <button type="button" class="kchip" data-genre="Rock" aria-pressed="false">Rock</button>
+        <button type="button" class="kchip" data-genre="Iskelmä" aria-pressed="false">Iskelmä</button>
+      </div>
+    <div class="sheet-actions">
+      <button type="button" class="btn btn-accent btn-wide" id="rajaa-ok">Valmis</button>
+    </div>
+  </aside>
+
   <div class="sheet-scrim" id="uutta-scrim" hidden></div>
   <!-- tabindex="-1": kohdistus siirretään ruutuun itseensä eikä nappiin.
        Nappiin siirrettynä se piirsi kohdistusrenkaan heti avattaessa, mikä
@@ -1092,7 +1095,7 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=240"></script>
+  <script src="app.js?v=241"></script>
 
   <!-- Kävijälaskenta: ei evästeitä, ei henkilötietoja, ei seurantaa yli
        sivustorajojen – siksi tämä ei vaadi suostumusikkunaa. Ladataan

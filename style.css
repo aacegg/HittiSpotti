@@ -2686,24 +2686,18 @@ main.wrap {
    pelimuodot erottuvat kuvasta eivätkä väristä: levy, noppa, kaksi päätä ja
    mikrofoni. Piirretty CSS:llä, jotta väri seuraa tekstiä ja tilaa. */
 .ik { position: relative; display: block; width: 44px; height: 44px; flex: none; }
-.ik::before, .ik::after { content: ""; position: absolute; }
-.ik-levy::before {
-  inset: 6px; border-radius: 50%;
-  background: radial-gradient(circle, var(--ik-pohja, var(--bg-lift)) 0 4px, currentColor 4px);
+.ik::before {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  background: currentColor;
+  -webkit-mask: var(--ikoni) center / contain no-repeat;
+  mask: var(--ikoni) center / contain no-repeat;
 }
-.ik-noppa::before { inset: 8px; border-radius: 7px; background: currentColor; transform: rotate(-10deg); }
-.ik-noppa::after {
-  left: 50%; top: 50%; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; border-radius: 50%;
-  background: var(--ik-pohja, var(--bg-lift));
-  box-shadow: -8px -8px 0 var(--ik-pohja, var(--bg-lift)), 8px 8px 0 var(--ik-pohja, var(--bg-lift)),
-    8px -8px 0 var(--ik-pohja, var(--bg-lift)), -8px 8px 0 var(--ik-pohja, var(--bg-lift));
-  transform: rotate(-10deg);
-}
-.ik-kaverit::before, .ik-kaverit::after { top: 13px; width: 18px; height: 18px; border-radius: 50%; background: currentColor; }
-.ik-kaverit::before { left: 5px; }
-.ik-kaverit::after { left: 20px; box-shadow: 0 0 0 3px var(--ik-pohja, var(--bg-lift)); }
-.ik-mikki::before { left: 16px; top: 5px; width: 12px; height: 22px; border-radius: 6px; background: currentColor; }
-.ik-mikki::after { left: 20px; top: 27px; width: 4px; height: 11px; border-radius: 2px; background: currentColor; }
+.ik-levy { --ikoni: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='16' rx='3'/%3E%3Cpath d='M8 3v4M16 3v4'/%3E%3Ccircle cx='10' cy='16' r='2' fill='black'/%3E%3Cpath d='M12 16v-6l4-1'/%3E%3C/svg%3E"); }
+.ik-noppa { --ikoni: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 7h3c4 0 6 10 10 10h4'/%3E%3Cpath d='M3 17h3c1.6 0 2.8-1.6 3.9-3.6'/%3E%3Cpath d='M14.1 9.6C15.2 8 16.4 7 18 7h2'/%3E%3Cpath d='M17.5 4l3 3-3 3'/%3E%3Cpath d='M17.5 14l3 3-3 3'/%3E%3C/svg%3E"); }
+.ik-kaverit { --ikoni: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8.5' cy='8' r='3.2'/%3E%3Ccircle cx='17' cy='9' r='2.6'/%3E%3Cpath d='M2.5 20c.4-3.6 2.9-5.8 6-5.8s5.6 2.2 6 5.8'/%3E%3Cpath d='M15.2 14.4c.6-.3 1.2-.4 1.8-.4 2.5 0 4.2 1.9 4.5 5'/%3E%3C/svg%3E"); }
+.ik-mikki { --ikoni: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='9' y='3' width='6' height='11' rx='3'/%3E%3Cpath d='M5.5 11a6.5 6.5 0 0 0 13 0'/%3E%3Cpath d='M12 17.5V21M8.5 21h7'/%3E%3C/svg%3E"); }
 
 /* Valikon pelimuodot kortteina: kuvake vasemmalla laatassa, nimi ja
    alateksti sen vieressä. */
@@ -2714,7 +2708,6 @@ main.wrap {
   align-items: center;
 }
 .navitem-kortti .ik { --ik-pohja: var(--muoto); grid-row: 1 / span 2; border-radius: 10px; background: var(--muoto); color: #fff; }
-.navitem-kortti .ik { transform: scale(.82); }
 .navitem-kortti .navitem-name, .navitem-kortti .navitem-note { grid-column: 2; }
 
 /* Yläpalkin nimi nappina etusivulle. */
@@ -2755,7 +2748,7 @@ main.wrap {
 [data-go="free"] { --muoto: #7a4fd6; }
 [data-go="haaste"] { --muoto: #c23b8f; }
 [data-go="artisti"] { --muoto: #0b7b83; }
-.kortti-kuva .ik { transform: scale(1.35); }
+.kortti-kuva .ik { transform: scale(1.4); }
 .kortti-teksti { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s1); padding: var(--s4) var(--s5); }
 .kortti-nimi { font-family: var(--display); font-size: var(--f6); font-weight: 700; line-height: 1.15; }
 .kortti-kuvaus { color: var(--muted); font-size: var(--f3); line-height: 1.4; }
@@ -2809,3 +2802,44 @@ main.wrap {
 .navitem-kytkin:hover .navitem-name,
 .navitem-kytkin:active .navitem-name { color: var(--muted); }
 .navitem-kytkin { padding-right: 0; }
+
+/* Vapaan pelin rajausruutu. Napit kolmessa sarakkeessa, genret neljässä. */
+.rajaa-ohje { margin: 0 0 var(--s4); color: var(--muted); font-size: var(--f3); }
+.rajaa-otsikko { margin: var(--s4) 0 var(--s3); font-family: var(--display); font-size: var(--f5); font-weight: 700; }
+#rajaa-sheet .kaudet { grid-template-columns: repeat(3, 1fr); gap: var(--s3); padding: 0; }
+#rajaa-sheet .kaudet.genret { grid-template-columns: repeat(4, 1fr); }
+#rajaa-sheet .kchip { min-height: 44px; font-size: var(--f3); }
+#rajaa-sheet .kchip.is-on { background: var(--text); border-color: var(--text); color: var(--bg); }
+#rajaa-sheet .sheet-actions { margin-top: var(--s5); }
+/* Rajaus päällä: nappi täytettynä, jotta voimassa olevan rajauksen näkee. */
+#rajaa-avaa.is-on { background: var(--text); border-color: var(--text); color: var(--bg); }
+
+/* ArtistiSpotin pelitapa: päivän artisti tai rajaton. */
+.a-tila-valinta {
+  display: flex;
+  gap: var(--s1);
+  margin: 0 auto var(--s4);
+  padding: var(--s1);
+  max-width: 320px;
+  border-radius: 12px;
+  background: var(--bg-lift);
+}
+.a-tila-nappi {
+  flex: 1;
+  min-height: 40px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: var(--f3);
+  font-weight: 800;
+  cursor: pointer;
+}
+.a-tila-nappi[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+
+/* Valikko kevyemmäksi: oma tilanne -luvut ovat Tilastoissa, joten ne
+   jäävät pois sivupalkista. */
+.drawer .dstats { display: none !important; }
+/* Pelitavan valinta kertoo jo, että rajaton on päällä. */
+.a-rajaton-merkki { display: none; }

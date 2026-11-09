@@ -502,6 +502,7 @@
     retryBtn: $("#retry-btn"),
     feedbackLink: $("#feedback-link"),
     rajaaAvaa: $("#rajaa-avaa"),
+    rajausArvo: $("#rajaus-arvo"),
     rajaaSheet: $("#rajaa-sheet"),
     rajaaScrim: $("#rajaa-scrim"),
     rajaaClose: $("#rajaa-close"),
@@ -3929,8 +3930,7 @@
     const rajaus = rajausNimi();
     const h = state.haaste;
     el.kutsuAvaa.hidden = state.mode !== "haaste";
-    el.rajaaAvaa.hidden = state.mode !== "free";
-    el.rajaaAvaa.textContent = rajausNimi() ? "Rajaus" : "Rajaa";
+    el.rajausArvo.textContent = rajausNimi() || "Kaikki vuosikymmenet ja tyylit";
     el.rajaaAvaa.classList.toggle("is-on", !!rajausNimi());
     el.modeLabel.textContent = state.mode === "daily" ? "Päivän biisit"
       : state.mode === "haaste" ? "Kaverihaaste"

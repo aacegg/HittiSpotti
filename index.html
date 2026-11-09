@@ -30,7 +30,7 @@
        Ilman tätä päivitetty kuva (scripts/tee_jakokuva.js) ei näkyisi
        jaetuissa linkeissä, vaan vanha luku jäisi elämään välimuisteihin.
        Numero kulkee muiden ?v=-merkintöjen mukana julkaisussa. -->
-  <meta property="og:image" content="https://hittispotti.fi/jakokuva.jpg?v=239">
+  <meta property="og:image" content="https://hittispotti.fi/jakokuva.jpg?v=240">
   <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -41,18 +41,18 @@
        kuvakkeesta kiinni omassa välimuistissaan sitkeämmin kuin mistään
        muusta, eikä pelkkä uusi tiedostosisältö samassa osoitteessa riitä
        vaihtamaan sitä. -->
-  <link rel="icon" href="favicon.svg?v=239" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg?v=240" type="image/svg+xml">
   <!-- iOS ei tue SVG:tä kotinäytön kuvakkeena: SVG:llä se otti sivusta
        ruudunkaappauksen kuvakkeen sijaan. 180 px on iPhonen koko. -->
-  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=239">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=239">
-  <link rel="manifest" href="manifest.webmanifest?v=239">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=240">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=240">
+  <link rel="manifest" href="manifest.webmanifest?v=240">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HittiSpotti">
   <link rel="preload" href="fonts/nunito-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/zilla-slab-700-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=239">
+  <link rel="stylesheet" href="style.css?v=240">
 
   <script type="application/ld+json">
   {
@@ -199,10 +199,12 @@
       <button type="button" class="navitem navitem-apu" id="install-btn" hidden>
         <span class="navitem-name">Lisää peli aloitusnäyttöön</span>
       </button>
-      <!-- Tumma tila kytkimenä. Ennen ensimmäistä valintaa kytkin seuraa
-           laitteen asetusta; painallus tekee valinnasta pysyvän. -->
+      <!-- Tumma ja vaalea tila kytkimenä. Teksti kertoo voimassa olevan
+           tilan ja nuppi on aurinko tai kuu. Ennen ensimmäistä valintaa
+           kytkin seuraa laitteen asetusta; painallus tekee valinnasta
+           pysyvän. -->
       <button type="button" class="navitem navitem-apu navitem-kytkin" id="teema-btn" role="switch" aria-checked="false">
-        <span class="navitem-name">Tumma tila</span>
+        <span class="navitem-name" id="teema-nimi">Tumma tila</span>
         <span class="kytkin" aria-hidden="true"></span>
       </button>
     </nav>
@@ -1090,7 +1092,7 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=239"></script>
+  <script src="app.js?v=240"></script>
 
   <!-- Kävijälaskenta: ei evästeitä, ei henkilötietoja, ei seurantaa yli
        sivustorajojen – siksi tämä ei vaadi suostumusikkunaa. Ladataan

@@ -505,6 +505,7 @@
     resultsVertailu: $("#results-vertailu"),
     installBtn: $("#install-btn"),
     teemaBtn: $("#teema-btn"),
+    teemaNimi: $("#teema-nimi"),
     installSheet: $("#install-sheet"),
     installScrim: $("#install-scrim"),
     installClose: $("#install-close"),
@@ -782,7 +783,9 @@
     return t ? t === "tumma" : LAITE_TUMMA.matches;
   };
   function paivitaTeemaKytkin() {
-    if (el.teemaBtn) el.teemaBtn.setAttribute("aria-checked", String(onTumma()));
+    if (!el.teemaBtn) return;
+    el.teemaBtn.setAttribute("aria-checked", String(onTumma()));
+    el.teemaNimi.textContent = onTumma() ? "Tumma tila" : "Vaalea tila";
   }
   function asetaTeema(teema) {
     if (teema === "auto") {

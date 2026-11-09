@@ -2680,3 +2680,86 @@ main.wrap {
 .etu-ala a { color: var(--text); text-underline-offset: 3px; }
 .etu-ala nav { display: flex; flex-wrap: wrap; gap: var(--s3) var(--s5); margin: var(--s5) 0 var(--s4); }
 .etu-ala-pieni { font-size: var(--f2); }
+
+/* ---------- Pelimuotojen kuvakkeet ja kortit ----------
+   Sama kuvake valikossa ja etusivulla. Värit kuuluvat vaikeustasoille, joten
+   pelimuodot erottuvat kuvasta eivätkä väristä: levy, noppa, kaksi päätä ja
+   mikrofoni. Piirretty CSS:llä, jotta väri seuraa tekstiä ja tilaa. */
+.ik { position: relative; display: block; width: 44px; height: 44px; flex: none; }
+.ik::before, .ik::after { content: ""; position: absolute; }
+.ik-levy::before {
+  inset: 6px; border-radius: 50%;
+  background: radial-gradient(circle, var(--ik-pohja, var(--bg-lift)) 0 4px, currentColor 4px);
+}
+.ik-noppa::before { inset: 8px; border-radius: 7px; background: currentColor; transform: rotate(-10deg); }
+.ik-noppa::after {
+  left: 50%; top: 50%; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; border-radius: 50%;
+  background: var(--ik-pohja, var(--bg-lift));
+  box-shadow: -8px -8px 0 var(--ik-pohja, var(--bg-lift)), 8px 8px 0 var(--ik-pohja, var(--bg-lift)),
+    8px -8px 0 var(--ik-pohja, var(--bg-lift)), -8px 8px 0 var(--ik-pohja, var(--bg-lift));
+  transform: rotate(-10deg);
+}
+.ik-kaverit::before, .ik-kaverit::after { top: 13px; width: 18px; height: 18px; border-radius: 50%; background: currentColor; }
+.ik-kaverit::before { left: 5px; }
+.ik-kaverit::after { left: 20px; box-shadow: 0 0 0 3px var(--ik-pohja, var(--bg-lift)); }
+.ik-mikki::before { left: 16px; top: 5px; width: 12px; height: 22px; border-radius: 6px; background: currentColor; }
+.ik-mikki::after { left: 20px; top: 27px; width: 4px; height: 11px; border-radius: 2px; background: currentColor; }
+
+/* Valikon pelimuodot kortteina: kuvake vasemmalla laatassa, nimi ja
+   alateksti sen vieressä. */
+.navitem-kortti {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  column-gap: var(--s4);
+  align-items: center;
+}
+.navitem-kortti .ik { grid-row: 1 / span 2; border-radius: 10px; background: var(--bg-lift); color: var(--text); }
+.navitem-kortti.is-active .ik { background: var(--text); color: var(--bg); --ik-pohja: var(--text); }
+.navitem-kortti .navitem-name, .navitem-kortti .navitem-note { grid-column: 2; }
+
+/* Yläpalkin nimi nappina etusivulle. */
+.wordmark-nappi { border: 0; padding: 0; background: none; color: inherit; cursor: pointer; }
+
+/* Etusivu. */
+.koti-pvm { margin: var(--s3) 0 var(--s5); color: var(--muted); font-size: var(--f4); }
+.koti-kortit { display: grid; gap: var(--s4); }
+.kortti {
+  display: grid;
+  grid-template-columns: 104px 1fr;
+  min-height: 128px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 14px;
+  background: var(--bg-lift);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition: transform .12s ease;
+}
+.kortti:active { transform: scale(.99); }
+.kortti:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+.kortti-kuva {
+  --ik-pohja: color-mix(in srgb, var(--text) 9%, var(--bg-lift));
+  display: grid;
+  place-items: center;
+  background: var(--ik-pohja);
+  color: var(--text);
+}
+.kortti-kuva .ik { transform: scale(1.35); }
+.kortti-teksti { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s1); padding: var(--s4) var(--s5); }
+.kortti-nimi { font-family: var(--display); font-size: var(--f6); font-weight: 700; line-height: 1.15; }
+.kortti-kuvaus { color: var(--muted); font-size: var(--f3); line-height: 1.4; }
+.kortti-nappi {
+  margin-top: var(--s3);
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: var(--f3);
+  font-weight: 800;
+}
+@media (min-width: 600px) {
+  .koti-kortit { grid-template-columns: 1fr 1fr; }
+  .kortti { grid-template-columns: 1fr; grid-template-rows: 120px 1fr; }
+}

@@ -30,7 +30,7 @@
        Ilman tätä päivitetty kuva (scripts/tee_jakokuva.js) ei näkyisi
        jaetuissa linkeissä, vaan vanha luku jäisi elämään välimuisteihin.
        Numero kulkee muiden ?v=-merkintöjen mukana julkaisussa. -->
-  <meta property="og:image" content="https://hittispotti.fi/jakokuva.jpg?v=236">
+  <meta property="og:image" content="https://hittispotti.fi/jakokuva.jpg?v=237">
   <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -41,18 +41,18 @@
        kuvakkeesta kiinni omassa välimuistissaan sitkeämmin kuin mistään
        muusta, eikä pelkkä uusi tiedostosisältö samassa osoitteessa riitä
        vaihtamaan sitä. -->
-  <link rel="icon" href="favicon.svg?v=236" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg?v=237" type="image/svg+xml">
   <!-- iOS ei tue SVG:tä kotinäytön kuvakkeena: SVG:llä se otti sivusta
        ruudunkaappauksen kuvakkeen sijaan. 180 px on iPhonen koko. -->
-  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=236">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=236">
-  <link rel="manifest" href="manifest.webmanifest?v=236">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=237">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=237">
+  <link rel="manifest" href="manifest.webmanifest?v=237">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HittiSpotti">
   <link rel="preload" href="fonts/nunito-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/zilla-slab-700-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=236">
+  <link rel="stylesheet" href="style.css?v=237">
 
   <script type="application/ld+json">
   {
@@ -77,7 +77,7 @@
 
   <aside class="drawer" id="drawer" aria-label="Valikko">
     <div class="drawer-head">
-      <span class="wordmark">Hitti<em>Spotti</em></span>
+      <button type="button" class="wordmark wordmark-nappi" data-go="koti" aria-label="Etusivu">Hitti<em>Spotti</em></button>
       <button type="button" class="iconbtn" id="drawer-close" aria-label="Sulje valikko">✕</button>
     </div>
 
@@ -86,7 +86,8 @@
            seitsemään samanarvoiseen riviin, eikä mikään kertonut mitkä
            kuuluvat samaan peliin. Väri on otsikon tukena, ei ainoa erottaja. -->
       <p class="nav-ryhma nav-ryhma-hitti">HittiSpotti</p>
-      <button type="button" class="navitem" data-go="daily">
+      <button type="button" class="navitem navitem-kortti" data-go="daily">
+        <i class="ik ik-levy" aria-hidden="true"></i>
         <span class="navitem-name">Päivän biisit</span>
         <span class="navitem-note" id="nav-daily-note">viisi biisiä</span>
       </button>
@@ -97,7 +98,8 @@
            eivätkä lukeneet yhtenä asiana. Vuosikymmennapit olivat silloin
            myös suoraan Kaverihaasteen yläpuolella, ja koska haasteessakin
            valitaan vuosikymmenet, ne näyttivät sen omilta napeilta. -->
-      <button type="button" class="navitem" data-go="free">
+      <button type="button" class="navitem navitem-kortti" data-go="free">
+        <i class="ik ik-noppa" aria-hidden="true"></i>
         <span class="navitem-name">Vapaa peli<span class="uusi" data-uusi="vapaa" hidden>uutta</span></span>
         <!-- Alateksti kertoo myös alla valitun vuosikymmenrajauksen, joten
              se on skriptin kirjoitettavissa, ks. refreshDrawer. -->
@@ -152,13 +154,15 @@
         <span class="navitem-name">Aloita peli alusta</span>
       </button>
 
-      <button type="button" class="navitem" data-go="haaste">
+      <button type="button" class="navitem navitem-kortti" data-go="haaste">
+        <i class="ik ik-kaverit" aria-hidden="true"></i>
         <span class="navitem-name">Kaverihaaste</span>
         <span class="navitem-note" id="nav-haaste-note">samat biisit kaverin kanssa</span>
       </button>
 
       <p class="nav-ryhma nav-ryhma-artisti">ArtistiSpotti</p>
-      <button type="button" class="navitem" data-go="artisti">
+      <button type="button" class="navitem navitem-kortti" data-go="artisti">
+        <i class="ik ik-mikki" aria-hidden="true"></i>
         <span class="navitem-name">Päivän artisti</span>
         <span class="navitem-note" id="nav-artisti-note">seitsemän arvausta</span>
       </button>
@@ -296,7 +300,8 @@
       <button type="button" class="iconbtn" id="menu-btn" aria-label="Avaa valikko" aria-expanded="false" aria-controls="drawer">
         <span class="burger" aria-hidden="true"></span>
       </button>
-      <span class="wordmark">Hitti<em>Spotti</em></span>
+      <!-- Nimi vie etusivulle, kuten useimmissa sovelluksissa. -->
+      <button type="button" class="wordmark wordmark-nappi" data-go="koti" aria-label="Etusivu">Hitti<em>Spotti</em></button>
       <span class="bar-tag" id="bar-tag"></span>
     </div>
   </header>
@@ -306,6 +311,48 @@
     <!-- Sivun varsinainen otsikko. Ulkoasussa sen paikan ottaa sanamerkki,
          mutta hakukone ja ruudunlukija tarvitsevat oikean otsikon. -->
     <h1 class="sr-only">HittiSpotti – tunnista suomalainen biisi 0,1 sekunnin pätkästä</h1>
+
+    <!-- ETUSIVU. Näkyy kun päivän biisit on jo pelattu, ja yläpalkin
+         nimestä. Muuten sivu aukeaa suoraan päivän peliin, jottei
+         päivittäiselle pelaajalle tule välivaihetta. Kortit vievät samoihin
+         kohteisiin kuin valikko (data-go). -->
+    <section id="view-koti" class="view view-koti" hidden>
+      <p class="koti-pvm" id="koti-pvm"></p>
+      <div class="koti-kortit">
+        <button type="button" class="kortti" data-go="daily">
+          <span class="kortti-kuva"><i class="ik ik-levy" aria-hidden="true"></i></span>
+          <span class="kortti-teksti">
+            <span class="kortti-nimi">Päivän biisit</span>
+            <span class="kortti-kuvaus" id="koti-daily">Viisi biisiä, sama sarja kaikille.</span>
+            <span class="kortti-nappi" id="koti-daily-nappi">Pelaa</span>
+          </span>
+        </button>
+        <button type="button" class="kortti" data-go="free">
+          <span class="kortti-kuva"><i class="ik ik-noppa" aria-hidden="true"></i></span>
+          <span class="kortti-teksti">
+            <span class="kortti-nimi">Vapaa peli</span>
+            <span class="kortti-kuvaus">Arvottuja biisejä niin paljon kuin jaksat. Rajaa vuosikymmenen tai tyylin mukaan valikosta.</span>
+            <span class="kortti-nappi">Pelaa</span>
+          </span>
+        </button>
+        <button type="button" class="kortti" data-go="haaste">
+          <span class="kortti-kuva"><i class="ik ik-kaverit" aria-hidden="true"></i></span>
+          <span class="kortti-teksti">
+            <span class="kortti-nimi">Kaverihaaste</span>
+            <span class="kortti-kuvaus">Samat biisit kaverille. Kumpi tunnistaa nopeammin?</span>
+            <span class="kortti-nappi">Luo haaste</span>
+          </span>
+        </button>
+        <button type="button" class="kortti" data-go="artisti">
+          <span class="kortti-kuva"><i class="ik ik-mikki" aria-hidden="true"></i></span>
+          <span class="kortti-teksti">
+            <span class="kortti-nimi">ArtistiSpotti</span>
+            <span class="kortti-kuvaus" id="koti-artisti">Arvaa päivän artisti seitsemällä yrityksellä.</span>
+            <span class="kortti-nappi">Pelaa</span>
+          </span>
+        </button>
+      </div>
+    </section>
 
     <!-- PELI -->
     <section id="view-game" class="view view-game" hidden>
@@ -1042,7 +1089,7 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=236"></script>
+  <script src="app.js?v=237"></script>
 
   <!-- Kävijälaskenta: ei evästeitä, ei henkilötietoja, ei seurantaa yli
        sivustorajojen – siksi tämä ei vaadi suostumusikkunaa. Ladataan

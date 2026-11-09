@@ -457,6 +457,7 @@
     atJaa: $("#at-jaa"),
     atTakaisin: $("#at-takaisin"),
     views: {
+      koti: $("#view-koti"),
       game: $("#view-game"),
       results: $("#view-results"),
       artisti: $("#view-artisti"),
@@ -532,6 +533,10 @@
     ring: $("#ring-fg"),
     tierBar: $("#tierbar"),
     tasorivi: $("#tasorivi"),
+    kotiPvm: $("#koti-pvm"),
+    kotiDaily: $("#koti-daily"),
+    kotiDailyNappi: $("#koti-daily-nappi"),
+    kotiArtisti: $("#koti-artisti"),
     ladder: $("#ladder"),
     hint: $("#hint"),
     form: $("#guess-form"),
@@ -847,6 +852,7 @@
     if (name !== "game") { delete el.body.dataset.tier; delete el.body.dataset.kansi; }
     window.scrollTo({ top: 0 });
     if (name === "stats") renderStats();
+    if (name === "koti") renderKoti();
     updateBar();
   }
 
@@ -3964,6 +3970,19 @@
     }
   }
 
+  /* Etusivun korttien tilanne: päivän biiseistä pisteet, jos jo pelattu,
+   * ja ArtistiSpotista onko päivän artisti ratkaistu. */
+  function renderKoti() {
+    const nyt = new Date();
+    el.kotiPvm.textContent = nyt.toLocaleDateString("fi-FI", { weekday: "long", day: "numeric", month: "long" })
+      .replace(/^./, (c) => c.toUpperCase());
+    const done = store.get(AVAIN.biisi.tulos(todayKey()), null);
+    el.kotiDaily.textContent = done
+      ? `Pelattu tänään, ${fmt(done.score)} pistettä. Uusi sarja huomenna.`
+      : "Viisi biisiä, sama sarja kaikille. Uusi joka aamu.";
+    el.kotiDailyNappi.textContent = done ? "Katso tulos" : "Pelaa";
+  }
+
   /* Tason mittari: viisi nousevaa palkkia, tason verran päällä. Väri tulee
    * ympäristöstä (currentColor), ks. .mittari tyyleissä. */
   function mittari(taso, koko = "") {
@@ -5713,6 +5732,7 @@
     else if (target === "artistirajaton") await avaaRajaton();
     else if (target === "artistitulos") await avaaArtistiTulos();
     else if (target === "stats") show("stats");
+    else if (target === "koti") show("koti");
     else if (target === "help") show("help");
     else if (target === "back") show(state.rounds.length ? "game" : "results");
   }
@@ -5948,6 +5968,9 @@
        * kulkee chatissa ja voi katketa matkalla. */
       const haaste = lueHaaste(new URLSearchParams(location.search).get("haaste"));
       if (haaste) await startHaaste(haaste);
+      /* Jo pelattu päivä aukeaa etusivulle eikä eilisen kaltaiselle
+       * tulossivulle: siellä muut pelimuodot ovat heti tarjolla. */
+      else if (store.get(AVAIN.biisi.tulos(todayKey()), null)) { state.mode = "daily"; show("koti"); }
       else await startDaily();
     } catch (err) {
       console.error(err);

@@ -336,16 +336,13 @@
         </span>
       </div>
       <div class="tierbar" id="tierbar" aria-label="Vaikeustaso"></div>
+      <p class="tasorivi" id="tasorivi"></p>
 
       <div class="stage">
-        <!-- Osoite pelialueen taustalle, vain työpöydällä. Striimissä ja
-             ruutukaappauksessa katsoja näkee vain pelialueen, ei selaimen
-             välilehteä eikä osoiteriviä, joten ilman tätä hän ei tiedä mitä
-             peliä katsoo eikä mistä sen löytää. Siksi tässä on koko osoite
-             eikä pelkkä nimi. Puhelimessa tätä ei ole: siellä ruutu on pieni
-             ja peli on omassa käytössä, ei näytillä.
-             Piilotettu ruudunlukijalta, koska sivun oikea otsikko on h1. -->
-        <p class="vesileima" aria-hidden="true">Hitti<em>Spotti.fi</em></p>
+        <!-- Osoite soittimen yläpuolella: striimissä ja videolla katsoja näkee
+             vain pelialueen, joten tästä hän näkee mitä peliä katsoo ja
+             mistä sen löytää. Ruudunlukijalta piilossa, oikea otsikko on h1. -->
+        <p class="vesileima" aria-hidden="true">hittispotti<em>.fi</em></p>
         <div class="player">
           <button type="button" id="play-btn" class="play-btn" aria-label="Soita pätkä">
             <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">

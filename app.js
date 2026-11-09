@@ -531,6 +531,7 @@
     stake: $("#stake"),
     ring: $("#ring-fg"),
     tierBar: $("#tierbar"),
+    tasorivi: $("#tasorivi"),
     ladder: $("#ladder"),
     hint: $("#hint"),
     form: $("#guess-form"),
@@ -3951,8 +3952,23 @@
       if (i === state.at) cls = " is-on";
       return `<button type="button" class="tchip${cls}" data-slot="${i}" data-tier="${r.song.tier}"
         aria-pressed="${i === state.at}" aria-label="${name}, ${tila}"
-        >${name}<span class="tchip-tila">${tila}</span></button>`;
+        >${mittari(r.song.tier, "iso")}<span class="tchip-teksti"><span class="tchip-nimi">${name}</span
+        ><span class="tchip-tila">${tila}</span></span></button>`;
     }).join("");
+    const nyt = state.rounds[state.at];
+    if (el.tasorivi) {
+      el.tasorivi.innerHTML = nyt
+        ? `${mittari(nyt.song.tier, "iso")}${TIER_NAMES[nyt.song.tier]}<small>Biisi ${state.at + 1} / ${state.rounds.length}</small>`
+        : "";
+    }
+  }
+
+  /* Tason mittari: viisi nousevaa palkkia, tason verran päällä. Väri tulee
+   * ympäristöstä (currentColor), ks. .mittari tyyleissä. */
+  function mittari(taso, koko = "") {
+    let palkit = "";
+    for (let i = 1; i <= 5; i++) palkit += i <= taso ? '<i class="on"></i>' : "<i></i>";
+    return `<span class="mittari${koko ? " " + koko : ""}" aria-hidden="true">${palkit}</span>`;
   }
 
   /* Yksi nappi riittää: ohitus ja väärä arvaus vievät kierrosta yhtä paljon

@@ -101,13 +101,6 @@
      marginaali + 3 x 37 px) pitää tavallisen kierroksen arvaukset näkyvissä
      ilman vieritystä. */
   --loki: 128px;
-  /* Taustaosoitteen koko työpöydällä. Rivikorkeus on 1, joten tämä on myös
-     sen korkeus, ja siitä lasketaan soittimen yläpuolelle tarvittava tila.
-     --vesileima-tila on kaistan väljyys osoitteen ympärillä: täyte on
-     osoite + tila, ja osoite asettuu tilan puoliväliin. Yhdestä luvusta
-     johdettuna ne eivät voi ajautua eri tahtiin. */
-  --vesileima: 84px;
-  --vesileima-tila: calc(var(--s7) + var(--s6));
 
   /* Väliasteikko. Kaikki marginaalit, täytteet ja gapit tulevat täältä.
      Aiemmin käytössä oli 21 eri arvoa (1,2,4,5,6,7,8,9,10,11,12,13,14,16,
@@ -685,7 +678,6 @@ a.navitem { color: inherit; text-decoration: none; }
    Kisko on piilossa tuloksissa ja tilastoissa, koska siellä ei ole sarjaa
    käynnissä eikä tyhjä kisko ole muuta kuin reunaviiva. */
 .rail { display: none; }
-.tchip-tila { display: none; }
 
 @media (min-width: 1200px) {
   .rail {
@@ -715,11 +707,10 @@ a.navitem { color: inherit; text-decoration: none; }
     align-items: center;
     height: var(--bar-h);
     margin: 0 0 var(--s4);
-    font-size: var(--f1);
-    font-weight: 600;
-    letter-spacing: .16em;
-    text-transform: uppercase;
-    color: var(--muted);
+    font-family: var(--display);
+    font-size: var(--f5);
+    font-weight: 700;
+    color: var(--text);
   }
   .rail-body { display: flex; flex-direction: column; }
 
@@ -736,20 +727,17 @@ a.navitem { color: inherit; text-decoration: none; }
   .rail .tchip {
     width: 100%;
     flex: 0 0 auto;
-    align-items: center;
     justify-content: flex-start;
-    min-height: 48px;
+    gap: var(--s4);
+    min-height: 56px;
     padding: var(--s3) var(--s4);
-    /* Suorakulmio eikä pilleri: pystyssä oleva lista lukee riveinä, ja
-       999 pikselin pyöristys tekisi jokaisesta rivistä oman kapselinsa. */
-    border-radius: 12px;
     text-align: left;
-    font-size: var(--f3);
-    white-space: normal;
   }
-  /* Tila jää ruudunlukijan aria-labeliin. Silmälle riittää nimi ja se mitä
-     rivin väri, reunus ja yliviivaus kertovat: kolme merkintätapaa samasta
-     asiasta on kaksi liikaa. */
+  /* Kiskossa on tilaa, joten rivillä näkyy nimi ja miten biisi meni. */
+  .rail .tchip-teksti { display: grid; color: var(--text); }
+  .rail .tchip.is-on .tchip-teksti { color: var(--live-ink); }
+  .rail .tchip-nimi { font-size: var(--f4); font-weight: 800; }
+  .rail .tchip-tila { display: block; font-size: var(--f2); opacity: .8; }
 
   /* "Uusi sarja" tasorivin alle omalle rivilleen, kuten valikossa mutta
      ilman valikon pystyviivaa. */
@@ -1009,50 +997,62 @@ body[data-mode="free"] #results-title { color: var(--vapaa); }
 .tierbar {
   display: flex;
   gap: var(--s2);
-  margin: 0 calc(var(--s5) * -1);
-  padding: 0 var(--s5) var(--s2);
-  overflow-x: auto;
-  scroll-padding: 0 var(--s5);
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
+  margin-top: var(--s4);
 }
-.tierbar::-webkit-scrollbar { display: none; }
 
-/* Korkeus 44 px: Applen ohje kosketusalueelle. Aiemmin pillerit olivat
-   67 x 28, eli käytetyin kontrolli soittonapin jälkeen oli myös pienin.
-   Vain täyte kasvaa, joten leveys ja ulkoasu pysyvät ennallaan. */
+/* Tasomittari: viisi nousevaa palkkia, joista tason verran on päällä.
+   Väri tulee currentColorista, joten mittari on aina samaa väriä kuin
+   ympäröivä teksti tai pinta. Käytössä tasorivissä, sarjan ruuduissa ja
+   tuloslistassa. */
+.mittari {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+  flex: none;
+  vertical-align: middle;
+}
+.mittari i { width: 3px; border-radius: 1px; background: currentColor; opacity: .25; }
+.mittari i:nth-child(1) { height: 36%; }
+.mittari i:nth-child(2) { height: 52%; }
+.mittari i:nth-child(3) { height: 68%; }
+.mittari i:nth-child(4) { height: 84%; }
+.mittari i:nth-child(5) { height: 100%; }
+.mittari i.on { opacity: 1; }
+.mittari.iso { height: 20px; gap: 3px; }
+.mittari.iso i { width: 4px; }
+
+/* Sarjan viisi biisiä ruutuina. Ruudussa on tason mittari, ja ruutu on
+   tason värinen, joten sarjan nouseva vaikeus näkyy yhdellä silmäyksellä.
+   Nimi ja tila ovat aria-labelissa; leveällä ruudulla kisko näyttää ne
+   myös silmälle. Korkeus 44 px kosketusalueeksi. */
 .tchip {
-  flex: 1 0 auto;
+  flex: 1 1 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: var(--s3);
   min-height: 44px;
-  padding: var(--s2) var(--s3);
-  text-align: center;
-  border: 1px solid var(--line);
-  border-radius: 999px;
+  padding: 0;
+  border: 2px solid var(--tier-hue);
+  border-radius: var(--r);
   background: transparent;
-  color: var(--dim);
-  font-size: var(--f2);
-  letter-spacing: -.01em;
-  white-space: nowrap;
-  transition: color .15s ease, border-color .15s ease;
+  color: var(--tier-hue);
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease;
 }
+.tchip-teksti { display: none; }
 button.tchip { cursor: pointer; }
-button.tchip:hover { color: var(--text); }
-.tchip.is-on {
-  background: var(--tier-hue);
-  border-color: var(--tier-hue);
-  color: var(--live-ink);
-  font-weight: 600;
+button.tchip:hover { background: color-mix(in srgb, var(--tier-hue) 14%, transparent); }
+.tchip.is-on { background: var(--tier-hue); color: var(--live-ink); }
+/* Pelattu biisi harmaantuu: sarjasta näkee mitkä on jo tehty. */
+.tchip.is-ok, .tchip.is-miss {
+  border-color: color-mix(in srgb, var(--text) 18%, transparent);
+  color: var(--dim);
 }
-/* Päivän pelissä pelattu biisi näkyy värillä, ei merkillä: viisi nimeä
-   mahtuu puhelimen ruudulle vain ilman ylimääräisiä kuvakkeita. */
-.tchip.is-ok { border-color: var(--ok); color: var(--ok); }
-.tchip.is-miss { color: var(--dim); text-decoration: line-through; opacity: .55; }
-/* Aloitettu mutta kesken jäänyt biisi: reunus tason värissä kertoo, että
-   tänne kannattaa palata. */
-.tchip.is-part { border-color: var(--tier-hue); color: var(--text); }
+.tchip.is-miss { opacity: .6; }
+/* Aloitettu mutta kesken jäänyt: kevyt täyttö kertoo, että tänne
+   kannattaa palata. */
+.tchip.is-part { background: color-mix(in srgb, var(--tier-hue) 18%, transparent); }
 .tchip:focus-visible { outline: 2px solid var(--live); outline-offset: 2px; }
 
 .tchip[data-tier="1"] { --tier-hue: var(--t1); }
@@ -1060,6 +1060,19 @@ button.tchip:hover { color: var(--text); }
 .tchip[data-tier="3"] { --tier-hue: var(--t3); }
 .tchip[data-tier="4"] { --tier-hue: var(--t4); }
 .tchip[data-tier="5"] { --tier-hue: var(--t5); }
+
+/* Soivan biisin taso sanana mittarin kanssa ja sarjan eteneminen. */
+.tasorivi {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  margin-top: var(--s4);
+  font-size: var(--f5);
+  font-weight: 800;
+}
+.tasorivi .mittari { color: var(--live); }
+.tasorivi small { margin-left: auto; font-size: var(--f4); font-weight: 600; color: var(--muted); }
+.tasorivi:empty { display: none; }
 
 /* ---------- Soitin ---------- */
 .stage {
@@ -1071,88 +1084,38 @@ button.tchip:hover { color: var(--text); }
   padding: var(--s5) 0;
 }
 
-/* Osoite soittimen taustalla, vain työpöydällä.
+/* Osoite soittimen yläpuolella kaikilla ruuduilla.
  *
- * Sanamerkki on yläpalkissa ja työpöydällä sivupalkin nurkassa, mutta
- * kumpikaan ei näy striimissä tai ruutukaappauksessa: katsoja näkee vain
- * pelialueen. Siksi tässä on koko osoite eikä pelkkä nimi, jotta katsoja
- * myös löytää pelin.
- *
- * Puhelimessa tätä ei ole. Siellä ruutu on pieni, peli on omassa käytössä
- * eikä näytillä, ja kaista jonka nimi vaatisi on pois pelialueelta.
- *
- * Soittimen yläpuolelle, ei taakse: keskitettynä levy peitti nimen keskeltä
- * ja jäljelle jäi "Hi…otti", eli juuri se mikä piti ratkaista meni rikki.
- *
- * Väri seuraa vaikeustasoa kuten sanamerkin aaltomuoto yläpalkissa. Sääntö 1
- * ei kiellä tätä: se sanoo että sivulla elää yksi väri kerrallaan, ei että
- * vain yksi elementti saisi käyttää sitä.
- *
- * Tasoväri sellaisenaan olisi kuitenkin aivan liian äänekäs tämän kokoisena,
- * joten se sekoitetaan taustaan päin. Sekoitus pitää kirkkauden samana
- * tasosta riippumatta (mitattuna +94...+98 sävyaskelta taustasta kaikilla
- * viidellä), joten vain sävy vaihtuu eikä osoite hyppää silmään toisilla
- * tasoilla enemmän kuin toisilla. Siirtymä on sama 0,4 s kuin aaltomuodolla,
- * jotta ne vaihtuvat yhtä matkaa.
+ * Striimissä, TikTok-videossa ja ruutukaappauksessa katsoja näkee vain
+ * pelialueen, ei osoiteriviä eikä yläpalkkia: videot rajataan tyypillisesti
+ * otsikosta Ohita-nappiin. Siksi osoite on soittimen ja otsikon välissä eikä
+ * sivun alalaidassa, ja siinä on koko osoite eikä pelkkä nimi, jotta katsoja
+ * myös löytää pelin. Pääte on tason värinen.
  *
  * pointer-events: none pitää sen pois kosketuksista, aria-hidden
  * ruudunlukijalta. */
-.vesileima { display: none; }
-
-@media (min-width: 1200px) {
-  .vesileima {
-    display: block;
-    position: absolute;
-    left: 50%;
-    /* Kolmasosa kaistan väljyydestä ylle, loput alle. Ylälaidassa osoite
-       roikkui otsikkorivissä kiinni, mutta tasan puolivälissä se valui liian
-       alas kohti soitinta: ylempänä se lukee omana rivinään. */
-    top: calc(var(--vesileima-tila) / 3);
-    transform: translateX(-50%);
-    margin: 0;
-    z-index: 0;
-    /* Sama kirjasin kuin sanamerkissä. Järjestelmäkirjasinta kokeiltiin,
-       mutta se oli tähän liian väritön: osoitteen kuuluu hävitä taustaan,
-       ei näyttää siltä että se on unohtunut sinne.
-       Jälkiosa painossa 500 eikä 400: 84 pikselissä nelossataa jäi selvästi
-       ohuemmaksi kuin alkuosa, jolloin "Spotti.fi" näytti kapealta sen
-       vieressä. */
-    font-family: var(--display);
-    font-size: var(--vesileima);
-    font-weight: 800;
-    /* Optisen koon akseli, ei pelkkä paino. Bricolage on muuttuva kirjasin,
-       jonka opsz-akseli (12-96) piirtää kirjaimet uudelleen: isolla arvolla
-       muodot ovat tiiviitä ja aukot kapeita, pienellä leveitä ja avoimia.
-       Selain valitsee arvon kirjasinkoosta, joten 84 pikselissä se otti
-       maksimin 96, ja juuri siinä f:n koukku on lyhimmillään ja
-       omituisimmillaan. Pakotetaan pieni arvo: tekstin koko ei muutu, vain
-       kirjainten piirustus.
-       Akselit annetaan tässä molemmat, koska font-variation-settings ohittaa
-       font-weightin niiltä osin kuin se listaa akseleita. */
-    font-variation-settings: "opsz" 20, "wght" 800;
-    letter-spacing: -.04em;
-    line-height: 1;
-    white-space: nowrap;
-    /* Varaväri ensin: jos selain ei tue color-mixiä, osoite näkyy silti. */
-    color: #2e281f;
-    color: color-mix(in srgb, var(--live) 22%, var(--bg));
-    transition: color .4s ease;
-    user-select: none;
-    pointer-events: none;
-  }
-  .vesileima em {
-    font-style: normal;
-    font-weight: 500;
-    font-variation-settings: "opsz" 20, "wght" 500;
-  }
+.vesileima {
+  margin: 0 0 var(--s4);
+  text-align: center;
+  font-family: var(--display);
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--text);
+  user-select: none;
+  pointer-events: none;
 }
+.vesileima em { font-style: normal; color: var(--live); transition: color .4s ease; }
+@media (min-width: 1200px) { .vesileima { font-size: 40px; } }
 /* Soitin ja sekuntiluku taustan päälle. */
 .stage .player { position: relative; z-index: 1; }
 
 .player { display: grid; justify-items: center; }
 
-/* Levy, ei nappi: sisäkkäiset hiusrenkaat ja väristä lähtevä hehku
-   tekevät siitä esineen, jota tekee mieli painaa. */
+/* Soitin on sivun ainoa iso täytetty pinta, tason värinen. Alla oleva
+   tummempi reunus tekee siitä painettavan näköisen, ja painettaessa nappi
+   laskeutuu sitä vasten. Edistymisrengas kiertää napin ulkopuolella. */
 .play-btn {
   position: relative;
   display: grid;
@@ -1161,22 +1124,17 @@ button.tchip:hover { color: var(--text); }
   height: 182px;
   border: 0;
   border-radius: 50%;
-  background:
-    radial-gradient(circle at 50% 34%, #1d1a16, #0e0c0a 72%);
-  box-shadow:
-    inset 0 0 0 1px var(--line),
-    inset 0 1px 0 rgba(255, 255, 255, .05),
-    0 0 0 1px rgba(255, 255, 255, .03),
-    0 24px 60px -30px var(--live);
+  background: var(--live);
+  box-shadow: 0 9px 0 color-mix(in srgb, var(--live) 62%, #000);
   cursor: pointer;
-  transition: transform .12s ease;
+  transition: transform .1s ease, box-shadow .1s ease, background-color .4s ease;
 }
-.play-btn:active { transform: scale(.985); }
+.play-btn:active { transform: translateY(5px); box-shadow: 0 4px 0 color-mix(in srgb, var(--live) 62%, #000); }
 .play-btn:disabled { cursor: progress; }
 
-.ring { position: absolute; inset: -1px; width: calc(100% + 2px); height: calc(100% + 2px); transform: rotate(-90deg); }
+.ring { position: absolute; inset: -20px; width: calc(100% + 40px); height: calc(100% + 40px); transform: rotate(-90deg); pointer-events: none; }
 .ring circle { fill: none; stroke-width: 2.5; }
-.ring-bg { stroke: rgba(255, 255, 255, .07); }
+.ring-bg { stroke: transparent; }
 .ring-fg {
   stroke: var(--live);
   stroke-linecap: round;
@@ -1184,60 +1142,52 @@ button.tchip:hover { color: var(--text); }
   stroke-dashoffset: 339.292;
 }
 
-.play-icon { display: block; color: var(--live); }
+.play-icon { display: block; color: var(--live-ink); }
 .play-icon.is-play {
   width: 0;
   height: 0;
   margin-left: var(--s3);
-  border-left: 32px solid currentColor;
-  border-top: 20px solid transparent;
-  border-bottom: 20px solid transparent;
+  border-left: 34px solid currentColor;
+  border-top: 21px solid transparent;
+  border-bottom: 21px solid transparent;
 }
-.play-icon.is-stop { width: 26px; height: 26px; border-radius: 2px; background: currentColor; }
+.play-icon.is-stop { width: 28px; height: 28px; border-radius: 4px; background: currentColor; }
 .play-icon.is-load {
-  width: 28px;
-  height: 28px;
-  border: 2.5px solid currentColor;
+  width: 30px;
+  height: 30px;
+  border: 3px solid currentColor;
   border-top-color: transparent;
   border-radius: 50%;
   animation: spin .8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Sekunnit ovat sivun suurin asia. Yksikkö kutistuu, jotta luku hallitsee. */
+/* Pätkän pituus isona slab-numerona, yksikkö pienempänä. */
 .clip-len {
   margin-top: var(--s6);
   font-family: var(--display);
   font-size: var(--f9);
-  font-weight: 800;
-  /* Sama syy kuin pisteluvussa: 58 pikselissä negatiivinen väli sulki
-     numerot yhteen ("11" jätti yhden pikselin). */
-  letter-spacing: .015em;
-  line-height: .9;
+  font-weight: 700;
+  line-height: .95;
   font-variant-numeric: tabular-nums;
 }
 .clip-len .unit {
   margin-left: .12em;
-  font-size: .34em;
-  font-weight: 500;
-  letter-spacing: 0;
+  font-size: .5em;
   color: var(--muted);
-  vertical-align: .28em;
 }
 
 .stake {
-  margin-top: var(--s4);
-  font-size: var(--f1);
+  margin-top: var(--s3);
+  font-size: var(--f4);
   font-weight: 600;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--dim);
+  color: var(--muted);
 }
-.stake b { color: var(--live); font-weight: 700; }
+.stake b { color: var(--text); font-weight: 800; }
 .stake:empty { display: none; }
 
 /* Askelmat mittarina: viisi palkkia, joista mennyt himmenee ja nykyinen
-   palaa. Näyttää siltä miltä pisteiden valuminen tuntuu. */
+   on tason värinen. Näyttää siltä miltä pisteiden valuminen tuntuu. */
 .ladder {
   display: flex;
   gap: var(--s2);
@@ -1248,14 +1198,11 @@ button.tchip:hover { color: var(--text); }
 .ladder li {
   flex: 1;
   position: relative;
-  padding-top: var(--s4);
+  padding-top: var(--s5);
   text-align: center;
-  /* Display-fontti myös tähän: järjestelmäfontin desimaalipilkku vie 0,33 em
-     eli lähes numeron verran, jolloin "0,1" luki "0, 1". Bricolagessa
-     pilkku on 0,10 em. */
   font-family: var(--display);
-  font-size: var(--f1);
-  font-weight: 600;
+  font-size: var(--f3);
+  font-weight: 700;
   color: var(--dim);
 }
 .ladder li::before {
@@ -1264,11 +1211,12 @@ button.tchip:hover { color: var(--text); }
   top: 0;
   left: 0;
   right: 0;
-  height: 2px;
-  background: var(--line);
+  height: 8px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--live) 22%, transparent);
 }
-.ladder li.is-done::before { background: var(--live); opacity: .32; }
-.ladder li.is-current::before { background: var(--live); box-shadow: 0 0 14px -1px var(--live); }
+.ladder li.is-done::before { background: var(--live); opacity: .45; }
+.ladder li.is-current::before { background: var(--live); }
 .ladder li.is-current { color: var(--text); }
 
 /* ---------- Arvaus ---------- */
@@ -1285,18 +1233,16 @@ button.tchip:hover { color: var(--text); }
 #guess-input,
 #a-input {
   width: 100%;
-  padding: var(--s4) 0;
-  border: 0;
-  border-bottom: 1px solid var(--line);
-  border-radius: 0;
-  background: transparent;
+  padding: var(--s4) var(--s4);
+  border: 2px solid var(--line);
+  border-radius: var(--r);
+  background: var(--bg);
   font-size: var(--f5);
-  letter-spacing: -.01em;
   outline: none;
   transition: border-color .15s ease;
 }
 #guess-input:focus,
-#a-input:focus { border-bottom-color: var(--live); }
+#a-input:focus { border-color: var(--live); }
 #guess-input::placeholder,
 #a-input::placeholder { color: var(--dim); }
 #guess-input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none;
@@ -1309,8 +1255,8 @@ button.tchip:hover { color: var(--text); }
 .suggestions {
   position: absolute;
   z-index: 15;
-  left: -6px;
-  right: -6px;
+  left: 0;
+  right: 0;
   top: calc(100% + 4px);
   margin: 0;
   padding: var(--s2);
@@ -1318,7 +1264,7 @@ button.tchip:hover { color: var(--text); }
   background: var(--bg-lift);
   border: 1px solid var(--line);
   border-radius: var(--r);
-  box-shadow: 0 20px 40px -20px #000;
+  box-shadow: 0 20px 40px -20px rgba(0, 0, 0, .5);
   max-height: 46vh;
   overflow-y: auto;
   overscroll-behavior: contain;   /* listan vieritys ei valu sivulle */
@@ -1380,21 +1326,20 @@ button.tchip:hover { color: var(--text); }
 .row-wrap .btn { flex: 1 1 auto; white-space: nowrap; }
 .btn-wide { width: 100%; }
 
-/* Napit ovat teräväkulmaisia ja hiusviivalla rajattuja; täytetty pinta on
-   varattu sille yhdelle napille, joka juuri nyt on oikea. */
+/* Napit ovat täytettyjä ja pyöristettyjä. Tavallinen nappi on hillityllä
+   pinnalla, päänappi tason värinen. */
 .btn {
   padding: var(--s5) var(--s5);
-  border: 1px solid var(--line);
+  border: 2px solid transparent;
   border-radius: var(--r);
-  background: transparent;
-  font-family: var(--display);
+  background: var(--bg-lift);
+  font-family: var(--sans);
   font-size: var(--f4);
-  font-weight: 700;
-  letter-spacing: -.01em;
+  font-weight: 800;
   cursor: pointer;
   transition: border-color .14s ease, color .14s ease, background .14s ease;
 }
-.btn:hover { border-color: var(--muted); }
+.btn:hover { border-color: var(--line); }
 .btn:disabled { opacity: .4; cursor: not-allowed; }
 /* Selaimen oletusrengas on kirkkaan valkoinen eikä istu palettiin. */
 .btn:focus-visible { outline: 2px solid var(--live); outline-offset: 2px; }
@@ -1402,8 +1347,8 @@ button.tchip:hover { color: var(--text); }
 #guess-input:focus-visible { outline: none; }
 .btn-accent { background: var(--live); border-color: var(--live); color: var(--live-ink); }
 .btn-accent:not(:disabled):hover { filter: brightness(1.08); }
-.btn-accent:disabled { background: transparent; border-color: var(--line); color: var(--muted); opacity: 1; }
-.btn-quiet { border-color: transparent; color: var(--dim); font-family: var(--sans); font-weight: 500; }
+.btn-accent:disabled { background: var(--bg-lift); border-color: transparent; color: var(--muted); opacity: 1; }
+.btn-quiet { background: transparent; border-color: transparent; color: var(--dim); font-weight: 600; }
 .btn-quiet:hover { color: var(--bad); border-color: transparent; }
 
 /* Pelin päänappi. Teko ja sen hinta ovat yksi keskitetty ryhmä, jonka
@@ -1425,10 +1370,10 @@ button.tchip:hover { color: var(--text); }
   align-items: center;
   gap: var(--s4);
   font-family: var(--display);   /* ks. .ladder li – pilkun leveys */
-  font-size: var(--f3);
-  font-weight: 500;
-  letter-spacing: 0;
-  color: var(--muted);
+  font-size: var(--f4);
+  font-weight: 700;
+  color: inherit;
+  opacity: .7;
 }
 .btn-note::before {
   content: "";
@@ -1447,19 +1392,14 @@ button.tchip:hover { color: var(--text); }
   flex: 0 0 auto;
 }
 
-/* Ohitus on hillitty, mutta ei litteä: ohut valo ylhäältä antaa napille
-   saman pinnan kuin soittimella. Reunus herää tason väriin kun sitä koskee. */
-.btn-wide:not(.btn-accent) {
-  background: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, 0) 62%);
-}
+/* Ohitus on käänteisvärinen: selvästi nappi, mutta ei tason värinen,
+   jottei se kilpaile soittimen ja arvauksen kanssa. */
+.btn-wide:not(.btn-accent) { background: var(--text); color: var(--bg); }
 .btn-wide:not(.btn-accent):hover { border-color: var(--live); }
-.btn-wide:not(.btn-accent):hover .btn-note { color: var(--text); }
-.btn-wide.is-give:hover { border-color: var(--bad); color: var(--bad); }
+.btn-wide.is-give:hover { border-color: var(--bad); }
 
-/* Arvaus on kierroksen palkinto: täysi väri, pehmeä hehku ja pisteet
-   näkyvissä, jotta näkee mistä pelaa. */
-.btn-accent.btn-wide { box-shadow: 0 10px 30px -14px var(--live); }
-.btn-accent .btn-note { color: rgba(20, 15, 8, .66); font-weight: 600; }
+/* Arvaus on kierroksen palkinto: täysi tason väri ja pisteet näkyvissä,
+   jotta näkee mistä pelaa. */
 .btn-wide:active { transform: translateY(1px); }
 
 /* ---------- Arvausloki ---------- */
@@ -2030,28 +1970,7 @@ body.sheet-open { overflow: hidden; }
   .play-btn { width: 184px; height: 184px; }
 }
 
-/* Tila taustaosoitteelle. Tästä leveydestä ylöspäin .screen ei enää venytä
-   sommitelmaa (ks. sääntö yllä), joten .stage on tasan soittimen korkuinen
-   eikä nimelle jäisi tilaa: se jäisi levyn taakse, kuten ensimmäisessä
-   yrityksessä kävi ("Hi…otti"). Kaista lasketaan nimen omasta koosta, jottei
-   kiinteä luku vanhene kun kokoa säädetään. */
-@media (min-width: 1200px) {
-  .view-game .stage {
-    padding-top: calc(var(--vesileima) + var(--vesileima-tila));
-  }
-}
 
-/* Matala työpöytänäyttö: nimelle varattu kaista ei mahdu. Mitattuna
-   1280x720:ssä sisältö meni 55 px ruudun yli, eli arvauskenttä ja Ohita
-   jäivät taitteen alle ja peliä olisi pitänyt vierittää joka kierroksella.
-   Peli menee nimen edelle: nimi ja sen välit kutistuvat. 1366x768 on yhä
-   yleinen kannettavan tarkkuus, joten tämä ei ole reunatapaus. */
-@media (min-width: 1200px) and (max-height: 820px) {
-  :root {
-    --vesileima: 44px;
-    --vesileima-tila: calc(var(--s4) + var(--s3));
-  }
-}
 
 /* Työpöydällä keskipalsta jäi kiinni yläreunaan: mitattuna 1600 x 900:ssa
    sisältö loppui 627 pikselissä ja alle jäi 273 px tyhjää, kun vasen palkki

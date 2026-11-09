@@ -186,7 +186,10 @@ body {
   position: relative;
   margin: 0;
   min-height: 100dvh;
-  background: var(--bg);
+  /* --sivu on sivun taustaväri juuri nyt. Yläpalkki käyttää samaa, jottei
+     sen tausta erotu sävytetystä sivusta. */
+  --sivu: var(--bg);
+  background: var(--sivu);
   color: var(--text);
   font-family: var(--sans);
   font-size: var(--f4);
@@ -196,7 +199,9 @@ body {
 
 /* Soivan biisin taso sävyttää taustan. Vain pelin aikana: app.js poistaa
    data-tierin muissa näkymissä, jolloin tausta palaa neutraaliksi. */
-body[data-tier] { background: color-mix(in srgb, var(--live) 8%, var(--bg)); }
+body[data-tier] { --sivu: color-mix(in srgb, var(--live) 8%, var(--bg)); }
+/* Paljastuksessa tausta kansikuvan väristä (app.js, kansiVari). */
+body[data-kansi] { --sivu: color-mix(in srgb, var(--kansi) 32%, var(--bg)); }
 body { transition: background-color .4s ease; }
 
 button, input { font: inherit; color: inherit; }
@@ -216,7 +221,7 @@ h1, h2, p, ol, ul { margin: 0; }
   top: 0;
   z-index: 20;
   padding-top: env(safe-area-inset-top);
-  background: linear-gradient(var(--bg) 70%, transparent);
+  background: linear-gradient(var(--sivu) 70%, transparent);
 }
 /* Sama palsta ja sama sivutäyte kuin .wrapilla, jotta sanamerkki ja
    sisältö jakavat vasemman reunan ja bar-tag ja pisteet oikean. */
@@ -1435,7 +1440,8 @@ button.tchip:hover { background: color-mix(in srgb, var(--tier-hue) 14%, transpa
    painaa ylintä riviä luullen arvioivansa biisiä ja päätyikin toiseen
    biisiin. Kun tasorivi väistyy, ruudulla on vain yksi pilleririvi ja se on
    arvio. Biisistä toiseen pääsee Seuraava-napilla. */
-.view-game.is-revealed #tierbar { display: none; }
+.view-game.is-revealed #tierbar,
+.view-game.is-revealed .tasorivi { display: none; }
 /* Arvausloki pois paljastuksen ajaksi.
    Se luettelee omat arvaukset biisistä jonka oikea vastaus on jo ruudulla,
    eli se on juuri siinä hetkessä toisteinen. Tila tarvitaan mainokselle:
@@ -1454,6 +1460,7 @@ button.tchip:hover { background: color-mix(in srgb, var(--tier-hue) 14%, transpa
    Luokan asettaa app.js kapealla ruudulla, kun kenttä on kohdistettuna. */
 .view-game.is-searching .meta,
 .view-game.is-searching .tierbar,
+.view-game.is-searching .tasorivi,
 .view-game.is-searching .stage,
 .view-game.is-searching .ladder,
 .view-game.is-searching .hint { display: none; }
@@ -1464,72 +1471,66 @@ button.tchip:hover { background: color-mix(in srgb, var(--tier-hue) 14%, transpa
 .view-game.is-searching .guess .row { display: none; }
 .view-game.is-searching .screen { min-height: 0; }
 
+/* Vastaus keskitettynä kansikuvan ympärille, kuten musiikkisovellusten
+   nyt soi -näkymä. Kansi on puhelimella maltillisen kokoinen, jotta
+   paljastuksen mainos nousee yhä ruudulle (ks. Mainokset). */
 .reveal {
-  margin-top: var(--s6);
-  padding-top: var(--s6);
-  border-top: 2px solid var(--line);
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: var(--s5);
+  margin-top: var(--s5);
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  text-align: center;
 }
 .reveal[hidden] { display: none; }
-.reveal.is-correct { border-top-color: var(--ok); }
-.reveal.is-wrong { border-top-color: var(--bad); }
 .reveal-art {
-  width: 82px;
-  height: 82px;
-  border-radius: var(--r);
+  width: 150px;
+  height: 150px;
+  border-radius: 8px;
   object-fit: cover;
   background: var(--line-soft);
+  box-shadow: 0 16px 36px -14px rgba(0, 0, 0, .55);
 }
+.reveal-text { margin-top: var(--s5); }
 .reveal-verdict {
   margin-bottom: var(--s2);
-  font-size: var(--f1);
-  font-weight: 700;
-  letter-spacing: .16em;
-  text-transform: uppercase;
+  font-size: var(--f4);
+  font-weight: 800;
 }
 .reveal.is-correct .reveal-verdict { color: var(--ok); }
 .reveal.is-wrong .reveal-verdict { color: var(--bad); }
 .reveal-title {
   font-family: var(--display);
-  font-size: var(--f7);
-  font-weight: 800;
-  letter-spacing: -.03em;
-  line-height: 1.1;
+  font-size: var(--f8);
+  font-weight: 700;
+  line-height: 1.05;
 }
-.reveal-artist { margin-top: var(--s1); color: var(--muted); font-size: var(--f3); }
+.reveal-artist { margin-top: var(--s1); color: var(--muted); font-size: var(--f5); }
 /* Hillitty: pelaaja tulee tähän tietääkseen mikä biisi oli, ei klikatakseen
-   pois. Nuoli kertoo että linkki avaa uuden välilehden. */
+   pois. Nuoli kertoo että linkki avaa uuden välilehden. Korkeus 44 px. */
 .reveal-apple {
   display: inline-flex;
   align-items: center;
-  /* Linkki oli 165 x 21 eli hankala osua. Täyte nostaa sen 44 pikseliin
-     ilman että teksti kasvaa; negatiivinen marginaali pitää sen linjassa. */
   min-height: 44px;
   gap: var(--s2);
-  margin-top: var(--s1);
   color: var(--muted);
-  font-size: var(--f2);
-  font-weight: 500;
-  text-decoration: none;
-  border-bottom: 1px solid var(--line);
-  padding-bottom: var(--s1);
+  font-size: var(--f3);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 .reveal-apple:hover,
-.reveal-apple:focus-visible { color: var(--text); border-bottom-color: var(--muted); }
+.reveal-apple:focus-visible { color: var(--text); }
 .reveal-apple svg { flex: none; opacity: .8; }
 .reveal-points {
-  grid-column: 1 / -1;
-  margin-top: var(--s1);
   font-family: var(--display);
-  font-size: var(--f6);
-  font-weight: 800;
-  letter-spacing: -.03em;
+  font-size: var(--f7);
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
-.reveal .row { grid-column: 1 / -1; margin-top: var(--s1); }
+.reveal .row { width: 100%; margin-top: var(--s4); }
+@media (min-width: 1200px) {
+  .reveal-art { width: 220px; height: 220px; }
+}
 
 /* ---------- Tulokset ----------
 
@@ -1602,19 +1603,17 @@ button.tchip:hover { background: color-mix(in srgb, var(--tier-hue) 14%, transpa
   padding: var(--s2) 0;
   border-top: 1px solid var(--line-soft);
 }
-.results img { width: 40px; height: 40px; border-radius: 2px; object-fit: cover; background: var(--line-soft); }
-.results .r-title { font-family: var(--display); font-weight: 700; font-size: var(--f4); letter-spacing: -.02em; line-height: 1.15; }
+.results img { width: 40px; height: 40px; border-radius: 4px; object-fit: cover; background: var(--line-soft); }
+.results .r-title { font-weight: 800; font-size: var(--f4); line-height: 1.2; }
 .results .r-artist { margin-top: var(--s1); color: var(--muted); font-size: var(--f2); }
-/* Kierroksen kulku pieninä palkkeina: osuma tason värillä, hukattu askel
-   himmeänä, pelaamaton tyhjänä. */
-/* Taso ja kierroksen kulku ovat samaa tietoa: miten meni. Yhdellä rivillä
-   ne vievät puolet siitä tilasta kuin kahdella, ja tulossivu mahtuu
-   puhelimen ruudulle ilman vieritystä. */
-.results .r-meta { display: flex; align-items: center; gap: var(--s3); margin-top: var(--s2); }
-.results .r-squares { display: flex; gap: 3px; }
-.results .sq { width: 13px; height: 3px; border-radius: 2px; background: var(--line); }
-.results .sq.is-miss { background: var(--dim); }
-.results .sq.is-hit { background: var(--tier-hue, var(--ok)); }
+/* Taso ja miten meni samalla rivillä: mittari, tason nimi ja tulos.
+   Yhdellä rivillä ne vievät puolet siitä tilasta kuin kahdella, ja
+   tulossivu mahtuu puhelimen ruudulle ilman vieritystä. */
+.results .r-meta { display: flex; align-items: center; gap: var(--s3); margin-top: var(--s1); font-size: var(--f2); }
+.results .r-meta .mittari { color: var(--text); }
+.results .r-tulos { font-weight: 800; }
+.results .r-tulos.is-ok { color: var(--ok); }
+.results .r-tulos.is-miss { color: var(--bad); }
 .results .r-points {
   font-family: var(--display);
   font-size: var(--f5);
@@ -1624,16 +1623,7 @@ button.tchip:hover { background: color-mix(in srgb, var(--tier-hue) 14%, transpa
 }
 .results .r-points.zero { color: var(--dim); }
 
-.results .r-tier { font-size: var(--f1); color: var(--dim); }
-.results .r-tier::before {
-  content: "";
-  display: inline-block;
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  margin-right: var(--s3);
-  vertical-align: 1px;
-  background: var(--tier-hue, var(--dim));
-}
+.results .r-tier { color: var(--dim); }
 .results li[data-tier="1"] { --tier-hue: var(--t1); }
 .results li[data-tier="2"] { --tier-hue: var(--t2); }
 .results li[data-tier="3"] { --tier-hue: var(--t3); }
@@ -2094,10 +2084,8 @@ body.sheet-open { overflow: hidden; }
 .mainos:has(ins[data-ad-status="unfilled"]) { display: none; }
 .mainos-otsikko {
   margin: 0 0 var(--s4);
-  font-size: var(--f2);
-  font-weight: 500;
-  letter-spacing: .08em;
-  text-transform: uppercase;
+  font-size: var(--f3);
+  font-weight: 700;
   color: var(--dim);
 }
 .mainos-tila {
@@ -2149,7 +2137,6 @@ body.sheet-open { overflow: hidden; }
   #view-results .r-title { flex-basis: 100%; }
   #view-results .r-meta { margin-top: var(--s1); }
   #view-results .r-tier { font-size: 0; }
-  #view-results .r-tier::before { margin-right: 0; }
   #mainos-tulos { margin-top: var(--s5); padding-top: var(--s4); }
   #mainos-tulos .mainos-otsikko { margin-bottom: var(--s3); }
   #mainos-tulos .mainos-tila { min-height: 100px; }

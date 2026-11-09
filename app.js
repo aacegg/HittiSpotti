@@ -844,7 +844,7 @@
     for (const [k, v] of Object.entries(el.views)) v.hidden = k !== name;
     // Elävä väri kuuluu soivalle biisille. Muualla sivu palaa perusväriin,
     // jotta sovelluksella on myös oma pysyvä sävynsä.
-    if (name !== "game") delete el.body.dataset.tier;
+    if (name !== "game") { delete el.body.dataset.tier; delete el.body.dataset.kansi; }
     window.scrollTo({ top: 0 });
     if (name === "stats") renderStats();
     updateBar();
@@ -3880,6 +3880,7 @@
       showReveal(r);
     } else {
       el.reveal.hidden = true;
+      delete el.body.dataset.kansi;
       el.form.hidden = false;
       el.hint.textContent = "";
       el.views.game.classList.remove("is-revealed");
@@ -4057,11 +4058,12 @@
     el.revealArt.hidden = !song.art;
     el.revealArt.src = song.art || "";
     el.revealArt.alt = song.art ? `${song.title} – kansikuva` : "";
+    if (song.art) kansiVari(el.revealArt);
     el.revealVerdict.textContent = r.solved
-      ? `Oikein · ${secWord(STEPS[r.step])}`
+      ? `Oikein! Tunnistit ${secWord(STEPS[r.step])}.`
       : "Ei osunut";
     el.revealTitle.textContent = song.title;
-    el.revealArtist.textContent = `${song.artist} · ${song.year}`;
+    el.revealArtist.textContent = `${song.artist}, ${song.year}`;
     // Sama trackId kuin esikuuntelussa; Apple ohjaa sen kappaleen sivulle.
     el.revealApple.href = `https://music.apple.com/fi/song/${song.id}`;
     el.revealApple.setAttribute("aria-label", `Kuuntele ${song.artist} – ${song.title} Apple Musicissa`);
@@ -4069,6 +4071,36 @@
     // Viimeisen biisin jälkeen nappi vie tuloksiin kummassakin pelimuodossa.
     el.nextBtn.textContent = state.rounds.some((x) => !x.finished) ? "Seuraava" : "Tulokset";
     naytaMainos("peli");
+  }
+
+  /* Paljastuksen tausta kansikuvan väristä, kuten musiikkisovellusten
+   * nyt soi -näkymissä. Kuva piirretään 16 x 16 pikselin piirtoalustalle ja
+   * siitä lasketaan keskiväri, jossa värikkäät pikselit painavat enemmän kuin
+   * harmaat: muuten valkoreunainen kansi antaisi pelkkää harmaata.
+   * Applen kuvapalvelin sallii lukemisen (Access-Control-Allow-Origin: *),
+   * ja kuvassa on crossorigin="anonymous". Jos lukeminen silti estyy,
+   * tausta jää tason sävyyn. */
+  function kansiVari(img) {
+    const aseta = () => {
+      try {
+        const c = document.createElement("canvas");
+        c.width = c.height = 16;
+        const g = c.getContext("2d", { willReadFrequently: true });
+        g.drawImage(img, 0, 0, 16, 16);
+        const d = g.getImageData(0, 0, 16, 16).data;
+        let pr = 0, pg = 0, pb = 0, n = 0;
+        for (let i = 0; i < d.length; i += 4) {
+          const w = 1 + (Math.max(d[i], d[i + 1], d[i + 2]) - Math.min(d[i], d[i + 1], d[i + 2])) / 24;
+          pr += d[i] * w; pg += d[i + 1] * w; pb += d[i + 2] * w; n += w;
+        }
+        el.body.style.setProperty("--kansi", `rgb(${Math.round(pr / n)}, ${Math.round(pg / n)}, ${Math.round(pb / n)})`);
+        el.body.dataset.kansi = "";
+      } catch {
+        delete el.body.dataset.kansi;
+      }
+    };
+    if (img.complete && img.naturalWidth) aseta();
+    else img.addEventListener("load", aseta, { once: true });
   }
 
   function finishRound(solved) {
@@ -4413,12 +4445,9 @@
   // ---------- Tulokset ----------
   const squares = (r) => STEPS.map((_, i) => (i < r.step ? "🟥" : i === r.step ? (r.solved ? "🟩" : "🟥") : "⬜")).join("");
 
-  /* Sama tieto sivulla piirrettynä. Emojiruudut kuuluvat jaettavaan
-   * tekstiin, mutta muun typografian seassa ne näyttävät liimatuilta. */
-  const squaresHtml = (r) => STEPS.map((_, i) => {
-    const cls = i < r.step ? "miss" : i === r.step ? (r.solved ? "hit" : "miss") : "none";
-    return `<i class="sq is-${cls}"></i>`;
-  }).join("");
+  /* Sivulla kierroksen kulku kerrotaan sanoin: "0,5 s" tai "Ei osunut".
+   * Emojiruudut kuuluvat vain jaettavaan tekstiin. */
+  const tulosSana = (r) => (r.solved ? fmtSec(STEPS[r.step]) : r.finished === false ? "Kesken" : "Ei osunut");
 
   function shareText() {
     const lines = [];
@@ -4484,10 +4513,10 @@
         <img src="${escapeHtml(s.art || "")}" alt="" loading="lazy">
         <div>
           <div class="r-title">${escapeHtml(s.title)}</div>
-          <div class="r-artist">${escapeHtml(s.artist)} · ${escapeHtml(s.year ?? "")}</div>
+          <div class="r-artist">${escapeHtml(s.artist)}, ${escapeHtml(s.year ?? "")}</div>
           <div class="r-meta">
-            <span class="r-tier">${escapeHtml(TIER_NAMES[s.tier] || "")}</span>
-            <span class="r-squares" aria-hidden="true">${squaresHtml(r)}</span>
+            ${mittari(s.tier)}<span class="r-tier">${escapeHtml(TIER_NAMES[s.tier] || "")}</span>
+            <span class="r-tulos${r.solved ? " is-ok" : " is-miss"}">${tulosSana(r)}</span>
           </div>
         </div>
         <div class="r-points${r.solved ? "" : " zero"}">${r.solved ? "+" + fmt(r.points) : "0"}</div>`;

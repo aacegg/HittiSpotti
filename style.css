@@ -1954,6 +1954,31 @@ body.sheet-open { overflow: hidden; }
   .tchip { padding: var(--s2); font-size: var(--f1); }
 }
 
+/* Puhelimella koko peli Ohita-nappia myöten mahtuu ruudulle. Uusi
+   tasorivi ja soittimen yllä oleva osoite veivät yhteensä noin 80 px, ja
+   mitattuna 393 x 664 -näkymässä (iPhone, Safarin palkit mukana) Ohita jäi
+   82 px ruudun alapuolelle. Soitin skaalautuu ruudun korkeuden mukaan ja
+   välit tiivistyvät; matalimmilla ruuduilla tasorivi väistyy, koska sama
+   tieto on biisiruuduissa. */
+@media (max-width: 599px) {
+  .stage { padding: var(--s3) 0; }
+  .vesileima { margin-bottom: var(--s3); font-size: 26px; }
+  .play-btn { width: clamp(124px, 22svh, 182px); height: clamp(124px, 22svh, 182px); }
+  .clip-len { margin-top: var(--s4); font-size: 50px; }
+  .stake { margin-top: var(--s2); }
+  .tasorivi { margin-top: var(--s3); }
+  .ladder { margin-bottom: var(--s4); }
+  .ladder li { padding-top: var(--s4); }
+  #guess-input { padding-top: 10px; padding-bottom: 10px; }
+  .guess .btn-wide { padding-top: var(--s4); padding-bottom: var(--s4); }
+}
+@media (max-width: 599px) and (max-height: 620px) {
+  .tasorivi { display: none; }
+  .vesileima { margin-bottom: var(--s2); font-size: 22px; }
+  .play-btn { width: 112px; height: 112px; }
+  .clip-len { margin-top: var(--s3); font-size: 42px; }
+}
+
 @media (min-width: 600px) {
   .screen { min-height: 0; }
   .stage { padding: var(--s7) 0; }

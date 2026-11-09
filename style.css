@@ -2913,3 +2913,14 @@ body[data-mode="free"] .rajausrivi:hover { border-color: var(--text); }
   cursor: pointer;
 }
 .haaste-poista:hover { color: var(--bad); }
+
+/* Työpöydällä yläpalkki on tyhjä: nimi on sivupalkissa, valikkonappia ei
+   tarvita, ja pelimuoto näkyy otsikossa. Tyhjä 54 px kaista pois, ja peli
+   alkaa ylhäältä eikä keskeltä, jotta Ohita-nappi ja paljastuksen mainos
+   mahtuvat matalallekin näytölle. */
+@media (min-width: 1200px) {
+  .bar { display: none; }
+  .wrap { padding-top: var(--s6); }
+  .view-game .screen,
+  .view-game.is-revealed .screen { min-height: 0; justify-content: flex-start; }
+}

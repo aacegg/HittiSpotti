@@ -115,7 +115,7 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: palvelin
           wranglerVersion: "4"
-          command: d1 execute hittispotti --remote --file=migraatio-artisti.sql
+          command: d1 execute hittispotti --remote --file=migraatio-artisti.sql --config wrangler.toml
 
       - name: Kaverihaasteen taulu
         uses: cloudflare/wrangler-action@v3
@@ -124,7 +124,7 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: palvelin
           wranglerVersion: "4"
-          command: d1 execute hittispotti --remote --file=migraatio-haaste.sql
+          command: d1 execute hittispotti --remote --file=migraatio-haaste.sql --config wrangler.toml
 
       - name: Poista turha indeksi
         uses: cloudflare/wrangler-action@v3
@@ -133,7 +133,7 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: palvelin
           wranglerVersion: "4"
-          command: d1 execute hittispotti --remote --file=migraatio-poista-indeksi.sql
+          command: d1 execute hittispotti --remote --file=migraatio-poista-indeksi.sql --config wrangler.toml
 
       - name: Julkaise Worker
         uses: cloudflare/wrangler-action@v3
@@ -142,4 +142,6 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: palvelin
           wranglerVersion: "4"
-          command: deploy
+          # --config pakollinen: uudempi wrangler löytää muuten repon juuren
+          # wrangler.jsonc:n (sivuston asetukset, assets-hakemisto) ja kaatuu.
+          command: deploy --config wrangler.toml

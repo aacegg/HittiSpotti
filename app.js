@@ -3235,6 +3235,9 @@
     h.kierrokset[h.kierros] = {
       pisteet: state.rounds.reduce((summa, r) => summa + r.points, 0),
       ratkaistut: state.rounds.map((r) => !!r.solved),
+      /* Biisikohtaiset pisteet ja pätkä, jotta aiemman kierroksen biisit
+       * voi avata tulossivulla. [pisteet, askel] tai askel -1 jos ei osunut. */
+      biisit: state.rounds.map((r) => [r.points, r.solved ? r.step : -1]),
     };
     persistHaaste();
   }
@@ -4553,6 +4556,28 @@
 
   /* Sivulla kierroksen kulku kerrotaan sanoin: "0,5 s" tai "Ei osunut".
    * Emojiruudut kuuluvat vain jaettavaan tekstiin. */
+  /* Tuloslistan rivi. Sama tulossivulla ja haasteen aiempien kierrosten
+   * avattavissa listoissa. points null: vanha tallennus, jossa kierroksesta
+   * on vain tieto osuiko, ei pisteitä eikä pätkän pituutta. */
+  function tulosRivi(r) {
+    const s = r.song || state.byId.get(String(r.id)) || { title: "?", artist: "?", art: "", year: "" };
+    const pisteet = r.points == null ? (r.solved ? "Osui" : "0")
+      : r.solved ? "+" + fmt(r.points) : "0";
+    const sana = r.points == null ? (r.solved ? "" : "Ei osunut") : tulosSana(r);
+    return `<li data-tier="${escapeHtml(s.tier ?? "")}">
+        <img src="${escapeHtml(s.art || "")}" alt="" loading="lazy">
+        <div>
+          <div class="r-title">${escapeHtml(s.title)}</div>
+          <div class="r-artist">${escapeHtml(s.artist)}, ${escapeHtml(s.year ?? "")}</div>
+        </div>
+        ${mittari(s.tier, "iso")}
+        <div class="r-oikea">
+          <span class="sr-only">${escapeHtml(TIER_NAMES[s.tier] || "")}</span>
+          <span class="r-points${r.solved ? "" : " zero"}">${pisteet}</span>
+          <span class="r-tulos${r.solved ? " is-ok" : " is-miss"}">${sana}</span>
+        </div></li>`;
+  }
+
   const tulosSana = (r) => (r.solved ? fmtSec(STEPS[r.step]) : r.finished === false ? "Kesken" : "Ei osunut");
 
   function shareText() {
@@ -4613,24 +4638,7 @@
     haasteYhteenveto(haaste);
     haasteVertailu();
     el.resultsList.innerHTML = "";
-    state.results.forEach((r) => {
-      const s = r.song || state.byId.get(String(r.id)) || { title: "?", artist: "?", art: "", year: "" };
-      const li = document.createElement("li");
-      li.dataset.tier = s.tier ?? "";
-      li.innerHTML = `
-        <img src="${escapeHtml(s.art || "")}" alt="" loading="lazy">
-        <div>
-          <div class="r-title">${escapeHtml(s.title)}</div>
-          <div class="r-artist">${escapeHtml(s.artist)}, ${escapeHtml(s.year ?? "")}</div>
-        </div>
-        ${mittari(s.tier, "iso")}
-        <div class="r-oikea">
-          <span class="sr-only">${escapeHtml(TIER_NAMES[s.tier] || "")}</span>
-          <span class="r-points${r.solved ? "" : " zero"}">${r.solved ? "+" + fmt(r.points) : "0"}</span>
-          <span class="r-tulos${r.solved ? " is-ok" : " is-miss"}">${tulosSana(r)}</span>
-        </div>`;
-      el.resultsList.appendChild(li);
-    });
+    el.resultsList.innerHTML = state.results.map(tulosRivi).join("");
     /* Haasteessa jaetaan vasta lopputulos. Yksi kierros ei ole tulos vaan
      * välivaihe, ja kaveria vastaan merkitsee koko haasteen summa. */
     el.shareBtn.hidden = !!haaste && !haasteViimeinen();
@@ -5371,10 +5379,23 @@
         ? (k.ratkaistut || []).map((o) => `<i class="${o ? "on" : ""}"></i>`).join("")
         : "<i></i>".repeat(5);
       const osumat = k ? (k.ratkaistut || []).filter(Boolean).length : 0;
-      rivit.push(`<li class="${k ? "" : "tulossa"}${i === h.kierros ? " nyt" : ""}">
-        <span class="hy-nimi">${i + 1}. kierros</span>
+      const rivi = `<span class="hy-nimi">${i + 1}. kierros</span>
         <span class="hy-ruudut" role="img" aria-label="${k ? `${osumat}/5 tunnistettu` : "ei vielä pelattu"}">${ruudut}</span>
-        <span class="hy-pisteet">${k ? fmt(k.pisteet || 0) : "tulossa"}</span></li>`);
+        <span class="hy-pisteet">${k ? fmt(k.pisteet || 0) : "tulossa"}</span>`;
+      /* Pelattu aiempi kierros avautuu biiseiksi. Kuluvan kierroksen biisit
+       * ovat jo alla tuloslistassa. */
+      if (k && i !== h.kierros) {
+        const biisit = haasteKierros(h, i).map((song, j) => {
+          const b = k.biisit && k.biisit[j];
+          return b ? { song, points: b[0], solved: b[1] >= 0, step: Math.max(0, b[1]) }
+            : { song, points: null, solved: !!(k.ratkaistut || [])[j] };
+        });
+        rivit.push(`<li class="hy-avattava"><details><summary>${rivi}
+          <span class="hy-nuoli" aria-hidden="true"></span></summary>
+          <ol class="results hy-biisit">${biisit.map(tulosRivi).join("")}</ol></details></li>`);
+      } else {
+        rivit.push(`<li class="${k ? "" : "tulossa"}${i === h.kierros ? " nyt" : ""}">${rivi}</li>`);
+      }
     }
     if (haasteViimeinen()) {
       rivit.push(`<li class="hy-summa"><span class="hy-nimi">Yhteensä</span><span></span>

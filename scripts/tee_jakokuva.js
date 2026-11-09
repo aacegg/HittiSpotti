@@ -20,8 +20,9 @@
  * vaihtui 1953:sta 1949:ään kun Tapsan vuosi korjattiin, eikä se ollut
  * kenenkään mielessä kuvan kannalta.
  *
- * Ulkoasu on sama kuin aiemmassa kuvassa pikselilleen: sama hehku,
- * sanamerkki, otsikko ja pillerit. Muuttuvat vain luvut.
+ * Ulkoasu seuraa pelin ilmettä: tumma pohja, Zilla Slab -otsikot,
+ * Nunito Sans -teksti, tason värinen soitin ja sarjan viisi ruutua
+ * tasopalkkeineen.
  *
  * Canvas eikä HTML-sivun kuvakaappaus, koska canvasissa jokaisen
  * elementin paikka on luku eikä asettelun tulos: kuva pysyy samana vaikka
@@ -51,94 +52,107 @@ function luvut() {
 const tuhannet = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 
 function fonttiCss() {
-  return ["bricolage-latin.woff2", "bricolage-latin-ext.woff2"].map((tiedosto) => {
+  const tiedostot = [
+    ["Zilla Slab", "700", "zilla-slab-700-latin.woff2"],
+    ["Zilla Slab", "700", "zilla-slab-700-latin-ext.woff2"],
+    ["Nunito Sans", "400 800", "nunito-sans-latin.woff2"],
+    ["Nunito Sans", "400 800", "nunito-sans-latin-ext.woff2"],
+  ];
+  return tiedostot.map(([nimi, paino, tiedosto]) => {
     const data = fs.readFileSync(path.join(JUURI, "fonts", tiedosto)).toString("base64");
-    return `@font-face { font-family: "Bricolage Grotesque"; font-weight: 400 800;
+    return `@font-face { font-family: "${nimi}"; font-weight: ${paino};
       src: url(data:font/woff2;base64,${data}) format("woff2"); }`;
   }).join("\n");
 }
+
+/* Yhteiset piirtoapurit sivun sisällä. Merkkijonona, koska evaluate ajaa
+ * ne selaimessa. */
+const APURIT = `
+  const S = '"Zilla Slab", serif', T = '"Nunito Sans", sans-serif';
+  const TV = ["#5ecf9a", "#bcd14a", "#f5b32e", "#ff8a4c", "#ff5f6d"];
+  async function lataaFontit() {
+    await document.fonts.load("700 40px " + S);
+    for (const p of [400, 700, 800]) await document.fonts.load(p + " 40px " + T);
+    await document.fonts.ready;
+    return document.fonts.check("700 40px " + S) && document.fonts.check("800 40px " + T);
+  }
+  // Tasomittari: viisi nousevaa palkkia, tason verran täysiä.
+  function mittari(g, x, y, korkeus, taso, vari) {
+    const lev = korkeus * .2, vali = korkeus * .14;
+    for (let i = 0; i < 5; i++) {
+      const h = korkeus * (.36 + i * .16);
+      g.globalAlpha = i < taso ? 1 : .28;
+      g.fillStyle = vari;
+      g.beginPath(); g.roundRect(x + i * (lev + vali), y + korkeus - h, lev, h, lev * .3); g.fill();
+    }
+    g.globalAlpha = 1;
+    return 5 * lev + 4 * vali;
+  }
+  function sanamerkki(g, x, y, koko, keskelle) {
+    g.font = "700 " + koko + "px " + S;
+    const tw = g.measureText("HittiSpotti").width, mk = koko * .62, vali = koko * .3;
+    const mw = mk * (5 * .2 + 4 * .14);
+    if (keskelle) x -= (mw + vali + tw) / 2;
+    // Merkissä jokainen palkki omalla tasovärillään.
+    for (let i = 0; i < 5; i++) {
+      const lev = mk * .2, v = mk * .14, h = mk * (.36 + i * .16);
+      g.fillStyle = TV[i]; g.beginPath(); g.roundRect(x + i * (lev + v), y - h, lev, h, lev * .3); g.fill();
+    }
+    g.fillStyle = "#f2f0f7"; g.textAlign = "left";
+    g.fillText("HittiSpotti", x + mw + vali, y);
+  }
+`;
 
 async function piirra(alateksti) {
   const selain = await chromium.launch();
   const sivu = await selain.newPage({ viewport: { width: 1200, height: 630 } });
   await sivu.setContent(`<!doctype html><meta charset="utf-8"><style>${fonttiCss()}</style>`);
+  await sivu.addScriptTag({ content: APURIT });
   const kuva = await sivu.evaluate(async (alateksti) => {
-    const N = '"Bricolage Grotesque", sans-serif';
-    // Jokainen paksuus ladataan erikseen: canvas ei odota fonttia itse, ja
-    // lataamaton paksuus piirtyisi hiljaa varafontilla.
-    for (const paksuus of [400, 600, 800]) await document.fonts.load(`${paksuus} 40px ${N}`);
-    await document.fonts.ready;
-
+    const fontti = await lataaFontit();
     const W = 1200, H = 630, R = 88;
     const c = document.createElement("canvas");
     c.width = W; c.height = H;
     const g = c.getContext("2d");
-    g.fillStyle = "#0a0908"; g.fillRect(0, 0, W, H);
-
-    // Sama hehku kuin sivulla, soivan biisin värissä.
-    const hehku = g.createRadialGradient(W * .5, H * .34, 0, W * .5, H * .34, W * .5);
-    hehku.addColorStop(0, "rgba(245,179,46,0.13)");
-    hehku.addColorStop(1, "rgba(245,179,46,0)");
-    g.fillStyle = hehku; g.fillRect(0, 0, W, H);
+    g.fillStyle = "#121016"; g.fillRect(0, 0, W, H);
     g.textBaseline = "alphabetic";
 
-    // Sanamerkki: sama viiden palkin aaltomuoto kuin favicon.svg:ssä.
-    const TV = ["#5ecf9a", "#bcd14a", "#f5b32e", "#ff8a4c", "#ff5f6d"];
-    const MH = [19.6, 34.8, 46, 28.4, 39.6];
-    const mk = 26 / 46;
-    g.lineCap = "round"; g.lineWidth = 8 * mk;
-    MH.forEach((h, i) => {
-      const kx = R + (i * 11 + 4) * mk;
-      g.strokeStyle = TV[i];
-      g.beginPath();
-      g.moveTo(kx, 165 - 4 * mk);
-      g.lineTo(kx, 165 - (h - 4) * mk);
-      g.stroke();
-    });
-    const MX = R + 52 * mk + 14;
-    g.font = `800 40px ${N}`; g.fillStyle = "#f2ebdf";
-    g.fillText("Hitti", MX, 165);
-    const lev = g.measureText("Hitti").width;
-    g.font = `400 40px ${N}`; g.fillText("Spotti", MX + lev, 165);
+    sanamerkki(g, R, 132, 40, false);
 
-    // Otsikko
-    g.font = `800 78px ${N}`;
-    g.fillStyle = "#f2ebdf"; g.fillText("Tunnistatko biisin ", R, 288);
-    const w1 = g.measureText("Tunnistatko biisin ").width;
-    g.fillStyle = "#f5b32e"; g.fillText("0,1", R + w1, 288);
-    g.fillText("sekunnista?", R, 372);
+    // Otsikko slabilla, 0,1 tason vihreällä.
+    g.font = `700 72px ${S}`;
+    g.fillStyle = "#f2f0f7"; g.fillText("Tunnistatko biisin", R, 258);
+    g.font = `800 72px ${T}`; g.fillStyle = "#5ecf9a"; g.fillText("0,1", R, 338);
+    const w1 = g.measureText("0,1 ").width;
+    g.font = `700 72px ${S}`; g.fillStyle = "#f2f0f7"; g.fillText("sekunnista?", R + w1, 338);
 
-    // Alaotsikko ja luvut
-    g.font = `400 30px ${N}`; g.fillStyle = "#8a8073";
-    g.fillText("Musiikkivisa suomalaisilla biiseillä.", R, 448);
-    g.fillText("Uudet viisi joka päivä.", R, 488);
-    g.font = `400 22px ${N}`; g.fillStyle = "#5b544a";
+    g.font = `400 30px ${T}`; g.fillStyle = "#ada7bd";
+    g.fillText("Musiikkivisa suomalaisilla biiseillä.", R, 414);
+    g.fillText("Viisi uutta biisiä joka päivä.", R, 454);
+    g.font = `700 24px ${T}`; g.fillStyle = "#9c96ad";
     g.fillText(alateksti, R, 552);
 
-    // Pillerit oikeaan alanurkkaan
-    const pillerit = [["Helppo", "#5ecf9a", true], ["Vaikea", "#8a8073", false],
-                      ["Mahdoton", "#ff5f6d", false]];
-    g.font = `600 22px ${N}`;
-    let x = W - R;
-    for (const [teksti, vari, tayte] of pillerit.slice().reverse()) {
-      const tw = g.measureText(teksti).width, pw = tw + 48, y = 512, ph = 46;
-      x -= pw;
-      g.beginPath();
-      g.roundRect(x, y, pw, ph, 999);
-      if (tayte) { g.fillStyle = vari; g.fill(); g.fillStyle = "#17120a"; }
-      else { g.strokeStyle = vari; g.lineWidth = 2; g.stroke(); g.fillStyle = vari; }
-      g.fillText(teksti, x + 24, y + 31);
-      x -= 16;
-    }
+    // Soitin oikealla: tason värinen nappi ja sen tummempi reuna.
+    const KX = 935, KY = 268, KR = 142;
+    g.fillStyle = "#3a8a66"; g.beginPath(); g.arc(KX, KY + 14, KR, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "#5ecf9a"; g.beginPath(); g.arc(KX, KY, KR, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "#15121a"; g.beginPath();
+    g.moveTo(KX - 34, KY - 56); g.lineTo(KX + 60, KY); g.lineTo(KX - 34, KY + 56); g.closePath(); g.fill();
 
-    // Tarkistus: jos fontti ei latautunut, "Hitti" mitataan varafontilla ja
-    // leveys poikkeaa. Parempi kaatua kuin julkaista väärällä fontilla.
-    g.font = `800 40px ${N}`;
-    const varmistus = document.fonts.check(`800 40px ${N}`);
-    return { data: c.toDataURL("image/jpeg", 0.88), fontti: varmistus };
+    // Sarjan viisi ruutua tasopalkkeineen soittimen alla.
+    const rw = 62, rh = 50, rv = 10, rx0 = KX - (5 * rw + 4 * rv) / 2, ry = 476;
+    for (let i = 0; i < 5; i++) {
+      const x = rx0 + i * (rw + rv);
+      g.beginPath(); g.roundRect(x, ry, rw, rh, 10);
+      if (i === 0) { g.fillStyle = TV[0]; g.fill(); }
+      else { g.strokeStyle = TV[i]; g.lineWidth = 3; g.stroke(); }
+      const mw = 5 * 4.8 + 4 * 3.4;
+      mittari(g, x + (rw - mw) / 2, ry + 13, 24, i + 1, i === 0 ? "#15121a" : TV[i]);
+    }
+    return { data: c.toDataURL("image/jpeg", 0.9), fontti };
   }, alateksti);
   await selain.close();
-  if (!kuva.fontti) throw new Error("Bricolage Grotesque ei latautunut, kuvaa ei tallennettu");
+  if (!kuva.fontti) throw new Error("Kirjasimet eivät latautuneet, kuvaa ei tallennettu");
   return Buffer.from(kuva.data.split(",")[1], "base64");
 }
 
@@ -157,64 +171,32 @@ async function piirraHaaste() {
   const selain = await chromium.launch();
   const sivu = await selain.newPage({ viewport: { width: 1200, height: 630 } });
   await sivu.setContent(`<!doctype html><meta charset="utf-8"><style>${fonttiCss()}</style>`);
+  await sivu.addScriptTag({ content: APURIT });
   const kuva = await sivu.evaluate(async () => {
-    const N = '"Bricolage Grotesque", sans-serif';
-    for (const paksuus of [400, 600, 800]) await document.fonts.load(`${paksuus} 40px ${N}`);
-    await document.fonts.ready;
-
+    const fontti = await lataaFontit();
     const W = 1200, H = 630, KX = W / 2, NELIO = 600;
     const c = document.createElement("canvas");
     c.width = W; c.height = H;
     const g = c.getContext("2d");
-    g.fillStyle = "#0a0908"; g.fillRect(0, 0, W, H);
-    const hehku = g.createRadialGradient(KX, H * .45, 0, KX, H * .45, W * .45);
-    hehku.addColorStop(0, "rgba(245,179,46,0.14)");
-    hehku.addColorStop(1, "rgba(245,179,46,0)");
-    g.fillStyle = hehku; g.fillRect(0, 0, W, H);
+    g.fillStyle = "#121016"; g.fillRect(0, 0, W, H);
     g.textBaseline = "alphabetic";
 
-    // Sanamerkki keskelle: palkit ja nimi yhtenä rivinä.
-    const TV = ["#5ecf9a", "#bcd14a", "#f5b32e", "#ff8a4c", "#ff5f6d"];
-    const MH = [19.6, 34.8, 46, 28.4, 39.6];
-    const mk = 22 / 46, Y = 112;
-    g.font = `800 34px ${N}`;
-    const hitti = g.measureText("Hitti").width;
-    g.font = `400 34px ${N}`;
-    const spotti = g.measureText("Spotti").width;
-    const merkinLeveys = 52 * mk, vali = 12;
-    let x = KX - (merkinLeveys + vali + hitti + spotti) / 2;
-    g.lineCap = "round"; g.lineWidth = 8 * mk;
-    MH.forEach((h, i) => {
-      const kx = x + (i * 11 + 4) * mk;
-      g.strokeStyle = TV[i];
-      g.beginPath();
-      g.moveTo(kx, Y - 4 * mk);
-      g.lineTo(kx, Y - (h - 4) * mk);
-      g.stroke();
-    });
-    x += merkinLeveys + vali;
-    g.fillStyle = "#f2ebdf";
-    g.font = `800 34px ${N}`; g.fillText("Hitti", x, Y);
-    g.font = `400 34px ${N}`; g.fillText("Spotti", x + hitti, Y);
+    sanamerkki(g, KX, 112, 36, true);
 
-    // Pilleri: sama punainen kuin valikon uutta-merkissä.
+    // Merkki kaverihaasteen magentalla, kuten pelin valikossa.
     g.textAlign = "center";
-    g.font = `800 20px ${N}`;
-    g.letterSpacing = "3px";
-    const pTeksti = "KAVERIHAASTE";
-    const pw = g.measureText(pTeksti).width + 44, ph = 40, py = 158;
-    g.beginPath();
-    g.roundRect(KX - pw / 2, py, pw, ph, 999);
-    g.fillStyle = "#ff5f6d"; g.fill();
-    g.fillStyle = "#0a0908";
-    g.fillText(pTeksti, KX + 1.5, py + 27);
-    g.letterSpacing = "0px";
+    g.font = `800 24px ${T}`;
+    const pTeksti = "Kaverihaaste";
+    const pw = g.measureText(pTeksti).width + 44, ph = 44, py = 152;
+    g.beginPath(); g.roundRect(KX - pw / 2, py, pw, ph, 10);
+    g.fillStyle = "#c23b8f"; g.fill();
+    g.fillStyle = "#ffffff"; g.fillText(pTeksti, KX, py + 30);
 
     // Otsikko: pienennetään kunnes pisin rivi mahtuu keskineliöön.
     let koko = 112;
-    const rivit = [["Sinut on", "#f2ebdf"], ["haastettu!", "#f5b32e"]];
+    const rivit = [["Sinut on", "#f2f0f7"], ["haastettu!", "#e0559f"]];
     for (;;) {
-      g.font = `800 ${koko}px ${N}`;
+      g.font = `700 ${koko}px ${S}`;
       const levein = Math.max(...rivit.map(([t]) => g.measureText(t).width));
       if (levein <= NELIO - 40 || koko <= 60) break;
       koko -= 2;
@@ -222,21 +204,20 @@ async function piirraHaaste() {
     g.fillStyle = rivit[0][1]; g.fillText(rivit[0][0], KX, 318);
     g.fillStyle = rivit[1][1]; g.fillText(rivit[1][0], KX, 318 + koko * 0.95);
 
-    g.font = `400 28px ${N}`; g.fillStyle = "#8a8073";
+    g.font = `400 28px ${T}`; g.fillStyle = "#ada7bd";
     g.fillText("Samat biisit sinulle ja kaverille. Kumpi tunnistaa nopeammin?", KX, 518);
-    g.font = `600 22px ${N}`; g.fillStyle = "#5b544a";
+    g.font = `700 26px ${S}`; g.fillStyle = "#f2f0f7";
     g.fillText("hittispotti.fi", KX, 572);
-
-    return { data: c.toDataURL("image/jpeg", 0.88), fontti: document.fonts.check(`800 40px ${N}`) };
+    return { data: c.toDataURL("image/jpeg", 0.9), fontti };
   });
   await selain.close();
-  if (!kuva.fontti) throw new Error("Bricolage Grotesque ei latautunut, kuvaa ei tallennettu");
+  if (!kuva.fontti) throw new Error("Kirjasimet eivät latautuneet, kuvaa ei tallennettu");
   return Buffer.from(kuva.data.split(",")[1], "base64");
 }
 
 (async () => {
   const { maara, alku, loppu } = luvut();
-  const alateksti = `${tuhannet(maara)} suomibiisiä · ${alku}–${loppu}`;
+  const alateksti = `${tuhannet(maara)} suomibiisiä vuosilta ${alku}–${loppu}`;
   const kohde = path.join(JUURI, "jakokuva.jpg");
   fs.writeFileSync(kohde, await piirra(alateksti));
   console.log(`jakokuva.jpg: "${alateksti}", ${Math.round(fs.statSync(kohde).size / 1024)} kt`);

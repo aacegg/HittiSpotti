@@ -149,7 +149,7 @@
   /* Vapaan pelin koko rajaus otsikoihin ja jakoon: "Rock · 1990-luku".
    * Genre ensin, koska se on se mitä pelaaja tuli pelaamaan. */
   function rajausNimi() {
-    return [genreNimi(), kausiNimi()].filter(Boolean).join(" · ");
+    return [genreNimi(), kausiNimi()].filter(Boolean).join(", ");
   }
 
   /* Napin painallus kääntää yhden kauden päälle tai pois JA kokoaa sarjan
@@ -1002,7 +1002,7 @@
        Versio omalle rivilleen, jottei se katoa lauseen jatkoksi silloin kun
        sitä nimenomaan etsitään. */
     el.drawerFoot.innerHTML =
-      `${fmt(state.pool.length)} arvattavaa biisiä · tulokset tallentuvat vain tähän selaimeen`
+      `${fmt(state.pool.length)} arvattavaa biisiä, tulokset tallentuvat vain tähän selaimeen`
       + `<span class="drawer-versio">HittiSpotti ${TUOTEVERSIO}</span>`;
     /* "Aloita peli alusta" koskee vain vapaata peliä, joten se näkyy vasta
        siellä. Rivillä ei ole enää selitettä: teksti kertoo jo mitä nappi
@@ -1065,7 +1065,7 @@
       ? `kesken, kierros ${kesken.kierros + 1}/${kesken.h.kierroksia}`
       : "samat biisit kaverin kanssa";
     el.navFreeNote.textContent = rajaus
-      ? `viisi satunnaista biisiä · ${rajaus.toLowerCase()}`
+      ? `viisi satunnaista biisiä, ${rajaus.toLowerCase()}`
       : "viisi satunnaista biisiä";
     refreshDrawerStats();
   }
@@ -1948,7 +1948,7 @@
       && artistiVertaa(edellinen, artistiTila.oikea)
         .every((r, i) => ARTISTI_KENTAT[i].nimi || r.tila === "osui");
     if (samat) {
-      const nayta = () => { el.aJaljella.textContent = `Samat tiedot, eri artisti · ${jaljellaTeksti}`; };
+      const nayta = () => { el.aJaljella.textContent = `Samat tiedot, eri artisti. ${jaljellaTeksti}`; };
       if (uusi) artistiSamatAjastin = setTimeout(nayta, ARTISTI_RIVI_MS + ARTISTI_NIMI_VIIVE_MS + ARTISTI_NIMI_MS);
       else nayta();
     }
@@ -3201,7 +3201,7 @@
     return [
       `${k.h.kierroksia} ${k.h.kierroksia === 1 ? "kierros" : "kierrosta"}`,
       kausiNimi(k.h.kaudet) || "kaikki vuosikymmenet",
-    ].join(" · ") + `, kierros ${k.kierros + 1}/${k.h.kierroksia}`;
+    ].join(", ") + `, kierros ${k.kierros + 1}/${k.h.kierroksia}`;
   }
 
   /* Käynnissä olevaa kierrosta edeltävien kierrosten pisteet yhteensä.
@@ -3305,7 +3305,7 @@
       `${h.kierroksia} ${h.kierroksia === 1 ? "kierros" : "kierrosta"}`,
       `${h.kierroksia * DAILY_COUNT} biisiä`,
       kausiNimi(h.kaudet) || "kaikki vuosikymmenet",
-    ].join(" · ");
+    ].join(", ");
     el.kutsuLinkki.value = haasteOsoite(h.koodi);
     el.kutsuLinkki.hidden = true;
     // Jakovalikko vain jos selain tarjoaa sen (puhelimet kyllä, osa
@@ -3909,7 +3909,7 @@
     el.modeSub.textContent = state.mode === "daily"
       ? dateLine(keyToDate(state.dayKey || todayKey()))
       : state.mode === "haaste" && h
-        ? `kierros ${h.kierros + 1}/${h.kierroksia}${kausiNimi(h.kaudet) ? " · " + kausiNimi(h.kaudet) : ""}`
+        ? `kierros ${h.kierros + 1}/${h.kierroksia}${kausiNimi(h.kaudet) ? ", " + kausiNimi(h.kaudet) : ""}`
       : rajaus ? "vapaa peli" : "";
     el.scoreLabel.textContent = `${fmt(state.score)} p`;
     // Koko sivun elävä väri on soivan biisin vaikeustaso.
@@ -4544,7 +4544,10 @@
    * Piirretään 1080 x 1080: neliö toistuu viestisovelluksissa ennustettavasti
    * eikä rajaudu esikatselussa. */
   const KUVA = 1080;
-  const NAYTA = '"Bricolage Grotesque", system-ui, sans-serif';
+  /* Jakokuvan kirjasin: sama Nunito Sans kuin sivun teksteissä ja
+   * numeroissa. Värit ovat tumman tilan värit kummassakin tilassa, jotta
+   * jaettu kuva näyttää samalta kaikille. */
+  const NAYTA = '"Nunito Sans", system-ui, sans-serif';
 
   const TIER_VARIT = ["", "#5ecf9a", "#bcd14a", "#f5b32e", "#ff8a4c", "#ff5f6d"];
 
@@ -4587,7 +4590,7 @@
   }
 
   function pohja(g, leveys, korkeus) {
-    g.fillStyle = "#0a0908";
+    g.fillStyle = "#121016";
     g.fillRect(0, 0, leveys, korkeus);
     g.textBaseline = "alphabetic";
   }
@@ -4620,7 +4623,7 @@
     let y = reuna + 44;
     merkki(g, reuna, y, 34);
     g.font = `800 52px ${NAYTA}`;
-    g.fillStyle = "#f2ebdf";
+    g.fillStyle = "#f2f0f7";
     const x0 = reuna + 56;
     g.fillText("Hitti", x0, y);
     // Leveys on mitattava lihavalla fontilla, ei vaihdon jälkeen: kevyemmällä
@@ -4631,24 +4634,24 @@
 
     y += 62;
     g.font = `400 34px ${NAYTA}`;
-    g.fillStyle = "#8a8073";
+    g.fillStyle = "#ada7bd";
     g.fillText(muoto, reuna, y);
 
     y += 176;
     g.font = `800 152px ${NAYTA}`;
-    g.fillStyle = "#f2ebdf";
+    g.fillStyle = "#f2f0f7";
     const pisteet = fmt(state.score);
     g.fillText(pisteet, reuna, y);
     const pl = g.measureText(pisteet).width;
     g.font = `700 44px ${NAYTA}`;
-    g.fillStyle = "#8a8073";
+    g.fillStyle = "#ada7bd";
     g.fillText("pistettä", reuna + pl + 20, y);
     return y;
   }
 
   function alaosa(g, reuna, leveys, korkeus, teksti) {
     g.font = `700 38px ${NAYTA}`;
-    g.fillStyle = "#8a8073";
+    g.fillStyle = "#ada7bd";
     g.fillText(teksti, reuna, korkeus - reuna - 66);
     g.font = `700 40px ${NAYTA}`;
     g.fillStyle = "#5ecf9a";
@@ -4667,7 +4670,7 @@
     const osumat = state.results.filter((r) => r.solved).length;
     const osat = [`${osumat}/${state.results.length} tunnistettu`];
     if (state.mode === "daily" && putki > 1) osat.push(`putki ${putki} päivää`);
-    return osat.join("  ·  ");
+    return osat.join(", ");
   }
 
   /* Haasteen jakokuvan otsikko.
@@ -4682,8 +4685,8 @@
   function haasteKuvaOtsikko(g, h, tila) {
     const kierr = `${h.kierroksia} ${h.kierroksia === 1 ? "kierros" : "kierrosta"}`;
     const rajaus = kausiNimi(h.kaudet);
-    if (!rajaus) return `Kaverihaaste · ${kierr}`;
-    const vaihtoehdot = [`Kaverihaaste · ${kierr} · ${rajaus}`, `Kaverihaaste · ${rajaus}`];
+    if (!rajaus) return `Kaverihaaste, ${kierr}`;
+    const vaihtoehdot = [`Kaverihaaste, ${kierr}, ${rajaus}`, `Kaverihaaste, ${rajaus}`];
     g.font = `400 34px ${NAYTA}`;
     return vaihtoehdot.find((t) => g.measureText(t).width <= tila)
       || vaihtoehdot[vaihtoehdot.length - 1];
@@ -4699,7 +4702,7 @@
     const h = state.haaste;
     const haaste = state.mode === "haaste" && h;
     let y = otsikko(g, reuna, haaste ? haasteKuvaOtsikko(g, h, KUVA - 2 * reuna)
-      : `Päivän biisit · ${dateLine(keyToDate(state.dayKey || todayKey()))}`);
+      : `Päivän biisit, ${dateLine(keyToDate(state.dayKey || todayKey()))}`);
 
     y += 74;
     const koko = 62, vali = 16;
@@ -4713,7 +4716,7 @@
           ruutu(g, reuna + j * (koko + vali), y, koko, osui ? "#5ecf9a" : "#3a332c");
         });
         g.font = `700 40px ${NAYTA}`;
-        g.fillStyle = "#8a8073";
+        g.fillStyle = "#ada7bd";
         g.fillText(`${i + 1}. kierros  ${fmt(k.pisteet || 0)} p`,
           reuna + 5 * (koko + vali) + 20, y + koko - 16);
         y += koko + vali;
@@ -4757,21 +4760,21 @@
       g.font = `700 40px ${NAYTA}`;
       const pLev = g.measureText(pisteet).width;
       g.textAlign = "right";
-      g.fillStyle = r.solved ? "#f2ebdf" : "#5b544a";
+      g.fillStyle = r.solved ? "#f2f0f7" : "#5b544a";
       g.fillText(pisteet, KUVA - reuna, y + 48);
       g.textAlign = "left";
 
       const tilaa = KUVA - reuna - tekstiX - pLev - 30;
       g.font = `700 42px ${NAYTA}`;
-      g.fillStyle = "#f2ebdf";
+      g.fillStyle = "#f2f0f7";
       g.fillText(katkaise(g, s.title || "?", tilaa), tekstiX, y + 46);
 
       g.font = `400 34px ${NAYTA}`;
-      g.fillStyle = "#8a8073";
-      g.fillText(katkaise(g, `${s.artist || "?"} · ${s.year || ""}`.trim(), tilaa), tekstiX, y + 92);
+      g.fillStyle = "#ada7bd";
+      g.fillText(katkaise(g, `${s.artist || "?"}, ${s.year || ""}`.trim(), tilaa), tekstiX, y + 92);
 
       // Vaikeustason pallo ja nimi, sama merkintätapa kuin tulosnäkymässä.
-      const vari = TIER_VARIT[s.tier] || "#8a8073";
+      const vari = TIER_VARIT[s.tier] || "#ada7bd";
       g.fillStyle = vari;
       g.beginPath(); g.arc(tekstiX + 8, y + 122, 8, 0, Math.PI * 2); g.fill();
       g.font = `400 30px ${NAYTA}`;

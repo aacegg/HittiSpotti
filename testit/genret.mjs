@@ -59,7 +59,7 @@ const tasot = [1, 2, 3, 4, 5].map((t) => kat.filter((s) => s.tier === t && s.g =
 const rapVanha = otos(teePeli(["Rap"], ["5070", "1980"]), 10);
 vaita("vajaa yhdistelmä ei kaadu ja pitää genren", rapVanha.length === 50 && rapVanha.every((s) => s.g === "Rap"),
   `50–80-luvun rapia tasoittain ${tasot.join(",")}`);
-vaita("nimi: genre ensin", teePeli(["Rock"], ["1990"]).rajausNimi() === "Rock · 1990-luku",
+vaita("nimi: genre ensin", teePeli(["Rock"], ["1990"]).rajausNimi() === "Rock, 1990-luku",
   teePeli(["Rock"], ["1990"]).rajausNimi());
 vaita("nimi: kaksi genreä", teePeli(["Pop", "Iskelmä"], []).rajausNimi() === "Pop ja Iskelmä",
   teePeli(["Pop", "Iskelmä"], []).rajausNimi());

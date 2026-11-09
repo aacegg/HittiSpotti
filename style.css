@@ -2713,8 +2713,8 @@ main.wrap {
   column-gap: var(--s4);
   align-items: center;
 }
-.navitem-kortti .ik { grid-row: 1 / span 2; border-radius: 10px; background: var(--bg-lift); color: var(--text); }
-.navitem-kortti.is-active .ik { background: var(--text); color: var(--bg); --ik-pohja: var(--text); }
+.navitem-kortti .ik { --ik-pohja: var(--muoto); grid-row: 1 / span 2; border-radius: 10px; background: var(--muoto); color: #fff; }
+.navitem-kortti .ik { transform: scale(.82); }
 .navitem-kortti .navitem-name, .navitem-kortti .navitem-note { grid-column: 2; }
 
 /* Yläpalkin nimi nappina etusivulle. */
@@ -2740,12 +2740,21 @@ main.wrap {
 .kortti:active { transform: scale(.99); }
 .kortti:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
 .kortti-kuva {
-  --ik-pohja: color-mix(in srgb, var(--text) 9%, var(--bg-lift));
+  --ik-pohja: var(--muoto, color-mix(in srgb, var(--text) 9%, var(--bg-lift)));
   display: grid;
   place-items: center;
   background: var(--ik-pohja);
-  color: var(--text);
+  color: #fff;
 }
+
+/* Pelimuotojen omat värit. Valittu tasovärien (vihreä, keltainen,
+   oranssi, punainen) ulkopuolelta: sininen, violetti, magenta ja
+   turkoosi, jottei pelimuoto lue vaikeustasona. Valkoinen kuvake on
+   kaikkia vasten vähintään 4,5:1. */
+[data-go="daily"] { --muoto: #2f5fd0; }
+[data-go="free"] { --muoto: #7a4fd6; }
+[data-go="haaste"] { --muoto: #c23b8f; }
+[data-go="artisti"] { --muoto: #0b7b83; }
 .kortti-kuva .ik { transform: scale(1.35); }
 .kortti-teksti { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s1); padding: var(--s4) var(--s5); }
 .kortti-nimi { font-family: var(--display); font-size: var(--f6); font-weight: 700; line-height: 1.15; }

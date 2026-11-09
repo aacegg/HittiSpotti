@@ -4778,7 +4778,7 @@
        * lue niitä chatista. */
       h.kierrokset.forEach((k, i) => {
         (k.ratkaistut || []).forEach((osui, j) => {
-          ruutu(g, reuna + j * (koko + vali), y, koko, osui ? "#5ecf9a" : "#3a332c");
+          ruutu(g, reuna + j * (koko + vali), y, koko, osui ? "#5ecf9a" : "#2e2a36");
         });
         g.font = `700 40px ${NAYTA}`;
         g.fillStyle = "#ada7bd";
@@ -4792,7 +4792,7 @@
         STEPS.forEach((_, i) => {
           const osuma = i === r.step && r.solved;
           const kaytetty = i < r.step || (i === r.step && !r.solved);
-          ruutu(g, reuna + i * (koko + vali), y, koko, osuma ? "#5ecf9a" : kaytetty ? "#3a332c" : null);
+          ruutu(g, reuna + i * (koko + vali), y, koko, osuma ? "#5ecf9a" : kaytetty ? "#2e2a36" : null);
         });
         y += koko + vali;
       });
@@ -4819,13 +4819,13 @@
       const s = r.song || state.byId.get(String(r.id)) || {};
       // Kansi, tai tyhjä laatikko jos sitä ei saatu ladattua.
       if (kannet[i]) g.drawImage(kannet[i], reuna, y, kansi, kansi);
-      else { g.fillStyle = "#14120f"; g.fillRect(reuna, y, kansi, kansi); }
+      else { g.fillStyle = "#1f1c26"; g.fillRect(reuna, y, kansi, kansi); }
 
       const pisteet = r.solved ? "+" + fmt(r.points) : "0";
       g.font = `700 40px ${NAYTA}`;
       const pLev = g.measureText(pisteet).width;
       g.textAlign = "right";
-      g.fillStyle = r.solved ? "#f2f0f7" : "#5b544a";
+      g.fillStyle = r.solved ? "#f2f0f7" : "#6b6580";
       g.fillText(pisteet, KUVA - reuna, y + 48);
       g.textAlign = "left";
 
@@ -4843,7 +4843,7 @@
       g.fillStyle = vari;
       g.beginPath(); g.arc(tekstiX + 8, y + 122, 8, 0, Math.PI * 2); g.fill();
       g.font = `400 30px ${NAYTA}`;
-      g.fillStyle = "#857c6f";
+      g.fillStyle = "#9c96ad";
       g.fillText(TIER_NAMES[s.tier] || "", tekstiX + 28, y + 132);
       y += rivi;
     });
@@ -4869,7 +4869,7 @@
     g.arcTo(x, y, x + koko, y, r);
     g.closePath();
     if (tayte) { g.fillStyle = tayte; g.fill(); }
-    else { g.strokeStyle = "#2a2521"; g.lineWidth = 3; g.stroke(); }
+    else { g.strokeStyle = "#2e2a36"; g.lineWidth = 3; g.stroke(); }
   }
 
   /* Kuva tehdään valmiiksi heti kun tulosnäkymä avataan, ei vasta napista.

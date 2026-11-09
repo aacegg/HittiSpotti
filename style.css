@@ -1619,7 +1619,8 @@ button.tchip:hover { background: color-mix(in srgb, var(--tier-hue) 14%, transpa
    pituudesta riippumatta, jolloin tasojen nousun näkee ylhäältä alas.
    Tason nimi on ruudunlukijalle; silmälle sen kertoo mittari. */
 .results .r-oikea { text-align: right; line-height: 1.25; }
-.results li > .mittari { color: var(--text); }
+/* Mittari tason värissä, kuten soitin ja biisiruudut pelatessa. */
+.results li > .mittari { color: var(--tier-hue, var(--text)); }
 .results .r-tulos { display: block; font-family: var(--num); font-size: var(--f2); font-weight: 800; }
 .results .r-tulos.is-ok { color: var(--ok); }
 .results .r-tulos.is-miss { color: var(--bad); }

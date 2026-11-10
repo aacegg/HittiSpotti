@@ -340,7 +340,7 @@
     /* Uusi tunnus, joten kaikki saavat tämän kerran. */
     id: "2026-11-versio-2.0",
     /* Noin viikko julkaisusta. Tarkistetaan julkaisupäivänä. */
-    loppuu: "2026-11-19",
+    loppuu: "2026-11-18",
     /* Tärkein ensin: ilme on se minkä jokainen huomaa heti, tila ja
      * etusivu ovat uusia asioita, loput kertovat mihin tutut toiminnot
      * siirtyivät, jottei kukaan jää etsimään niitä valikosta. */

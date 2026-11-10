@@ -1569,6 +1569,18 @@ button.tchip:hover { background: color-mix(in srgb, var(--tier-hue) 14%, transpa
 @media (min-width: 1200px) {
   .reveal-art { width: 220px; height: 220px; }
 }
+/* Matala puhelin (iPhone SE ja vastaavat): kansi pienemmäksi ja välit
+   tiiviimmiksi, jotta paljastuksen mainoksesta on yli puolet ruudulla.
+   Mainos lasketaan nähdyksi vasta kun puolet siitä on näkyvissä, ja
+   täysikokoisella kannella 667 px korkealla ruudulla näkyi vain 105 px. */
+@media (max-width: 599px) and (max-height: 720px) {
+  .reveal { margin-top: var(--s3); }
+  .reveal-art { width: 104px; height: 104px; }
+  .reveal-text { margin-top: var(--s3); }
+  .reveal-verdict { margin-bottom: var(--s1); }
+  .reveal-apple { min-height: 36px; }
+  .reveal .row { margin-top: var(--s3); }
+}
 
 /* ---------- Tulokset ----------
 

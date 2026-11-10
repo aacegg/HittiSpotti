@@ -2036,6 +2036,10 @@
         const t = rajatonTilastot();
         t.pelatut += 1;
         if (artistiTila.voitto) t.ratkaistut += 1;
+        /* Putki: peräkkäin ratkaistut artistit. Yksikin epäonnistuminen
+         * nollaa sen, paras jää talteen tavoitteeksi. */
+        t.putki = artistiTila.voitto ? t.putki + 1 : 0;
+        t.paras = Math.max(t.paras, t.putki);
         store.set(AVAIN.artisti.rajatonTilastot, t);
       }
       store.set(AVAIN.artisti.rajaton, {
@@ -2444,7 +2448,8 @@
 
   function rajatonTilastot() {
     const t = store.get(AVAIN.artisti.rajatonTilastot, null) || {};
-    return { pelatut: Number(t.pelatut) || 0, ratkaistut: Number(t.ratkaistut) || 0 };
+    return { pelatut: Number(t.pelatut) || 0, ratkaistut: Number(t.ratkaistut) || 0,
+      putki: Number(t.putki) || 0, paras: Number(t.paras) || 0 };
   }
 
   /* Otsikon alarivi: päivän pelissä päivämäärä, rajattomassa näkyvä
@@ -2458,7 +2463,7 @@
     }
     const t = rajatonTilastot();
     el.aPvm.innerHTML = '<span class="a-rajaton-merkki">Rajaton peli</span>'
-      + (t.pelatut ? `<span class="a-rajaton-luvut">Ratkaistu ${t.ratkaistut}/${t.pelatut}</span>`
+      + (t.pelatut ? `<span class="a-rajaton-luvut">Putki ${t.putki}${t.paras > t.putki ? `, paras ${t.paras}` : ""}</span>`
         + '<button type="button" class="a-rajaton-nollaa">Nollaa</button>' : "");
   }
 
@@ -2466,7 +2471,7 @@
    * esto (viimeiset 100) jäävät ennalleen, koska ne eivät ole tulos. */
   el.aPvm.addEventListener("click", (e) => {
     if (!e.target.closest(".a-rajaton-nollaa")) return;
-    if (!confirm("Nollataanko rajattoman pelin laskuri?")) return;
+    if (!confirm("Nollataanko rajattoman pelin putki ja paras putki?")) return;
     store.remove(AVAIN.artisti.rajatonTilastot);
     piirraArtistiOtsikko();
   });

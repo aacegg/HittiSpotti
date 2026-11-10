@@ -532,6 +532,8 @@
     mainosTulos: $("#mainos-tulos"),
     mainosTulosTila: $("#mainos-tulos-tila"),
     mainosArtisti: $("#mainos-artisti"),
+    mainosKoti: $("#mainos-koti"),
+    mainosKotiTila: $("#mainos-koti-tila"),
     mainosArtistiTila: $("#mainos-artisti-tila"),
     uuttaSheet: $("#uutta-sheet"),
     uuttaScrim: $("#uutta-scrim"),
@@ -876,6 +878,8 @@
     if (name !== "game") piilotaMainos("peli");
     if (name === "results") naytaMainos("tulos");
     else piilotaMainos("tulos");
+    if (name === "koti") naytaMainos("koti");
+    else piilotaMainos("koti");
     if (name === "artistitulos") naytaMainos("artisti");
     else piilotaMainos("artisti");
     for (const [k, v] of Object.entries(el.views)) v.hidden = k !== name;
@@ -5684,7 +5688,9 @@
    * tilastolähetystä, ja sen sulkeminen ei saa sulkea mainoksia: pelaajalle
    * luvataan siinä vain että vaikeustasodata jää lähettämättä. */
   const MAINOS_JULKAISIJA = "ca-pub-2029070076507506";
-  const MAINOS_PAIKAT = { peli: "1841624229", tulos: "4778070918", artisti: "1149369984" };  // AdSensen slot-tunnukset
+  /* koti: etusivun paikka. Tyhjänä paikka ei näy (naytaMainos ohittaa sen),
+   * joten koodin voi julkaista ennen kuin mainosyksikkö on luotu. */
+  const MAINOS_PAIKAT = { peli: "1841624229", tulos: "4778070918", artisti: "1149369984", koti: "" };  // AdSensen slot-tunnukset
   const MAINOS_SKRIPTI =
     "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
 
@@ -5716,6 +5722,7 @@
   function mainosKuori(nimi) {
     if (nimi === "peli") return [el.mainosPeli, el.mainosPeliTila];
     if (nimi === "tulos") return [el.mainosTulos, el.mainosTulosTila];
+    if (nimi === "koti") return [el.mainosKoti, el.mainosKotiTila];
     return [el.mainosArtisti, el.mainosArtistiTila];
   }
 

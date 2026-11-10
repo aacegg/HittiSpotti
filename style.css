@@ -2238,6 +2238,9 @@ body.sheet-open { overflow: hidden; }
   #mainos-artisti { margin-top: var(--s5); padding-top: var(--s4); }
   #mainos-artisti .mainos-otsikko { margin-bottom: var(--s3); }
   #mainos-artisti .mainos-tila { min-height: 100px; }
+  #mainos-koti { margin-top: var(--s5); padding-top: var(--s4); }
+  #mainos-koti .mainos-otsikko { margin-bottom: var(--s3); }
+  #mainos-koti .mainos-tila { min-height: 100px; }
 }
 .mainos-banneri { display: inline-block; width: 320px; height: 100px; min-height: 0; }
 
@@ -2827,6 +2830,17 @@ main.wrap {
 .kortti-teksti { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s1); padding: var(--s4) var(--s5); }
 .kortti-nimi { font-family: var(--display); font-size: var(--f6); font-weight: 700; line-height: 1.15; }
 .kortti-kuvaus { color: var(--muted); font-size: var(--f3); line-height: 1.4; }
+/* Matala puhelin: kortit tiiviimmiksi, jotta etusivun mainos mahtuu
+   ruudulle korttien alle. Kuvaus jää pois, nimi ja nappi riittävät. */
+@media (max-width: 599px) and (max-height: 720px) {
+  .koti-pvm { margin: var(--s2) 0 var(--s3); }
+  .koti-kortit { gap: var(--s3); }
+  .kortti-teksti { padding: var(--s3) var(--s4); gap: var(--s2); }
+  .kortti-kuvaus { display: none; }
+  .kortti { grid-template-columns: 80px 1fr; min-height: 96px; }
+  .kortti-kuva .ik { transform: scale(1.15); }
+  #mainos-koti { margin-top: var(--s4); padding-top: var(--s3); }
+}
 .kortti-nappi {
   margin-top: var(--s3);
   padding: 6px 14px;
@@ -2839,6 +2853,12 @@ main.wrap {
 @media (min-width: 600px) {
   .koti-kortit { grid-template-columns: 1fr 1fr; }
   .kortti { grid-template-columns: 1fr; grid-template-rows: 120px 1fr; }
+}
+/* Matala näyttö: värilaatta matalammaksi, jotta etusivun mainos nousee
+   enimmäkseen ruudulle (1280 x 800: 124 px näkyvissä, nyt yli puolet). */
+@media (min-width: 600px) and (max-height: 900px) {
+  .kortti { grid-template-rows: 84px 1fr; }
+  .koti-pvm { margin-bottom: var(--s4); }
 }
 
 /* Tumman ja vaalean tilan kytkin valikossa. Kumpikin asento on yhtä

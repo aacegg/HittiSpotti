@@ -2208,7 +2208,7 @@ body.sheet-open { overflow: hidden; }
    laatikon lapsena se kutistui sisältönsä levyiseksi eli nollaksi, ja
    Google hylkäsi pyynnön. Esikatselussa vika ei näkynyt, koska
    paikanvaraajalla on oma leveytensä. */
-.mainos-tila > ins.adsbygoogle:not(.mainos-banneri) { width: 100%; }
+.mainos-tila > ins.adsbygoogle:not(.mainos-banneri):not(.mainos-suorakulmio) { width: 100%; }
 
 /* Paikanvaraaja: näkyy vain paikallisessa kokeilussa, kun oikeaa
    mainostunnusta ei ole. Tuotannossa tätä ei koskaan renderöidä. */
@@ -2247,6 +2247,7 @@ body.sheet-open { overflow: hidden; }
   #mainos-koti .mainos-tila { min-height: 100px; }
 }
 .mainos-banneri { display: inline-block; width: 320px; height: 100px; min-height: 0; }
+.mainos-suorakulmio { display: inline-block; width: 300px; height: 250px; min-height: 0; }
 
 /* ---------- ArtistiSpotti ----------
    Oma näkymänsä. Värit tulevat pelin omasta paletista eivätkä Wordlesta:

@@ -5729,6 +5729,12 @@
   /* Puhelimella tulossivuilla matala banneri, jotta mainos mahtuu ruudulle
    * eikä työnnä tuloksia vierityksen taakse. */
   const mainosBanneri = (nimi) => nimi !== "peli" && matchMedia("(max-width: 599px)").matches;
+  /* Paljastuksessa puhelimella kiinteä 300x250. Koko leveyden responsiivinen
+   * mainos sai Googlelta jopa 357 px korkeita muotoja ("Lue lisää" -lista),
+   * joista Chromen palkkien kanssa näkyi alle puolet, eli näyttö ei
+   * laskenut nähdyksi. Kiinteällä korkeudella samasta kohdasta näkyy noin
+   * 60 %. */
+  const mainosSuorakulmio = (nimi) => nimi === "peli" && matchMedia("(max-width: 599px)").matches;
 
   /* Alustus vain kerran paikkaa kohden.
    *
@@ -5751,6 +5757,7 @@
       const laatikko = document.createElement("div");
       laatikko.className = "mainos-esikatselu";
       if (mainosBanneri(nimi)) laatikko.classList.add("mainos-banneri");
+      if (mainosSuorakulmio(nimi)) laatikko.classList.add("mainos-suorakulmio");
       laatikko.textContent = "Mainospaikka (" + nimi + ")";
       tila.appendChild(laatikko);
       mainosAlustetut.add(nimi);
@@ -5772,6 +5779,9 @@
      * yksikölle, kun data-ad-format jätetään pois. */
     if (mainosBanneri(nimi)) {
       ins.className += " mainos-banneri";
+      ins.style.display = "";
+    } else if (mainosSuorakulmio(nimi)) {
+      ins.className += " mainos-suorakulmio";
       ins.style.display = "";
     } else {
       ins.dataset.adFormat = "auto";

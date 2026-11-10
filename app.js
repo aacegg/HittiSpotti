@@ -1861,6 +1861,16 @@
     const raaka = teksti.toLowerCase().trim();
     if (!q && !raaka) return [];
     const arvatut = new Set(artistiTila.arvaukset.map((a) => a.id));
+    /* Yksi kirjain: kaikki sillä alkavat aakkosjärjestyksessä. Ennen
+     * yksi kirjain antoi kahdeksan sekalaista osumaa, myös nimiä joissa
+     * kirjain oli keskellä, ja tietyn alkukirjaimen artistia sai etsiä
+     * kirjoittamalla lisää. Lista vierii, joten pituus ei haittaa. */
+    if (q.length === 1 || (!q && raaka.length === 1)) {
+      const alku = (a) => (q && (a.haku.startsWith(q) || a.haku2.startsWith(q)))
+        || a.n.toLowerCase().startsWith(raaka);
+      return state.artistit.filter((a) => !arvatut.has(a.id) && alku(a))
+        .sort((x, y) => x.n.localeCompare(y.n, "fi"));
+    }
     const pisteet = [];
     for (const a of state.artistit) {
       if (arvatut.has(a.id)) continue;          // jo arvattua ei tarjota
@@ -1875,10 +1885,9 @@
       pisteet.push([p, a]);
     }
     pisteet.sort((x, y) => y[0] - x[0] || x[1].n.localeCompare(y[1].n, "fi"));
-    /* Kahdeksan eikä neljäkymmentä. Lista mahtuu ruudulle ilman
-     * vieritystä, ja pidempi lista on joka tapauksessa väärä työkalu:
-     * jos oikeaa ei näy, kirjoittaa yhden kirjaimen lisää. */
-    return pisteet.slice(0, 8).map((x) => x[1]);
+    /* Enintään 30, parhaat ensin. Lista vierii (max-height), joten
+     * oikean artistin voi poimia kirjoittamatta lisää. */
+    return pisteet.slice(0, 30).map((x) => x[1]);
   }
 
   /* Rivin paljastus: kuusi ruutua, joista viimeinen alkaa kääntyä

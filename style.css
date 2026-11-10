@@ -3088,3 +3088,5 @@ body[data-mode="free"] .rajausrivi:hover { border-color: var(--text); }
 /* Pelatut haasteet Kaverihaaste-ikkunassa: samat kortit kuin jatkettavalla. */
 .haaste-pelatut-lista { display: grid; gap: var(--s3); }
 .haaste-pelattu-pisteet { font-family: var(--num); font-weight: 800; }
+#haaste-pelatut { margin-top: var(--s6); padding-top: var(--s4); border-top: 1px solid var(--line); }
+#haaste-pelatut[hidden] { display: none; }

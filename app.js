@@ -3387,7 +3387,7 @@
         <svg class="haaste-jatka-nuoli" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5 8 6l-3.5 3.5"/></svg>
       </button>`;
     }).join("");
-    el.haasteUusiOtsikko.hidden = !kesken && !pelatut.length;
+    el.haasteUusiOtsikko.hidden = !kesken;
     el.haasteScrim.hidden = false;
     el.haasteSheet.hidden = false;
     /* Ylös näkyviin asettamisen jälkeen: piilossa olevalla ei ole

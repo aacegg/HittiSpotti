@@ -1815,6 +1815,34 @@ body.sheet-open { overflow: hidden; }
 .uutta a { color: var(--text); text-decoration-color: var(--live); text-underline-offset: 3px; }
 .uutta-versio { font-size: 14px; font-weight: 400; color: var(--muted); margin-left: 6px; letter-spacing: 0; }
 
+/* Versio 2.0:n tiedote. Otsikkona logon palkit ja versio, kohdissa samat
+   värilaatat kuin etusivun korteissa. Kohdat liukuvat esiin vuorotellen,
+   jotta silmä kulkee ne järjestyksessä. */
+.uutta-otsikko { display: grid; gap: 4px; }
+.uutta-palkit { display: flex; gap: 4px; align-items: flex-end; height: 30px; margin-bottom: var(--s2); }
+.uutta-palkit b { width: 7px; border-radius: 4px; transform-origin: bottom; animation: uutta-palkki .5s cubic-bezier(.3, 1.6, .5, 1) both; }
+.uutta-palkit b:nth-child(1) { height: 40%; background: var(--t1); animation-delay: .05s; }
+.uutta-palkit b:nth-child(2) { height: 70%; background: var(--t2); animation-delay: .1s; }
+.uutta-palkit b:nth-child(3) { height: 100%; background: var(--t3); animation-delay: .15s; }
+.uutta-palkit b:nth-child(4) { height: 58%; background: var(--t4); animation-delay: .2s; }
+.uutta-palkit b:nth-child(5) { height: 84%; background: var(--t5); animation-delay: .25s; }
+.uutta-nimi { font-family: var(--display); font-size: 30px; line-height: 1.05; letter-spacing: -.02em; }
+.uutta-ala { font-family: var(--sans); font-size: var(--f3); font-weight: 400; color: var(--muted); letter-spacing: 0; }
+.uutta.uutta-kortit li { display: grid; grid-template-columns: 44px 1fr; gap: var(--s3); align-items: start; padding: var(--s3) 0;
+  animation: uutta-rivi .4s ease-out both; animation-delay: calc(.25s + var(--i) * .07s); }
+.uutta.uutta-kortit li::before { display: none; }
+.uutta-ik { width: 44px; height: 44px; border-radius: 12px; background: var(--vari); color: #fff; display: grid; place-items: center; }
+.uutta-ik .ik { width: 44px; height: 44px; }
+.uutta-ik .ik::before { inset: 11px; }
+.uutta-kortit b { display: block; margin-bottom: 2px; font-size: var(--f4); }
+.ik-palkit { --ikoni: var(--merkki); }
+.ik-tila { --ikoni: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='8.6' fill='none' stroke='black' stroke-width='2.6'/%3E%3Cpath d='M12 3.4a8.6 8.6 0 0 1 0 17.2z'/%3E%3C/svg%3E"); }
+.ik-koti { --ikoni: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.6 2.4 11.2h2.8V21h5.3v-5.8h3V21h5.3v-9.8h2.8z'/%3E%3C/svg%3E"); }
+.ik-suodatin { --ikoni: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='2.5' y='4.25' width='19' height='2.5' rx='1.25'/%3E%3Ccircle cx='8' cy='5.5' r='3'/%3E%3Crect x='2.5' y='10.75' width='19' height='2.5' rx='1.25'/%3E%3Ccircle cx='16' cy='12' r='3'/%3E%3Crect x='2.5' y='17.25' width='19' height='2.5' rx='1.25'/%3E%3Ccircle cx='10' cy='18.5' r='3'/%3E%3C/svg%3E"); }
+@keyframes uutta-palkki { from { transform: scaleY(.15); opacity: 0; } }
+@keyframes uutta-rivi { from { transform: translateY(10px); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .uutta-palkit b, .uutta.uutta-kortit li { animation: none; } }
+
 .ohje { list-style: none; counter-reset: askel; margin: 0; padding: 0; }
 .ohje[hidden] { display: none; }
 .ohje li {

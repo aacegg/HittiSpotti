@@ -344,12 +344,15 @@
     /* Tärkein ensin: ilme on se minkä jokainen huomaa heti, tila ja
      * etusivu ovat uusia asioita, loput kertovat mihin tutut toiminnot
      * siirtyivät, jottei kukaan jää etsimään niitä valikosta. */
+    /* Kohta on joko merkkijono (vanha muoto: lihavointi ja lause) tai
+     * olio, jolla on kuvake ja väri. Olio piirretään laattana. */
+    alaotsikko: "Uusi ilme ja paljon uutta",
     kohdat: [
-      "<b>Uusi ilme.</b> Selkeämpi ulkoasu, ja vaikeustaso näkyy nyt myös palkkeina",
-      "<b>Tumma ja vaalea tila.</b> Peli seuraa puhelimen asetusta, ja tilan voi vaihtaa valikon alalaidasta",
-      "<b>Etusivu.</b> Kun päivän biisit on pelattu, muut pelit ovat heti tarjolla",
-      "<b>Rajaukset pelin sisällä.</b> Vapaan pelin vuosikymmenet ja tyylit löytyvät Muuta-napista, ArtistiSpotin rajaton peli otsikon alta",
-      "<b>Kaverihaasteen tulokset.</b> Kirjoita nimimerkki, niin näet kavereiden pisteet samassa haasteessa. Kesken jääneen haasteen voi myös poistaa",
+      { ik: "ik-palkit", vari: "#d99a10", otsikko: "Uusi ilme", teksti: "Selkeämpi ulkoasu, ja vaikeustaso näkyy nyt palkkeina." },
+      { ik: "ik-tila", vari: "#2f5fd0", otsikko: "Tumma ja vaalea tila", teksti: "Peli seuraa puhelimen asetusta. Tilan voi vaihtaa valikon alalaidasta." },
+      { ik: "ik-koti", vari: "#0b7b83", otsikko: "Etusivu", teksti: "Kun päivän biisit on pelattu, muut pelit ovat heti tarjolla." },
+      { ik: "ik-suodatin", vari: "#7a4fd6", otsikko: "Rajaukset pelin sisällä", teksti: "Vapaan pelin vuosikymmenet ja tyylit vaihtuvat suoraan pelinäkymästä." },
+      { ik: "ik-kaverit", vari: "#c23b8f", otsikko: "Kaverihaaste uudistui", teksti: "Näet kavereiden pisteet ja kaikkien kierrosten vastaukset, ja haasteen voi rajata tyylilajiin." },
     ],
   };
 
@@ -5070,12 +5073,19 @@
      * päällä olisi väärä asia väärään aikaan. Ei merkitä nähdyksi:
      * yritetään uudestaan seuraavalla kerralla. */
     if (state.view !== "game" && state.view !== "results") return;
-    el.uuttaLista.innerHTML = UUTTA.kohdat.map((k) => `<li>${k}</li>`).join("");
+    const kortit = UUTTA.kohdat.some((k) => typeof k === "object");
+    el.uuttaLista.classList.toggle("uutta-kortit", kortit);
+    el.uuttaLista.innerHTML = UUTTA.kohdat.map((k, i) => typeof k === "string" ? `<li>${k}</li>`
+      : `<li style="--i:${i};--vari:${k.vari}"><span class="uutta-ik"><i class="ik ${k.ik}" aria-hidden="true"></i></span>`
+        + `<span><b>${k.otsikko}</b>${k.teksti}</span></li>`).join("");
     /* Versio otsikon perään pienellä: otsikko pysyy lyhyenä, ja pelaaja
      * näkee mihin versioon muutokset kuuluvat. Luetaan TUOTEVERSIOsta,
      * jotta seuraava versionnosto päivittää tämänkin. */
     const otsikko = document.getElementById("uutta-title");
-    if (otsikko) otsikko.innerHTML = `Mitä uutta? <span class="uutta-versio">versio ${TUOTEVERSIO}</span>`;
+    if (otsikko) otsikko.innerHTML = UUTTA.alaotsikko
+      ? `<span class="uutta-otsikko"><span class="uutta-palkit" aria-hidden="true"><b></b><b></b><b></b><b></b><b></b></span>`
+        + `<span class="uutta-nimi">HittiSpotti ${TUOTEVERSIO}</span><span class="uutta-ala">${UUTTA.alaotsikko}</span></span>`
+      : `Mitä uutta? <span class="uutta-versio">versio ${TUOTEVERSIO}</span>`;
     el.uuttaScrim.hidden = false;
     el.uuttaSheet.hidden = false;
     el.body.classList.add("sheet-open");

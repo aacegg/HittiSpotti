@@ -5690,7 +5690,7 @@
   const MAINOS_JULKAISIJA = "ca-pub-2029070076507506";
   /* koti: etusivun paikka. Tyhjänä paikka ei näy (naytaMainos ohittaa sen),
    * joten koodin voi julkaista ennen kuin mainosyksikkö on luotu. */
-  const MAINOS_PAIKAT = { peli: "1841624229", tulos: "4778070918", artisti: "1149369984", koti: "" };  // AdSensen slot-tunnukset
+  const MAINOS_PAIKAT = { peli: "1841624229", tulos: "4778070918", artisti: "1149369984", koti: "6182747380" };  // AdSensen slot-tunnukset
   const MAINOS_SKRIPTI =
     "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
 

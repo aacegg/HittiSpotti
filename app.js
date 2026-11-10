@@ -2490,6 +2490,7 @@
   function aloitaRajaton(oikea, arvaukset = []) {
     artistiTila.pvm = RAJATON;
     artistiTila.oikea = oikea;
+    esilataaArtistiKuva(oikea);
     artistiTila.arvaukset = arvaukset;
     artistiTila.voitto = arvaukset.some((a) => a.id === oikea.id);
     artistiTila.ohi = artistiTila.voitto || arvaukset.length >= ARTISTI_ARVAUKSIA;
@@ -2540,6 +2541,7 @@
     if (artistiTila.pvm !== pvm) {
       artistiTila.pvm = pvm;
       artistiTila.oikea = paivanArtisti(pvm);
+      esilataaArtistiKuva(artistiTila.oikea);
       artistiTila.arvaukset = [];
       artistiTila.ohi = false;
       artistiTila.voitto = false;
@@ -2722,10 +2724,27 @@
     return artisti && artisti.c ? ARTISTI_KUVA_ETU + artisti.c + paate : "";
   }
 
+  /* Uusi kuva piilossa kunnes se on latautunut. Muuten img näytti edellisen
+   * artistin kuvaa siihen asti, ja rajattomassa pelissä paljastus näytti
+   * hetken väärän artistin kuvaa. Piilotus visibilityllä, jottei ruutu
+   * hyppää kun kuva ilmestyy. Jos kuvaa ei saada, elementti piiloon. */
+  /* Oikean artistin kuva haetaan välimuistiin jo pelin alussa, jotta se on
+   * valmiina kun paljastus aukeaa. Kuva ei näy missään ennen sitä. */
+  function esilataaArtistiKuva(artisti) {
+    const osoite = artistiKuvaOsoite(artisti);
+    if (osoite) new Image().src = osoite;
+  }
+
   function asetaArtistiKuva(kuvaEl, artisti) {
     const osoite = artistiKuvaOsoite(artisti);
-    kuvaEl.hidden = !osoite;
-    if (osoite && kuvaEl.getAttribute("src") !== osoite) kuvaEl.src = osoite;
+    if (!osoite) { kuvaEl.hidden = true; kuvaEl.removeAttribute("src"); return; }
+    kuvaEl.hidden = false;
+    if (kuvaEl.getAttribute("src") === osoite) return;
+    kuvaEl.style.visibility = "hidden";
+    kuvaEl.onload = () => { if (kuvaEl.getAttribute("src") === osoite) kuvaEl.style.visibility = ""; };
+    kuvaEl.onerror = () => { if (kuvaEl.getAttribute("src") === osoite) kuvaEl.hidden = true; };
+    kuvaEl.src = osoite;
+    if (kuvaEl.complete && kuvaEl.naturalWidth) kuvaEl.style.visibility = "";
   }
 
   /* Paljastusruutu. Aukeaa itsestään kun päivä ratkeaa, ja vain silloin:

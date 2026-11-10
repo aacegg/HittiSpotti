@@ -3084,3 +3084,7 @@ body[data-mode="free"] .rajausrivi:hover { border-color: var(--text); }
 }
 .hy-avattava details[open] .hy-nuoli { transform: rotate(-135deg); }
 .hy-biisit { margin: 0 0 var(--s3); }
+
+/* Pelatut haasteet Kaverihaaste-ikkunassa: samat kortit kuin jatkettavalla. */
+.haaste-pelatut-lista { display: grid; gap: var(--s3); }
+.haaste-pelattu-pisteet { font-family: var(--num); font-weight: 800; }

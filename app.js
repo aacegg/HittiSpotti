@@ -496,6 +496,9 @@
     haasteKesken: $("#haaste-kesken"),
     haasteKeskenTeksti: $("#haaste-kesken-teksti"),
     haasteJatka: $("#haaste-jatka"),
+    haastePelatut: $("#haaste-pelatut"),
+    haastePelatutLista: $("#haaste-pelatut-lista"),
+    haasteUusiOtsikko: $("#haaste-uusi-otsikko"),
     haastePoista: $("#haaste-poista"),
     freeReset: $("#free-reset"),
     bar: document.querySelector(".bar"),
@@ -3288,6 +3291,21 @@
   const haasteRajaus = (h) => [kausiNimi(h.kaudet), genreNimi(h.genret || [])]
     .filter(Boolean).join(", ");
 
+  /* Loppuun pelatut haasteet uusimmasta alkaen. Tallennus jää muistiin
+   * (siivoaHaasteet pitää 50 tuoreinta), joten tulokset saa auki
+   * jälkikäteen ilman linkkiä. Näytetään viisi, ettei lista syrjäytä
+   * uuden haasteen luontia. */
+  function pelatutHaasteet(max = 5) {
+    return store.keys()
+      .filter((k) => omaAvain("biisi", k) && k.startsWith("haaste:"))
+      .map((k) => ({ t: store.get(k, null) || {}, h: lueHaaste(k.slice("haaste:".length)) }))
+      .filter((r) => r.t.valmis && r.h)
+      .sort((a, b) => (b.t.aika || 0) - (a.t.aika || 0))
+      .slice(0, max)
+      .map((r) => ({ h: r.h, aika: r.t.aika || 0,
+        pisteet: (r.t.kierrokset || []).reduce((s, k) => s + ((k && k.pisteet) || 0), 0) }));
+  }
+
   function keskenKuvaus(k) {
     return [
       `${k.h.kierroksia} ${k.h.kierroksia === 1 ? "kierros" : "kierrosta"}`,
@@ -3356,8 +3374,26 @@
     const kesken = keskenHaaste();
     el.haasteKesken.hidden = !kesken;
     if (kesken) el.haasteKeskenTeksti.textContent = keskenKuvaus(kesken);
+    const pelatut = pelatutHaasteet();
+    el.haastePelatut.hidden = !pelatut.length;
+    el.haastePelatutLista.innerHTML = pelatut.map((p) => {
+      const d = new Date(p.aika);
+      const kierr = `${p.h.kierroksia} ${p.h.kierroksia === 1 ? "kierros" : "kierrosta"}`;
+      return `<button type="button" class="haaste-jatka" data-koodi="${escapeHtml(p.h.koodi)}">
+        <span class="haaste-jatka-sisus">
+          <span class="haaste-jatka-otsikko haaste-pelattu-pisteet">${fmt(p.pisteet)} pistettä</span>
+          <span class="haaste-jatka-tiedot">${escapeHtml([kierr, haasteRajaus(p.h)].filter(Boolean).join(", "))}${p.aika ? `, pelattu ${d.getDate()}.${d.getMonth() + 1}.` : ""}</span>
+        </span>
+        <svg class="haaste-jatka-nuoli" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5 8 6l-3.5 3.5"/></svg>
+      </button>`;
+    }).join("");
+    el.haasteUusiOtsikko.hidden = !kesken && !pelatut.length;
     el.haasteScrim.hidden = false;
     el.haasteSheet.hidden = false;
+    /* Ylös näkyviin asettamisen jälkeen: piilossa olevalla ei ole
+     * vierityskohtaa. Muuten ikkuna aukesi siihen kohtaan, johon se
+     * edellisellä kerralla jäi, ja pelatut haasteet jäivät näkymättä. */
+    el.haasteSheet.scrollTop = 0;
     el.body.classList.add("sheet-open");
     el.haasteSheet.focus({ preventScroll: true });
   }
@@ -6112,6 +6148,15 @@
       await startHaaste(kesken.h);
     });
     el.haastePoista.addEventListener("click", poistaKeskenHaaste);
+    el.haastePelatutLista.addEventListener("click", async (e) => {
+      const b = e.target.closest("[data-koodi]");
+      const h = b && lueHaaste(b.dataset.koodi);
+      if (!h) return;
+      suljeHaasteRuutu();
+      closeDrawer();
+      stopPlayback();
+      await startHaaste(h);
+    });
     el.kutsuAvaa.addEventListener("click", () => avaaKutsu(false));
     el.rajaaAvaa.addEventListener("click", avaaRajaus);
     el.htLomake.addEventListener("submit", (e) => {

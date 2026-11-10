@@ -1580,6 +1580,10 @@ button.tchip:hover { background: color-mix(in srgb, var(--tier-hue) 14%, transpa
   .reveal-verdict { margin-bottom: var(--s1); }
   .reveal-apple { min-height: 36px; }
   .reveal .row { margin-top: var(--s3); }
+  /* Napin ja mainoksen väli: viiva, otsikko ja välit veivät 75 px, ja
+     Safarin palkkien kanssa mainoksesta näkyi alle puolet. */
+  #mainos-peli { margin-top: var(--s4); padding-top: var(--s3); }
+  #mainos-peli .mainos-otsikko { margin-bottom: var(--s2); }
 }
 
 /* ---------- Tulokset ----------

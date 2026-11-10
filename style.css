@@ -2627,8 +2627,8 @@ body.sheet-open { overflow: hidden; }
 /* Päivän vertailu tulosnäkymässä. Sama sävy kuin biisipelin vastaavalla:
    tieto muista on lisätietoa eikä oma tulos. */
 .at-vertailu {
-  margin: 14px 0 0; font-size: 13px; line-height: 1.45;
-  color: var(--muted); text-align: center;
+  margin: -4px 0 12px; font-size: var(--f3); line-height: 1.45;
+  color: var(--muted);
 }
 .at-vertailu[hidden] { display: none; }
 

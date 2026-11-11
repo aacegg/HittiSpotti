@@ -9,60 +9,50 @@
  * Sivut toimivat ilman JavaScriptiä. Se on koko pointti: hakukone ja
  * mainosten tarkastaja lukevat ne sellaisenaan. */
 
-/* Samat kirjasimet ja värit kuin pelissä (style.css): Zilla Slab
-   otsikoihin, Nunito Sans muuhun tekstiin, tumma ja vaalea tila. */
+/* Samat kirjasimet ja värit kuin pelissä (style.css): Bricolage Grotesque
+   otsikoihin, laitteen oma fontti muuhun tekstiin, tumma ja vaalea tila. */
 @font-face {
-  font-family: "Zilla Slab"; font-style: normal; font-weight: 700; font-display: swap;
-  src: url("fonts/zilla-slab-700-latin.woff2") format("woff2");
+  font-family: "Bricolage Grotesque"; font-style: normal; font-weight: 400 800; font-display: swap;
+  src: url("fonts/bricolage-latin.woff2") format("woff2");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
-  font-family: "Zilla Slab"; font-style: normal; font-weight: 700; font-display: swap;
-  src: url("fonts/zilla-slab-700-latin-ext.woff2") format("woff2");
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-@font-face {
-  font-family: "Nunito Sans"; font-style: normal; font-weight: 400 800; font-display: swap;
-  src: url("fonts/nunito-sans-latin.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: "Nunito Sans"; font-style: normal; font-weight: 400 800; font-display: swap;
-  src: url("fonts/nunito-sans-latin-ext.woff2") format("woff2");
+  font-family: "Bricolage Grotesque"; font-style: normal; font-weight: 400 800; font-display: swap;
+  src: url("fonts/bricolage-latin-ext.woff2") format("woff2");
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
 :root {
   color-scheme: dark;
-  --bg: #121016;
-  --bg-lift: #1f1c26;
-  --line: #2e2a36;
-  --line-soft: #1f1c26;
-  --text: #f2f0f7;
-  --muted: #ada7bd;
-  --ink: #15121a;
+  --bg: #0a0908;
+  --bg-lift: #14120f;
+  --line: #2a2521;
+  --line-soft: #1b1815;
+  --text: #f2ebdf;
+  --muted: #8a8073;
+  --ink: #17120a;
   --t1: #5ecf9a;
   --t2: #bcd14a;
   --t3: #f5b32e;
   --t4: #ff8a4c;
   --t5: #ff5f6d;
-  --sans: "Nunito Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  --display: "Zilla Slab", Rockwell, Georgia, serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --display: "Bricolage Grotesque", "Helvetica Neue", system-ui, sans-serif;
   --palsta: 680px;
   --merkki: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 52 46'%3E%3Crect x='0' y='26.4' width='8' height='19.6' rx='4'/%3E%3Crect x='11' y='11.2' width='8' height='34.8' rx='4'/%3E%3Crect x='22' y='0' width='8' height='46' rx='4'/%3E%3Crect x='33' y='17.6' width='8' height='28.4' rx='4'/%3E%3Crect x='44' y='6.4' width='8' height='39.6' rx='4'/%3E%3C/svg%3E");
 }
 @media (prefers-color-scheme: light) {
   :root:not([data-teema="tumma"]) {
     color-scheme: light;
-    --bg: #ffffff; --bg-lift: #f2f0f7; --line: #dcd8e5; --line-soft: #ebe8f1;
-    --text: #16131c; --muted: #5e5870;
+    --bg: #faf7f2; --bg-lift: #f0ebe3; --line: #dcd4c8; --line-soft: #e9e3d9;
+    --text: #1c1814; --muted: #6b6155;
     --t1: #1a9e62; --t2: #7a9a12; --t3: #c98a00; --t4: #e0621a; --t5: #e5485c;
   }
 }
 :root[data-teema="vaalea"] {
   color-scheme: light;
-  --bg: #ffffff; --bg-lift: #f2f0f7; --line: #dcd8e5; --line-soft: #ebe8f1;
-  --text: #16131c; --muted: #5e5870;
+  --bg: #faf7f2; --bg-lift: #f0ebe3; --line: #dcd4c8; --line-soft: #e9e3d9;
+  --text: #1c1814; --muted: #6b6155;
   --t1: #1a9e62; --t2: #7a9a12; --t3: #c98a00; --t4: #e0621a; --t5: #e5485c;
 }
 

@@ -50,21 +50,39 @@
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
+/* Otsikot ja numerot: Bricolage Grotesque (variable 400-800). Lisenssi: fonts/OFL.txt */
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("fonts/bricolage-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("fonts/bricolage-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
 :root {
   /* Tumma tila on oletus. Vaalea tila korvaa nämä alempana. */
   color-scheme: dark;
-  --bg: #121016;
-  --bg-lift: #1f1c26;
-  --line: #2e2a36;
-  --line-soft: #1f1c26;
-  --text: #f2f0f7;
+  --bg: #0a0908;
+  --bg-lift: #14120f;
+  --line: #2a2521;
+  --line-soft: #1b1815;
+  --text: #f2ebdf;
   /* Harmaat yltävät WCAG AA:n 4,5:1 molempia pintoja vasten:
      --muted 8,1/7,2 ja --dim 6,6/5,9. */
-  --muted: #ada7bd;
-  --dim: #9c96ad;
+  --muted: #8a8073;
+  --dim: #857c6f;
   /* Teksti tason värisen pinnan päällä (soitin, päänappi). Tumma molemmissa
      tiloissa: kaikki tasovärit ovat sitä vasten vähintään 4,5:1. */
-  --live-ink: #15121a;
+  --live-ink: #17120a;
 
   /* Vaikeustasojen sävyaste helposta mahdottomaan. */
   --t1: #5ecf9a;
@@ -132,12 +150,15 @@
   --f9: 58px;   /* pätkän pituus */
   --f10: 76px;  /* tuloksen pisteluku */
 
-  --sans: "Nunito Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  --display: "Zilla Slab", Rockwell, Georgia, serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --display: "Bricolage Grotesque", "Helvetica Neue", system-ui, sans-serif;
   /* Numerot aina groteskilla: Zilla Slabin numerot ovat eri korkuisia
      (nolla on matalampi kuin muut), ja ne näyttivät pisteissä ja sekunneissa
      sekavilta. Nunito Sansin numerot ovat tasakorkeita ja -levyisiä. */
-  --num: "Nunito Sans", system-ui, sans-serif;
+  --num: "Bricolage Grotesque", system-ui, sans-serif;
+  /* Yksi lämmin korostus (oma rivi, nykyinen kierros), ei pelimuotojen
+     omia värejä. */
+  --korostus: var(--t3);
 }
 
 /* Vaalea tila. Tasovärit tummennettu, jotta ne erottuvat valkoisesta ja
@@ -146,13 +167,13 @@
 @media (prefers-color-scheme: light) {
   :root:not([data-teema="tumma"]) {
     color-scheme: light;
-    --bg: #ffffff;
-    --bg-lift: #f2f0f7;
-    --line: #dcd8e5;
-    --line-soft: #ebe8f1;
-    --text: #16131c;
-    --muted: #5e5870;
-    --dim: #6b6580;
+    --bg: #faf7f2;
+    --bg-lift: #f0ebe3;
+    --line: #dcd4c8;
+    --line-soft: #e9e3d9;
+    --text: #1c1814;
+    --muted: #6b6155;
+    --dim: #73695c;
     --t1: #1a9e62;
     --t2: #7a9a12;
     --t3: #c98a00;
@@ -162,13 +183,13 @@
 }
 :root[data-teema="vaalea"] {
   color-scheme: light;
-  --bg: #ffffff;
-  --bg-lift: #f2f0f7;
-  --line: #dcd8e5;
-  --line-soft: #ebe8f1;
-  --text: #16131c;
-  --muted: #5e5870;
-  --dim: #6b6580;
+  --bg: #faf7f2;
+  --bg-lift: #f0ebe3;
+  --line: #dcd4c8;
+  --line-soft: #e9e3d9;
+  --text: #1c1814;
+  --muted: #6b6155;
+  --dim: #73695c;
   --t1: #1a9e62;
   --t2: #7a9a12;
   --t3: #c98a00;
@@ -207,11 +228,10 @@ body {
   font-synthesis: none;
 }
 
-/* Soivan biisin taso sävyttää taustan. Vain pelin aikana: app.js poistaa
-   data-tierin muissa näkymissä, jolloin tausta palaa neutraaliksi. */
-body[data-tier] { --sivu: color-mix(in srgb, var(--live) 8%, var(--bg)); }
-/* Paljastuksessa tausta kansikuvan väristä (app.js, kansiVari). */
-body[data-kansi] { --sivu: color-mix(in srgb, var(--kansi) 32%, var(--bg)); }
+/* Sivun pohja pysyy samana koko ajan. Aiemmin se sävyttyi soivan biisin
+   tason ja paljastuksessa kansikuvan mukaan, mutta palautteessa vaihtuvia
+   sävyjä pidettiin levottomina. data-tier ja data-kansi jäävät app.js:ään,
+   joten sävytyksen saa takaisin näistä kahdesta rivistä. */
 body { transition: background-color .4s ease; }
 
 button, input { font: inherit; color: inherit; }
@@ -944,8 +964,8 @@ h2.big, .big {
   display: inline-block;
   padding: 5px 12px;
   border-radius: 6px;
-  background: #c23b8f;
-  color: #fff !important;
+  background: var(--korostus);
+  color: var(--live-ink) !important;
   color: var(--live-ink);
   font-size: 12px;
   font-weight: 800;
@@ -958,7 +978,7 @@ h2.big, .big {
   letter-spacing: -.03em;
   line-height: 1.05;
 }
-.kutsu-otsikko em { font-style: normal; color: #e0559f; }
+.kutsu-otsikko em { font-style: normal; color: var(--korostus); }
 .kutsu-tiedot {
   margin: 0 0 var(--s3);
   color: var(--text);
@@ -1847,7 +1867,7 @@ body.sheet-open { overflow: hidden; }
 .uutta.uutta-kortit li { display: grid; grid-template-columns: 44px 1fr; gap: var(--s3); align-items: start; padding: var(--s3) 0;
   animation: uutta-rivi .4s ease-out both; animation-delay: calc(.25s + var(--i) * .07s); }
 .uutta.uutta-kortit li::before { display: none; }
-.uutta-ik { width: 44px; height: 44px; border-radius: 12px; background: var(--vari); color: #fff; display: grid; place-items: center; }
+.uutta-ik { width: 44px; height: 44px; border-radius: 12px; background: color-mix(in srgb, var(--text) 10%, var(--bg-lift)); color: var(--text); display: grid; place-items: center; }
 .uutta-ik .ik { width: 44px; height: 44px; }
 .uutta-ik .ik::before { inset: 11px; }
 .uutta-kortit b { display: block; margin-bottom: 2px; font-size: var(--f4); }
@@ -2827,10 +2847,10 @@ main.wrap {
    oranssi, punainen) ulkopuolelta: sininen, violetti, magenta ja
    turkoosi, jottei pelimuoto lue vaikeustasona. Valkoinen kuvake on
    kaikkia vasten vähintään 4,5:1. */
-[data-go="daily"] { --muoto: #2f5fd0; }
-[data-go="free"] { --muoto: #7a4fd6; }
-[data-go="haaste"] { --muoto: #c23b8f; }
-[data-go="artisti"] { --muoto: #0b7b83; }
+/* Pelimuodoilla ei omia värejä (palaute: liikaa värejä). Laatta on hillitty
+   ja kuvake tekstin värinen. */
+[data-go] { --muoto: color-mix(in srgb, var(--text) 10%, var(--bg-lift)); }
+.navitem-kortti .ik, .kortti-kuva { color: var(--text) !important; }
 .kortti-kuva .ik { transform: scale(1.4); }
 .kortti-teksti { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s1); padding: var(--s4) var(--s5); }
 .kortti-nimi { font-family: var(--display); font-size: var(--f6); font-weight: 700; line-height: 1.15; }
@@ -3045,7 +3065,7 @@ body[data-mode="free"] .rajausrivi:hover { border-color: var(--text); }
 .ht-nimi-solu b { font-weight: 800; }
 .ht-nimi-solu small { margin-left: var(--s2); color: var(--muted); font-size: var(--f2); font-weight: 700; }
 .ht-pisteet { font-family: var(--num); font-size: var(--f5); font-weight: 800; }
-.ht-lista li.on-oma .ht-nimi-solu b, .ht-lista li.on-oma .ht-pisteet { color: #e0559f; }
+.ht-lista li.on-oma .ht-nimi-solu b, .ht-lista li.on-oma .ht-pisteet { color: var(--korostus); }
 .ht-ohje { margin: var(--s2) 0 0; color: var(--muted); font-size: var(--f3); }
 .ht-ohje:empty { display: none; }
 
@@ -3058,14 +3078,14 @@ body[data-mode="free"] .rajausrivi:hover { border-color: var(--text); }
 }
 .haaste-yht > li:first-child { border-top: 0; }
 .hy-nimi { font-weight: 800; }
-.haaste-yht > li.nyt .hy-nimi { color: #e0559f; }
+.haaste-yht > li.nyt .hy-nimi { color: var(--korostus); }
 .hy-ruudut { display: flex; gap: 5px; }
 .hy-ruudut i { width: 18px; height: 18px; border-radius: 4px; background: var(--bg-lift); }
 .hy-ruudut i.on { background: var(--ok); }
 .hy-pisteet { text-align: right; font-family: var(--num); font-size: var(--f5); font-weight: 800; font-variant-numeric: tabular-nums; }
 .haaste-yht > li.tulossa .hy-nimi, .haaste-yht > li.tulossa .hy-pisteet { color: var(--muted); font-size: var(--f3); font-weight: 700; }
 .haaste-yht > li.hy-summa { border-top: 2px solid var(--line); }
-.haaste-yht > li.hy-summa .hy-pisteet { color: #e0559f; }
+.haaste-yht > li.hy-summa .hy-pisteet { color: var(--korostus); }
 .haaste-yht > li.tulossa .hy-ruudut i { background: none; box-shadow: inset 0 0 0 1.5px var(--bg-lift); }
 
 /* Aiemman kierroksen rivi avautuu biiseiksi. Rivi on summary, joten sen
@@ -3090,77 +3110,3 @@ body[data-mode="free"] .rajausrivi:hover { border-color: var(--text); }
 .haaste-pelattu-pisteet { font-family: var(--num); font-weight: 800; }
 #haaste-pelatut { margin-top: var(--s6); padding-top: var(--s4); border-top: 1px solid var(--line); }
 #haaste-pelatut[hidden] { display: none; }
-
-
-/* ---------- Klassinen ulkoasu ----------
-   Valinta valikossa (app.js, asetaIlme). Palauttaa ennen versiota 2.0
-   olleen ilmeen: lämmin melkein musta pohja, kermanvalkoinen teksti,
-   Bricolage Grotesque otsikoissa ja laitteen oma fontti leipätekstissä.
-   Rakenne ja toiminnot ovat samat kuin uudessa, vain värit ja fontit
-   vaihtuvat. Palautteessa uutta moitittiin liiasta väristä ja vaihtuvista
-   sävyistä, joten tässä sivun pohja ei sävyty tason eikä kansikuvan mukaan
-   ja pelimuotojen omat värit jäävät pois. Vain tumma: vanhassa ilmeessä
-   ei ollut vaaleaa tilaa. Lopussa, jotta voittaa vaalean tilan säännöt. */
-@font-face {
-  font-family: "Bricolage Grotesque";
-  font-style: normal;
-  font-weight: 400 800;
-  font-display: swap;
-  src: url("fonts/bricolage-latin.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: "Bricolage Grotesque";
-  font-style: normal;
-  font-weight: 400 800;
-  font-display: swap;
-  src: url("fonts/bricolage-latin-ext.woff2") format("woff2");
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-:root[data-ilme="klassinen"] {
-  color-scheme: dark;
-  --bg: #0a0908;
-  --bg-lift: #14120f;
-  --line: #2a2521;
-  --line-soft: #1b1815;
-  --text: #f2ebdf;
-  --muted: #8a8073;
-  --dim: #857c6f;
-  --t1: #5ecf9a;
-  --t2: #bcd14a;
-  --t3: #f5b32e;
-  --t4: #ff8a4c;
-  --t5: #ff5f6d;
-  --display: "Bricolage Grotesque", "Helvetica Neue", system-ui, sans-serif;
-  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --num: "Bricolage Grotesque", system-ui, sans-serif;
-  --klassinen-korostus: #f5b32e;
-}
-/* Sivun pohja pysyy samana koko ajan. */
-:root[data-ilme="klassinen"] body,
-:root[data-ilme="klassinen"] body[data-tier],
-:root[data-ilme="klassinen"] body[data-kansi] { --sivu: var(--bg); }
-/* Pelimuodoilla ei omia värejä: kuvakelaatat hillityn ruskeina, kuvake
-   kermanvalkoisena. */
-:root[data-ilme="klassinen"] [data-go] { --muoto: color-mix(in srgb, var(--text) 10%, var(--bg-lift)); }
-:root[data-ilme="klassinen"] .navitem-kortti .ik,
-:root[data-ilme="klassinen"] .kortti-kuva,
-:root[data-ilme="klassinen"] .uutta-ik { color: var(--text); }
-:root[data-ilme="klassinen"] .uutta-ik { background: color-mix(in srgb, var(--text) 10%, var(--bg-lift)); }
-/* Kaverihaasteen magenta korostukset yhdeksi lämpimäksi korostukseksi. */
-:root[data-ilme="klassinen"] .kutsu-merkki { background: var(--klassinen-korostus); color: #17120a !important; }
-:root[data-ilme="klassinen"] .kutsu-otsikko em,
-:root[data-ilme="klassinen"] .ht-lista li.on-oma .ht-nimi-solu b,
-:root[data-ilme="klassinen"] .ht-lista li.on-oma .ht-pisteet,
-:root[data-ilme="klassinen"] .haaste-yht > li.nyt .hy-nimi,
-:root[data-ilme="klassinen"] .haaste-yht > li.hy-summa .hy-pisteet { color: var(--klassinen-korostus); }
-/* Klassisessa ei ole vaaleaa tilaa, joten kytkin piiloon. */
-:root[data-ilme="klassinen"] #teema-btn { display: none; }
-
-/* Ilmeen kytkin: nuppi vasemmalla pois, oikealla päällä. */
-.kytkin-ilme::after { background: var(--muted); box-shadow: none; }
-.navitem-kytkin[aria-checked="true"] .kytkin-ilme::after {
-  transform: translateX(22px);
-  background: var(--t3);
-  box-shadow: none;
-}

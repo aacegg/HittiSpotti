@@ -525,7 +525,6 @@
     resultsVertailu: $("#results-vertailu"),
     installBtn: $("#install-btn"),
     teemaBtn: $("#teema-btn"),
-    ilmeBtn: $("#ilme-btn"),
     teemaNimi: $("#teema-nimi"),
     installSheet: $("#install-sheet"),
     installScrim: $("#install-scrim"),
@@ -821,30 +820,6 @@
     }
     paivitaTeemaKytkin();
   }
-  /* Klassinen ulkoasu (ks. style.css). Valinta muistetaan, ja index.html:n
-   * alun skripti asettaa sen ennen ensimmäistä piirtoa, jottei sivu välähdä
-   * uudessa ilmeessä. */
-  const onKlassinen = () => document.documentElement.dataset.ilme === "klassinen";
-  function paivitaIlmeKytkin() {
-    if (el.ilmeBtn) el.ilmeBtn.setAttribute("aria-checked", String(onKlassinen()));
-    /* Selaimen yläpalkin väri samaksi kuin sivun pohja. */
-    document.querySelectorAll('meta[name="theme-color"]').forEach((m) => {
-      if (!m.dataset.alku) m.dataset.alku = m.content;
-      m.content = onKlassinen() ? "#0a0908" : m.dataset.alku;
-    });
-  }
-  function vaihdaIlme() {
-    if (onKlassinen()) {
-      delete document.documentElement.dataset.ilme;
-      store.remove("ilme");
-    } else {
-      document.documentElement.dataset.ilme = "klassinen";
-      store.set("ilme", "klassinen");
-    }
-    paivitaIlmeKytkin();
-    track(onKlassinen() ? "ilme-klassinen" : "ilme-uusi");
-  }
-
   function vaihdaTeema() {
     asetaTeema(onTumma() ? "vaalea" : "tumma");
   }
@@ -4761,10 +4736,10 @@
    * Piirretään 1080 x 1080: neliö toistuu viestisovelluksissa ennustettavasti
    * eikä rajaudu esikatselussa. */
   const KUVA = 1080;
-  /* Jakokuvan kirjasin: sama Nunito Sans kuin sivun teksteissä ja
+  /* Jakokuvan kirjasin: sama Bricolage Grotesque kuin sivun otsikoissa ja
    * numeroissa. Värit ovat tumman tilan värit kummassakin tilassa, jotta
    * jaettu kuva näyttää samalta kaikille. */
-  const NAYTA = '"Nunito Sans", system-ui, sans-serif';
+  const NAYTA = '"Bricolage Grotesque", system-ui, sans-serif';
 
   const TIER_VARIT = ["", "#5ecf9a", "#bcd14a", "#f5b32e", "#ff8a4c", "#ff5f6d"];
 
@@ -4807,7 +4782,7 @@
   }
 
   function pohja(g, leveys, korkeus) {
-    g.fillStyle = "#121016";
+    g.fillStyle = "#0a0908";
     g.fillRect(0, 0, leveys, korkeus);
     g.textBaseline = "alphabetic";
   }
@@ -4840,7 +4815,7 @@
     let y = reuna + 44;
     merkki(g, reuna, y, 34);
     g.font = `800 52px ${NAYTA}`;
-    g.fillStyle = "#f2f0f7";
+    g.fillStyle = "#f2ebdf";
     const x0 = reuna + 56;
     g.fillText("Hitti", x0, y);
     // Leveys on mitattava lihavalla fontilla, ei vaihdon jälkeen: kevyemmällä
@@ -4851,24 +4826,24 @@
 
     y += 62;
     g.font = `400 34px ${NAYTA}`;
-    g.fillStyle = "#ada7bd";
+    g.fillStyle = "#8a8073";
     g.fillText(muoto, reuna, y);
 
     y += 176;
     g.font = `800 152px ${NAYTA}`;
-    g.fillStyle = "#f2f0f7";
+    g.fillStyle = "#f2ebdf";
     const pisteet = fmt(state.score);
     g.fillText(pisteet, reuna, y);
     const pl = g.measureText(pisteet).width;
     g.font = `700 44px ${NAYTA}`;
-    g.fillStyle = "#ada7bd";
+    g.fillStyle = "#8a8073";
     g.fillText("pistettä", reuna + pl + 20, y);
     return y;
   }
 
   function alaosa(g, reuna, leveys, korkeus, teksti) {
     g.font = `700 38px ${NAYTA}`;
-    g.fillStyle = "#ada7bd";
+    g.fillStyle = "#8a8073";
     g.fillText(teksti, reuna, korkeus - reuna - 66);
     g.font = `700 40px ${NAYTA}`;
     g.fillStyle = "#5ecf9a";
@@ -4930,10 +4905,10 @@
        * lue niitä chatista. */
       h.kierrokset.forEach((k, i) => {
         (k.ratkaistut || []).forEach((osui, j) => {
-          ruutu(g, reuna + j * (koko + vali), y, koko, osui ? "#5ecf9a" : "#2e2a36");
+          ruutu(g, reuna + j * (koko + vali), y, koko, osui ? "#5ecf9a" : "#2a2521");
         });
         g.font = `700 40px ${NAYTA}`;
-        g.fillStyle = "#ada7bd";
+        g.fillStyle = "#8a8073";
         g.fillText(`${i + 1}. kierros  ${fmt(k.pisteet || 0)} p`,
           reuna + 5 * (koko + vali) + 20, y + koko - 16);
         y += koko + vali;
@@ -4944,7 +4919,7 @@
         STEPS.forEach((_, i) => {
           const osuma = i === r.step && r.solved;
           const kaytetty = i < r.step || (i === r.step && !r.solved);
-          ruutu(g, reuna + i * (koko + vali), y, koko, osuma ? "#5ecf9a" : kaytetty ? "#2e2a36" : null);
+          ruutu(g, reuna + i * (koko + vali), y, koko, osuma ? "#5ecf9a" : kaytetty ? "#2a2521" : null);
         });
         y += koko + vali;
       });
@@ -4971,27 +4946,27 @@
       const s = r.song || state.byId.get(String(r.id)) || {};
       // Kansi, tai tyhjä laatikko jos sitä ei saatu ladattua.
       if (kannet[i]) g.drawImage(kannet[i], reuna, y, kansi, kansi);
-      else { g.fillStyle = "#1f1c26"; g.fillRect(reuna, y, kansi, kansi); }
+      else { g.fillStyle = "#14120f"; g.fillRect(reuna, y, kansi, kansi); }
 
       const pisteet = r.solved ? "+" + fmt(r.points) : "0";
       g.font = `700 40px ${NAYTA}`;
       const pLev = g.measureText(pisteet).width;
       g.textAlign = "right";
-      g.fillStyle = r.solved ? "#f2f0f7" : "#6b6580";
+      g.fillStyle = r.solved ? "#f2ebdf" : "#857c6f";
       g.fillText(pisteet, KUVA - reuna, y + 48);
       g.textAlign = "left";
 
       const tilaa = KUVA - reuna - tekstiX - pLev - 30;
       g.font = `700 42px ${NAYTA}`;
-      g.fillStyle = "#f2f0f7";
+      g.fillStyle = "#f2ebdf";
       g.fillText(katkaise(g, s.title || "?", tilaa), tekstiX, y + 46);
 
       g.font = `400 34px ${NAYTA}`;
-      g.fillStyle = "#ada7bd";
+      g.fillStyle = "#8a8073";
       g.fillText(katkaise(g, `${s.artist || "?"}, ${s.year || ""}`.trim(), tilaa), tekstiX, y + 92);
 
       // Vaikeustason pallo ja nimi, sama merkintätapa kuin tulosnäkymässä.
-      const vari = TIER_VARIT[s.tier] || "#ada7bd";
+      const vari = TIER_VARIT[s.tier] || "#8a8073";
       g.fillStyle = vari;
       g.beginPath(); g.arc(tekstiX + 8, y + 122, 8, 0, Math.PI * 2); g.fill();
       g.font = `400 30px ${NAYTA}`;
@@ -5021,7 +4996,7 @@
     g.arcTo(x, y, x + koko, y, r);
     g.closePath();
     if (tayte) { g.fillStyle = tayte; g.fill(); }
-    else { g.strokeStyle = "#2e2a36"; g.lineWidth = 3; g.stroke(); }
+    else { g.strokeStyle = "#2a2521"; g.lineWidth = 3; g.stroke(); }
   }
 
   /* Kuva tehdään valmiiksi heti kun tulosnäkymä avataan, ei vasta napista.
@@ -6186,8 +6161,6 @@
     el.shareCopyLink.addEventListener("click", kopioiLinkki);
     el.installBtn.addEventListener("click", asennaTaiOhjeista);
     el.teemaBtn.addEventListener("click", vaihdaTeema);
-    el.ilmeBtn.addEventListener("click", vaihdaIlme);
-    paivitaIlmeKytkin();
     el.installClose.addEventListener("click", suljeAsennusohje);
     el.installScrim.addEventListener("click", suljeAsennusohje);
     el.uuttaClose.addEventListener("click", suljeUutta);

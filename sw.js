@@ -7,7 +7,7 @@
  * Välimuistin nimessä on versio. Kun se vaihtuu, vanha poistetaan kokonaan,
  * joten jumiin jäänyttä välimuistia ei pääse syntymään.
  */
-const VERSIO = "hittispotti-v275";
+const VERSIO = "hittispotti-v276";
 
 /* Sovelluksen juuri. Vain tähän osoitettu navigointi kelpaa offline-varasivuksi. */
 const JUURI = new URL("./", self.location).pathname;
@@ -30,6 +30,7 @@ const POHJA = [
   "./manifest.webmanifest?v=200",
   "./fonts/nunito-sans-latin.woff2",
   "./fonts/zilla-slab-700-latin.woff2",
+  "./fonts/bricolage-latin.woff2",
 ];
 
 self.addEventListener("install", (e) => {

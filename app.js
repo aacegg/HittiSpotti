@@ -525,6 +525,7 @@
     resultsVertailu: $("#results-vertailu"),
     installBtn: $("#install-btn"),
     teemaBtn: $("#teema-btn"),
+    ilmeBtn: $("#ilme-btn"),
     teemaNimi: $("#teema-nimi"),
     installSheet: $("#install-sheet"),
     installScrim: $("#install-scrim"),
@@ -820,6 +821,30 @@
     }
     paivitaTeemaKytkin();
   }
+  /* Klassinen ulkoasu (ks. style.css). Valinta muistetaan, ja index.html:n
+   * alun skripti asettaa sen ennen ensimmäistä piirtoa, jottei sivu välähdä
+   * uudessa ilmeessä. */
+  const onKlassinen = () => document.documentElement.dataset.ilme === "klassinen";
+  function paivitaIlmeKytkin() {
+    if (el.ilmeBtn) el.ilmeBtn.setAttribute("aria-checked", String(onKlassinen()));
+    /* Selaimen yläpalkin väri samaksi kuin sivun pohja. */
+    document.querySelectorAll('meta[name="theme-color"]').forEach((m) => {
+      if (!m.dataset.alku) m.dataset.alku = m.content;
+      m.content = onKlassinen() ? "#0a0908" : m.dataset.alku;
+    });
+  }
+  function vaihdaIlme() {
+    if (onKlassinen()) {
+      delete document.documentElement.dataset.ilme;
+      store.remove("ilme");
+    } else {
+      document.documentElement.dataset.ilme = "klassinen";
+      store.set("ilme", "klassinen");
+    }
+    paivitaIlmeKytkin();
+    track(onKlassinen() ? "ilme-klassinen" : "ilme-uusi");
+  }
+
   function vaihdaTeema() {
     asetaTeema(onTumma() ? "vaalea" : "tumma");
   }
@@ -6161,6 +6186,8 @@
     el.shareCopyLink.addEventListener("click", kopioiLinkki);
     el.installBtn.addEventListener("click", asennaTaiOhjeista);
     el.teemaBtn.addEventListener("click", vaihdaTeema);
+    el.ilmeBtn.addEventListener("click", vaihdaIlme);
+    paivitaIlmeKytkin();
     el.installClose.addEventListener("click", suljeAsennusohje);
     el.installScrim.addEventListener("click", suljeAsennusohje);
     el.uuttaClose.addEventListener("click", suljeUutta);

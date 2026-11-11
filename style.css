@@ -3090,3 +3090,77 @@ body[data-mode="free"] .rajausrivi:hover { border-color: var(--text); }
 .haaste-pelattu-pisteet { font-family: var(--num); font-weight: 800; }
 #haaste-pelatut { margin-top: var(--s6); padding-top: var(--s4); border-top: 1px solid var(--line); }
 #haaste-pelatut[hidden] { display: none; }
+
+
+/* ---------- Klassinen ulkoasu ----------
+   Valinta valikossa (app.js, asetaIlme). Palauttaa ennen versiota 2.0
+   olleen ilmeen: lämmin melkein musta pohja, kermanvalkoinen teksti,
+   Bricolage Grotesque otsikoissa ja laitteen oma fontti leipätekstissä.
+   Rakenne ja toiminnot ovat samat kuin uudessa, vain värit ja fontit
+   vaihtuvat. Palautteessa uutta moitittiin liiasta väristä ja vaihtuvista
+   sävyistä, joten tässä sivun pohja ei sävyty tason eikä kansikuvan mukaan
+   ja pelimuotojen omat värit jäävät pois. Vain tumma: vanhassa ilmeessä
+   ei ollut vaaleaa tilaa. Lopussa, jotta voittaa vaalean tilan säännöt. */
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("fonts/bricolage-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("fonts/bricolage-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+:root[data-ilme="klassinen"] {
+  color-scheme: dark;
+  --bg: #0a0908;
+  --bg-lift: #14120f;
+  --line: #2a2521;
+  --line-soft: #1b1815;
+  --text: #f2ebdf;
+  --muted: #8a8073;
+  --dim: #857c6f;
+  --t1: #5ecf9a;
+  --t2: #bcd14a;
+  --t3: #f5b32e;
+  --t4: #ff8a4c;
+  --t5: #ff5f6d;
+  --display: "Bricolage Grotesque", "Helvetica Neue", system-ui, sans-serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --num: "Bricolage Grotesque", system-ui, sans-serif;
+  --klassinen-korostus: #f5b32e;
+}
+/* Sivun pohja pysyy samana koko ajan. */
+:root[data-ilme="klassinen"] body,
+:root[data-ilme="klassinen"] body[data-tier],
+:root[data-ilme="klassinen"] body[data-kansi] { --sivu: var(--bg); }
+/* Pelimuodoilla ei omia värejä: kuvakelaatat hillityn ruskeina, kuvake
+   kermanvalkoisena. */
+:root[data-ilme="klassinen"] [data-go] { --muoto: color-mix(in srgb, var(--text) 10%, var(--bg-lift)); }
+:root[data-ilme="klassinen"] .navitem-kortti .ik,
+:root[data-ilme="klassinen"] .kortti-kuva,
+:root[data-ilme="klassinen"] .uutta-ik { color: var(--text); }
+:root[data-ilme="klassinen"] .uutta-ik { background: color-mix(in srgb, var(--text) 10%, var(--bg-lift)); }
+/* Kaverihaasteen magenta korostukset yhdeksi lämpimäksi korostukseksi. */
+:root[data-ilme="klassinen"] .kutsu-merkki { background: var(--klassinen-korostus); color: #17120a !important; }
+:root[data-ilme="klassinen"] .kutsu-otsikko em,
+:root[data-ilme="klassinen"] .ht-lista li.on-oma .ht-nimi-solu b,
+:root[data-ilme="klassinen"] .ht-lista li.on-oma .ht-pisteet,
+:root[data-ilme="klassinen"] .haaste-yht > li.nyt .hy-nimi,
+:root[data-ilme="klassinen"] .haaste-yht > li.hy-summa .hy-pisteet { color: var(--klassinen-korostus); }
+/* Klassisessa ei ole vaaleaa tilaa, joten kytkin piiloon. */
+:root[data-ilme="klassinen"] #teema-btn { display: none; }
+
+/* Ilmeen kytkin: nuppi vasemmalla pois, oikealla päällä. */
+.kytkin-ilme::after { background: var(--muted); box-shadow: none; }
+.navitem-kytkin[aria-checked="true"] .kytkin-ilme::after {
+  transform: translateX(22px);
+  background: var(--t3);
+  box-shadow: none;
+}
